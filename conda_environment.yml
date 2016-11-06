@@ -1,0 +1,36 @@
+# Most of this environment file comes from the Hyperspy installation docs
+# I've added in the conda-forge channel, pip, django and postgresql / psycopg2
+# Create and use this environment with the following commands:
+#    conda env create -f conda_environment.yml
+#    source activate eelsdb
+name: eelsdb
+channels:
+  - conda-forge
+dependencies:
+  - python=3.5
+  - pip
+  - dill
+  - h5py
+  - ipython
+  - jupyter
+  - matplotlib
+  - nose
+  - numpy
+  - qt
+  - scikit-image
+  - scikit-learn
+  - scipy
+  - setuptools
+  - statsmodels
+  - sympy
+  - natsort
+  - ncurses
+  - postgresql
+  - psycopg2
+  - django
+  - pip:
+    - dask
+    - hyperspy
+    - traits
+    - traitsui
+    - ipywidgets
