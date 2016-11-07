@@ -94,6 +94,12 @@ eelsdb=> \dt
 #### Importing existing database
 Coming soon..
 
+#### Admin user accounts
+You may need to create a new user account to access the Django admin pages
+(especially if creating a new database from scratch). To do this, run the
+following Django command line wizard:
+
+
 ### Running the webserver
 You can now run the website by launching the Django development webserver:
 
@@ -102,4 +108,14 @@ cd eeldsb
 python manage.py runserver
 ```
 
+## Development Flow
+
+### Changing Models
+Changing models affects the database, and required migrations to be created
+and run when you're done. After you've edited `models.py`, there are two commands
+that you need to run:
+```bash
+python manage.py makemigrations # creates a file in migrations/ for those changes
+python manage.py migrate # applies these changes to the database
+```
 
