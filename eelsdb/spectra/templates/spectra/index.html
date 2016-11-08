@@ -1,0 +1,9 @@
+{% if latest_spectra_list %}
+    <ul>
+    {% for spectrum in latest_spectra_list %}
+        <li><a href="{% url 'spectra:detail' spectrum.id %}">{{ spectrum.TITLE }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No spectra are available.</p>
+{% endif %}

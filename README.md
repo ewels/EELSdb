@@ -1,10 +1,18 @@
 # EELSdb
 Source code for v3 of the EELS database.
 
-## Local Installation
+## Local Installation
+
+To get the website running locally for development work, first clone the
+GitHub repository to your computer. Most of the following commands then
+assume that you're within this directory.
+```bash
+git clone git@github.com:ewels/EELSdb.git
+cd EELSdb
+```
 
 ### Software environment
-To get the website running locally for development work, you can use conda to create
+To get the required software, you can use conda to create
 a new environment with all of the required Python dependencies:
 
 ```bash
@@ -17,7 +25,7 @@ This will install [Django](https://www.djangoproject.com/),
 and [Hyperspy](http://hyperspy.org/) with all dependencies.
 
 ### Database setup
-First, initialise a postgres database (directories ignored in `.gitignore`)
+Now we need to initialise a postgres database (directories ignored in `.gitignore`)
 
 ```bash
 cd /path/to/repo/eelsdb
@@ -26,16 +34,12 @@ initdb -D postgres/data/
 ```
 
 Now, we can tell conda to start up the database every time we use this conda
-environment. Find the conda environment directory. For example:
-```
-$ which python
-/Users/yourname/.miniconda/envs/eelsdb/bin/python
-```
-
-Then create conda environment variable scripts which run when the environment
-is activated and deactivated
+environment. We do this by creating conda environment variable scripts which
+run when the environment is activated and deactivated:
 
 ```bash
+source deactivate
+# Should get a message like: discarding /Users/yourname/.miniconda/envs/eelsdb/bin from PATH
 cd /Users/yourname/.miniconda/envs/eelsdb/
 mkdir -p ./etc/conda/activate.d
 mkdir -p ./etc/conda/deactivate.d
@@ -44,7 +48,7 @@ touch ./etc/conda/deactivate.d/env_vars.sh
 ```
 
 Now add the following content to `./etc/conda/activate.d/env_vars.sh`
-(update the variable values according to your system / preference)
+_(change the values!)_
 ```bash
 #!/bin/sh
 export EELSDB_DB_NAME='eelsdb'
@@ -67,10 +71,18 @@ unset EELSDB_POSTGRES
 Now deactivate and reactivate the environment. You should see a `stdout`
 message saying that the Postgres server has started (`server starting`).
 
+> **NOTE:** Don't try to run multiple bash sessions in this environment, as
+> your machine won't want to run more than one postgres server at a time.
+
+> **SECOND NOTE:** Remember to close the environment using `source deactivate`
+> when you're done! If you don't do this, the server will keep running in the
+> background.
+
+
 #### Fresh database setup
 First, create a new database user:
 ```bash
-echo $EELSDB_DB_PASSWORD | pbcopy
+echo $EELSDB_DB_PASSWORD # so you can copy it for the prompt in a second!
 createuser -s $EELSDB_DB_USER --pwprompt --createdb --no-superuser --no-createrole
 # paste password in prompt
 ```
@@ -99,6 +111,9 @@ You may need to create a new user account to access the Django admin pages
 (especially if creating a new database from scratch). To do this, run the
 following Django command line wizard:
 
+```bash
+python manage.py createsuperuser
+```
 
 ### Running the webserver
 You can now run the website by launching the Django development webserver:
@@ -115,7 +130,7 @@ Changing models affects the database, and required migrations to be created
 and run when you're done. After you've edited `models.py`, there are two commands
 that you need to run:
 ```bash
-python manage.py makemigrations # creates a file in migrations/ for those changes
-python manage.py migrate # applies these changes to the database
+python manage.py makemigrations   # creates a file in migrations/ for those changes
+python manage.py migrate          # applies these changes to the database
 ```
 

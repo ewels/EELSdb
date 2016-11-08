@@ -1,0 +1,13 @@
+<h1>Submit Spectrum</h1>
+
+{% if error_message %}<div class="alert alert-danger">{{ error_message }}</div>{% endif %}
+
+{{ form.errors }}
+{{ form.non_field_errors }}
+
+<form action="{% url 'spectra:upload' %}" method="post" enctype="multipart/form-data">
+{% csrf_token %}
+<label for="spectrum_file">Upload a <code>.msa</code> file:</label>
+<input type="file" name="spectrum_file" id="spectrum_file" />
+<input type="submit" value="Upload" />
+</form>
