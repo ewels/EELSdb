@@ -10,9 +10,10 @@ def ParseSpectraFile(fn):
     
     filename = fn.name
     
-    s = Spectrum(TITLE=filename, submit_date=timezone.now(), pub_date=timezone.now())
-    
-    # TODO: Save this spectrum..
-    
+    s = Spectrum(
+        TITLE=filename,
+        submit_date=timezone.now()
+    )
+    s.save()
     return s
     

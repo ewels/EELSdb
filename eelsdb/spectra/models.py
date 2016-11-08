@@ -5,28 +5,41 @@ from datetime import date
 class Spectrum(models.Model):
     """
     Main Spectrum model class
-    One created for every spectrum in the database.
+    One created for every spectrum in the database. We allow everything to be
+    blank and empty at model level so that we can save a draft of whatever
+    we like. The form then adds field requirements for publishing.
     """
-    TITLE = models.CharField('Title', max_length=200, unique=True)
     
-    FORMULA = models.CharField('Formula', max_length=200)
+    DRAFT = 'draft'
+    READY = 'ready'
+    PUBLISHED = 'published'
+    STATUS_CHOICES = (
+        (DRAFT, 'Draft'),
+        (READY, 'Awaiting moderation'),
+        (PUBLISHED, 'Published'),
+    )
+    STATUS = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
+    
+    TITLE = models.CharField('Title', max_length=200, blank=True)
+    
+    FORMULA = models.CharField('Formula', max_length=200, blank=True)
     SOURCE = models.CharField('Source', max_length=200, blank=True)
     PURITY = models.CharField('Purity', max_length=200, blank=True)
     COMMENTS = models.TextField('Comments', blank=True)
     
-    MICROSCOPE = models.CharField('Microscope', max_length=200)
-    GUNTYPE = models.CharField('Guntype', max_length=200)
-    BEAMENERGY = models.DecimalField('Incident Beam Energy', max_digits=10, decimal_places=3)
-    RESOLUTION = models.DecimalField('Resolution', max_digits=10, decimal_places=3)
-    MONOCHROMATED = models.BooleanField('Monochromated')
+    MICROSCOPE = models.CharField('Microscope', max_length=200, blank=True)
+    GUNTYPE = models.CharField('Guntype', max_length=200, blank=True)
+    BEAMENERGY = models.DecimalField('Incident Beam Energy', max_digits=10, decimal_places=3, null=True, blank=True)
+    RESOLUTION = models.DecimalField('Resolution', max_digits=10, decimal_places=3, null=True, blank=True)
+    MONOCHROMATED = models.BooleanField('Monochromated', default=False)
     
-    CONVERGENCE = models.DecimalField('Convergence Semi-angle', max_digits=10, decimal_places=3)
-    COLLECTION = models.DecimalField('Collection Semi-angle', max_digits=10, decimal_places=3)
-    PROBESIZE = models.DecimalField('Probe Size', max_digits=10, decimal_places=3)
-    BEAMCURRENT = models.DecimalField('Beam Current', max_digits=10, decimal_places=3)
-    INTEGRATETIME = models.DurationField('Integration Time')
-    READOUTS = models.IntegerField('Number of Readouts')
-    DETECTOR = models.CharField('Detector', max_length=200)
+    CONVERGENCE = models.DecimalField('Convergence Semi-angle', max_digits=10, decimal_places=3, null=True, blank=True)
+    COLLECTION = models.DecimalField('Collection Semi-angle', max_digits=10, decimal_places=3, null=True, blank=True)
+    PROBESIZE = models.DecimalField('Probe Size', max_digits=10, decimal_places=3, null=True, blank=True)
+    BEAMCURRENT = models.DecimalField('Beam Current', max_digits=10, decimal_places=3, null=True, blank=True)
+    INTEGRATETIME = models.DurationField('Integration Time', null=True, blank=True)
+    READOUTS = models.IntegerField('Number of Readouts', null=True, blank=True)
+    DETECTOR = models.CharField('Detector', max_length=200, blank=True)
     
     # TODO:
     # EDGES
@@ -47,24 +60,26 @@ class Spectrum(models.Model):
     ACQUISITION_MODE = models.CharField(
         'Acquisition mode',
         max_length = 20,
-        choices = ACQUISITION_MODE_CHOICES
+        choices = ACQUISITION_MODE_CHOICES,
+        null=True,
+        blank=True
     )
 
-    DARKCURRENT = models.BooleanField('Dark Current Correction')
-    GAINVARIATION = models.BooleanField('Gain Variation Spectrum')
-    CALIBRATION = models.CharField('Calibration', max_length=200)
-    THICKNESS = models.DecimalField('Relative Thickness', max_digits=10, decimal_places=3)
-    DECONV_FOURIER_LOG = models.BooleanField('Fourier-log')
-    DECONV_FOURIER_RATIO = models.BooleanField('Fourier-ratio')
-    DECONV_STEPHENS_DECONVOLUTION = models.BooleanField("Stephen's deconvolution")
-    DECONV_RICHARDSON_LUCY = models.BooleanField('Richardson-Lucy')
-    DECONV_MAXIMUM_ENTROPY = models.BooleanField('Maximum-Entropy')
-    DECONV_OTHER = models.CharField('Other Deconvolution', max_length=200)
+    DARKCURRENT = models.BooleanField('Dark Current Correction', default=False)
+    GAINVARIATION = models.BooleanField('Gain Variation Spectrum', default=False)
+    CALIBRATION = models.CharField('Calibration', max_length=200, blank=True)
+    THICKNESS = models.DecimalField('Relative Thickness', max_digits=10, decimal_places=3, null=True, blank=True)
+    DECONV_FOURIER_LOG = models.BooleanField('Fourier-log', default=False)
+    DECONV_FOURIER_RATIO = models.BooleanField('Fourier-ratio', default=False)
+    DECONV_STEPHENS_DECONVOLUTION = models.BooleanField("Stephen's deconvolution", default=False)
+    DECONV_RICHARDSON_LUCY = models.BooleanField('Richardson-Lucy', default=False)
+    DECONV_MAXIMUM_ENTROPY = models.BooleanField('Maximum-Entropy', default=False)
+    DECONV_OTHER = models.CharField('Other Deconvolution', max_length=200, blank=True)
     
-    LICENCE_AGREE = models.BooleanField('Licence Agreement')
+    LICENCE_AGREE = models.BooleanField('Licence Agreement', default=False)
     
-    submit_date = models.DateTimeField('date submitted')
-    pub_date = models.DateTimeField('date published')
+    submit_date = models.DateTimeField('date submitted', blank=True)
+    pub_date = models.DateTimeField('date published', blank=True)
     
     def __str__(self):
         return self.TITLE
