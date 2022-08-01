@@ -1,0 +1,102 @@
+/*//////////////////////////////////////////
+// EELS DB Spectra Plugin
+// eelsdb_admin.css
+// CSS for the administration back end
+//////////////////////////////////////////*/
+
+.required_label:after {
+	content: " *";
+	color:red;
+}
+#periodic_table_div, #level_selection {
+	background-color:#F1F1F1;
+	padding:20px;
+	margin-top:20px;
+	border-collapse: collapse;
+	overflow:auto;
+}
+#periodic_table {
+	margin:0 auto;
+	text-align:center;
+}
+#periodic_table tr td {
+	padding:0;
+	margin:0;
+}
+#periodic_table a {
+	text-decoration:none;
+	font-size:12px;
+	padding: 3px;
+	display:block;
+	border:1px solid #F1F1F1;
+}
+#periodic_table tr td a:hover {
+	background-color:#FFFFFF;
+	border:1px solid #CCCCCC;
+}
+#periodic_table a.disabled, #periodic_table a.disabled:hover {
+	background-color:#F1F1F1;
+	border:1px solid #F1F1F1;
+	color:#999999;
+	cursor:not-allowed;
+}
+#selected_element {
+	width:150px;
+	text-align:center;
+	float:left;
+	display:block;
+}
+.level_intro_text {
+	margin-top:0;
+}
+#el_symbol {
+	font-weight:bold;
+	font-size:42px;
+	margin:0;
+}
+#el_name {
+	font-size:18px;
+	margin:0;
+}
+#element_levels {
+	display:block;
+	float:keft;
+	margin:50px 0 0 120px;
+}
+#element_levels li {
+	float:left;
+	padding-bottom:10px;
+	margin-left:20px;
+}
+#eelsdb_edges_added_edges { 
+	border-bottom:1px solid #F1F1F1;
+	padding-bottom:10px;
+	margin-bottom:14px;
+}
+#eelsdb_edges_added_edges .level_edge {
+	margin-left:15px;
+}
+#eelsdb_edges_added_edges .level_edge:first-of-type {
+	margin-left:0;
+}
+
+.eels_spectra_fields .error, .eels_spectra_fields .warning {
+	padding:5px 8px;
+	display:inline-block;
+}
+.eels_spectra_fields .error {
+	background-color:#EBDADC;
+	color:#B81121;
+}
+.eels_spectra_fields .warning {
+	background-color:#F0E2D1;
+	color:#B86E0D;
+}
+.eels_spectra_fields input.error {
+	background-color:#F0EBEB;
+	border-color:#C92A3A;
+}
+#current_spectra_file a.current_filename {
+	padding-top:5px;
+	display:inline-block;
+}

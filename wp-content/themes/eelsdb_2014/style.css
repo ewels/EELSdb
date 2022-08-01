@@ -1,0 +1,439 @@
+/*
+Theme Name: EELS DB 2014
+Theme URI: https://eelsdb.eu
+Author: Phil Ewels
+Author URI: http://www.customisedweb.com
+Description: The 2014 theme for the new EELS DB website.
+Version: 1.0
+*/
+
+/* Typography */
+h1 {
+	padding-bottom:5px;
+	border-bottom:1px solid #DEDEDE;
+}
+
+fieldset {
+	margin-top:10px;
+}
+
+/* Form control */
+@media (min-width: 768px){
+  .two-field-form-group input {
+    display: inline-block;
+    width: 48%;
+  }
+}
+
+/* Page Setup */
+body.eelsdb {
+  padding-bottom: 20px;
+  font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.navbar.navbar-default {
+  /*background-color:#428bca;*/
+  background-color:#99081f;
+  box-shadow: inset 0 -5px 5px rgba(0,0,0,.1);
+  border:none !important;
+  margin-bottom:0;
+}
+.navbar .active a {
+  background-color:transparent !important;
+  border:none !important;
+}
+.navbar.navbar-default .navbar-nav>li>a,
+.navbar.navbar-default .navbar-brand {
+	color:#fff;
+}
+/* Active state gets a caret at the bottom */
+.navbar .current-menu-item {
+  color: #fff;
+}
+@media (min-width: 768px){
+	.navbar .current-menu-item:after {
+	  position: absolute;
+	  bottom: 0;
+	  left: 50%;
+	  display: block;
+	  content: " ";
+	  width: 0;
+	  height: 0;
+	  margin-left: -5px;
+	  vertical-align: middle;
+	  border-right:  5px solid transparent;
+	  border-left:   5px solid transparent;
+	  border-bottom: 5px solid;
+	}
+}
+
+@media (min-width: 992px) and (max-width: 1200px) {
+	.homepage-well .lead {
+		font-size:1.2em;
+	}
+}
+
+/* Mobile Styles */
+.navbar-default .navbar-toggle:hover,
+.navbar-default .navbar-toggle:focus {
+  background-color:#316DA0;
+}
+.navbar-default .navbar-toggle .icon-bar {
+	background-color:#fff;
+}
+.navbar-collapse.collapse.in .nav li a:hover,
+.navbar-collapse.collapse.in .nav li a:focus {
+  background-color:#316DA0;
+}
+
+/* Secondary Navbar */
+.navbar.navbar-secondary-navbar {
+    margin-bottom: 20px;
+    background-color:#EDEDED;
+    color:#999;
+    box-shadow: none;
+    border:none !important;
+}
+.navbar.navbar-secondary-navbar .navbar-nav>li>a {
+	color:#999;
+}
+.navbar.navbar-secondary-navbar .navbar-nav>li>a:hover {
+	color:#333;
+}
+/* Active state gets a caret at the top */
+.navbar.navbar-secondary-navbar .navbar-nav .current-menu-item a {
+  color: #333;
+}
+.navbar.navbar-secondary-navbar .navbar-nav .current-menu-item:after {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: block;
+  content: " ";
+  width: 0;
+  height: 0;
+  margin-left: -5px;
+  vertical-align: middle;
+  border-right:  5px solid #EDEDED;
+  border-left:   5px solid #EDEDED;
+  border-bottom:   5px solid #EDEDED;
+  border-top: 5px solid #428bca;
+}
+
+.mainpage {
+	margin-top:20px;
+}
+
+.footer {
+	color:#999;
+	background-color:#f9f9f9;
+	border-top:1px solid #e5e5e5;
+	margin-top:40px;
+	padding:40px 0;
+	text-align:center;
+}
+.footer a {
+	color:#666;
+}
+.footer .footer-logo {
+	max-height:60px;
+	max-width:100px;
+	margin-right:20px;
+}
+
+
+/* SPECTRUM PAGE */
+#eelsdb_spectrum_plot {
+  margin-bottom:30px;
+}
+
+
+/* HOMEPAGE */
+.logo {
+	width:100%;
+	margin:10px 0 0 10px;
+}
+.homepage-widgets div {
+	 text-align: center;
+	 margin-bottom: 40px;
+}
+@media (min-width: 992px) {
+	.homepage-widgets div {
+		margin-top: 20px;
+		margin-bottom: 0;
+	}
+}
+.homepage-widgets .glyphicon {
+	font-size:100px;
+	color:#666;
+}
+.homepage-widgets .bootstrap-feature-widget-news {
+	padding:0;
+	list-style-type: none;
+  text-align:left;
+}
+.homepage-widgets .bootstrap-feature-widget-news .bsfw_news_date {
+  float:right;
+  clear:right;
+  font-style:italic;
+  color:#999;
+  font-size: 0.7em;
+}
+.homepage-widgets .bootstrap-feature-widget-news .bsfw_news_title:before{
+   content: "\00BB";
+   margin-right:10px;
+}
+.homepage-widgets .bootstrap-feature-widget-news a {
+	color:#333;
+}
+.homepage-widgets .bootstrap-feature-widget-news a:hover {
+	color:#2a6496;
+	text-decoration:none;
+}
+
+
+
+/* Browse Spectra Page */
+.num-spectra-text {
+  float:left;
+}
+.clear_filtering_btns {
+  float:left;
+  margin:16px 0 0 20px;
+}
+.clear_filtering_btns .btn.disabled {
+  opacity:1;
+}
+#clear_filters_btn {
+  background-color:#3A9C3A;
+}
+
+/* Archive News Page */
+.post_date {
+	color:#999;
+	font-size:0.9em;
+}
+.post_category {
+  margin-left:20px;
+	color:#999;
+	font-size:0.9em;
+}
+.post_category a {
+	color:#999;
+}
+.single_post_content {
+  font-size:16px;
+}
+
+/* Events Page */
+.gce-list {
+	list-style-type:none;
+	padding:0;
+}
+.gce-list li {
+	border-bottom:1px solid #ccc;
+	padding-bottom:20px;
+}
+.gce-list-title {
+	display:none;
+}
+td.gce-has-events {
+	background-color:#d9edf7;
+}
+
+/* Jobs */
+.job-manager-form .button {
+	display: inline-block;
+	margin-bottom: 0;
+	font-weight: 400;
+	text-align: center;
+	vertical-align: middle;
+	cursor: pointer;
+	background-image: none;
+	border: 1px solid transparent;
+	white-space: nowrap;
+	padding: 6px 12px;
+	font-size: 14px;
+	line-height: 1.42857143;
+	border-radius: 4px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+.job-manager-form input.button {
+	color: #fff;
+	background-color: #428bca;
+	border-color: #357ebd;
+}
+
+
+/* Avoid nasty line breaks in contact forms */
+/* http://www.wildli.com/blog/dev-tip-getting-contact-form-7-wordpress-plugin-and-twitter-bootstrap-to-play-nice/ */
+.wpcf7-form .form-group p {
+	line-height: 1px;
+	margin: 0;
+}
+
+/* comments */
+.comment .media-body {
+	border-top: 1px solid #ccc;
+	padding-top:2px;
+}
+.comment.is-author .media-body .comment-text {
+	background-color:#E9F3E9;
+	padding:3px 5px;
+}
+.comment-date {
+	font-size:12px;
+	color:#999;
+	margin-top:4px;
+}
+.comment-author-label {
+	margin-left:8px;
+}
+.form-allowed-tags {
+	font-size:0.8em;
+}
+.form-allowed-tags code {
+	background-color:#F6F6F6;
+	color:#666666;
+}
+
+/* Style the comment form */
+.form-submit {
+    display: none;
+}
+.comment-form-author,
+.comment-form-email,
+.comment-form-url {
+    width: 50%;
+}
+.form-allowed-tags code {
+	white-space:normal;
+}
+
+
+/* Overwrite stupid bbpress styles */
+#bbpress-forums,
+#bbpress-forums ul.bbp-lead-topic,
+#bbpress-forums ul.bbp-topics,
+#bbpress-forums ul.bbp-forums,
+#bbpress-forums ul.bbp-replies,
+#bbpress-forums ul.bbp-search-results {
+	font-size: inherit;
+}
+
+#subscription-toggle {
+	font-size:12px;
+	margin-left:20px;
+	float:right;
+}
+#bbpress-forums h1 {
+	font-size:36px;
+}
+
+#bbpress-forums p.bbp-topic-meta img.avatar,
+#bbpress-forums ul.bbp-reply-revision-log img.avatar,
+#bbpress-forums ul.bbp-topic-revision-log img.avatar,
+#bbpress-forums div.bbp-template-notice img.avatar,
+#bbpress-forums .widget_display_topics img.avatar,
+#bbpress-forums .widget_display_replies img.avatar {
+	margin-bottom:0;
+}
+
+#bbpress-forums .nav-pills.nav-stacked li {
+	margin-top: 2px;
+	margin-left: 0;
+}
+
+#bbpress-forums li.nav-divider {
+	height: 1px;
+	margin: 9px 0;
+	overflow: hidden;
+	background-color: #e5e5e5;
+}
+
+#bbpress-forums .nav-tabs li {
+	margin-bottom: -1px;
+}
+#bbpress-forums .nav.nav-tabs {
+	margin-bottom:20px;
+}
+
+.bbpress-user-sidenav {
+	padding-top:10px;
+}
+.bbpress-avatar {
+	margin:20px 0;
+	padding-bottom:20px;
+	border-bottom: 1px solid #e5e5e5;
+}
+@media (max-width: 768px) {
+	.bbpress-user-sidenav {
+		border-top: 1px solid #e5e5e5;
+		margin-top:30px;
+	}
+}
+
+.wp-editor-container {
+	border: 1px solid #ccc;
+	border-radius: 4px;
+}
+.quicktags-toolbar {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+}
+.wp-editor-area {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+}
+
+.bbpress-input-narrow {
+	width:500px;
+	max-width:100%;
+}
+
+/* Log in page */
+.form-signin .form-signin-heading,
+.form-signin .checkbox {
+  margin-bottom: 10px;
+}
+.form-signin .checkbox {
+  font-weight: normal;
+}
+.form-signin .form-control {
+  position: relative;
+  height: auto;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: 10px;
+  font-size: 16px;
+}
+.form-signin .form-control:focus {
+  z-index: 200;
+}
+.form-signin .inputtop {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.form-signin .inputbottom {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.login-bottom-links {
+	text-align:center;
+	margin-top:20px;
+	color:#999;
+}
+.login-bottom-links a {
+	color:#999;
+}
+
+/* User profile page */
+#wpua-edit-attachment-existing, #wpua-undo-button-existing, #wpua-preview-existing, #wpua-thumbnail-existing, #eels_bbpress_user_profile_form .entry-title {
+  display:none;
+}
