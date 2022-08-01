@@ -1,0 +1,39 @@
+cff-version: 1.2.0
+message: "Please consider citing the EELSDB if you use it in your analysis."
+authors:
+  - family-names: Ewels
+    given-names: Philip
+  - family-names: Sikora
+    given-names: Thierry
+  - family-names: Serin
+    given-names: Virginie
+  - family-names: Ewels
+    given-names: Chris P.
+  - family-names: Lajaunie
+    given-names: Luc
+title: "A Complete Overhaul of the Electron Energy-Loss Spectroscopy and X-Ray Absorption Spectroscopy Database: eelsdb.eu."
+doi: 10.1017/S1431927616000179
+date-released: 2016-02-22
+url: "https://eelsdb.eu/"
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Ewels
+      given-names: Philip
+    - family-names: Sikora
+      given-names: Thierry
+    - family-names: Serin
+      given-names: Virginie
+    - family-names: Ewels
+      given-names: Chris P.
+    - family-names: Lajaunie
+      given-names: Luc
+  doi: "10.1017/S1431927616000179"
+  journal: "Microscopy and Microanalysis"
+  start: 717
+  end: 724
+  title: "A Complete Overhaul of the Electron Energy-Loss Spectroscopy and X-Ray Absorption Spectroscopy Database: eelsdb.eu."
+  issue: 3
+  volume: 22
+  year: 2016
+  url: "http://dx.doi.org/10.1017/S1431927616000179"
