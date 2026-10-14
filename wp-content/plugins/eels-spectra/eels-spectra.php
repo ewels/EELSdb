@@ -200,6 +200,7 @@ function find_spectra_min_max($fn){
 		} else {
 			$parts = preg_split('/\s+/', $line);
 			$energy = preg_replace("/[,]/", "", $parts[0]);
+			if(!is_numeric($energy)) continue;
             $lastline_diff = $energy - $lastline;
 			if($energy < $spectrum_min){
 				$spectrum_min = $energy;
@@ -249,7 +250,7 @@ function yn_isset ($var){
   }
 }
 function unser_array ($var){
-  if(@unserialize($var)){
+  if(is_string($var) && @unserialize($var)){
     $var = unserialize($var);
   }
   if(is_array($var)){

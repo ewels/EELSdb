@@ -481,7 +481,7 @@ function eelsdb_spectra_save_spectra ($post_id){
 
 		// Save elements
 		$num_matches = preg_match_all('/([A-Z][a-z]?[a-z]?)/', $data['spectrumFormula'], $formula_split);
-		$el_names = json_decode(file_get_contents(plugin_dir_path( __FILE__ ).'/resources/element_names.json'));
+		$el_names = json_decode(file_get_contents(plugin_dir_path( __FILE__ ).'/resources/element_names.json'), true);
 		$elements = array();
 		foreach($formula_split[0] as $el){
 			if(array_key_exists($el, $el_names) && !in_array($el, $elements)){

@@ -463,7 +463,7 @@ function eelsdb_submit_spectrum_form ($data, $edit=false, $error_msg=false){
 				</div>
 			</div>
 		</fieldset>
-		<?php if(count($s_microscope_presets) > 0) { ?>
+		<?php if(count((array) $s_microscope_presets) > 0) { ?>
 		<!-- Preset values -->
 		<script type="text/javascript">
 		var microscope_presets = {
@@ -904,7 +904,7 @@ function eelsdb_submit_spectrum_save_post ($data, $edit, $old, $post){
 
 	// Save elements
 	$num_matches = preg_match_all('/([A-Z][a-z]?[a-z]?)/', $data['spectrumFormula'], $formula_split);
-	$el_names = json_decode(file_get_contents(plugin_dir_path( __FILE__ ).'../resources/element_names.json'));
+	$el_names = json_decode(file_get_contents(plugin_dir_path( __FILE__ ).'../resources/element_names.json'), true);
 	$elements = array();
 	foreach($formula_split[0] as $el){
 		if(array_key_exists($el, $el_names) && !in_array($el, $elements)){
@@ -922,7 +922,7 @@ function eelsdb_submit_spectrum_save_post ($data, $edit, $old, $post){
     // Save the reciprocal spectra links
     foreach($assoc_ids as $assoc_id){
       $recip_assoc_ids = get_post_meta($assoc_id, 'assoc_spectra', true);
-      $recip_assoc_ids = keep_unserializing($recip_assoc_ids);
+      $recip_assoc_ids = (array) keep_unserializing($recip_assoc_ids ?: []);
       // return array(false, "recip_assoc_ids for ".get_the_title($assoc_id)."= <pre>".print_r($recip_assoc_ids, true)."</pre>.");
       if(!in_array($post_id, $recip_assoc_ids)){
         array_push($recip_assoc_ids, $post_id);
@@ -960,7 +960,7 @@ function eelsdb_submit_spectrum_save_post ($data, $edit, $old, $post){
 							'convergence','collection','probesize','beamcurrent',
 							'integratetime','readouts','detector'];
 		$preset_data = wp_array_slice_assoc($data, $microscope_keys);
-		$presets = get_user_meta(get_current_user_id(), 'microscope_presets', true);
+		$presets = get_user_meta(get_current_user_id(), 'microscope_presets', true) ?: [];
 		$presets[$preset_slug] = ['name' => $save_microscope_preset, 'data' => $preset_data];
 		update_user_meta(get_current_user_id(), 'microscope_presets', $presets );
 	}

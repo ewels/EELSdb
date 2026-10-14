@@ -46,13 +46,13 @@ if(isset($data['spectrumUpload']['url'])){$results['download_link'] =    $data['
 global $spectra_types_text;
 if(st_isset($data['spectrumType'])){      $results['type'] =             $spectra_types_text[$data['spectrumType']]; }
 if(st_isset($data['spectrumFormula'])){   $results['formula'] =          $data['spectrumFormula']; }
-if(count($data['spectrumElement']) == 1){  $results['elements'] =        array($data['spectrumElement']); }
-else if(count($data['spectrumElement']) > 1){  $results['elements'] =    $data['spectrumElement']; }
+if(count((array) $data['spectrumElement']) == 1){  $results['elements'] =        (array) $data['spectrumElement']; }
+else if(count((array) $data['spectrumElement']) > 1){  $results['elements'] =    $data['spectrumElement']; }
 if(st_isset($data['microscope'])){        $results['microscope'] =       $data['microscope']; }
 if(nm_isset($data['spectrumMax'])){       $results['max_energy'] =       round($data['spectrumMax'], 2).' eV'; }
 if(nm_isset($data['spectrumMin'])){       $results['min_energy'] =       round($data['spectrumMin'], 2).' eV'; }
 if(st_isset($data['source_purity'])){     $results['source_purity'] =    $data['source_purity']; }
-if(count($data['spectrumEdges']) > 0){    $results['edges'] =            $data['spectrumEdges']; }
+if(count((array) $data['spectrumEdges']) > 0){    $results['edges'] =            $data['spectrumEdges']; }
 if(st_isset($data['microscope'])){        $results['microscope'] =       $data['microscope']; }
 if(st_isset($data['guntype'])){           $results['guntype'] =          $data['guntype']; }
 if(nm_isset($data['beamenergy'])){        $results['beamenergy'] =       $data['beamenergy'].' kV'; }

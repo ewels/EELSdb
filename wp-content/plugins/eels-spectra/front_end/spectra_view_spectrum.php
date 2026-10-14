@@ -139,7 +139,7 @@ if (have_posts()) {	the_post();
           }
         }
       }
-      if(count($me_ids) > 0){	?>
+      if(count((array) $me_ids) > 0){	?>
         <div class="btn-group">
           <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
             View in Materials Explorer <span class="caret"></span>
@@ -206,7 +206,7 @@ if (have_posts()) {	the_post();
     }
     if(!is_user_logged_in()){
       echo '<div class="pull-right text-muted"><a href="'.home_url('wp-login.php?action=register').'">Register</a> / <a href="'.home_url('wp-login.php').'">log in</a> to set favourite spectra and overlay plots.</div>';
-    } else if(count($overlay_dropdown) == 0){
+    } else if(count((array) $overlay_dropdown) == 0){
       echo '<div class="pull-right text-muted">Set some other spectras as <a href="'.get_author_posts_url( get_current_user_id() ).'?favourites">favourites</a> to overlay multiple plots</div>';
     } else {
       ?>
@@ -299,7 +299,7 @@ if (have_posts()) {	the_post();
     if(st_isset($data['spectrumFormula'])){   echo '<dt>Specimen Formula</dt><dd>'.$html_formula.'</dd>'; }
     if(nm_isset($data['spectrumMax'])){       echo '<dt>Data Range</dt><dd>'.round($data['spectrumMin'], 2).' eV - '.round($data['spectrumMax'], 2).' eV</dd>'; }
     if(st_isset($data['source_purity'])){     echo '<dt>Source and Purity</dt><dd>'.$data['source_purity'].'</dd>'; }
-    if(count($data['spectrumEdges']) > 0){    echo '<dt>Elemental Edges</dt><dd>'.implode(', ', $data['spectrumEdges']).'</dd>'; }
+    if(count((array) $data['spectrumEdges']) > 0){    echo '<dt>Elemental Edges</dt><dd>'.implode(', ', (array) $data['spectrumEdges']).'</dd>'; }
     if(count($s_keywords) > 0){               echo '<dt>Keywords</dt><dd>'.implode(', ',$s_keywords).'</dd>'; }
     if(unser_array($data['assoc_spectra'])){
       echo '<dt>Associated Spectra</dt>';
@@ -485,7 +485,7 @@ URL = {http://journals.cambridge.org/article_S1431927616000179},
                   text: 'Energy (eV)'
                 },
                 <?php
-                if(count($data['spectrumEdges']) > 0){
+                if(count((array) $data['spectrumEdges']) > 0){
                   // Get the element level data
                   $levels = json_decode(file_get_contents(plugin_dir_path( dirname(__FILE__) ).'resources/element_levels.json'), true);
                   $el_names = json_decode(file_get_contents(plugin_dir_path( dirname(__FILE__) ).'resources/element_names.json'), true);

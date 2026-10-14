@@ -14,9 +14,9 @@ class bootstrapFeatureWidgets extends WP_Widget {
 	//
 	// Widget Registration
 	//
-	function bootstrapFeatureWidgets() {
+	function __construct() {
 		$widget_ops = array('classname' => 'bootstrapFeatureWidget', 'description' => 'A simple widget which makes markup for a feature using Twitter Bootstrap styles' );
-		$this->WP_Widget('bootstrapFeatureWidget', 'Bootstrap Feature Widget', $widget_ops);
+		parent::__construct('bootstrapFeatureWidget', 'Bootstrap Feature Widget', $widget_ops);
 	}
  	
 	
@@ -90,9 +90,15 @@ class bootstrapFeatureWidgets extends WP_Widget {
 		
 		// Icon
 		if (!empty($instance['glyphicon'])){
+			if(!empty($instance['link_url'])){
+				echo '<a href="'.$instance['link_url'].'">';
+			}
 			echo '<span class="glyphicon '.$instance['glyphicon'].'"';
 			if ($instance['defaultStyling']) echo ' style="font-size:100px; color:#666;"';
 			echo '></span>';
+			if(!empty($instance['link_url'])){
+				echo '</a>';
+			}
 		}
 		
 		// Title
@@ -107,7 +113,8 @@ class bootstrapFeatureWidgets extends WP_Widget {
 			$news = get_posts( array( 'post_type' => 'post', 'posts_per_page' => $instance['numNews'] ) );
 			foreach ( $news as $post ){
 				setup_postdata( $post );
-				echo '<li><a href="'.get_permalink().'">'.get_the_title().'</a></li>';
+				echo '<li><a class="bsfw_news_title" href="'.get_permalink().'">'.get_the_title().'</a>';
+				echo ' <a class="bsfw_news_date" href="'.get_permalink().'">'.get_the_date('M j Y').'</a></li>';
 			}
 			wp_reset_postdata();
 			echo '</ul>';
@@ -124,6 +131,6 @@ class bootstrapFeatureWidgets extends WP_Widget {
 	}
  
 }
-add_action( 'widgets_init', create_function('', 'return register_widget("bootstrapFeatureWidgets");') );
+add_action( 'widgets_init', function () { register_widget( 'bootstrapFeatureWidgets' ); } );
 
 ?>
