@@ -134,6 +134,12 @@ def process(detail, original, workdir):
     workdir = Path(workdir)
     workdir.mkdir(parents=True, exist_ok=True)
     s, acq = detail["spectrum"], detail.get("acquisition") or {}
+    proposed = detail.get("proposed")
+    if proposed:
+        # An edit: check the file against what the spectrum would become.
+        s = {**s, **{k: proposed["spectrum"][k] for k in ("title", "type", "formula")}}
+        acq = proposed["acquisition"]
+        detail = {**detail, "elements": proposed["elements"], "edges": [f"{e['element']}_{e['edge']}" for e in proposed["edges"]]}
     sp = read_any(original)
     with contextlib.redirect_stdout(sys.stderr):
         table = checks.exspy_edge_table()

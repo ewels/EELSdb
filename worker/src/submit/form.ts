@@ -8,6 +8,34 @@ export const INTENSITY_UNITS = ["counts", "oscillator_strength", "mu", "optical_
 export const XAS_FIELDS = ["facility", "beamline", "source_type", "monochromator", "resolving_power", "detection_mode", "polarisation", "polarisation_angle_deg", "calibration_reference", "i0_normalisation"];
 export const COMPANION_EXTENSIONS = ["emd", "ser", "emi", "dm3", "dm4"];
 export const MAX_FILE_BYTES = 50 * 1024 * 1024;
+const MAX_ASSOCIATED = 20;
+
+/** The browser's check results, kept only if they have the expected shape (moderators' pages read them). */
+export function cleanBrowserChecks(raw: unknown): string | null {
+  if (typeof raw !== "string" || !raw || raw.length > 200_000) return null;
+  try {
+    const v = JSON.parse(raw);
+    if (!v || typeof v !== "object" || Array.isArray(v)) return null;
+    const findings = Array.isArray(v.findings)
+      ? v.findings
+          .filter((f: any) => f && typeof f.message === "string" && ["error", "warning", "info"].includes(f.severity))
+          .slice(0, 200)
+          .map((f: any) => ({ code: String(f.code ?? ""), severity: f.severity, message: f.message.slice(0, 500) }))
+      : [];
+    const n = (x: unknown) => (typeof x === "number" && Number.isFinite(x) ? x : null);
+    return JSON.stringify({
+      error: typeof v.error === "string" ? v.error.slice(0, 500) : undefined,
+      points: n(v.points),
+      energy_min: n(v.energy_min),
+      energy_max: n(v.energy_max),
+      meta: v.meta && typeof v.meta === "object" ? Object.fromEntries(Object.entries(v.meta).map(([k, x]) => [k, n(x)]).slice(0, 20)) : undefined,
+      findings,
+      tool: typeof v.rsciio === "string" ? v.rsciio.slice(0, 50) : v.cli === true ? "eelsdb CLI" : undefined,
+    });
+  } catch {
+    return null;
+  }
+}
 
 type Body = Record<string, string | File | (string | File)[]>;
 export type Measured = { value: number | null; source: string; uncertainty: number | null };
@@ -108,10 +136,25 @@ export function parseForm(body: Body): { form: ParsedForm; errors: Record<string
     if (!/^https?:\/\/\S+$/.test(url)) errors.other_urls = `"${url}" is not a web address (http:// or https://).`;
     else otherUrls.push({ url, title: title.join(" ") || null });
   }
-  const associated = (text(body, "associated", 4000) ?? "")
-    .split(/[\s,]+/)
-    .filter(Boolean)
-    .map((u) => u.replace(/^https?:\/\/[^/]+\/spectra\//, "").replace(/\/$/, ""));
+  const associated = [
+    ...new Set(
+      (text(body, "associated", 4000) ?? "")
+        .split(/[\s,]+/)
+        .filter(Boolean)
+        .map((u) => u.replace(/^https?:\/\/[^/]+\/spectra\//, "").replace(/\/$/, ""))
+        .map((u) => {
+          try {
+            return decodeURIComponent(u);
+          } catch {
+            return u;
+          }
+        }),
+    ),
+  ];
+  if (associated.length > MAX_ASSOCIATED) errors.associated = `Link at most ${MAX_ASSOCIATED} associated spectra.`;
+
+  const refUrl = text(body, "ref_url", 500);
+  if (refUrl && !/^https?:\/\/\S+$/.test(refUrl)) errors.ref_url = "The web link must start with http:// or https://.";
 
   const doi = text(body, "ref_doi", 200)?.replace(/^(https?:\/\/(dx\.)?doi\.org\/|doi:)/i, "") ?? null;
   if (doi && !/^10\.\d{4,9}\/\S+$/.test(doi)) errors.ref_doi = "A DOI looks like 10.1234/abcd.";
@@ -195,7 +238,7 @@ export function parseForm(body: Body): { form: ParsedForm; errors: Record<string
       },
       reference: {
         doi,
-        url: text(body, "ref_url", 500),
+        url: refUrl && /^https?:\/\//.test(refUrl) ? refUrl : null,
         authors: text(body, "ref_authors", 2000),
         journal: text(body, "ref_journal", 300),
         volume: text(body, "ref_volume", 50),

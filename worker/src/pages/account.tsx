@@ -10,8 +10,11 @@ const ERRORS: Record<string, string> = {
   state: "The sign-in took too long or was started in another tab. Please try again.",
   provider: "The sign-in service did not confirm who you are. Please try again, or use another service.",
   password: "That username or email and password do not match an account from the old site.",
+  locked: "Too many wrong passwords for this account. Please wait an hour, or sign in with ORCID, Google or GitHub.",
 };
 const CLAIM_HOURS = 24;
+const MAX_PASSWORD_FAILURES = 10;
+const MAX_CLAIMS_PER_DAY = 5;
 
 account.get("/login/", (c) => {
   if (c.get("user")) return c.redirect(safeNext(c.req.query("next")));
@@ -67,7 +70,14 @@ account.post("/login/password/", async (c) => {
          AND (legacy_login = ? OR legacy_email = ? COLLATE NOCASE) ORDER BY id LIMIT 1`,
       ).bind(login, login).first<{ id: number; hash: string }>()
     : null;
-  if (!user || !(await verifyLegacyPassword(password, user.hash))) return c.redirect("/login/?error=password");
+  const key = login.toLowerCase();
+  const failures = await c.env.DB.prepare("SELECT COUNT(*) AS n FROM rate_events WHERE kind = 'password' AND key = ? AND at > datetime('now', '-1 hour')")
+    .bind(key).first<number>("n");
+  if ((failures ?? 0) >= MAX_PASSWORD_FAILURES) return c.redirect("/login/?error=locked");
+  if (!user || !(await verifyLegacyPassword(password, user.hash))) {
+    await c.env.DB.prepare("INSERT INTO rate_events (kind, key) VALUES ('password', ?)").bind(key).run();
+    return c.redirect("/login/?error=password");
+  }
   if (!user.hash.startsWith("$pbkdf2-")) {
     await c.env.DB.prepare("UPDATE users SET legacy_password_hash = ? WHERE id = ?").bind(await pbkdf2Hash(password), user.id).run();
   }
@@ -118,6 +128,7 @@ account.get("/account/", requireUser, async (c) => {
       {notice === "sent" && (
         <p class="notice" role="status">If an old account uses that address, we have emailed it a link. The link works for {CLAIM_HOURS} hours.</p>
       )}
+      {notice === "limit" && <p class="notice" role="status">You have asked for {MAX_CLAIMS_PER_DAY} links today. Please try again tomorrow.</p>}
       {notice === "done" && <p class="notice" role="status">Your old account is now linked. Its favourites and spectra are below.</p>}
 
       <p>
@@ -170,6 +181,10 @@ account.post("/account/claim/", requireUser, async (c) => {
          AND NOT EXISTS (SELECT 1 FROM identities i WHERE i.user_id = users.id)`,
       ).bind(email, user.id).first<number>("id")
     : null;
+  const recent = await c.env.DB.prepare("SELECT COUNT(*) AS n FROM rate_events WHERE kind = 'claim' AND key = ? AND at > datetime('now', '-1 day')")
+    .bind(String(user.id)).first<number>("n");
+  if ((recent ?? 0) >= MAX_CLAIMS_PER_DAY) return c.redirect("/account/?claim=limit");
+  await c.env.DB.prepare("INSERT INTO rate_events (kind, key) VALUES ('claim', ?)").bind(String(user.id)).run();
   // The same answer whether or not the address exists, so the form cannot be used to look up members.
   if (legacy !== null) {
     const token = crypto.randomUUID();
@@ -225,8 +240,22 @@ account.post("/account/claim/:token/", requireUser, async (c) => {
   const from = c.get("user")!.id;
   const to = claim.legacy_user_id;
   const db = c.env.DB;
+  const fromSlug = await db.prepare("SELECT slug FROM users WHERE id = ?").bind(from).first<string | null>("slug");
+  // Everything that points at the new account moves to the old one before the new one is deleted.
+  const move = (table: string, column: string) => db.prepare(`UPDATE ${table} SET ${column} = ? WHERE ${column} = ?`).bind(to, from);
   await db.batch([
     db.prepare("UPDATE identities SET user_id = ? WHERE user_id = ?").bind(to, from),
+    move("api_tokens", "user_id"),
+    move("submissions", "submitted_by"),
+    move("submissions", "decided_by"),
+    move("history", "user_id"),
+    move("instruments", "created_by"),
+    move("instrument_versions", "created_by"),
+    move("instrument_versions", "decided_by"),
+    // Slugs are unique, so the new account's slug is freed before the old account takes it.
+    db.prepare("UPDATE users SET slug = NULL WHERE id = ?").bind(from),
+    db.prepare("UPDATE users SET slug = COALESCE(slug, ?) WHERE id = ?").bind(fromSlug, to),
+    db.prepare("UPDATE spectra SET author_slug = (SELECT slug FROM users WHERE id = ?), author_display = (SELECT display_name FROM users WHERE id = ?) WHERE owner_id = ?").bind(to, to, from),
     db.prepare("INSERT OR IGNORE INTO favourites (user_id, spectrum_id, created_at) SELECT ?, spectrum_id, created_at FROM favourites WHERE user_id = ?").bind(to, from),
     db.prepare("UPDATE spectra SET owner_id = ? WHERE owner_id = ?").bind(to, from),
     db.prepare("UPDATE users SET orcid = COALESCE(orcid, (SELECT orcid FROM users WHERE id = ?)) WHERE id = ?").bind(from, to),

@@ -3,8 +3,8 @@ import type { MiddlewareHandler } from "hono";
 import { sha256, type AppEnv, type User } from "./auth";
 import { sendEmail } from "./email";
 import type { ParsedForm } from "./submit/form";
-import { completeness } from "./submit/form";
-import { detailStatements } from "./submit/store";
+import { mediaType } from "./files";
+import { coreStatements } from "./submit/store";
 
 export type Decision = "approve" | "request_changes" | "reject";
 export const DECISIONS: Decision[] = ["approve", "request_changes", "reject"];
@@ -14,15 +14,56 @@ export const QUEUE_SQL = `
          u.display_name AS submitter, u.id AS submitter_id
   FROM submissions b JOIN spectra s ON s.id = b.spectrum_id LEFT JOIN users u ON u.id = b.submitted_by`;
 
+const parseJson = (s: string | null) => {
+  try {
+    return s ? JSON.parse(s) : null;
+  } catch {
+    return null;
+  }
+};
+
+export type StagedFile = { key: string; filename: string; bytes: number; sha256: string };
+export type ProcessingRecord = { tools: { tool: string; version: string }[]; warnings?: unknown; values?: Record<string, number | null> };
+/** What an edit submission proposes, and what review has prepared for it; applied on approval. */
+export type EditChange = {
+  form: ParsedForm;
+  file: { key: string; name: string; bytes: number } | null;
+  processed?: Record<string, StagedFile>;
+  processing?: ProcessingRecord;
+};
+
+export function processingStatements(db: D1Database, spectrumId: number, record: ProcessingRecord) {
+  const statements = [
+    db.prepare("DELETE FROM processing WHERE spectrum_id = ?").bind(spectrumId),
+    ...record.tools.map((t, i) =>
+      db.prepare("INSERT INTO processing (spectrum_id, tool, version, warnings_json) VALUES (?, ?, ?, ?)")
+        .bind(spectrumId, String(t.tool), String(t.version), i === 0 ? JSON.stringify(record.warnings ?? []) : null),
+    ),
+  ];
+  // The energy range and step measured from the file at review are authoritative.
+  const v = record.values ?? {};
+  const n = (x: unknown) => (typeof x === "number" && Number.isFinite(x) ? x : null);
+  if (n(v.min_energy_ev) !== null || n(v.max_energy_ev) !== null || n(v.step_ev) !== null) {
+    statements.push(
+      db.prepare("UPDATE spectra SET min_energy_ev = COALESCE(?, min_energy_ev), max_energy_ev = COALESCE(?, max_energy_ev), step_ev = COALESCE(?, step_ev), legacy_v1 = NULL WHERE id = ?")
+        .bind(n(v.min_energy_ev), n(v.max_energy_ev), n(v.step_ev), spectrumId),
+    );
+  }
+  return statements;
+}
+
 export async function submissionDetail(db: D1Database, id: number) {
   const sub = await db.prepare(`${QUEUE_SQL} WHERE b.id = ?`).bind(id).first<any>();
   if (!sub) return null;
   const extra = await db.prepare("SELECT browser_checks_json, change_json, moderator_notes FROM submissions WHERE id = ?").bind(id).first<any>();
   const { results: files } = await db.prepare("SELECT role, r2_key, filename, bytes, sha256 FROM files WHERE spectrum_id = ? ORDER BY id").bind(sub.spectrum_id).all<any>();
+  const change = parseJson(extra.change_json) as EditChange | null;
+  // A new file in an edit is not attached to the spectrum until approval; reviewers get it as role "edit".
+  if (change?.file) files.push({ role: "edit", r2_key: change.file.key, filename: change.file.name, bytes: change.file.bytes, sha256: null });
   return {
     ...sub,
-    browser_checks: extra.browser_checks_json ? JSON.parse(extra.browser_checks_json) : null,
-    change: extra.change_json ? JSON.parse(extra.change_json) : null,
+    browser_checks: parseJson(extra.browser_checks_json),
+    change,
     moderator_notes: extra.moderator_notes,
     files,
   };
@@ -59,24 +100,25 @@ export async function decide(env: Env, id: number, decision: Decision, notes: st
     statements.push(db.prepare("UPDATE spectra SET status = 'rejected' WHERE id = ?").bind(sub.spectrum_id));
   }
   if (sub.kind === "edit" && decision === "approve") {
-    const change = JSON.parse(sub.change_json) as { form: ParsedForm; file: { key: string; name: string; bytes: number } | null };
-    const f = change.form;
-    statements.push(
-      db.prepare(
-        `UPDATE spectra SET title = ?, description = ?, source_purity = ?, type = ?, phase = ?, intensity_units = ?, formula = ?, completeness = ?,
-         legacy_v1 = NULL, updated_at = datetime('now') WHERE id = ?`,
-      ).bind(f.spectrum.title, f.spectrum.description, f.spectrum.source_purity, f.spectrum.type, f.spectrum.phase, f.spectrum.intensity_units, f.spectrum.formula,
-        completeness(f.spectrum.type, f.acquisition), sub.spectrum_id),
-      ...(await detailStatements(db, sub.spectrum_id, f)),
-    );
+    // Only the specimen and measurement: text changes were published when they were made.
+    const change = JSON.parse(sub.change_json) as EditChange;
+    statements.push(...coreStatements(db, sub.spectrum_id, change.form));
     if (change.file) {
       // The legacy file stays at its old URL; the new upload becomes the original and the download.
       statements.push(
         db.prepare("DELETE FROM files WHERE spectrum_id = ? AND role IN ('original', 'legacy', 'msa', 'hspy')").bind(sub.spectrum_id),
-        db.prepare("INSERT INTO files (spectrum_id, role, r2_key, filename, bytes) VALUES (?, 'original', ?, ?, ?)")
-          .bind(sub.spectrum_id, change.file.key, change.file.name, change.file.bytes),
+        db.prepare("INSERT INTO files (spectrum_id, role, r2_key, filename, media_type, bytes) VALUES (?, 'original', ?, ?, ?, ?)")
+          .bind(sub.spectrum_id, change.file.key, change.file.name, mediaType(change.file.name), change.file.bytes),
       );
     }
+    for (const [role, f] of Object.entries(change.processed ?? {})) {
+      statements.push(
+        db.prepare("DELETE FROM files WHERE spectrum_id = ? AND role = ?").bind(sub.spectrum_id, role),
+        db.prepare("INSERT INTO files (spectrum_id, role, r2_key, filename, media_type, bytes, sha256) VALUES (?, ?, ?, ?, ?, ?, ?)")
+          .bind(sub.spectrum_id, role, f.key, f.filename, mediaType(f.filename), f.bytes, f.sha256),
+      );
+    }
+    if (change.processing) statements.push(...processingStatements(db, sub.spectrum_id, change.processing));
   }
   await db.batch(statements);
 

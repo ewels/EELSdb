@@ -351,8 +351,10 @@ instruments.post("/instruments/:id/versions/:version/:decision{approve|reject}/"
   if (approve) {
     statements.push(
       db.prepare(
-        "UPDATE instruments SET status = 'approved', current_version = ?, name = ?, facility = ?, manufacturer = ?, spectrometer = ?, voltages_kv_json = ? WHERE id = ?",
-      ).bind(version, v.name, v.facility, v.manufacturer, v.spectrometer, v.voltages_kv_json, id),
+        // An older version approved late does not replace a newer current one.
+        `UPDATE instruments SET status = 'approved', current_version = ?, name = ?, facility = ?, manufacturer = ?, spectrometer = ?, voltages_kv_json = ?
+         WHERE id = ? AND (current_version IS NULL OR current_version < ?)`,
+      ).bind(version, v.name, v.facility, v.manufacturer, v.spectrometer, v.voltages_kv_json, id, version),
     );
   }
   await db.batch(statements);

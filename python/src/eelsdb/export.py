@@ -49,13 +49,19 @@ def build(dest, api=None, fetcher=fetch, site=None):
     spectra = all_spectra(api, fetcher)
     with zipfile.ZipFile(dest, "w", compression=zipfile.ZIP_DEFLATED) as z:
         for s in spectra:
-            folder = f"spectra/{s['id']}-{s['slug']}"
+            folder = f"spectra/{s['id']}-{Path(s['slug']).name}"
+            used = set()
             for f in s["files"]:
                 url = f["url"]
+                # The stored file name, never the uploader's: it becomes a path inside the archive.
+                name = Path(urllib.parse.unquote(urllib.parse.urlparse(url).path)).name or "file"
+                if name in used:
+                    name = f"{f['role']}-{name}"
+                used.add(name)
                 if site:
                     # A local Worker serves files at its own address, not at eelsdb.eu.
                     url = site + urllib.parse.urlparse(url).path
-                z.writestr(f"{folder}/{f['filename']}", fetcher(url))
+                z.writestr(f"{folder}/{name}", fetcher(url))
         z.writestr("metadata.json", json.dumps(spectra, indent=1, ensure_ascii=False))
         date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         z.writestr("README.md", README.format(date=date, api=api, count=len(spectra)))

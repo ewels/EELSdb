@@ -148,7 +148,16 @@ export function startSignIn(c: C) {
 const callbackUrl = (c: C) => `${new URL(c.req.url).origin}/auth/${c.req.param("provider")}/callback`;
 
 /** Only same-site paths, so the sign-in flow cannot be used as an open redirect. */
-export const safeNext = (next: string | undefined) => (next && /^\/(?!\/)/.test(next) ? next : "/account/");
+export function safeNext(next: string | undefined) {
+  if (!next || !next.startsWith("/")) return "/account/";
+  const base = "https://same.invalid";
+  try {
+    const url = new URL(next, base);
+    return url.origin === base ? url.pathname + url.search + url.hash : "/account/";
+  } catch {
+    return "/account/";
+  }
+}
 
 /**
  * Finds the user for an identity: an existing link, else a migrated account with the same verified email

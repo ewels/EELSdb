@@ -1,9 +1,10 @@
 import { Hono, type Context } from "hono";
 import type { Child } from "hono/jsx";
 import { requireUser, type AppEnv } from "../auth";
+import { mediaType } from "../files";
 import { Layout, TYPE_NAMES } from "../pages/layout";
-import { BEAM_ENERGIES, COMPANION_EXTENSIONS, SPECTRUM_EXTENSIONS, checkUpload, parseForm } from "./form";
-import { createSpectrum } from "./store";
+import { BEAM_ENERGIES, COMPANION_EXTENSIONS, SPECTRUM_EXTENSIONS, checkUpload, cleanBrowserChecks, parseForm } from "./form";
+import { createSpectrum, instrumentOk } from "./store";
 
 export const submit = new Hono<AppEnv>();
 type C = Context<AppEnv>;
@@ -373,6 +374,7 @@ submit.post("/submit-data/", requireUser, async (c) => {
     const e = await checkUpload(companion, COMPANION_EXTENSIONS, "Companion file");
     if (e) errors.companion_file = e;
   }
+  if (!(await instrumentOk(c.env.DB, form))) errors.instrument = "Choose an approved instrument profile.";
   if (!body.agreement) errors.agreement = "Please agree to the licence to publish your data.";
   if (!(await turnstileOk(c, typeof body["cf-turnstile-response"] === "string" ? body["cf-turnstile-response"] : null))) {
     errors.turnstile = "The anti-spam check failed. Please try again.";
@@ -395,13 +397,13 @@ submit.post("/submit-data/", requireUser, async (c) => {
     const bytes = await f.arrayBuffer();
     const sha256 = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))].map((b) => b.toString(16).padStart(2, "0")).join("");
     const key = `submissions/${id}/${role}/${f.name.replace(/[^\w.\-]+/g, "_")}`;
-    await c.env.FILES.put(key, bytes, { httpMetadata: { contentType: f.type || "application/octet-stream" }, sha256 });
+    await c.env.FILES.put(key, bytes, { httpMetadata: { contentType: mediaType(f.name) }, sha256 });
     fileRows.push(
       c.env.DB.prepare("INSERT INTO files (spectrum_id, role, r2_key, filename, media_type, bytes, sha256) VALUES (?, ?, ?, ?, ?, ?, ?)")
-        .bind(id, role, key, f.name, f.type || null, f.size, sha256),
+        .bind(id, role, key, f.name, mediaType(f.name), f.size, sha256),
     );
   }
-  const checks = typeof body.browser_checks === "string" && body.browser_checks.length < 200_000 ? body.browser_checks : null;
+  const checks = cleanBrowserChecks(body.browser_checks);
   await c.env.DB.batch([
     ...fileRows,
     c.env.DB.prepare("INSERT INTO submissions (spectrum_id, submitted_by, status, kind, browser_checks_json) VALUES (?, ?, 'pending', 'new', ?)")

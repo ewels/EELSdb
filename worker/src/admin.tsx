@@ -1,5 +1,6 @@
 import { Hono, type Context } from "hono";
 import { requireUser, sha256, type AppEnv } from "./auth";
+import { fileHeaders } from "./files";
 import { isModerator } from "./instruments";
 import { DECISIONS, QUEUE_SQL, decide, submissionDetail, type Decision } from "./moderation";
 import { Layout, TypeBadge } from "./pages/layout";
@@ -143,7 +144,8 @@ admin.get("/admin/", async (c) => {
 admin.get("/admin/submissions/:id/", async (c) => {
   const d = await submissionDetail(c.env.DB, Number(c.req.param("id")));
   if (!d) return c.notFound();
-  const findings: any[] = d.browser_checks?.findings ?? [];
+  const findings: any[] = Array.isArray(d.browser_checks?.findings) ? d.browser_checks.findings : [];
+  const n = (x: unknown) => (typeof x === "number" ? x.toFixed(2) : "?");
   const open = ["pending", "changes_requested"].includes(d.status);
   return c.html(
     <Layout title={`Review: ${d.title}`} path="/admin/" user={c.get("user")}>
@@ -168,11 +170,11 @@ admin.get("/admin/submissions/:id/", async (c) => {
           {d.browser_checks === null ? (
             <p class="muted">None: the submitter's browser did not run them.</p>
           ) : d.browser_checks.error ? (
-            <p class="muted">The browser could not read the file: {d.browser_checks.error}</p>
+            <p class="muted">The browser could not read the file: {String(d.browser_checks.error)}</p>
           ) : (
             <>
               <p>
-                {d.browser_checks.points} points, {d.browser_checks.energy_min?.toFixed(2)} to {d.browser_checks.energy_max?.toFixed(2)} eV.
+                {String(d.browser_checks.points ?? "?")} points, {n(d.browser_checks.energy_min)} to {n(d.browser_checks.energy_max)} eV.
               </p>
               <ul class="findings">
                 {findings.length ? findings.map((f) => <li class={f.severity}>{f.message}</li>) : <li class="info">No problems found.</li>}
@@ -224,7 +226,7 @@ admin.get("/admin/submissions/:id/files/:role/", async (c) => {
   const file = d?.files.find((f: any) => f.role === c.req.param("role"));
   const object = file && (await c.env.FILES.get(file.r2_key));
   if (!object) return c.notFound();
-  return new Response(object.body, { headers: { "Content-Disposition": `attachment; filename="${file.filename}"` } });
+  return new Response(object.body, { headers: fileHeaders(file.filename) });
 });
 
 admin.get("/admin/users/", async (c) => {

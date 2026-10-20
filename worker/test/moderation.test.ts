@@ -77,10 +77,10 @@ describe("review", () => {
     expect((await api(`/cli/queue/${sub.id}/approve`, mod, { method: "POST" })).status).toBe(409);
 
     const v1 = await (await exports.default.fetch(`${API}/spectra/${slug}/`)).json<any>();
-    expect(v1.download_link).toBe(`${SITE}/files/${spectrumId}/cli-carbon.msa`);
+    expect(v1.download_link).toBe(`${SITE}/files/${spectrumId}/s${sub.id}/cli-carbon.msa`);
     expect(v1.min_energy).toBe("280 eV");
     expect(v1.beamenergy).toBe("300 kV");
-    expect(await (await page(`/files/${spectrumId}/cli-carbon.msa`)).text()).toBe(MSA);
+    expect(await (await page(`/files/${spectrumId}/s${sub.id}/cli-carbon.msa`)).text()).toBe(MSA);
   });
 
   it("uses the admin pages to request changes, reject and apply edits", async () => {

@@ -155,6 +155,9 @@ v2.get("/spectra", async (c) => {
     return n;
   };
 
+  if (p.getAll("element").length + p.getAll("edge").length > 20) {
+    return error(c, 400, "invalid_parameter", "Give at most 20 element and edge filters.");
+  }
   try {
     // Gas-phase spectra are only listed when asked for, as in v1.
     if (p.get("phase")) add("s.phase = ?", p.get("phase"));

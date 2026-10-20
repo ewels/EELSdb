@@ -1,10 +1,21 @@
 // Token-authenticated API for the `eelsdb` CLI: submit spectra, and (moderators) review the queue.
 import { Hono } from "hono";
 import type { AppEnv } from "../auth";
+import { fileHeaders, mediaType } from "../files";
 import { isModerator } from "../instruments";
-import { DECISIONS, QUEUE_SQL, decide, submissionDetail, tokenAuth, type Decision } from "../moderation";
-import { COMPANION_EXTENSIONS, SPECTRUM_EXTENSIONS, checkUpload, parseForm } from "../submit/form";
-import { createSpectrum } from "../submit/store";
+import {
+  DECISIONS,
+  QUEUE_SQL,
+  decide,
+  processingStatements,
+  submissionDetail,
+  tokenAuth,
+  type Decision,
+  type EditChange,
+  type ProcessingRecord,
+} from "../moderation";
+import { COMPANION_EXTENSIONS, SPECTRUM_EXTENSIONS, checkUpload, cleanBrowserChecks, parseForm } from "../submit/form";
+import { createSpectrum, instrumentOk } from "../submit/store";
 
 export const cli = new Hono<AppEnv>();
 cli.use(tokenAuth);
@@ -26,6 +37,7 @@ cli.post("/submissions", async (c) => {
     const ce = await checkUpload(companion, COMPANION_EXTENSIONS, "Companion file");
     if (ce) errors.companion_file = ce;
   }
+  if (!(await instrumentOk(c.env.DB, form))) errors.instrument = "Choose an approved instrument profile.";
   if (Object.keys(errors).length) return c.json({ message: "The submission has errors.", errors }, 400);
   const { id, slug } = await createSpectrum(c.env.DB, form, user);
   const statements = [];
@@ -33,14 +45,14 @@ cli.post("/submissions", async (c) => {
     if (!f) continue;
     const bytes = await f.arrayBuffer();
     const key = `submissions/${id}/${role}/${f.name.replace(/[^\w.\-]+/g, "_")}`;
-    await c.env.FILES.put(key, bytes);
+    await c.env.FILES.put(key, bytes, { httpMetadata: { contentType: mediaType(f.name) } });
     statements.push(
       c.env.DB.prepare("INSERT INTO files (spectrum_id, role, r2_key, filename, bytes) VALUES (?, ?, ?, ?, ?)").bind(id, role, key, f.name, f.size),
     );
   }
   statements.push(
     c.env.DB.prepare("INSERT INTO submissions (spectrum_id, submitted_by, status, kind, browser_checks_json) VALUES (?, ?, 'pending', 'new', ?)")
-      .bind(id, user.id, typeof body.checks === "string" ? body.checks : null),
+      .bind(id, user.id, cleanBrowserChecks(body.checks)),
     c.env.DB.prepare("INSERT INTO history (spectrum_id, user_id, change_json) VALUES (?, ?, ?)").bind(id, user.id, JSON.stringify({ action: "submitted (CLI)" })),
   );
   await c.env.DB.batch(statements);
@@ -80,6 +92,8 @@ cli.get("/queue/:id", async (c) => {
   const { results: edges } = await c.env.DB.prepare("SELECT element, edge FROM spectrum_edges WHERE spectrum_id = ? ORDER BY position").bind(detail.spectrum_id).all<any>();
   return c.json({
     ...detail,
+    // For an edit, what the spectrum would become; review checks the file against these values.
+    proposed: detail.change?.form ?? null,
     spectrum: { ...spectrum, legacy_v1: undefined },
     acquisition,
     reference,
@@ -93,50 +107,51 @@ cli.get("/queue/:id/files/:role", async (c) => {
   const file = detail?.files.find((f: any) => f.role === c.req.param("role"));
   const object = file && (await c.env.FILES.get(file.r2_key));
   if (!object) return c.json({ message: "No such file." }, 404);
-  return new Response(object.body, { headers: { "Content-Disposition": `attachment; filename="${file.filename}"` } });
+  return new Response(object.body, { headers: fileHeaders(file.filename) });
 });
 
-/** Processed files from `eelsdb review` (clean MSA with EELS header fields, HSPY) and the processing record. */
+async function stageForEdit(db: D1Database, id: number, change: EditChange) {
+  await db.prepare("UPDATE submissions SET change_json = ? WHERE id = ?").bind(JSON.stringify(change), id).run();
+}
+
+/**
+ * Processed files from `eelsdb review` (clean MSA with EELS header fields, HSPY). For a new spectrum they
+ * attach directly (it is not public yet); for an edit they wait in the submission until approval.
+ */
 cli.put("/queue/:id/files/:role", async (c) => {
   const role = c.req.param("role");
   if (!PROCESSED_ROLES.includes(role)) return c.json({ message: `Upload role must be one of ${PROCESSED_ROLES.join(", ")}.` }, 400);
-  const detail = await submissionDetail(c.env.DB, Number(c.req.param("id")));
+  const id = Number(c.req.param("id"));
+  const detail = await submissionDetail(c.env.DB, id);
   if (!detail) return c.json({ message: "No such submission." }, 404);
+  if (!["pending", "changes_requested"].includes(detail.status)) return c.json({ message: "This submission was already decided." }, 409);
   const filename = (c.req.query("filename") ?? `${detail.slug}.${role}`).replace(/[^\w.\-]+/g, "_");
   const bytes = await c.req.arrayBuffer();
   if (!bytes.byteLength) return c.json({ message: "Empty upload." }, 400);
   const sha = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))].map((b) => b.toString(16).padStart(2, "0")).join("");
-  const key = `files/${detail.spectrum_id}/${filename}`;
-  await c.env.FILES.put(key, bytes, { httpMetadata: { contentType: role === "msa" ? "text/plain; charset=utf-8" : "application/x-hdf5" }, sha256: sha });
-  await c.env.DB.batch([
-    c.env.DB.prepare("DELETE FROM files WHERE spectrum_id = ? AND role = ?").bind(detail.spectrum_id, role),
-    c.env.DB.prepare("INSERT INTO files (spectrum_id, role, r2_key, filename, bytes, sha256) VALUES (?, ?, ?, ?, ?, ?)")
-      .bind(detail.spectrum_id, role, key, filename, bytes.byteLength, sha),
-  ]);
+  // Per submission, so an edit's reprocessed file never replaces the published one before approval.
+  const key = `files/${detail.spectrum_id}/s${id}/${filename}`;
+  await c.env.FILES.put(key, bytes, { httpMetadata: { contentType: mediaType(filename) }, sha256: sha });
+  if (detail.kind === "edit" && detail.change) {
+    await stageForEdit(c.env.DB, id, { ...detail.change, processed: { ...detail.change.processed, [role]: { key, filename, bytes: bytes.byteLength, sha256: sha } } });
+  } else {
+    await c.env.DB.batch([
+      c.env.DB.prepare("DELETE FROM files WHERE spectrum_id = ? AND role = ?").bind(detail.spectrum_id, role),
+      c.env.DB.prepare("INSERT INTO files (spectrum_id, role, r2_key, filename, media_type, bytes, sha256) VALUES (?, ?, ?, ?, ?, ?, ?)")
+        .bind(detail.spectrum_id, role, key, filename, mediaType(filename), bytes.byteLength, sha),
+    ]);
+  }
   return c.json({ key, bytes: bytes.byteLength, sha256: sha }, 201);
 });
 
 cli.post("/queue/:id/processing", async (c) => {
-  const detail = await submissionDetail(c.env.DB, Number(c.req.param("id")));
+  const id = Number(c.req.param("id"));
+  const detail = await submissionDetail(c.env.DB, id);
   if (!detail) return c.json({ message: "No such submission." }, 404);
-  const record = await c.req.json<{ tools: { tool: string; version: string }[]; warnings?: unknown; values?: Record<string, number | null> }>();
-  const db = c.env.DB;
-  const statements = [
-    db.prepare("DELETE FROM processing WHERE spectrum_id = ?").bind(detail.spectrum_id),
-    ...record.tools.map((t, i) =>
-      db.prepare("INSERT INTO processing (spectrum_id, tool, version, warnings_json) VALUES (?, ?, ?, ?)")
-        .bind(detail.spectrum_id, t.tool, t.version, i === 0 ? JSON.stringify(record.warnings ?? []) : null),
-    ),
-  ];
-  // The energy range and step measured from the file at review are authoritative.
-  const v = record.values ?? {};
-  if (v.min_energy_ev != null || v.max_energy_ev != null || v.step_ev != null) {
-    statements.push(
-      db.prepare("UPDATE spectra SET min_energy_ev = COALESCE(?, min_energy_ev), max_energy_ev = COALESCE(?, max_energy_ev), step_ev = COALESCE(?, step_ev) WHERE id = ?")
-        .bind(v.min_energy_ev ?? null, v.max_energy_ev ?? null, v.step_ev ?? null, detail.spectrum_id),
-    );
-  }
-  await db.batch(statements);
+  const record = await c.req.json<ProcessingRecord>().catch(() => null);
+  if (!record || !Array.isArray(record.tools)) return c.json({ message: "Expected {tools: [{tool, version}], warnings, values}." }, 400);
+  if (detail.kind === "edit" && detail.change) await stageForEdit(c.env.DB, id, { ...detail.change, processing: record });
+  else await c.env.DB.batch(processingStatements(c.env.DB, detail.spectrum_id, record));
   return c.json({ ok: true });
 });
 

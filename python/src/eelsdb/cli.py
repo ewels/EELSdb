@@ -137,11 +137,12 @@ def review(args):
         detail = client.submission(item["id"])
         print(f"\n#{item['id']} {item['title']} ({item['kind']}, from {item['submitter']})")
         work = Path(tempfile.mkdtemp(prefix=f"eelsdb-review-{item['id']}-"))
-        original = next((f for f in detail["files"] if f["role"] == "original"), None)
+        # An edit with a new file is reviewed on that file; otherwise on the spectrum's original.
+        original = next((f for role in ("edit", "original") for f in detail["files"] if f["role"] == role), None)
         if not original:
-            print("  No original file; decide on the website.")
+            print("  No file to check; decide on the website.")
             continue
-        path = client.download(item["id"], "original", work / original["filename"])
+        path = client.download(item["id"], original["role"], work / Path(original["filename"]).name)
         result = process(detail, path, work)
         for f in result["findings"]:
             print(f"  {f.severity.upper():8} {f.message}")

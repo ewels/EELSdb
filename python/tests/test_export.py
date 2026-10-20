@@ -8,7 +8,7 @@ API = "https://api.example"
 
 def fake_fetcher(url):
     if url == f"{API}/v2/spectra?per_page=500&sort=id":
-        return json.dumps({"results": [{"id": 1, "slug": "bn", "files": [{"url": "https://eelsdb.eu/wp-content/uploads/bn.msa", "filename": "bn.msa"}]}],
+        return json.dumps({"results": [{"id": 1, "slug": "bn", "files": [{"url": "https://eelsdb.eu/wp-content/uploads/bn.msa", "filename": "../../evil.msa", "role": "legacy"}]}],
                            "next": f"{API}/v2/spectra?page=2"}).encode()
     if url == f"{API}/v2/spectra?page=2":
         return json.dumps({"results": [{"id": 2, "slug": "c", "files": []}], "next": None}).encode()

@@ -4,8 +4,9 @@ import { requireUser, type AppEnv } from "../auth";
 import { isModerator } from "../instruments";
 import { SPECTRUM_EXTENSIONS, XAS_FIELDS, checkUpload, completeness, parseForm, type ParsedForm } from "./form";
 import { SubmitPage, approvedInstruments, formValues } from "./index";
+import { mediaType } from "../files";
 import { Layout } from "../pages/layout";
-import { detailStatements, textStatements } from "./store";
+import { coreStatements, instrumentOk, textColumnsStatement, textStatements } from "./store";
 
 export const edit = new Hono<AppEnv>();
 type C = Context<AppEnv>;
@@ -128,53 +129,79 @@ edit.post("/spectra/:slug/edit/", requireUser, async (c) => {
     );
   }
 
+  if (!(await instrumentOk(db, form))) {
+    errors.instrument = "Choose an approved instrument profile.";
+    return c.html(
+      <SubmitPage c={c} v={formValues(body)} errors={errors} instruments={await approvedInstruments(db)} edit={{ slug: s.slug, title: s.title }} />,
+      422,
+    );
+  }
+
   const before = parseForm(valuesFromBundle(bundle)).form;
   const coreChanged = core(before) !== core(form) || !!file;
   const changes = textChanges(before, form);
   const back = `/spectra/${encodeURIComponent(s.slug)}/`;
+  const ownerId = s.owner_id ?? null;
+
+  if (coreChanged && status === "published") {
+    const waiting = await db.prepare("SELECT 1 FROM submissions WHERE spectrum_id = ? AND kind = 'edit' AND status IN ('pending', 'changes_requested')")
+      .bind(s.id).first();
+    if (waiting) {
+      errors.file = "A change to the data or measurement of this spectrum is already waiting for review. Please wait for it before sending another.";
+      return c.html(
+        <SubmitPage c={c} v={formValues(body)} errors={errors} instruments={await approvedInstruments(db)} edit={{ slug: s.slug, title: s.title }} />,
+        409,
+      );
+    }
+  }
+
   let fileKey: string | null = null;
   if (file) {
     fileKey = `submissions/${s.id}/edit-${Date.now()}/${file.name.replace(/[^\w.\-]+/g, "_")}`;
-    await c.env.FILES.put(fileKey, await file.arrayBuffer(), { httpMetadata: { contentType: file.type || "application/octet-stream" } });
+    await c.env.FILES.put(fileKey, await file.arrayBuffer(), { httpMetadata: { contentType: mediaType(file.name) } });
   }
 
-  // A published spectrum's data and measurement changes wait for a moderator; the whole edit waits with them.
+  const statements: D1PreparedStatement[] = [];
+  if (Object.keys(changes).length) {
+    statements.push(
+      textColumnsStatement(db, s.id, form),
+      ...(await textStatements(db, s.id, form, ownerId)),
+      db.prepare("INSERT INTO history (spectrum_id, user_id, change_json) VALUES (?, ?, ?)")
+        .bind(s.id, user.id, JSON.stringify({ action: "edited", changes })),
+    );
+  }
+
   if (coreChanged && status === "published") {
-    await db.batch([
+    // The data and measurement wait for a moderator; text changes above are already published.
+    statements.push(
       db.prepare("INSERT INTO submissions (spectrum_id, submitted_by, status, kind, change_json) VALUES (?, ?, 'pending', 'edit', ?)")
         .bind(s.id, user.id, JSON.stringify({ form, file: fileKey && { key: fileKey, name: file!.name, bytes: file!.size } })),
       db.prepare("INSERT INTO history (spectrum_id, user_id, change_json) VALUES (?, ?, ?)")
         .bind(s.id, user.id, JSON.stringify({ action: "edit submitted for review" })),
-    ]);
+    );
+    await db.batch(statements);
     return c.redirect(`/account/submissions/?edited=${s.id}`);
   }
 
-  if (!coreChanged && !Object.keys(changes).length) return c.redirect(back);
-
-  const statements = [
-    // The v1 object is rebuilt from the typed rows from now on.
-    db.prepare("UPDATE spectra SET title = ?, description = ?, source_purity = ?, legacy_v1 = NULL, updated_at = datetime('now') WHERE id = ?")
-      .bind(form.spectrum.title, form.spectrum.description, form.spectrum.source_purity, s.id),
-    db.prepare("INSERT INTO history (spectrum_id, user_id, change_json) VALUES (?, ?, ?)")
-      .bind(s.id, user.id, JSON.stringify({ action: "edited", changes: coreChanged ? { ...changes, core: [JSON.parse(core(before)), JSON.parse(core(form))] } : changes })),
-  ];
   if (coreChanged) {
-    // Still pending: nothing is public yet, so the edit applies in full.
+    // Not published yet: the edit applies in full, and a submission sent back for changes returns to the queue.
     statements.push(
-      db.prepare("UPDATE spectra SET type = ?, phase = ?, intensity_units = ?, formula = ?, completeness = ? WHERE id = ?")
-        .bind(form.spectrum.type, form.spectrum.phase, form.spectrum.intensity_units, form.spectrum.formula, completeness(form.spectrum.type, form.acquisition), s.id),
-      ...(await detailStatements(db, s.id, form)),
+      ...coreStatements(db, s.id, form),
+      db.prepare("UPDATE submissions SET status = 'pending' WHERE spectrum_id = ? AND kind = 'new' AND status = 'changes_requested'").bind(s.id),
+      db.prepare("INSERT INTO history (spectrum_id, user_id, change_json) VALUES (?, ?, ?)")
+        .bind(s.id, user.id, JSON.stringify({ action: "edited", changes: { core: [JSON.parse(core(before)), JSON.parse(core(form))] } })),
     );
     if (fileKey) {
       statements.push(
         db.prepare("DELETE FROM files WHERE spectrum_id = ? AND role = 'original'").bind(s.id),
-        db.prepare("INSERT INTO files (spectrum_id, role, r2_key, filename, bytes) VALUES (?, 'original', ?, ?, ?)").bind(s.id, fileKey, file!.name, file!.size),
+        db.prepare("INSERT INTO files (spectrum_id, role, r2_key, filename, media_type, bytes) VALUES (?, 'original', ?, ?, ?, ?)")
+          .bind(s.id, fileKey, file!.name, mediaType(file!.name), file!.size),
       );
     }
-  } else {
-    statements.push(...(await textStatements(db, s.id, form)));
+  } else if (status === "pending" && statements.length) {
+    statements.push(db.prepare("UPDATE submissions SET status = 'pending' WHERE spectrum_id = ? AND kind = 'new' AND status = 'changes_requested'").bind(s.id));
   }
-  await db.batch(statements);
+  if (statements.length) await db.batch(statements);
   return c.redirect(status === "published" ? back : "/account/submissions/");
 });
 

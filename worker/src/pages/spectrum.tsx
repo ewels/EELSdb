@@ -303,7 +303,7 @@ s.plot(plot_edges=True)`}</pre>
                     <a href={`https://doi.org/${r.doi}`}>Article</a>
                   </>
                 )}
-                {!r.doi && r.url && (
+                {!r.doi && r.url && /^https?:\/\//.test(r.url) && (
                   <>
                     {" "}
                     <a href={r.url}>Link</a>

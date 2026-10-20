@@ -57,7 +57,8 @@ describe("editing a spectrum", () => {
     const res = await postForm(`/spectra/${SLUG}/edit/`, owner, { ...values, beam_energy_choice: "200", title: "Renamed" });
     expect(res.headers.get("location")).toBe(`/account/submissions/?edited=${id}`);
     expect(await env.DB.prepare("SELECT beam_energy_kv FROM eels_acquisition WHERE spectrum_id = ?").bind(id).first("beam_energy_kv")).toBe(300);
-    expect(await env.DB.prepare("SELECT title FROM spectra WHERE id = ?").bind(id).first("title")).not.toBe("Renamed");
+    // The title is text, so it is published at once; only the beam energy waits.
+    expect(await env.DB.prepare("SELECT title FROM spectra WHERE id = ?").bind(id).first("title")).toBe("Renamed");
     const sub = await env.DB.prepare("SELECT kind, status, change_json FROM submissions WHERE spectrum_id = ? AND kind = 'edit'").bind(id).first<any>();
     expect(sub.status).toBe("pending");
     expect(JSON.parse(sub.change_json).form.acquisition.beam_energy_kv).toBe(200);

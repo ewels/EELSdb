@@ -95,7 +95,8 @@ describe("submitting", () => {
     expect(id).toBeGreaterThan(22237);
     const file = await env.DB.prepare("SELECT * FROM files WHERE spectrum_id = ?").bind(id).first<any>();
     expect(await (await env.FILES.get(file.r2_key))!.text()).toBe(MSA);
-    expect(await env.DB.prepare("SELECT browser_checks_json FROM submissions WHERE spectrum_id = ?").bind(id).first("browser_checks_json")).toBe('{"findings":[]}');
+    const checks = await env.DB.prepare("SELECT browser_checks_json FROM submissions WHERE spectrum_id = ?").bind(id).first<string>("browser_checks_json");
+    expect(JSON.parse(checks!).findings).toEqual([]);
     expect(await env.DB.prepare("SELECT edge FROM spectrum_edges WHERE spectrum_id = ?").bind(id).first("edge")).toBe("K");
 
     // Pending spectra are not public.
