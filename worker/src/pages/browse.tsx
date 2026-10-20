@@ -51,10 +51,11 @@ const val = (params: Params, key: string) => {
 
 export async function browsePage(c: Context<AppEnv>) {
   const params = parseParams(new URL(c.req.url).search);
+  const complete = params.get("complete") === "1";
   for (const key of [...params.keys()]) if (!KNOWN_ARGS.includes(key)) params.delete(key);
   params.set("per_page", String(PER_PAGE));
 
-  const q = buildSpectraQuery(params, { exact: true });
+  const q = buildSpectraQuery(params, { exact: true, complete });
   const [{ results: rows }, { results: elementRows }, { results: edgeRows }] = await c.env.DB.batch<any>([
     c.env.DB.prepare(q.sql).bind(...q.binds),
     c.env.DB.prepare(
@@ -74,6 +75,7 @@ export async function browsePage(c: Context<AppEnv>) {
   const orderKey = val(params, "order") || "spectrumFormula";
   const desc = val(params, "order_direction") === "DESC";
   params.delete("per_page");
+  if (complete) params.set("complete", "1");
 
   const activeChips: [string, string][] = [];
   for (const [k, v] of params) {
@@ -155,6 +157,9 @@ export async function browsePage(c: Context<AppEnv>) {
           <label class="check">
             <input type="checkbox" name="monochromated" value="1" checked={val(params, "monochromated") === "1"} /> Monochromated only
           </label>
+          <label class="check">
+            <input type="checkbox" name="complete" value="1" checked={complete} /> Beam energy and angles known
+          </label>
           {params.has("order") && <input type="hidden" name="order" value={orderKey} />}
           {desc && <input type="hidden" name="order_direction" value="DESC" />}
           <div class="filter-actions">
@@ -174,7 +179,7 @@ export async function browsePage(c: Context<AppEnv>) {
               <div class="chips">
                 {activeChips.map(([k, v]) => (
                   <a class="chip" href={withoutFilter(params, k, v)} title="Remove filter">
-                    {k === "element" ? v : `${k.replace("_", " ")}: ${TYPE_NAMES[v] ?? v}`} ×
+                    {k === "element" ? v : k === "complete" ? "angles known" : `${k.replace("_", " ")}: ${TYPE_NAMES[v] ?? v}`} ×
                   </a>
                 ))}
               </div>

@@ -59,7 +59,8 @@ export function Layout(props: { title?: string; description?: string; path: stri
         <footer class="site-footer">
           <div class="wrap">
             <span>
-              EELS Data Base · <a href="/citation/">How to cite</a> · <a href="/contact/">Contact</a>
+              EELS Data Base · <a href="/citation/">How to cite</a> · <a href="/instruments/">Instrument profiles</a> ·{" "}
+              <a href="/contact/">Contact</a>
             </span>
             <span>
               Data under the <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a> ·{" "}

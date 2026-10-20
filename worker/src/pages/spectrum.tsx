@@ -9,6 +9,27 @@ type Row = Record<string, any>;
 /** CrossRef titles carry HTML (<i>, <sub>); citations need plain text. */
 const stripTags = (v: unknown) => String(v ?? "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
 
+const SOURCE_NOTE: Record<string, string> = {
+  file: "from the data file",
+  companion: "from a companion file",
+  profile: "from the instrument profile",
+  estimate: "approximate",
+};
+
+/** A value with its uncertainty and, unless the submitter typed it, where it came from. */
+function measured(value: number | null, unit: string, source: string | null, uncertainty: number | null) {
+  if (source === "unknown") return <span class="muted">Unknown</span>;
+  if (value === null || value === undefined) return null;
+  const note = source && SOURCE_NOTE[source];
+  return (
+    <>
+      {fmt(value, unit)}
+      {uncertainty ? ` ± ${uncertainty} ${unit}` : ""}
+      {note && <span class="muted small"> ({note})</span>}
+    </>
+  );
+}
+
 const yesNo = (v: unknown) => (v === null || v === undefined ? null : Number(v) ? "Yes" : "No");
 
 function MetaList(props: { items: [string, unknown][] }) {
@@ -125,6 +146,9 @@ export async function spectrumPage(c: Context<AppEnv>) {
           <h1>{s.title}</h1>
           <p class="byline">
             <TypeBadge type={s.type} /> <Formula formula={s.formula} /> · {authorLink} · added {String(s.published_at ?? "").slice(0, 10)}
+            {s.completeness === "full" && (
+              <> · <span class="badge-complete" title="Beam energy, convergence and collection angles are all recorded">Beam energy and angles known</span></>
+            )}
           </p>
         </div>
         <div class="head-actions">
@@ -209,9 +233,12 @@ export async function spectrumPage(c: Context<AppEnv>) {
             items={[
               [s.type === "xrayabs" ? "Beamline" : "Microscope", a.microscope],
               ["Gun", a.gun_type],
-              ["Beam energy", fmt(a.beam_energy_kv, "kV")],
-              ["Convergence semi-angle", fmt(a.convergence_mrad, "mrad")],
-              ["Collection semi-angle", fmt(a.collection_mrad, "mrad")],
+              ["Beam energy", measured(a.beam_energy_kv, "kV", a.beam_energy_source, a.beam_energy_uncertainty)],
+              ["Convergence semi-angle", measured(a.convergence_mrad, "mrad", a.convergence_source, a.convergence_uncertainty)],
+              ["Collection semi-angle", measured(a.collection_mrad, "mrad", a.collection_source, a.collection_uncertainty)],
+              ["Instrument profile", a.instrument_profile_id && (
+                <a href={`/instruments/${a.instrument_profile_id}/?version=${a.instrument_profile_version}`}>version {a.instrument_profile_version}</a>
+              )],
               ["Resolution", fmt(a.resolution_ev, "eV", 3)],
               ["Monochromated", yesNo(a.monochromated)],
               ["Mode", a.acquisition_mode],

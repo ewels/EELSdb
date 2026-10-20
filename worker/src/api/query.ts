@@ -127,8 +127,9 @@ export type SpectraQuery = {
 };
 
 /** `exact` compares energies and resolution as stored (the website); v1 keeps WordPress's whole-eV casts. */
-export function buildSpectraQuery(params: Params, opts: { exact?: boolean } = {}): SpectraQuery {
+export function buildSpectraQuery(params: Params, opts: { exact?: boolean; complete?: boolean } = {}): SpectraQuery {
   const where = ["s.status = 'published'"];
+  if (opts.complete) where.push("s.completeness = 'full'");
   const binds: unknown[] = [];
 
   const type = str(params, "type");

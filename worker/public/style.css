@@ -256,6 +256,8 @@ input[type="password"] { background: var(--surface); border: 1px solid var(--lin
 .inline-form { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .inline-form input { flex: 1 1 16rem; }
 input[type="email"] { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 0.45rem 0.6rem; min-width: 0; }
+.badge-complete { font-size: 0.8rem; font-weight: 600; color: var(--ochre); white-space: nowrap; }
+.cal-table input, .cal-table select { width: 100%; min-width: 5rem; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 0.3rem 0.4rem; }
 .byline { color: var(--muted); margin: 0; }
 .plot-panel { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 0.75rem 0.75rem 0.5rem; margin-top: 1.25rem; }
 .plot { min-height: 360px; }
