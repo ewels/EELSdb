@@ -1,8 +1,10 @@
 import { Hono, type Context } from "hono";
+import type { AppEnv } from "../auth";
 import { API_HOST, SITE, formatV1, loadBundle } from "./format";
+import { cli } from "./moderation";
 import { ORDER_META_KEYS, buildSpectraQuery, firstUnknownArg, parseParams, sortAndPage, type SpectrumRow } from "./query";
 
-export const api = new Hono<{ Bindings: Env }>();
+export const api = new Hono<AppEnv>();
 
 const DOCS = `${SITE}/api/`;
 const NEWS_PER_PAGE = 10;
@@ -48,6 +50,8 @@ const INDEX = {
   spectrum: { url: `${API_HOST}/spectra/{spectrum}` },
 };
 
+api.route("/cli", cli);
+
 api.get("/", (c) => json(c, INDEX));
 api.get("/index.php", (c) => json(c, INDEX));
 
@@ -57,7 +61,7 @@ async function spectrumObject(db: D1Database, row: { id: number; legacy_v1: stri
   return bundle && formatV1(bundle);
 }
 
-async function listSpectra(c: Context<{ Bindings: Env }>) {
+async function listSpectra(c: Context<AppEnv>) {
   const params = parseParams(new URL(c.req.url).search);
   const unknown = firstUnknownArg(params);
   if (unknown !== undefined) {
@@ -71,7 +75,7 @@ async function listSpectra(c: Context<{ Bindings: Env }>) {
   return json(c, await Promise.all(results.map((r) => spectrumObject(c.env.DB, r))));
 }
 
-async function oneSpectrum(c: Context<{ Bindings: Env }>) {
+async function oneSpectrum(c: Context<AppEnv>) {
   const row = await c.env.DB.prepare("SELECT id, legacy_v1 FROM spectra WHERE slug = ? AND status = 'published'")
     .bind(c.req.param("slug"))
     .first<{ id: number; legacy_v1: string | null }>();
@@ -83,7 +87,7 @@ api.get("/spectra/", listSpectra);
 api.get("/spectra/:slug", oneSpectrum);
 api.get("/spectra/:slug/", oneSpectrum);
 
-async function listNews(c: Context<{ Bindings: Env }>) {
+async function listNews(c: Context<AppEnv>) {
   const page = Math.max(1, Number(c.req.param("page") ?? 1) || 1);
   const { results } = await c.env.DB.prepare("SELECT legacy_v1 FROM news ORDER BY legacy_rank LIMIT ? OFFSET ?")
     .bind(NEWS_PER_PAGE, (page - 1) * NEWS_PER_PAGE)
@@ -121,7 +125,7 @@ api.get("/registered-users/", async (c) => {
   return json(c, results.map(contributorObject));
 });
 
-async function oneContributor(c: Context<{ Bindings: Env }>) {
+async function oneContributor(c: Context<AppEnv>) {
   const u = await c.env.DB.prepare(`${CONTRIBUTORS_SQL} AND s.author_slug = ? GROUP BY s.author_slug`)
     .bind(c.req.param("slug"))
     .first<Contributor>();
@@ -130,7 +134,7 @@ async function oneContributor(c: Context<{ Bindings: Env }>) {
 api.get("/author/:slug/", oneContributor);
 api.get("/author/:slug", oneContributor);
 
-async function oneNews(c: Context<{ Bindings: Env }>) {
+async function oneNews(c: Context<AppEnv>) {
   const row = await c.env.DB.prepare("SELECT legacy_v1 FROM news WHERE slug = ?").bind(c.req.param("slug")).first<{ legacy_v1: string }>();
   return row ? json(c, JSON.parse(row.legacy_v1)) : notFound(c);
 }

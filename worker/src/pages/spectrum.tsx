@@ -107,10 +107,13 @@ export function spectrumCitation(b: SpectrumBundle) {
 
 export async function spectrumPage(c: Context<AppEnv>) {
   const slug = c.req.param("slug")!;
-  const id = await c.env.DB.prepare("SELECT id FROM spectra WHERE slug = ? AND status = 'published'").bind(slug).first<number>("id");
+  const user = c.get("user");
+  // Submitters and moderators can see a spectrum before it is published.
+  const row = await c.env.DB.prepare("SELECT id, status, owner_id FROM spectra WHERE slug = ?").bind(slug).first<any>();
+  const visible = row && (row.status === "published" || (row.status === "pending" && user && (row.owner_id === user.id || isModerator(user))));
+  const id: number | null = visible ? row.id : null;
   const b = id === null ? null : await loadBundle(c.env.DB, id);
   if (!b) return c.notFound();
-  const user = c.get("user");
   const favourite = user
     ? await c.env.DB.prepare("SELECT 1 FROM favourites WHERE user_id = ? AND spectrum_id = ?").bind(user.id, id).first()
     : null;
@@ -142,6 +145,9 @@ export async function spectrumPage(c: Context<AppEnv>) {
       <p class="small" style="margin-top:1.25rem">
         <a href="/spectra/">← All spectra</a>
       </p>
+      {b.spectrum.status !== "published" && (
+        <p class="notice" role="status">Not published yet: this spectrum is waiting for a moderator. Only you and the moderators can see this page.</p>
+      )}
       <div class="spectrum-head">
         <div>
           <h1>{s.title}</h1>

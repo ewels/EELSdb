@@ -39,7 +39,9 @@ export async function loadBundle(db: D1Database, id: number): Promise<SpectrumBu
     q(`SELECT r.title, r.slug, r.type FROM spectrum_links l JOIN spectra r ON r.id = l.related_id
        WHERE l.spectrum_id = ? AND r.status = 'published' ORDER BY l.position`),
     q("SELECT url, title FROM spectrum_other_urls WHERE spectrum_id = ? ORDER BY position"),
-    q("SELECT r2_key FROM files WHERE spectrum_id = ? AND role IN ('legacy', 'original') ORDER BY role = 'legacy' DESC LIMIT 1"),
+    // The download is the legacy file, else the reviewed MSA (exSpy reads only .msa), else the upload.
+    q(`SELECT r2_key FROM files WHERE spectrum_id = ? AND role IN ('legacy', 'msa', 'original')
+       ORDER BY CASE role WHEN 'legacy' THEN 0 WHEN 'msa' THEN 1 ELSE 2 END LIMIT 1`),
   ]);
   const spectrum = s.results[0] as Row | undefined;
   if (!spectrum) return null;

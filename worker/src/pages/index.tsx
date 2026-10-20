@@ -6,6 +6,7 @@ import { serveFile } from "../files";
 import { browsePage } from "./browse";
 import { EELSDB_BIBTEX, EELSDB_CITATION } from "./citation";
 import { Formula, Layout, TYPE_NAMES, TypeBadge } from "./layout";
+import { admin } from "../admin";
 import { instruments } from "../instruments";
 import { edit } from "../submit/edit";
 import { submit } from "../submit/index";
@@ -21,6 +22,7 @@ pages.route("/", account);
 pages.route("/", submit);
 pages.route("/", instruments);
 pages.route("/", edit);
+pages.route("/", admin);
 
 pages.get("/", async (c) => {
   const [{ results: byType }, counts, { results: latest }, { results: news }] = await c.env.DB.batch<any>([
@@ -108,6 +110,8 @@ pages.get("/spectra", (c) => c.redirect(`/spectra/${new URL(c.req.url).search}`,
 pages.get("/spectra/:slug/", spectrumPage);
 pages.get("/spectra/:slug", (c) => c.redirect(`/spectra/${encodeURIComponent(c.req.param("slug"))}/`, 301));
 pages.get("/wp-content/uploads/*", serveFile);
+pages.get("/files/*", serveFile);
+pages.get("/submissions/*", serveFile);
 
 pages.get("/about/", (c) =>
   c.html(
