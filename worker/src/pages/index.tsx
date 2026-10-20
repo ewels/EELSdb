@@ -9,6 +9,7 @@ import { apiDocs } from "./api-docs";
 import { browsePage } from "./browse";
 import { EELSDB_BIBTEX, EELSDB_CITATION } from "./citation";
 import { Formula, Layout, TYPE_NAMES, TypeBadge } from "./layout";
+import { HERO_LOGO_SVG } from "./logo";
 import { admin } from "../admin";
 import { instruments } from "../instruments";
 import { edit } from "../submit/edit";
@@ -45,6 +46,7 @@ pages.get("/", async (c) => {
 
   return c.html(
     <Layout user={c.get("user")} path="/">
+      <div class="hero-logo">{raw(HERO_LOGO_SVG)}</div>
       <div class="home-intro">
         <div>
           <h1>Reference spectra for electron energy-loss and X-ray absorption spectroscopy</h1>

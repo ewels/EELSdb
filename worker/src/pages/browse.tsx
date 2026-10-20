@@ -17,7 +17,7 @@ const COLUMNS: [label: string, order: string | null, cls?: string][] = [
   ["Type", "spectrumType"],
   ["Title", "title"],
   ["Formula", "spectrumFormula"],
-  ["Edges", null, "hide-sm"],
+  ["Edges", null, "hide-sm hide-md"],
   ["Energy range", "spectrumMin", "num"],
   ["Beam", "beamenergy", "num hide-sm"],
   ["Resolution", "resolution", "num hide-sm"],
@@ -84,7 +84,7 @@ export async function browsePage(c: Context<AppEnv>) {
   }
 
   return c.html(
-    <Layout user={c.get("user")} title="Browse spectra" path="/spectra/">
+    <Layout user={c.get("user")} title="Browse spectra" path="/spectra/" wide>
       <h1>Browse spectra</h1>
       <div class="browse">
         <form class="filters" method="get" action="/spectra/" id="filters">
@@ -215,7 +215,7 @@ export async function browsePage(c: Context<AppEnv>) {
                       <td><TypeBadge type={s.type} /></td>
                       <td class="title"><a href={`/spectra/${encodeURIComponent(s.slug)}/`}>{s.title}</a></td>
                       <td class="formula-cell"><Formula formula={s.formula} /></td>
-                      <td class="edges hide-sm">{(edgesById.get(s.id) ?? "").replaceAll(" ", "\u00a0").replaceAll(",\u00a0", ", ")}</td>
+                      <td class="edges hide-sm hide-md">{(edgesById.get(s.id) ?? "").replaceAll(" ", "\u00a0").replaceAll(",\u00a0", ", ")}</td>
                       <td class="num">
                         {s.min_energy_ev !== null && s.max_energy_ev !== null
                           ? `${Number(s.min_energy_ev.toFixed(1))} – ${Number(s.max_energy_ev.toFixed(1))} eV`
