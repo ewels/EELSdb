@@ -1,0 +1,154 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "EELS Data Base API v1",
+    "version": "1",
+    "description": "Read-only JSON API for the spectra in the EELS Data Base. No key is needed. Used by exSpy's `exspy.data.eelsdb()`. Responses have `Access-Control-Allow-Origin: *`. Errors return a JSON object with `message` and `documentation_url`."
+  },
+  "servers": [{ "url": "https://api.eelsdb.eu" }],
+  "paths": {
+    "/spectra/": {
+      "get": {
+        "summary": "List spectra",
+        "description": "Published spectra matching all given filters. `/spectra` (no trailing slash) works the same. An unknown query parameter returns 400. Without `per_page`, 50 spectra are returned; there is no total count.",
+        "parameters": [
+          { "name": "type", "in": "query", "description": "Spectrum type.", "schema": { "type": "string", "enum": ["coreloss", "lowloss", "zeroloss", "xrayabs"] } },
+          { "name": "title", "in": "query", "description": "Words to find in the title or description. Every word must match.", "schema": { "type": "string" }, "example": "graphite" },
+          { "name": "author", "in": "query", "description": "Comma-separated parts of contributor names or profile names. Matches any of them.", "schema": { "type": "string" }, "example": "Hettler" },
+          { "name": "element", "in": "query", "description": "An element symbol. Use `element[]` more than once to require several elements (all must be present).", "schema": { "type": "string" }, "example": "Fe" },
+          { "name": "formula", "in": "query", "description": "Text the chemical formula contains.", "schema": { "type": "string" }, "example": "TiO2" },
+          { "name": "edge", "in": "query", "description": "An edge name, matched whole: `K` matches `C_K` but not `K_L2,3`.", "schema": { "type": "string", "enum": ["K", "L1", "L2,3", "M2,3", "M4,5", "N2,3", "N4,5", "O2,3", "O4,5"] } },
+          { "name": "min_energy", "in": "query", "description": "Compare the start of the energy range (eV), rounded to whole eV, with this value.", "schema": { "type": "number" } },
+          { "name": "min_energy_compare", "in": "query", "description": "`gt` or `ge`: greater than or equal. `eq`: equal. Anything else, or missing: less than or equal.", "schema": { "type": "string", "enum": ["gt", "ge", "eq", "lt"] } },
+          { "name": "max_energy", "in": "query", "description": "Compare the end of the energy range (eV), rounded to whole eV, with this value.", "schema": { "type": "number" } },
+          { "name": "max_energy_compare", "in": "query", "description": "As `min_energy_compare`.", "schema": { "type": "string", "enum": ["gt", "ge", "eq", "lt"] } },
+          { "name": "resolution", "in": "query", "description": "Compare the energy resolution (eV), truncated to whole eV, with this value.", "schema": { "type": "number" } },
+          { "name": "resolution_compare", "in": "query", "description": "As `min_energy_compare`.", "schema": { "type": "string", "enum": ["gt", "ge", "eq", "lt"] } },
+          { "name": "monochromated", "in": "query", "description": "`1`: monochromated spectra only. `0`: non-monochromated spectra only. Other values: no filter.", "schema": { "type": "string", "enum": ["1", "0"] } },
+          { "name": "per_page", "in": "query", "description": "Spectra per page. `-1` returns all.", "schema": { "type": "integer", "default": 50 } },
+          { "name": "page", "in": "query", "description": "Page number, from 1. A page past the end returns 404.", "schema": { "type": "integer", "default": 1 } },
+          { "name": "order", "in": "query", "description": "Sort key: `title`, `author`, `date`, or a field key such as `spectrumFormula`, `spectrumMin`, `spectrumMax`, `beamenergy`, `resolution`, `spectrumType`, `microscope`. Default: `spectrumFormula`.", "schema": { "type": "string" } },
+          { "name": "order_direction", "in": "query", "description": "Sort direction.", "schema": { "type": "string", "enum": ["ASC", "DESC"], "default": "ASC" } }
+        ],
+        "responses": {
+          "200": { "description": "Array of spectrum objects.", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Spectrum" } } } } },
+          "400": { "description": "Unknown query parameter.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "Page past the end.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/spectra/{slug}/": {
+      "get": {
+        "summary": "One spectrum",
+        "parameters": [{ "name": "slug", "in": "path", "required": true, "description": "The last part of the spectrum's web address.", "schema": { "type": "string" }, "example": "mlc-nanotube-ylas-tas2" }],
+        "responses": {
+          "200": { "description": "A spectrum object.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Spectrum" } } } },
+          "404": { "description": "No published spectrum with this slug.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/news/": {
+      "get": {
+        "summary": "List news posts",
+        "description": "The news archive. It no longer changes.",
+        "responses": { "200": { "description": "Array of news objects." } }
+      }
+    },
+    "/{post_slug}/": {
+      "get": {
+        "summary": "One news post",
+        "parameters": [{ "name": "post_slug", "in": "path", "required": true, "schema": { "type": "string" }, "example": "hyperspy" }],
+        "responses": { "200": { "description": "A news object." }, "404": { "description": "Not found." } }
+      }
+    },
+    "/registered-users/": {
+      "get": {
+        "summary": "List contributors",
+        "description": "People who contributed published spectra. No personal contact details are included.",
+        "responses": { "200": { "description": "Array of contributor objects.", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Contributor" } } } } } }
+      }
+    },
+    "/author/{user}/": {
+      "get": {
+        "summary": "One contributor",
+        "parameters": [{ "name": "user", "in": "path", "required": true, "schema": { "type": "string" }, "example": "simon" }],
+        "responses": {
+          "200": { "description": "A contributor object.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Contributor" } } } },
+          "404": { "description": "No contributor with this name." }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": { "message": { "type": "string" }, "documentation_url": { "type": "string" } }
+      },
+      "Spectrum": {
+        "type": "object",
+        "description": "Fields appear only when set. Numbers come as strings with units, as in the original API.",
+        "properties": {
+          "id": { "type": "integer" },
+          "title": { "type": "string" },
+          "permalink": { "type": "string", "description": "Web page." },
+          "api_permalink": { "type": "string" },
+          "author": { "type": "object", "properties": { "name": { "type": "string" }, "profile_url": { "type": "string" }, "profile_api_url": { "type": "string" } } },
+          "published": { "type": "string", "example": "2023-11-06 16:27:48" },
+          "description": { "type": "string" },
+          "comment_count": { "type": "integer" },
+          "keywords": { "type": "array", "items": { "type": "string" } },
+          "download_link": { "type": "string", "description": "The data file (MSA or two-column text)." },
+          "type": { "type": "string", "enum": ["Core Loss", "Low Loss", "Zero Loss", "X Ray Abs"] },
+          "formula": { "type": "string" },
+          "elements": { "type": "array", "items": { "type": "string" } },
+          "edges": { "type": "array", "items": { "type": "string" }, "example": ["Fe_L2,3", "O_K"] },
+          "microscope": { "type": "string", "description": "Microscope, or beamline for X-ray absorption spectra." },
+          "min_energy": { "type": "string", "example": "1700 eV" },
+          "max_energy": { "type": "string", "example": "2574 eV" },
+          "stepSize": { "type": "string", "example": "0.5 eV/pixel" },
+          "source_purity": { "type": "string" },
+          "guntype": { "type": "string" },
+          "beamenergy": { "type": "string", "example": "300 kV" },
+          "resolution": { "type": "string", "example": "1.8 eV" },
+          "monochromated": { "type": "string", "enum": ["Yes", "No"] },
+          "acquisition_mode": { "type": "string" },
+          "convergence": { "type": "string", "example": "25 mrad" },
+          "collection": { "type": "string", "example": "85.7 mrad" },
+          "probesize": { "type": "string", "example": "1 nm^2" },
+          "beamcurrent": { "type": "string" },
+          "integratetime": { "type": "string", "example": "10 secs" },
+          "readouts": { "type": "string" },
+          "detector": { "type": "string" },
+          "darkcurrent": { "type": "string", "enum": ["Yes", "No"] },
+          "gainvariation": { "type": "string", "enum": ["Yes", "No"] },
+          "calibration": { "type": "string" },
+          "thickness": { "type": "string", "example": "0.5 t/&lambda;" },
+          "deconvolutions": { "type": "array", "items": { "type": "string" } },
+          "reference": {
+            "type": "object",
+            "properties": {
+              "freetext": { "type": "string" }, "authors": { "type": "string" }, "year": { "type": "string" }, "journal": { "type": "string" },
+              "title": { "type": "string" }, "volume": { "type": "string" }, "issue": { "type": "string" }, "page": { "type": "string" },
+              "doi": { "type": "string" }, "url": { "type": "string" }
+            }
+          },
+          "associated_spectra": { "type": "array", "items": { "type": "object", "properties": { "name": { "type": "string" }, "link": { "type": "string" }, "type": { "type": "string" } } } },
+          "other_links": { "type": "array", "items": { "type": "object", "properties": { "url": { "type": "string" }, "title": { "type": "string" } } } }
+        }
+      },
+      "Contributor": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "profile_url": { "type": "string" },
+          "profile_api_url": { "type": "string" },
+          "spectra_api_url": { "type": "string" },
+          "spectra_url": { "type": "string" },
+          "num_spectra": { "type": "integer" },
+          "orcid": { "type": "string" }
+        }
+      }
+    }
+  }
+}

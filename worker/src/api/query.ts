@@ -126,7 +126,8 @@ export type SpectraQuery = {
   page: number;
 };
 
-export function buildSpectraQuery(params: Params): SpectraQuery {
+/** `exact` compares energies and resolution as stored (the website); v1 keeps WordPress's whole-eV casts. */
+export function buildSpectraQuery(params: Params, opts: { exact?: boolean } = {}): SpectraQuery {
   const where = ["s.status = 'published'"];
   const binds: unknown[] = [];
 
@@ -174,11 +175,13 @@ export function buildSpectraQuery(params: Params): SpectraQuery {
 
   // WordPress compared the stored strings after CAST(... AS DECIMAL), which rounds energies to whole eV,
   // and CAST(... AS SIGNED), which truncates resolutions to whole eV.
-  const ranges: [string, string][] = [
-    ["min_energy", "ROUND(COALESCE(s.min_energy_ev, 0))"],
-    ["max_energy", "ROUND(COALESCE(s.max_energy_ev, 0))"],
-    ["resolution", "CAST(COALESCE(a.resolution_ev, 0) AS INTEGER)"],
-  ];
+  const ranges: [string, string][] = opts.exact
+    ? [["min_energy", "s.min_energy_ev"], ["max_energy", "s.max_energy_ev"], ["resolution", "a.resolution_ev"]]
+    : [
+        ["min_energy", "ROUND(COALESCE(s.min_energy_ev, 0))"],
+        ["max_energy", "ROUND(COALESCE(s.max_energy_ev, 0))"],
+        ["resolution", "CAST(COALESCE(a.resolution_ev, 0) AS INTEGER)"],
+      ];
   for (const [key, expr] of ranges) {
     const v = str(params, key);
     if (v === undefined) continue;
@@ -197,7 +200,9 @@ export function buildSpectraQuery(params: Params): SpectraQuery {
   const [sortExpr, numeric] = ORDER_KEYS[key];
   if (ROW_PRESENCE_KEYS.has(key)) where.push(`${sortExpr} IS NOT NULL`);
   const sql =
-    `SELECT s.id, s.legacy_v1, s.legacy_rank, ${sortExpr} AS sort_value FROM spectra s ` +
+    `SELECT s.id, s.legacy_v1, s.legacy_rank, ${sortExpr} AS sort_value, s.slug, s.title, s.type, s.formula, ` +
+    "s.min_energy_ev, s.max_energy_ev, s.author_display, s.author_slug, s.published_at, " +
+    "a.beam_energy_kv, a.resolution_ev, a.monochromated, a.microscope FROM spectra s " +
     "LEFT JOIN eels_acquisition a ON a.spectrum_id = s.id " +
     "LEFT JOIN treatment t ON t.spectrum_id = s.id " +
     "LEFT JOIN reference r ON r.spectrum_id = s.id " +
@@ -216,7 +221,25 @@ export function buildSpectraQuery(params: Params): SpectraQuery {
   };
 }
 
-export type SpectrumRow = { id: number; legacy_v1: string | null; legacy_rank: number | null; sort_value: unknown };
+export type SpectrumRow = {
+  id: number;
+  legacy_v1: string | null;
+  legacy_rank: number | null;
+  sort_value: unknown;
+  slug: string;
+  title: string;
+  type: string;
+  formula: string | null;
+  min_energy_ev: number | null;
+  max_energy_ev: number | null;
+  author_display: string;
+  author_slug: string;
+  published_at: string | null;
+  beam_energy_kv: number | null;
+  resolution_ev: number | null;
+  monochromated: number | null;
+  microscope: string | null;
+};
 
 // Close to MySQL's utf8mb4_unicode_ci, which the live site sorted with (punctuation order, case-insensitive).
 const collator = new Intl.Collator("en", { sensitivity: "base" });

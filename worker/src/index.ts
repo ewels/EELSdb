@@ -1,5 +1,5 @@
 import { api } from "./api/index";
-import { pages } from "./pages";
+import { pages } from "./pages/index";
 
 export default {
   fetch(req, env, ctx) {
