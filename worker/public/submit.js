@@ -138,58 +138,8 @@ if (instrument) {
 
 const READ_PY = `
 import json, numpy as np
-from pathlib import Path
 from eelsdb import checks
-from eelsdb.io import read_msa, read_txt
-
-def _get(md, path):
-    for key in path.split("."):
-        if not isinstance(md, dict) or key not in md:
-            return None
-        md = md[key]
-    return md
-
-def read_any(path):
-    ext = Path(path).suffix.lower()
-    meta = {}
-    if ext in (".msa", ".emsa"):
-        sp = read_msa(path)
-        return sp.energy, sp.intensity, sp.header_axis, {k: sp.header.get(k) for k in ("BEAMKV", "CONVANGLE", "COLLANGLE")}
-    if ext in (".txt", ".csv"):
-        sp = read_txt(path)
-        return sp.energy, sp.intensity, None, {}
-    if ext in (".dm3", ".dm4"):
-        from rsciio.digitalmicrograph import file_reader
-    elif ext == ".emd":
-        from rsciio.emd import file_reader
-    elif ext == ".hspy":
-        from rsciio.hspy import file_reader
-    elif ext in (".ser", ".emi"):
-        from rsciio.tia import file_reader
-    else:
-        raise ValueError(f"cannot read {ext} files")
-    signals = file_reader(path)
-    # Prefer a 1D spectrum (or a spectrum image, summed); else any signal for its metadata.
-    sig = next((s for s in signals if s["data"].ndim >= 1 and s["axes"][-1].get("units") in ("eV", "keV")), signals[0])
-    md = sig.get("metadata", {})
-    tem = _get(md, "Acquisition_instrument.TEM") or {}
-    meta = {
-        "BEAMKV": tem.get("beam_energy"),
-        "CONVANGLE": tem.get("convergence_angle"),
-        "COLLANGLE": _get(tem, "Detector.EELS.collection_angle"),
-        "EXPOSURE": _get(tem, "Detector.EELS.exposure"),
-        "FRAMES": _get(tem, "Detector.EELS.frame_number"),
-    }
-    ax = sig["axes"][-1]
-    if ax.get("units") not in ("eV", "keV"):
-        return None, None, None, meta
-    data = np.asarray(sig["data"], dtype=float)
-    while data.ndim > 1:
-        data = data.sum(axis=0)
-    scale = ax.get("scale", 1) * (1000 if ax.get("units") == "keV" else 1)
-    offset = ax.get("offset", 0) * (1000 if ax.get("units") == "keV" else 1)
-    energy = offset + scale * np.arange(data.size)
-    return energy, data, None, meta
+from eelsdb.io import read_any
 
 def clean(v):
     try:
@@ -200,14 +150,15 @@ def clean(v):
 
 def run(path, kind, formula, elements, edges, thickness, table_json):
     elements, edges = list(elements.to_py()), list(edges.to_py())
-    energy, intensity, header_axis, meta = read_any(path)
-    out = {"meta": {k: clean(v) for k, v in meta.items()}}
-    if energy is None:
+    sp = read_any(path)
+    keys = ("beam_energy_kv", "convergence_mrad", "collection_mrad", "exposure_s", "frames")
+    out = {"meta": {k: clean(sp.header.get(k)) for k in keys}}
+    if sp.energy is None:
         return json.dumps(out)
-    table = json.loads(table_json)
+    energy, intensity = sp.energy, sp.intensity
     findings = checks.run_all(energy, intensity, spectrum_type=kind or None, formula=formula or None,
-                              elements=elements, edges=edges, edge_table=table, thickness=thickness,
-                              header_axis=header_axis)
+                              elements=elements, edges=edges, edge_table=json.loads(table_json), thickness=thickness,
+                              header_axis=sp.header_axis)
     step = max(1, energy.size // 2000)
     out.update({
         "points": int(energy.size),
@@ -277,13 +228,13 @@ async function check(input, role) {
 
   const source = role === "companion" ? "companion" : "file";
   const filled = [
-    prefill("beam_energy", result.meta.BEAMKV, source) && "beam energy",
-    prefill("convergence", result.meta.CONVANGLE, source) && "convergence angle",
-    prefill("collection", result.meta.COLLANGLE, source) && "collection angle",
+    prefill("beam_energy", result.meta.beam_energy_kv, source) && "beam energy",
+    prefill("convergence", result.meta.convergence_mrad, source) && "convergence angle",
+    prefill("collection", result.meta.collection_mrad, source) && "collection angle",
   ].filter(Boolean);
   if (role === "original") {
-    fillIfEmpty("integration_time_s", result.meta.EXPOSURE);
-    fillIfEmpty("readouts", result.meta.FRAMES);
+    fillIfEmpty("integration_time_s", result.meta.exposure_s);
+    fillIfEmpty("readouts", result.meta.frames);
     if (result.dispersion) fillIfEmpty("dispersion_ev", +result.dispersion.toFixed(5));
   }
   if (role === "lowloss") {

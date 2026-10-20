@@ -62,7 +62,17 @@ cli.get("/queue/:id", async (c) => {
   if (!detail) return c.json({ message: "No such submission." }, 404);
   const spectrum = await c.env.DB.prepare("SELECT * FROM spectra WHERE id = ?").bind(detail.spectrum_id).first<any>();
   const acquisition = await c.env.DB.prepare("SELECT * FROM eels_acquisition WHERE spectrum_id = ?").bind(detail.spectrum_id).first();
-  return c.json({ ...detail, spectrum: { ...spectrum, legacy_v1: undefined }, acquisition });
+  const reference = await c.env.DB.prepare("SELECT * FROM reference WHERE spectrum_id = ?").bind(detail.spectrum_id).first();
+  const { results: elements } = await c.env.DB.prepare("SELECT element FROM spectrum_elements WHERE spectrum_id = ? ORDER BY position").bind(detail.spectrum_id).all<any>();
+  const { results: edges } = await c.env.DB.prepare("SELECT element, edge FROM spectrum_edges WHERE spectrum_id = ? ORDER BY position").bind(detail.spectrum_id).all<any>();
+  return c.json({
+    ...detail,
+    spectrum: { ...spectrum, legacy_v1: undefined },
+    acquisition,
+    reference,
+    elements: elements.map((e) => e.element),
+    edges: edges.map((e) => `${e.element}_${e.edge}`),
+  });
 });
 
 cli.get("/queue/:id/files/:role", async (c) => {

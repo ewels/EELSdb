@@ -35,6 +35,14 @@ cd python
 uv run pytest
 uv run eelsdb --version
 uv run eelsdb check FILE --type coreloss --formula Fe2O3 --edges "Fe_L2,3;O_K"   # offline checks on a spectrum file
+uv run eelsdb login                         # paste an API token from /account/tokens/
+uv run eelsdb submit FILE --title … --type coreloss --formula …   # or a folder of files with .json fields
+uv run eelsdb review                        # moderators: reprocess, compare, decide
+```
+
+Point the CLI at a local Worker with `EELSDB_API=http://api.localhost:8787` (and `EELSDB_TOKEN`, or run `eelsdb login --api …`).
+
+```bash
 uv run python -m eelsdb.legacy.record_api      # record the live API into data/fixtures/api-v1/
 uv run python -m eelsdb.legacy.download_files  # download spectrum files into data/cache/files/
 uv run python -m eelsdb.legacy.analyse_files   # write data/fixtures/file-analysis.json
