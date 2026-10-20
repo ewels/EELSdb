@@ -1,4 +1,5 @@
 import type { Context } from "hono";
+import type { AppEnv } from "../auth";
 import { KNOWN_ARGS, buildSpectraQuery, parseParams, sortAndPage, type Params } from "../api/query";
 import { Formula, Layout, TYPE_NAMES, TypeBadge, fmt } from "./layout";
 
@@ -60,7 +61,7 @@ const val = (params: Params, key: string) => {
   return typeof v === "string" ? v : "";
 };
 
-export async function browsePage(c: Context<{ Bindings: Env }>) {
+export async function browsePage(c: Context<AppEnv>) {
   const params = parseParams(new URL(c.req.url).search);
   for (const key of [...params.keys()]) if (!KNOWN_ARGS.includes(key)) params.delete(key);
   params.set("per_page", String(PER_PAGE));
@@ -93,7 +94,7 @@ export async function browsePage(c: Context<{ Bindings: Env }>) {
   }
 
   return c.html(
-    <Layout title="Browse spectra" path="/spectra/">
+    <Layout user={c.get("user")} title="Browse spectra" path="/spectra/">
       <h1>Browse spectra</h1>
       <div class="browse">
         <form class="filters" method="get" action="/spectra/" id="filters">

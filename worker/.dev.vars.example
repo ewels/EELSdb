@@ -1,0 +1,14 @@
+# Copy to .dev.vars (gitignored) and fill in. OAuth apps need the redirect URL
+# http://localhost:8787/auth/{orcid|google|github}/callback for local development.
+ORCID_CLIENT_ID=
+ORCID_CLIENT_SECRET=
+# https://sandbox.orcid.org for ORCID's sandbox
+ORCID_BASE=https://orcid.org
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+# "log" writes emails to the Worker log
+EMAIL_PROVIDER=log
+# "1" lets migrated accounts sign in with their old WordPress password (CPU-heavy; Workers Paid)
+LEGACY_PASSWORD_LOGIN=0

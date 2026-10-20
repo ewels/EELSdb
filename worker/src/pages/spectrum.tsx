@@ -1,4 +1,5 @@
 import type { Context } from "hono";
+import type { AppEnv } from "../auth";
 import { SITE, loadBundle, type SpectrumBundle } from "../api/format";
 import { EELSDB_BIBTEX, EELSDB_CITATION } from "./citation";
 import { Formula, Layout, TypeBadge, fmt } from "./layout";
@@ -82,11 +83,15 @@ export function spectrumCitation(b: SpectrumBundle) {
   return { text, bib };
 }
 
-export async function spectrumPage(c: Context<{ Bindings: Env }>) {
+export async function spectrumPage(c: Context<AppEnv>) {
   const slug = c.req.param("slug")!;
   const id = await c.env.DB.prepare("SELECT id FROM spectra WHERE slug = ? AND status = 'published'").bind(slug).first<number>("id");
   const b = id === null ? null : await loadBundle(c.env.DB, id);
   if (!b) return c.notFound();
+  const user = c.get("user");
+  const favourite = user
+    ? await c.env.DB.prepare("SELECT 1 FROM favourites WHERE user_id = ? AND spectrum_id = ?").bind(user.id, id).first()
+    : null;
 
   const s = b.spectrum;
   const a = b.acquisition ?? {};
@@ -106,7 +111,7 @@ export async function spectrumPage(c: Context<{ Bindings: Env }>) {
   const authorLink = <a href={`/author/${s.author_slug}/`}>{s.author_display}</a>;
 
   return c.html(
-    <Layout
+    <Layout user={c.get("user")}
       title={s.title}
       path="/spectra/"
       description={`${s.title}${s.formula ? ` (${s.formula})` : ""}: ${s.type} spectrum in the EELS Data Base.`}
@@ -122,6 +127,19 @@ export async function spectrumPage(c: Context<{ Bindings: Env }>) {
             <TypeBadge type={s.type} /> <Formula formula={s.formula} /> · {authorLink} · added {String(s.published_at ?? "").slice(0, 10)}
           </p>
         </div>
+        <div class="head-actions">
+        {user ? (
+          <form method="post" action={`/favourites/${s.id}/`}>
+            <button class="button secondary" type="submit" aria-pressed={favourite ? "true" : "false"}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill={favourite ? "currentColor" : "none"} stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" />
+              </svg>
+              {favourite ? "Saved" : "Save"}
+            </button>
+          </form>
+        ) : (
+          <a class="button secondary" href={`/login/?next=${encodeURIComponent(`/spectra/${s.slug}/`)}`}>Sign in to save</a>
+        )}
         {fileUrl && (
           <button class="button" type="button" data-open="download-dialog">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
@@ -130,6 +148,7 @@ export async function spectrumPage(c: Context<{ Bindings: Env }>) {
             Download
           </button>
         )}
+        </div>
       </div>
 
       <div class="plot-panel">

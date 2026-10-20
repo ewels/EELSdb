@@ -1,13 +1,20 @@
 import { Hono, type Context } from "hono";
+import { csrf } from "hono/csrf";
+import { loadUser, type AppEnv } from "../auth";
 import openapi from "../api/openapi-v1.json";
 import { serveFile } from "../files";
 import { browsePage } from "./browse";
 import { EELSDB_BIBTEX, EELSDB_CITATION } from "./citation";
 import { Formula, Layout, TYPE_NAMES, TypeBadge } from "./layout";
+import { account } from "./account";
 import { spectrumPage } from "./spectrum";
 
-export const pages = new Hono<{ Bindings: Env }>();
-type C = Context<{ Bindings: Env }>;
+export const pages = new Hono<AppEnv>();
+type C = Context<AppEnv>;
+
+pages.use(csrf());
+pages.use(loadUser);
+pages.route("/", account);
 
 pages.get("/", async (c) => {
   const [{ results: byType }, counts, { results: latest }, { results: news }] = await c.env.DB.batch<any>([
@@ -26,7 +33,7 @@ pages.get("/", async (c) => {
   const { elements, contributors } = counts.results[0];
 
   return c.html(
-    <Layout path="/">
+    <Layout user={c.get("user")} path="/">
       <div class="home-intro">
         <div>
           <h1>Reference spectra for electron energy-loss and X-ray absorption spectroscopy</h1>
@@ -98,7 +105,7 @@ pages.get("/wp-content/uploads/*", serveFile);
 
 pages.get("/about/", (c) =>
   c.html(
-    <Layout title="About" path="/about/">
+    <Layout user={c.get("user")} title="About" path="/about/">
       <div class="prose">
         <h1>About the EELS Data Base</h1>
         <p class="lede">
@@ -146,7 +153,7 @@ pages.get("/about/", (c) =>
 
 pages.get("/citation/", (c) =>
   c.html(
-    <Layout title="How to cite" path="/citation/">
+    <Layout user={c.get("user")} title="How to cite" path="/citation/">
       <div class="prose">
         <h1>How to cite</h1>
         <p>
@@ -164,7 +171,7 @@ pages.get("/citation/", (c) =>
 
 pages.get("/contact/", (c) =>
   c.html(
-    <Layout title="Contact" path="/contact/">
+    <Layout user={c.get("user")} title="Contact" path="/contact/">
       <div class="prose">
         <h1>Contact</h1>
         {/* TODO: contact address or form; the old site used a WordPress contact form. */}
@@ -180,7 +187,7 @@ pages.get("/contact/", (c) =>
 
 pages.get("/submit-data/", (c) =>
   c.html(
-    <Layout title="Submit data" path="/submit-data/">
+    <Layout user={c.get("user")} title="Submit data" path="/submit-data/">
       <div class="prose">
         <h1>Submit data</h1>
         <p class="notice">
@@ -203,7 +210,7 @@ const API_EXAMPLES = [
 
 pages.get("/api/", (c) =>
   c.html(
-    <Layout title="API" path="/api/">
+    <Layout user={c.get("user")} title="API" path="/api/">
       <div class="prose">
         <h1>{openapi.info.title}</h1>
         <p>{openapi.info.description.replaceAll("`", "")}</p>
@@ -267,7 +274,7 @@ async function authorPage(c: C) {
   if (!results.length) return c.notFound();
   const name = results[0].author_display;
   return c.html(
-    <Layout title={name} path="/author/">
+    <Layout user={c.get("user")} title={name} path="/author/">
       <h1>{name}</h1>
       <p class="muted">
         {results.length === 1 ? "1 spectrum" : `${results.length} spectra`} · <a href={`/spectra/?author=${slug}`}>Filter in browse</a>
@@ -299,7 +306,7 @@ pages.get("/news/", async (c) => {
   const { results } = await c.env.DB.prepare("SELECT slug, title, published_at, body_html FROM news ORDER BY published_at DESC").all<any>();
   const years = results.map((p) => String(p.published_at).slice(0, 4));
   return c.html(
-    <Layout title="News" path="/news/">
+    <Layout user={c.get("user")} title="News" path="/news/">
       <h1>News</h1>
       <p class="muted">
         Archived news from the EELS Data Base, {years.at(-1)} to {years[0]}. Each post shows its summary.
@@ -319,7 +326,7 @@ pages.get("/news/", async (c) => {
 
 const gone = (c: C) =>
   c.html(
-    <Layout title="Removed" path="">
+    <Layout user={c.get("user")} title="Removed" path="">
       <div class="prose">
         <h1>This page has been removed</h1>
         <p>
@@ -339,7 +346,7 @@ pages.get("/:slug/", async (c) => {
   if (!post) return c.notFound();
   const author = JSON.parse(post.legacy_v1).author?.name;
   return c.html(
-    <Layout title={post.title} path="/news/">
+    <Layout user={c.get("user")} title={post.title} path="/news/">
       <article class="prose">
         <p class="small" style="margin-top:1.25rem"><a href="/news/">← News</a></p>
         <h1>{post.title}</h1>
@@ -355,7 +362,7 @@ pages.get("/:slug/", async (c) => {
 
 pages.notFound((c) =>
   c.html(
-    <Layout title="Not found" path="">
+    <Layout user={c.get("user")} title="Not found" path="">
       <div class="prose">
         <h1>Page not found</h1>
         <p>

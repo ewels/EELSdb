@@ -244,6 +244,17 @@ td.formula-cell { min-width: 9rem; }
 /* Spectrum */
 .spectrum-head { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; justify-content: space-between; }
 .spectrum-head h1 { margin-bottom: 0.25rem; }
+.head-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.head-actions form { margin: 0; }
+.sign-in-buttons { display: grid; gap: 0.5rem; max-width: 20rem; margin: 1rem 0 2rem; }
+.sign-in-buttons .button { justify-content: center; }
+.password-login { display: grid; gap: 0.35rem; max-width: 20rem; margin-bottom: 2rem; }
+.password-login label { font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-top: 0.4rem; }
+.password-login .button { justify-self: start; margin-top: 0.75rem; }
+input[type="password"] { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 0.45rem 0.6rem; }
+.inline-form { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.inline-form input { flex: 1 1 16rem; }
+input[type="email"] { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 0.45rem 0.6rem; min-width: 0; }
 .byline { color: var(--muted); margin: 0; }
 .plot-panel { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 0.75rem 0.75rem 0.5rem; margin-top: 1.25rem; }
 .plot { min-height: 360px; }

@@ -1,5 +1,6 @@
 import type { Child } from "hono/jsx";
 import { raw } from "hono/html";
+import type { User } from "../auth";
 import { LOGO_SVG } from "./logo";
 
 const NAV = [
@@ -14,7 +15,7 @@ const NAV = [
 const THEME_SCRIPT = `try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}`;
 const TOGGLE_SCRIPT = `document.querySelector(".theme-toggle").addEventListener("click",function(){var r=document.documentElement,d=r.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"),n=d==="dark"?"light":"dark";r.dataset.theme=n;try{localStorage.setItem("theme",n)}catch(e){}})`;
 
-export function Layout(props: { title?: string; description?: string; path: string; head?: Child; children: Child }) {
+export function Layout(props: { title?: string; description?: string; path: string; user: User | null; head?: Child; children: Child }) {
   const title = props.title ? `${props.title} · EELS Data Base` : "EELS Data Base";
   return (
     <html lang="en">
@@ -40,6 +41,11 @@ export function Layout(props: { title?: string; description?: string; path: stri
               {NAV.map(([href, label]) => (
                 <a href={href} aria-current={props.path.startsWith(href) ? "page" : undefined}>{label}</a>
               ))}
+              {props.user ? (
+                <a href="/account/" aria-current={props.path.startsWith("/account/") ? "page" : undefined}>{props.user.display_name}</a>
+              ) : (
+                <a href={`/login/${props.path && props.path !== "/login/" ? `?next=${encodeURIComponent(props.path)}` : ""}`}>Sign in</a>
+              )}
               <button class="theme-toggle" type="button" aria-label="Switch light or dark theme" title="Switch theme">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
                   <circle cx="12" cy="12" r="4.2" />
