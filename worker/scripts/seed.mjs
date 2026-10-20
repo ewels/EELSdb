@@ -19,6 +19,17 @@ for (let i = 0; i < statements.length; i += 500) {
 }
 console.log(`D1: ${statements.length} rows`);
 
+// Accounts come from the private database export (eelsdb.legacy.export_accounts), when present.
+const accountsFile = new URL("data/private/accounts.sql", root);
+if (existsSync(accountsFile)) {
+  const accounts = readFileSync(accountsFile, "utf8").split("\n").filter((l) => /^(INSERT|UPDATE)/.test(l));
+  await env.DB.batch(["favourites", "users"].map((t) => env.DB.prepare(`DELETE FROM ${t}`)));
+  for (let i = 0; i < accounts.length; i += 500) {
+    await env.DB.batch(accounts.slice(i, i + 500).map((s) => env.DB.prepare(s)));
+  }
+  console.log(`D1: ${accounts.length} account statements from data/private/accounts.sql`);
+}
+
 let missing = 0;
 for (const u of uploads) {
   const file = new URL(u.file, root);
