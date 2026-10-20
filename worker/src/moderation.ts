@@ -63,9 +63,9 @@ export async function decide(env: Env, id: number, decision: Decision, notes: st
     const f = change.form;
     statements.push(
       db.prepare(
-        `UPDATE spectra SET title = ?, description = ?, source_purity = ?, type = ?, phase = ?, formula = ?, completeness = ?,
+        `UPDATE spectra SET title = ?, description = ?, source_purity = ?, type = ?, phase = ?, intensity_units = ?, formula = ?, completeness = ?,
          legacy_v1 = NULL, updated_at = datetime('now') WHERE id = ?`,
-      ).bind(f.spectrum.title, f.spectrum.description, f.spectrum.source_purity, f.spectrum.type, f.spectrum.phase, f.spectrum.formula,
+      ).bind(f.spectrum.title, f.spectrum.description, f.spectrum.source_purity, f.spectrum.type, f.spectrum.phase, f.spectrum.intensity_units, f.spectrum.formula,
         completeness(f.spectrum.type, f.acquisition), sub.spectrum_id),
       ...(await detailStatements(db, sub.spectrum_id, f)),
     );

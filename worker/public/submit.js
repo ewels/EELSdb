@@ -69,6 +69,10 @@ field("formula").addEventListener("input", () => {
   field("elements").value = symbols.join(", ");
 });
 
+// The X-ray absorption section only applies to that type.
+const xasSection = form.querySelector('[data-show-for="xrayabs"]');
+field("type").addEventListener("change", () => (xasSection.hidden = field("type").value !== "xrayabs"));
+
 // Beam energy "Other" box only matters when "Other" is chosen.
 const beamOther = form.querySelector(".beam-other");
 const syncBeam = () => {
@@ -152,7 +156,7 @@ def run(path, kind, formula, elements, edges, thickness, table_json):
     elements, edges = list(elements.to_py()), list(edges.to_py())
     sp = read_any(path)
     keys = ("beam_energy_kv", "convergence_mrad", "collection_mrad", "exposure_s", "frames")
-    out = {"meta": {k: clean(sp.header.get(k)) for k in keys}}
+    out = {"meta": {k: clean(sp.header.get(k)) for k in keys}, "xas": sp.header.get("xas") or {}}
     if sp.energy is None:
         return json.dumps(out)
     energy, intensity = sp.energy, sp.intensity
@@ -232,6 +236,17 @@ async function check(input, role) {
     prefill("convergence", result.meta.convergence_mrad, source) && "convergence angle",
     prefill("collection", result.meta.collection_mrad, source) && "collection angle",
   ].filter(Boolean);
+  if (role === "original" && Object.keys(result.xas ?? {}).length) {
+    const x = result.xas;
+    if (!field("type").value) {
+      field("type").value = "xrayabs";
+      xasSection.hidden = false;
+    }
+    for (const k of ["facility", "beamline", "source_type", "monochromator"]) fillIfEmpty(`xas_${k}`, x[k]);
+    fillIfEmpty("formula", x.formula);
+    if (x.element && x.edge) fillIfEmpty("edges", `${x.element}_${x.edge}`);
+    if (x.intensity_column?.startsWith("mu")) field("intensity_units").value = "mu";
+  }
   if (role === "original") {
     fillIfEmpty("integration_time_s", result.meta.exposure_s);
     fillIfEmpty("readouts", result.meta.frames);

@@ -694,6 +694,54 @@
          "string",
          "null"
         ]
+       },
+       "source_type": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "monochromator": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "resolving_power": {
+        "type": [
+         "number",
+         "null"
+        ]
+       },
+       "detection_mode": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "polarisation": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "polarisation_angle_deg": {
+        "type": [
+         "number",
+         "null"
+        ]
+       },
+       "calibration_reference": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "i0_normalisation": {
+        "type": [
+         "string",
+         "null"
+        ]
        }
       }
      },

@@ -218,6 +218,8 @@ export async function spectrumPage(c: Context<AppEnv>) {
               ["Source and purity", s.source_purity],
               ["Energy range", s.min_energy_ev !== null && s.max_energy_ev !== null ? `${Number(s.min_energy_ev.toFixed(2))} – ${Number(s.max_energy_ev.toFixed(2))} eV` : null],
               ["Step", fmt(s.step_ev, "eV", 4)],
+              ["Phase", s.phase !== "solid" ? s.phase : null],
+              ["Intensity", s.intensity_units !== "counts" ? s.intensity_units.replace("_", " ") : null],
             ]}
           />
           {b.keywords.length > 0 && (
@@ -240,6 +242,24 @@ export async function spectrumPage(c: Context<AppEnv>) {
           />
         </section>
         <section>
+          {b.xas && (
+            <>
+              <h2>X-ray absorption</h2>
+              <MetaList
+                items={[
+                  ["Facility", b.xas.facility],
+                  ["Beamline", b.xas.beamline],
+                  ["Source", b.xas.source_type],
+                  ["Monochromator", b.xas.monochromator],
+                  ["Resolving power", b.xas.resolving_power],
+                  ["Detection", b.xas.detection_mode],
+                  ["Polarisation", [b.xas.polarisation, b.xas.polarisation_angle_deg != null && `${b.xas.polarisation_angle_deg}°`].filter(Boolean).join(", ")],
+                  ["Calibration reference", b.xas.calibration_reference],
+                  ["I0 normalisation", b.xas.i0_normalisation],
+                ]}
+              />
+            </>
+          )}
           <h2>Acquisition</h2>
           <MetaList
             items={[

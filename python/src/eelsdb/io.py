@@ -57,6 +57,47 @@ def read_txt(path):
     return Spectrum(rows[:, 0], rows[:, 1], "txt", layout=layout)
 
 
+# XDI (the XAS Data Interchange format) header fields → our xas_acquisition names.
+XDI_FIELDS = {
+    "facility.name": "facility",
+    "beamline.name": "beamline",
+    "facility.xray_source": "source_type",
+    "mono.name": "monochromator",
+    "element.symbol": "element",
+    "element.edge": "edge",
+    "scan.start_time": "date",
+    "sample.name": "sample",
+    "sample.formula": "formula",
+}
+
+
+def read_xdi(path):
+    """XDI file: energy from the column labelled energy, intensity from mutrans, mufluor, mu or the second column."""
+    header, columns, rows, in_data = {}, {}, [], False
+    for line in Path(path).read_text(encoding="utf-8", errors="replace").splitlines():
+        if line.startswith("#"):
+            body = line.lstrip("#").strip()
+            if body.startswith("---"):
+                in_data = True
+            elif ":" in body and not in_data:
+                key, value = (x.strip() for x in body.split(":", 1))
+                header[key.lower()] = value
+                if key.lower().startswith("column."):
+                    columns[int(key.split(".")[1]) - 1] = value.split()[0].lower()
+        elif line.strip():
+            rows.append([float(v) for v in line.split()])
+    data = np.array(rows)
+    names = [columns.get(i, "") for i in range(data.shape[1])]
+    energy_col = names.index("energy") if "energy" in names else 0
+    y_col = next((names.index(n) for n in ("mutrans", "mufluor", "mu", "normfluor", "normtrans") if n in names), 1)
+    energy = data[:, energy_col]
+    if header.get(f"column.{energy_col + 1}", "").lower().endswith("kev"):
+        energy = energy * 1000
+    meta = {ours: header[k] for k, ours in XDI_FIELDS.items() if k in header}
+    meta["intensity_column"] = names[y_col] or None
+    return Spectrum(energy, data[:, y_col], "xdi", {**header, "xas": meta})
+
+
 def read_spectrum(path):
     path = Path(path)
     return read_msa(path) if path.suffix.lower() == ".msa" else read_txt(path)
@@ -92,6 +133,8 @@ def read_any(path):
         return sp
     if ext in (".txt", ".csv"):
         return read_txt(path)
+    if ext == ".xdi":
+        return read_xdi(path)
     if ext not in READERS:
         raise ValueError(f"cannot read {ext} files")
     reader = importlib.import_module(f"rsciio.{READERS[ext]}")

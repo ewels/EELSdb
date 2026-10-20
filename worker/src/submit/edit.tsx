@@ -2,7 +2,7 @@ import { Hono, type Context } from "hono";
 import { loadBundle, type SpectrumBundle } from "../api/format";
 import { requireUser, type AppEnv } from "../auth";
 import { isModerator } from "../instruments";
-import { SPECTRUM_EXTENSIONS, checkUpload, completeness, parseForm, type ParsedForm } from "./form";
+import { SPECTRUM_EXTENSIONS, XAS_FIELDS, checkUpload, completeness, parseForm, type ParsedForm } from "./form";
 import { SubmitPage, approvedInstruments, formValues } from "./index";
 import { Layout } from "../pages/layout";
 import { detailStatements, textStatements } from "./store";
@@ -23,6 +23,7 @@ export function valuesFromBundle(b: SpectrumBundle): Values {
     title: s.title,
     type: s.type,
     phase: s.phase,
+    intensity_units: s.intensity_units,
     formula: str(s.formula),
     elements: b.elements.join(", "),
     edges: b.edges.map((e) => `${e.element}_${e.edge}`).join("; "),
@@ -40,6 +41,7 @@ export function valuesFromBundle(b: SpectrumBundle): Values {
   for (const k of ["deconv_fourier_log", "deconv_fourier_ratio", "deconv_stephens", "deconv_richardson_lucy", "deconv_maximum_entropy"]) {
     if (Number(t[k])) v[k] = "1";
   }
+  for (const k of XAS_FIELDS) v[`xas_${k}`] = str(b.xas?.[k]);
   for (const k of ["doi", "url", "authors", "journal", "volume", "issue", "page", "year", "title", "freetext"]) v[`ref_${k}`] = str(r[k]);
 
   const kv = a.beam_energy_kv;
@@ -65,6 +67,8 @@ const core = (f: ParsedForm) =>
   JSON.stringify({
     type: f.spectrum.type,
     phase: f.spectrum.phase,
+    intensity_units: f.spectrum.intensity_units,
+    xas: f.xas,
     formula: f.spectrum.formula,
     elements: f.elements,
     edges: f.edges,
@@ -157,8 +161,8 @@ edit.post("/spectra/:slug/edit/", requireUser, async (c) => {
   if (coreChanged) {
     // Still pending: nothing is public yet, so the edit applies in full.
     statements.push(
-      db.prepare("UPDATE spectra SET type = ?, phase = ?, formula = ?, completeness = ? WHERE id = ?")
-        .bind(form.spectrum.type, form.spectrum.phase, form.spectrum.formula, completeness(form.spectrum.type, form.acquisition), s.id),
+      db.prepare("UPDATE spectra SET type = ?, phase = ?, intensity_units = ?, formula = ?, completeness = ? WHERE id = ?")
+        .bind(form.spectrum.type, form.spectrum.phase, form.spectrum.intensity_units, form.spectrum.formula, completeness(form.spectrum.type, form.acquisition), s.id),
       ...(await detailStatements(db, s.id, form)),
     );
     if (fileKey) {

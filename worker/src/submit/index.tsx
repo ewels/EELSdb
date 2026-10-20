@@ -10,6 +10,25 @@ type C = Context<AppEnv>;
 type Values = Record<string, string>;
 
 const MAX_PER_DAY = 20;
+const UNIT_LABELS: Record<string, string> = {
+  counts: "Counts",
+  oscillator_strength: "Oscillator strength",
+  mu: "Absorption coefficient (μ)",
+  optical_density: "Optical density",
+  normalised: "Normalised",
+};
+const XAS_LABELS: [string, string, string?][] = [
+  ["facility", "Facility", "For example: SOLEIL, Canadian Light Source"],
+  ["beamline", "Beamline"],
+  ["source_type", "Source", "Bending magnet, undulator…"],
+  ["monochromator", "Monochromator", "For example: Si(111), 1200 l/mm grating"],
+  ["resolving_power", "Resolving power (E/ΔE)"],
+  ["detection_mode", "Detection mode", "Transmission, total electron yield, fluorescence yield…"],
+  ["polarisation", "Polarisation", "Linear, circular left, circular right…"],
+  ["polarisation_angle_deg", "Polarisation angle (degrees)"],
+  ["calibration_reference", "Energy calibration reference"],
+  ["i0_normalisation", "I0 normalisation"],
+];
 
 async function turnstileOk(c: C, token: string | null) {
   const secret = c.env.TURNSTILE_SECRET_KEY;
@@ -148,10 +167,32 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
             <Field name="edges" label="Edges" errors={errors} hint='Separate with semicolons, for example "Fe_L2,3; O_K".'>{input("edges", v)}</Field>
             <Field name="keywords" label="Keywords" errors={errors} hint="Comma-separated.">{input("keywords", v)}</Field>
           </div>
+          <div class="grid-2">
+            <Field name="phase" label="Phase" errors={errors}>
+              <select id="f-phase" name="phase">
+                {["solid", "liquid", "gas"].map((p) => <option value={p} selected={(v.phase ?? "solid") === p}>{p[0].toUpperCase() + p.slice(1)}</option>)}
+              </select>
+            </Field>
+            <Field name="intensity_units" label="Intensity units" errors={errors}>
+              <select id="f-intensity_units" name="intensity_units">
+                {Object.entries(UNIT_LABELS).map(([u, label]) => <option value={u} selected={(v.intensity_units ?? "counts") === u}>{label}</option>)}
+              </select>
+            </Field>
+          </div>
           <Field name="source_purity" label="Source and purity" errors={errors}>{input("source_purity", v)}</Field>
           <Field name="description" label="Comments" errors={errors}>
             <textarea id="f-description" name="description" rows={4}>{v.description ?? ""}</textarea>
           </Field>
+        </section>
+
+        <section class="form-section" data-show-for="xrayabs" hidden={v.type !== "xrayabs"}>
+          <h2>X-ray absorption</h2>
+          <p class="hint">XDI files fill these in. The beam energy and angles below do not apply to X-ray absorption.</p>
+          <div class="grid-2">
+            {XAS_LABELS.map(([key, label, hint]) => (
+              <Field name={`xas_${key}`} label={label} errors={errors} hint={hint}>{input(`xas_${key}`, v)}</Field>
+            ))}
+          </div>
         </section>
 
         <section class="form-section">

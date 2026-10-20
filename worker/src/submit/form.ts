@@ -3,7 +3,9 @@ import { ELEMENTS } from "../elements";
 
 export const SOURCES = ["file", "companion", "profile", "user", "estimate", "unknown"] as const;
 export const BEAM_ENERGIES = [60, 80, 120, 200, 300];
-export const SPECTRUM_EXTENSIONS = ["dm3", "dm4", "msa", "emsa", "emd", "hspy", "txt", "csv"];
+export const SPECTRUM_EXTENSIONS = ["dm3", "dm4", "msa", "emsa", "emd", "hspy", "txt", "csv", "xdi"];
+export const INTENSITY_UNITS = ["counts", "oscillator_strength", "mu", "optical_density", "normalised"];
+export const XAS_FIELDS = ["facility", "beamline", "source_type", "monochromator", "resolving_power", "detection_mode", "polarisation", "polarisation_angle_deg", "calibration_reference", "i0_normalisation"];
 export const COMPANION_EXTENSIONS = ["emd", "ser", "emi", "dm3", "dm4"];
 export const MAX_FILE_BYTES = 50 * 1024 * 1024;
 
@@ -18,6 +20,7 @@ export type ParsedForm = {
     source_purity: string | null;
     description: string | null;
     phase: string;
+    intensity_units: string;
   };
   elements: string[];
   edges: { element: string; edge: string }[];
@@ -25,6 +28,7 @@ export type ParsedForm = {
   otherUrls: { url: string; title: string | null }[];
   associated: string[];
   acquisition: Record<string, unknown>;
+  xas: Record<string, unknown> | null;
   treatment: Record<string, unknown>;
   reference: Record<string, string | null>;
   instrument: { id: number; version: number } | null;
@@ -131,6 +135,7 @@ export function parseForm(body: Body): { form: ParsedForm; errors: Record<string
         source_purity: text(body, "source_purity", 500),
         description: text(body, "description", 5000),
         phase: ["solid", "liquid", "gas"].includes(text(body, "phase") ?? "") ? text(body, "phase")! : "solid",
+        intensity_units: INTENSITY_UNITS.includes(text(body, "intensity_units") ?? "") ? text(body, "intensity_units")! : "counts",
       },
       elements,
       edges,
@@ -161,6 +166,20 @@ export function parseForm(body: Body): { form: ParsedForm; errors: Record<string
         instrument_profile_id: iid || null,
         instrument_profile_version: iid ? iversion || null : null,
       },
+      xas: xas
+        ? {
+            facility: text(body, "xas_facility", 200),
+            beamline: text(body, "xas_beamline", 200) ?? text(body, "microscope", 200),
+            source_type: text(body, "xas_source_type", 200),
+            monochromator: text(body, "xas_monochromator", 200),
+            resolving_power: num("xas_resolving_power", 0, 1e7, "Resolving power"),
+            detection_mode: text(body, "xas_detection_mode", 100),
+            polarisation: text(body, "xas_polarisation", 100),
+            polarisation_angle_deg: num("xas_polarisation_angle_deg", -360, 360, "Polarisation angle"),
+            calibration_reference: text(body, "xas_calibration_reference", 300),
+            i0_normalisation: text(body, "xas_i0_normalisation", 300),
+          }
+        : null,
       treatment: {
         dark_current: yesNo("dark_current"),
         gain_variation: yesNo("gain_variation"),
@@ -220,6 +239,9 @@ export async function checkUpload(file: File | null, allowed: string[], label: s
     if (!/^\s*[-+]?\d*\.?\d+([eE][-+]?\d+)?[\s,;]+[-+]?\d*\.?\d+/m.test(sample)) {
       return `${label}: no rows of numbers found at the start of the file.`;
     }
+  }
+  if (ext === "xdi" && !new TextDecoder().decode(head.slice(0, 16)).startsWith("# XDI/")) {
+    return `${label}: this is not an XDI file (it should start with "# XDI/").`;
   }
   if (ext === "hspy" || ext === "emd") {
     const hdf5 = [0x89, 0x48, 0x44, 0x46];

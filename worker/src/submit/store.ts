@@ -65,7 +65,7 @@ export async function detailStatements(db: D1Database, id: number, form: ParsedF
     insertRow(db, "treatment", { spectrum_id: id, ...form.treatment }),
     ...(await textStatements(db, id, form)),
   ];
-  if (form.spectrum.type === "xrayabs") out.push(insertRow(db, "xas_acquisition", { spectrum_id: id, beamline: form.acquisition.microscope }));
+  if (form.xas) out.push(insertRow(db, "xas_acquisition", { spectrum_id: id, ...form.xas }));
   return out;
 }
 
@@ -81,7 +81,6 @@ export async function createSpectrum(
     status: "pending",
     ...form.spectrum,
     technique: form.spectrum.type === "xrayabs" ? "xas" : "eels",
-    intensity_units: "counts",
     owner_id: owner.id,
     author_display: owner.display_name,
     author_slug: authorSlugValue,

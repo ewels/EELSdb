@@ -101,6 +101,9 @@ export function formatV2(b: SpectrumBundle) {
       resolving_power: num(b.xas.resolving_power),
       detection_mode: b.xas.detection_mode,
       polarisation: b.xas.polarisation,
+      polarisation_angle_deg: num(b.xas.polarisation_angle_deg),
+      calibration_reference: b.xas.calibration_reference,
+      i0_normalisation: b.xas.i0_normalisation,
     },
     treatment: t && {
       dark_current_corrected: bool(t.dark_current),

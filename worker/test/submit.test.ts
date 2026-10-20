@@ -134,3 +134,32 @@ describe("submitting", () => {
     expect(await res.text()).toContain("up to 20 spectra a day");
   });
 });
+
+describe("X-ray absorption", () => {
+  const XDI = "# XDI/1.0\n# Column.1: energy eV\n# Column.2: mutrans\n# Facility.name: APS\n#----\n8779 1.0\n8789 1.1\n8799 1.3\n";
+
+  it("accepts XDI files and stores the XAS fields", async () => {
+    const cookie = await sessionFor({ id: 6000010, display_name: "Xas Person" });
+    const fd = new FormData();
+    for (const [k, v] of Object.entries({
+      title: "Cu foil", type: "xrayabs", formula: "Cu", edges: "Cu_K", intensity_units: "mu", agreement: "1",
+      xas_facility: "APS", xas_beamline: "13ID", xas_monochromator: "Si 111", xas_detection_mode: "transmission", xas_resolving_power: "7000",
+    })) fd.append(k, v);
+    fd.append("file", new File([XDI], "cu.xdi"));
+    const res = await postSubmit(cookie, fd);
+    expect(res.status).toBe(302);
+    const id = Number(new URL(res.headers.get("location")!, "https://x").searchParams.get("submitted"));
+    expect(await env.DB.prepare("SELECT technique, intensity_units, completeness FROM spectra WHERE id = ?").bind(id).first()).toEqual({
+      technique: "xas", intensity_units: "mu", completeness: null,
+    });
+    expect(await env.DB.prepare("SELECT facility, beamline, monochromator, resolving_power FROM xas_acquisition WHERE spectrum_id = ?").bind(id).first()).toEqual({
+      facility: "APS", beamline: "13ID", monochromator: "Si 111", resolving_power: 7000,
+    });
+    const page = await (await exports.default.fetch("https://eelsdb.eu/spectra/cu-foil/", { headers: { Cookie: cookie } })).text();
+    expect(page).toContain("Si 111");
+  });
+
+  it("rejects a file named .xdi that is not XDI", async () => {
+    expect(await checkUpload(new File(["1 2\n3 4\n"], "a.xdi"), ["xdi"], "File")).toMatch(/not an XDI file/);
+  });
+});
