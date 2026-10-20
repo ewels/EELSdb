@@ -27,17 +27,34 @@ CUTOFF = "2024-01-01"
 RANDOM_NAME = re.compile(r"^[A-Za-z]{6,} [A-Za-z]{6,}$")
 
 
-def query(statement, container=None, password=None):
+_database = None
+
+
+def query(statement, database=None):
     """Rows as dicts, via the mariadb client in the container (no Python driver needed)."""
-    container = container or os.environ.get("EELSDB_DUMP_CONTAINER", "eelsdb-dump")
-    password = password or os.environ.get("EELSDB_DUMP_PASSWORD", "local")
-    out = subprocess.run(
-        ["docker", "exec", container, "mariadb", "-uroot", f"-p{password}", "eelsdb", "--batch", "--raw", "-e", statement],
-        check=True, capture_output=True, text=True,
-    ).stdout
+    container = os.environ.get("EELSDB_DUMP_CONTAINER", "eelsdb-dump")
+    password = os.environ.get("EELSDB_DUMP_PASSWORD", "local")
+    cmd = ["docker", "exec", container, "mariadb", "-uroot", f"-p{password}", "--batch", "--raw"]
+    if database is not False:
+        cmd.append(database or wordpress_database())
+    res = subprocess.run([*cmd, "-e", statement], capture_output=True, text=True)
+    if res.returncode:
+        raise RuntimeError(f"mariadb: {res.stderr.strip()}")
+    out = res.stdout
     lines = out.split("\n")
     header = lines[0].split("\t")
     return [dict(zip(header, (None if v == "NULL" else v for v in line.split("\t")))) for line in lines[1:] if line]
+
+
+def wordpress_database():
+    """The dump creates its own database; find the one holding the WordPress tables."""
+    global _database
+    if _database is None:
+        rows = query(f"SELECT table_schema FROM information_schema.tables WHERE table_name = '{PREFIX}users'", database=False)
+        if not rows:
+            raise RuntimeError(f"No {PREFIX}users table found. Is the dump loaded?")
+        _database = os.environ.get("EELSDB_DUMP_DB") or rows[0]["table_schema"]
+    return _database
 
 
 def php_unserialize(s):
@@ -113,7 +130,11 @@ def fetch_accounts():
         f"""SELECT user_id, meta_key, meta_value FROM {PREFIX}usermeta
             WHERE meta_key IN ('{PREFIX}capabilities', 'u_lab', 'u_country', 'orcid', 'eelsdb_favourites', 'microscope_presets')"""
     ):
-        meta.setdefault(m["user_id"], {})[m["meta_key"]] = m["meta_value"]
+        # Favourites and presets have one row each; the rest one row per user.
+        if m["meta_key"] in ("eelsdb_favourites", "microscope_presets"):
+            meta.setdefault(m["user_id"], {}).setdefault(m["meta_key"], []).append(m["meta_value"])
+        else:
+            meta.setdefault(m["user_id"], {})[m["meta_key"]] = m["meta_value"]
     posts = query(
         f"""SELECT post_author, post_type, post_status, LEFT(post_date, 10) AS day, ID FROM {PREFIX}posts
             WHERE post_type IN ('spectra', 'topic', 'reply')"""
@@ -126,7 +147,10 @@ def fetch_accounts():
 
 def summarise(user, meta, posts):
     caps = php_unserialize(meta.get(f"{PREFIX}capabilities")) or {}
-    favs = php_unserialize(meta.get("eelsdb_favourites")) or []
+    favs = []
+    for value in meta.get("eelsdb_favourites", []):
+        parsed = php_unserialize(value)
+        favs += parsed if isinstance(parsed, list) else list(parsed.values()) if isinstance(parsed, dict) else [value]
     spectra = [p for p in posts if p["post_type"] == "spectra"]
     forum = [p for p in posts if p["post_type"] in ("topic", "reply") and p["post_status"] == "publish"]
     owned = [p for p in spectra if p["post_status"] in ("publish", "private")]
@@ -138,7 +162,7 @@ def summarise(user, meta, posts):
         "old_forum_posts": sum(p["day"] < CUTOFF for p in forum),
         "new_forum_posts": sum(p["day"] >= CUTOFF for p in forum),
         "spam_submissions_only": bool(spectra) and not owned,
-        "favourites": [int(f) for f in (favs if isinstance(favs, list) else favs.values()) if str(f).isdigit()],
+        "favourites": sorted({int(f) for f in favs if str(f).strip().isdigit()}),
         "owned_ids": [int(p["ID"]) for p in owned],
     }
 
@@ -165,7 +189,7 @@ def main():
                            "favourites": len(s["favourites"]), "reason": reason})
             continue
         uid = int(user["ID"])
-        presets = php_unserialize(m.get("microscope_presets"))
+        presets = [php_unserialize(v) or v for v in m.get("microscope_presets", [])]
         lines.append(insert("users", {
             "id": uid,
             "slug": user["user_nicename"],

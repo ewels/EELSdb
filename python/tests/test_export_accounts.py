@@ -25,11 +25,11 @@ def test_classify_rules():
 
 
 def test_summarise():
-    meta = {"QUnCYkNw_capabilities": 'a:1:{s:10:"subscriber";b:1;}', "eelsdb_favourites": 'a:1:{i:0;s:5:"21525";}'}
+    meta = {"QUnCYkNw_capabilities": 'a:1:{s:10:"subscriber";b:1;}', "eelsdb_favourites": ["21525", 'a:1:{i:0;s:5:"21526";}', "21525"]}
     posts = [
         {"post_type": "spectra", "post_status": "pending", "day": "2025-01-01", "ID": "9"},
         {"post_type": "reply", "post_status": "publish", "day": "2019-01-01", "ID": "10"},
     ]
     s = summarise({"display_name": "X", "user_registered": "2015-01-01"}, meta, posts)
-    assert s["favourites"] == [21525]
+    assert s["favourites"] == [21525, 21526]
     assert s["spam_submissions_only"] and not s["owns_spectra"] and s["old_forum_posts"] == 1
