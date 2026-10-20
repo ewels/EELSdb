@@ -24,7 +24,7 @@ async function turnstileOk(c: C, token: string | null) {
 
 type Instrument = { id: number; version: number; name: string; facility: string | null; voltages_kv_json: string | null; calibrations: string };
 
-async function approvedInstruments(db: D1Database) {
+export async function approvedInstruments(db: D1Database) {
   const { results } = await db
     .prepare(
       `SELECT i.id, v.version, v.name, v.facility, v.voltages_kv_json,
@@ -76,14 +76,14 @@ function Measured(props: { name: string; label: string; unit: string; v: Values;
   );
 }
 
-function SubmitPage(props: { c: C; v: Values; errors: Record<string, string>; instruments: Instrument[] }) {
+export function SubmitPage(props: { c: C; v: Values; errors: Record<string, string>; instruments: Instrument[]; edit?: { slug: string; title: string } }) {
   const { c, v, errors } = props;
   const siteKey = c.env.TURNSTILE_SITE_KEY;
   const choice = v.beam_energy_choice ?? "";
   const count = Object.keys(errors).length;
   return (
     <Layout
-      title="Submit a spectrum"
+      title={props.edit ? `Edit ${props.edit.title}` : "Submit a spectrum"}
       path="/submit-data/"
       user={c.get("user")}
       head={
@@ -93,9 +93,11 @@ function SubmitPage(props: { c: C; v: Values; errors: Record<string, string>; in
         </>
       }
     >
-      <h1>Submit a spectrum</h1>
+      <h1>{props.edit ? `Edit ${props.edit.title}` : "Submit a spectrum"}</h1>
       <p class="lede">
-        Upload your file and describe the specimen and how it was measured. A moderator checks every submission before it is published.
+        {props.edit
+          ? "Changes to the title, description, keywords, reference and links are published straight away. Changes to the data file, the specimen or how it was measured go to a moderator first."
+          : "Upload your file and describe the specimen and how it was measured. A moderator checks every submission before it is published."}
       </p>
       {count > 0 && (
         <div class="notice error-summary" role="alert" tabindex={-1} id="errors">
@@ -107,8 +109,13 @@ function SubmitPage(props: { c: C; v: Values; errors: Record<string, string>; in
       <form method="post" enctype="multipart/form-data" class="submit-form" id="submit-form" novalidate>
         <section class="form-section">
           <h2>Data</h2>
-          <Field name="file" label="Spectrum file" errors={errors} hint="DM3/DM4, MSA, Velox EMD, HyperSpy HSPY, or two columns of numbers (.txt, .csv).">
-            <input id="f-file" name="file" type="file" required accept={SPECTRUM_EXTENSIONS.map((e) => `.${e}`).join(",")} />
+          <Field
+            name="file"
+            label={props.edit ? "Replace the spectrum file (optional)" : "Spectrum file"}
+            errors={errors}
+            hint="DM3/DM4, MSA, Velox EMD, HyperSpy HSPY, or two columns of numbers (.txt, .csv)."
+          >
+            <input id="f-file" name="file" type="file" required={!props.edit} accept={SPECTRUM_EXTENSIONS.map((e) => `.${e}`).join(",")} />
           </Field>
           <div id="checks" class="checks" aria-live="polite" hidden>
             <p class="checks-status muted">Getting ready to read your file in the browser…</p>
@@ -280,17 +287,18 @@ function SubmitPage(props: { c: C; v: Values; errors: Record<string, string>; in
         </section>
 
         <section class="form-section">
-          <div class={`field${errors.agreement ? " has-error" : ""}`}>
+          {!props.edit && <div class={`field${errors.agreement ? " has-error" : ""}`}>
             <label class="check agreement">
               <input type="checkbox" name="agreement" value="1" required checked={!!v.agreement} /> I agree to publish this data under the{" "}
               <a href="https://opendatacommons.org/licenses/odbl/">Open Data Commons Open Database Licence (ODbL)</a>: others may reuse it if they
               credit me and the EELS Data Base.
             </label>
             {errors.agreement && <p class="error">{errors.agreement}</p>}
-          </div>
-          {siteKey && <div class="cf-turnstile" data-sitekey={siteKey}></div>}
+          </div>}
+          {siteKey && !props.edit && <div class="cf-turnstile" data-sitekey={siteKey}></div>}
           {errors.turnstile && <p class="error">{errors.turnstile}</p>}
-          <button class="button" type="submit">Submit for review</button>
+          <button class="button" type="submit">{props.edit ? "Save changes" : "Submit for review"}</button>
+          {props.edit && <> <a class="button secondary" href={`/spectra/${encodeURIComponent(props.edit.slug)}/`}>Cancel</a></>}
         </section>
       </form>
       <script src="/vendor/uPlot.iife.min.js" defer></script>
@@ -299,7 +307,7 @@ function SubmitPage(props: { c: C; v: Values; errors: Record<string, string>; in
   );
 }
 
-const formValues = (body: Record<string, unknown>): Values =>
+export const formValues = (body: Record<string, unknown>): Values =>
   Object.fromEntries(Object.entries(body).filter(([, v]) => typeof v === "string")) as Values;
 
 submit.get("/submit-data/", requireUser, async (c) =>

@@ -26,8 +26,8 @@ const insertRow = (db: D1Database, table: string, row: Record<string, unknown>) 
   return db.prepare(`INSERT INTO ${table} (${keys.join(", ")}) VALUES (${keys.map(() => "?").join(", ")})`).bind(...keys.map((k) => row[k] ?? null));
 };
 
-/** Statements that (re)write every typed row of a spectrum except the spectra row itself. */
-export async function detailStatements(db: D1Database, id: number, form: ParsedForm) {
+/** Statements that rewrite the rows a text-only edit may change: keywords, links and the reference. */
+export async function textStatements(db: D1Database, id: number, form: ParsedForm) {
   const related = form.associated.length
     ? (
         await db
@@ -37,12 +37,8 @@ export async function detailStatements(db: D1Database, id: number, form: ParsedF
       ).results
     : [];
   const out = [
-    ...["spectrum_elements", "spectrum_edges", "spectrum_keywords", "spectrum_other_urls", "eels_acquisition", "xas_acquisition", "treatment", "reference"].map(
-      (t) => db.prepare(`DELETE FROM ${t} WHERE spectrum_id = ?`).bind(id),
-    ),
+    ...["spectrum_keywords", "spectrum_other_urls", "reference"].map((t) => db.prepare(`DELETE FROM ${t} WHERE spectrum_id = ?`).bind(id)),
     db.prepare("DELETE FROM spectrum_links WHERE spectrum_id = ? OR related_id = ?").bind(id, id),
-    ...form.elements.map((element, position) => insertRow(db, "spectrum_elements", { spectrum_id: id, element, position })),
-    ...form.edges.map((e, position) => insertRow(db, "spectrum_edges", { spectrum_id: id, ...e, position })),
     ...form.keywords.map((keyword, position) => insertRow(db, "spectrum_keywords", { spectrum_id: id, keyword, position })),
     ...form.otherUrls.map((u, position) => insertRow(db, "spectrum_other_urls", { spectrum_id: id, ...u, position })),
     // Associated spectra are kept reciprocal.
@@ -52,11 +48,24 @@ export async function detailStatements(db: D1Database, id: number, form: ParsedF
         "INSERT OR IGNORE INTO spectrum_links (spectrum_id, related_id, position) VALUES (?, ?, (SELECT COUNT(*) FROM spectrum_links WHERE spectrum_id = ?))",
       ).bind(r.id, id, r.id),
     ]),
+  ];
+  if (Object.values(form.reference).some((v) => v)) out.push(insertRow(db, "reference", { spectrum_id: id, ...form.reference }));
+  return out;
+}
+
+/** Statements that rewrite every typed row of a spectrum except the spectra row itself. */
+export async function detailStatements(db: D1Database, id: number, form: ParsedForm) {
+  const out = [
+    ...["spectrum_elements", "spectrum_edges", "eels_acquisition", "xas_acquisition", "treatment"].map((t) =>
+      db.prepare(`DELETE FROM ${t} WHERE spectrum_id = ?`).bind(id),
+    ),
+    ...form.elements.map((element, position) => insertRow(db, "spectrum_elements", { spectrum_id: id, element, position })),
+    ...form.edges.map((e, position) => insertRow(db, "spectrum_edges", { spectrum_id: id, ...e, position })),
     insertRow(db, "eels_acquisition", { spectrum_id: id, ...form.acquisition }),
     insertRow(db, "treatment", { spectrum_id: id, ...form.treatment }),
+    ...(await textStatements(db, id, form)),
   ];
   if (form.spectrum.type === "xrayabs") out.push(insertRow(db, "xas_acquisition", { spectrum_id: id, beamline: form.acquisition.microscope }));
-  if (Object.values(form.reference).some((v) => v)) out.push(insertRow(db, "reference", { spectrum_id: id, ...form.reference }));
   return out;
 }
 

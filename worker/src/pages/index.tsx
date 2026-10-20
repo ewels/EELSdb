@@ -7,6 +7,7 @@ import { browsePage } from "./browse";
 import { EELSDB_BIBTEX, EELSDB_CITATION } from "./citation";
 import { Formula, Layout, TYPE_NAMES, TypeBadge } from "./layout";
 import { instruments } from "../instruments";
+import { edit } from "../submit/edit";
 import { submit } from "../submit/index";
 import { account } from "./account";
 import { spectrumPage } from "./spectrum";
@@ -19,6 +20,7 @@ pages.use(loadUser);
 pages.route("/", account);
 pages.route("/", submit);
 pages.route("/", instruments);
+pages.route("/", edit);
 
 pages.get("/", async (c) => {
   const [{ results: byType }, counts, { results: latest }, { results: news }] = await c.env.DB.batch<any>([

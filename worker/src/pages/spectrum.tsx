@@ -2,6 +2,7 @@ import type { Context } from "hono";
 import type { AppEnv } from "../auth";
 import { SITE, loadBundle, type SpectrumBundle } from "../api/format";
 import { EELSDB_BIBTEX, EELSDB_CITATION } from "./citation";
+import { isModerator } from "../instruments";
 import { Formula, Layout, TypeBadge, fmt } from "./layout";
 
 type Row = Record<string, any>;
@@ -149,6 +150,11 @@ export async function spectrumPage(c: Context<AppEnv>) {
             {s.completeness === "full" && (
               <> · <span class="badge-complete" title="Beam energy, convergence and collection angles are all recorded">Beam energy and angles known</span></>
             )}
+            {user && (s.owner_id === user.id || isModerator(user)) && (
+              <> · <a href={`/spectra/${encodeURIComponent(s.slug)}/edit/`}>Edit</a></>
+            )}
+            {" · "}
+            <a href={`/spectra/${encodeURIComponent(s.slug)}/history/`}>History</a>
           </p>
         </div>
         <div class="head-actions">
