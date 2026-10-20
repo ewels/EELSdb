@@ -93,10 +93,8 @@ admin.get("/admin/", async (c) => {
   return c.html(
     <Layout title="Moderation" path="/admin/" user={user}>
       <h1>Moderation</h1>
-      <p class="muted">
-        Decide here, or with <code>eelsdb review</code> to reprocess files with pinned RosettaSciIO and exSpy versions.
-        {user.role === "admin" && <> · <a href="/admin/users/">Users and roles</a></>}
-      </p>
+      <p class="muted">Decide here, or with <code>eelsdb review</code> to reprocess files with pinned RosettaSciIO and exSpy versions.</p>
+      {user.role === "admin" && <p><a href="/admin/users/">Users and roles</a></p>}
       <h2>Submissions waiting ({queue.length})</h2>
       {queue.length ? (
         <div class="table-scroll">
