@@ -10,7 +10,7 @@ Website source code for the **EELS Data Base** - _Inner & Outer Shell Excitation
 
 ## Introduction
 
-Source code for EELSdb. This branch is a fresh rewrite of the site; see [`docs/plan/`](docs/plan/) for the plan. The previous WordPress plugin and theme are on the [`main`](https://github.com/ewels/EELSdb/tree/main) branch. The repository also holds high-res versions of the logo and past conference posters.
+Source code for EELSdb. This branch is a fresh rewrite of the site. The previous WordPress plugin and theme are on the [`main`](https://github.com/ewels/EELSdb/tree/main) branch. The repository also holds high-res versions of the logo and past conference posters.
 
 ## Citation
 
