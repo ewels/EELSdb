@@ -1,1 +1,12 @@
 .DS_Store
+
+# Database dumps and anything derived from them contain personal data
+*.sql
+*.sql.gz
+data/private/
+
+node_modules/
+.wrangler/
+.dev.vars
+.venv/
+__pycache__/
