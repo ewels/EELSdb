@@ -34,6 +34,7 @@ The Python tools (import scripts, file checks) are in `python/`, managed with [u
 cd python
 uv run pytest
 uv run eelsdb --version
+uv run eelsdb check FILE --type coreloss --formula Fe2O3 --edges "Fe_L2,3;O_K"   # offline checks on a spectrum file
 uv run python -m eelsdb.legacy.record_api      # record the live API into data/fixtures/api-v1/
 uv run python -m eelsdb.legacy.download_files  # download spectrum files into data/cache/files/
 uv run python -m eelsdb.legacy.analyse_files   # write data/fixtures/file-analysis.json

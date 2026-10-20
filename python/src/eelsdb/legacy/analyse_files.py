@@ -11,12 +11,10 @@ Flags:
 """
 
 import json
-import re
-import warnings
 
 import numpy as np
-from rsciio.msa import file_reader
 
+from eelsdb.io import read_msa, read_txt
 from eelsdb.legacy.download_files import CACHE, MANIFEST
 from eelsdb.legacy.record_api import OUT as API_FIXTURES
 from eelsdb.legacy.record_api import ROOT
@@ -29,53 +27,30 @@ def v1_energy(s, key):
     return float(v.removesuffix(" eV")) if v else 0.0
 
 
-def msa_x_column(path):
-    """X values of an XY MSA file, read directly (RosettaSciIO ignores them)."""
-    xs, in_data = [], False
-    for line in path.read_text(encoding="latin-1").splitlines():
-        if line.startswith("#SPECTRUM"):
-            in_data = True
-        elif in_data and line.strip() and not line.startswith("#"):
-            xs.append(float(line.replace(",", " ").split()[0]))
-    return np.array(xs)
-
-
 def analyse_msa(path):
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        sig = file_reader(str(path))[0]
-    header = sig["original_metadata"]
-    ax = sig["axes"][0]
-    n = ax["size"]
-    header_axis = ax["offset"] + ax["scale"] * np.arange(n)
-    datatype = str(header.get("DATATYPE", "")).strip()
-    energy = msa_x_column(path) if datatype == "XY" else header_axis
+    sp = read_msa(path)
+    n = len(sp.intensity)
+    xperchan, offset = sp.header.get("XPERCHAN"), sp.header.get("OFFSET")
+    datatype = str(sp.header.get("DATATYPE", "")).strip()
     result = {
         "format": "msa",
         "datatype": datatype,
-        "header": {"npoints": header.get("NPOINTS"), "xperchan": ax["scale"], "offset": ax["offset"]},
-        "has_beamkv": "BEAMKV" in header or any(k.startswith("BEAMKV") for k in header),
+        "header": {"npoints": sp.header.get("NPOINTS"), "xperchan": xperchan, "offset": offset},
+        "has_beamkv": any(k.startswith("BEAMKV") for k in sp.header),
     }
     flags = []
-    if datatype == "XY" and len(energy) == n and n > 1:
-        step = (energy.max() - energy.min()) / (n - 1)
-        if abs(ax["scale"] - step) > 0.1 * step:
+    if datatype == "XY" and len(sp.energy) == n and n > 1:
+        step = (sp.energy.max() - sp.energy.min()) / (n - 1)
+        if abs(sp.header_axis[1] - sp.header_axis[0] - step) > 0.1 * step:
             flags.append("bad_xperchan")
-        if abs(ax["offset"] - energy[0]) > step:
+        if abs(sp.header_axis[0] - sp.energy[0]) > step:
             flags.append("bad_offset")
-    return energy, sig["data"], result, flags
-
-
-TXT_SEPARATORS = {" , ": "space-comma-space", ",": "comma", "\t": "tab", " ": "space"}
+    return sp.energy, sp.intensity, result, flags
 
 
 def txt_layout(path):
-    """Two-column text: return (layout, energy, intensity). The layout names the column separator."""
-    data_lines = [line for line in path.read_text(encoding="latin-1").splitlines() if re.match(r"\s*[-+]?\d", line)]
-    sep = re.match(r"\s*\S+?(\s*[,;]\s*|\s+)[-+\d.]", data_lines[0]).group(1)
-    layout = TXT_SEPARATORS.get(sep, "tab+spaces" if sep.startswith("\t") else repr(sep))
-    rows = np.array([[float(v) for v in re.split(r"[\s,;]+", line.strip())[:2]] for line in data_lines])
-    return layout, rows[:, 0], rows[:, 1]
+    sp = read_txt(path)
+    return sp.layout, sp.energy, sp.intensity
 
 
 def analyse(s, entry):
