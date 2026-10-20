@@ -116,6 +116,48 @@ pages.get("/wp-content/uploads/*", serveFile);
 pages.get("/files/*", serveFile);
 pages.get("/submissions/*", serveFile);
 
+const EXPORT_KEY = "exports/eelsdb-spectra.zip";
+
+pages.get(`/${EXPORT_KEY}`, async (c) => {
+  const object = await c.env.FILES.get(EXPORT_KEY);
+  if (!object) return c.notFound();
+  const headers = new Headers();
+  object.writeHttpMetadata(headers);
+  headers.set("ETag", object.httpEtag);
+  headers.set("Cache-Control", "public, max-age=3600");
+  return new Response(object.body, { headers });
+});
+
+pages.get("/downloads/", async (c) => {
+  const head = await c.env.FILES.head(EXPORT_KEY);
+  return c.html(
+    <Layout user={c.get("user")} title="Download everything" path="/downloads/">
+      <div class="prose">
+        <h1>Download everything</h1>
+        <p>
+          One zip file with every public spectrum: the data files, all metadata in the <a href="/api/v2/">API v2</a> format (including where
+          each acquisition value came from), and a README with the licence and how to cite.
+        </p>
+        {head ? (
+          <p>
+            <a class="button" href={`/${EXPORT_KEY}`}>Download eelsdb-spectra.zip</a>{" "}
+            <span class="muted">
+              {(head.size / 1e6).toFixed(1)} MB, made {head.uploaded.toISOString().slice(0, 10)}
+            </span>
+          </p>
+        ) : (
+          <p class="notice">The archive has not been made yet.</p>
+        )}
+        <p>
+          The spectra are open data under the <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a>. Please cite the contributors'
+          papers and the EELS Data Base (<a href="/citation/">how to cite</a>). To fetch selected spectra instead, use the{" "}
+          <a href="/api/v2/">API</a>.
+        </p>
+      </div>
+    </Layout>,
+  );
+});
+
 pages.get("/about/", (c) =>
   c.html(
     <Layout user={c.get("user")} title="About" path="/about/">

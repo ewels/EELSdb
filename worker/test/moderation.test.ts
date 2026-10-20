@@ -138,3 +138,19 @@ describe("roles", () => {
     expect((await form("/admin/users/6300008/", adminCookie, { role: "user" })).status).toBe(400);
   });
 });
+
+describe("bulk export", () => {
+  it("is uploaded by admins and offered on the Downloads page", async () => {
+    expect(await (await page("/downloads/")).text()).toContain("has not been made yet");
+    const adminCookie = await sessionFor({ id: 6300010, display_name: "Export Admin", role: "admin" });
+    const modCookie = await sessionFor({ id: 6300011, display_name: "Export Mod", role: "moderator" });
+    const zip = new Uint8Array(64).fill(1);
+    expect((await api("/cli/exports/eelsdb-spectra.zip", await tokenFor(modCookie), { method: "PUT", body: zip })).status).toBe(403);
+    expect((await api("/cli/exports/other.zip", await tokenFor(adminCookie), { method: "PUT", body: zip })).status).toBe(404);
+    expect((await api("/cli/exports/eelsdb-spectra.zip", await tokenFor(adminCookie), { method: "PUT", body: zip })).status).toBe(201);
+    expect(await (await page("/downloads/")).text()).toContain("Download eelsdb-spectra.zip");
+    const file = await page("/exports/eelsdb-spectra.zip");
+    expect(file.headers.get("content-type")).toBe("application/zip");
+    expect(new Uint8Array(await file.arrayBuffer())).toEqual(zip);
+  });
+});

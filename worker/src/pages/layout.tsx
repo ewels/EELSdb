@@ -60,6 +60,7 @@ export function Layout(props: { title?: string; description?: string; path: stri
           <div class="wrap">
             <span>
               EELS Data Base · <a href="/citation/">How to cite</a> · <a href="/instruments/">Instrument profiles</a> ·{" "}
+              <a href="/downloads/">Download everything</a> ·{" "}
               <a href="/contact/">Contact</a>
             </span>
             <span>

@@ -113,6 +113,12 @@ def submit(args):
     return 1 if failed else 0
 
 
+def export(args):
+    from eelsdb.export import main as run_export
+
+    return run_export(args.out, args.upload)
+
+
 def review(args):
     import tempfile
     import webbrowser
@@ -187,6 +193,11 @@ def main(argv=None):
             p.add_argument(f"--{field.replace('_', '-')}", dest=field)
     p.add_argument("--force", action="store_true", help="submit even if the local checks find errors")
     p.set_defaults(func=submit)
+
+    p = sub.add_parser("export", help="build the zip of all public spectra and metadata")
+    p.add_argument("--out", default="eelsdb-spectra.zip")
+    p.add_argument("--upload", action="store_true", help="admins: upload it for the Downloads page")
+    p.set_defaults(func=export)
 
     p = sub.add_parser("review", help="moderators: reprocess and decide on queued submissions")
     p.add_argument("--id", type=int, help="only this submission")

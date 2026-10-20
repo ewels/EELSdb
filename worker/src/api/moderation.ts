@@ -47,6 +47,19 @@ cli.post("/submissions", async (c) => {
   return c.json({ id, slug, status: "pending" }, 201);
 });
 
+/** The bulk archive made by `eelsdb export --upload` (admins). */
+cli.put("/exports/:name{eelsdb-spectra\\.zip}", async (c) => {
+  if (c.get("user")!.role !== "admin") return c.json({ message: "Only admins can upload exports." }, 403);
+  const bytes = await c.req.arrayBuffer();
+  if (bytes.byteLength < 22) return c.json({ message: "Empty upload." }, 400);
+  const key = `exports/${c.req.param("name")}`;
+  await c.env.FILES.put(key, bytes, {
+    httpMetadata: { contentType: "application/zip", contentDisposition: `attachment; filename="${c.req.param("name")}"` },
+    customMetadata: { uploaded_by: String(c.get("user")!.id) },
+  });
+  return c.json({ url: `https://eelsdb.eu/${key}`, bytes: bytes.byteLength }, 201);
+});
+
 cli.use("/queue/*", async (c, next) => {
   if (!isModerator(c.get("user"))) return c.json({ message: "Only moderators can use the review queue." }, 403);
   await next();
