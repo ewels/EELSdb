@@ -60,7 +60,9 @@ describe("pages", () => {
     expect((await page("/author/simon/")).html).toContain("3 spectra");
     expect((await page("/author/nobody/")).status).toBe(404);
     expect((await page("/news/")).html).toContain('href="/hyperspy/"');
-    expect((await page("/hyperspy/")).status).toBe(200);
+    const post = await page("/hyperspy/");
+    expect(post.status).toBe(200);
+    expect(post.html).toContain('<a href="http://hyperspy.org/hyperspy-doc/current/api/hyperspy.misc.eels.eelsdb.html">');
     for (const path of ["/about/", "/citation/", "/contact/"]) expect((await page(path)).status).toBe(200);
     expect((await page("/submit-data/")).res.headers.get("location")).toBe("/login/?next=%2Fsubmit-data%2F");
     const api = await page("/api/");

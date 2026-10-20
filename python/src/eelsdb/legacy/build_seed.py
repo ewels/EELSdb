@@ -192,12 +192,14 @@ def spectrum_rows(s, rank, ids_by_slug, manifest, analysis):
 
 
 def news_rows(post, list_order):
+    full = FIXTURES / "news" / f"{slug_of(post['permalink'])}.html"
+    body_html = full.read_text().strip() if full.exists() else post.get("description")
     return [insert("news", {
         "id": post["id"],
         "slug": slug_of(post["permalink"]),
         "title": post["title"],
         "published_at": post["published"],
-        "body_html": post.get("description"),
+        "body_html": body_html,
         "legacy_rank": list_order,
         "legacy_v1": json.dumps(post, ensure_ascii=False, separators=(",", ":")),
     })]

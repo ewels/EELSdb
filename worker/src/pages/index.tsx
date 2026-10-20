@@ -1,5 +1,6 @@
 import { Hono, type Context } from "hono";
 import { csrf } from "hono/csrf";
+import { raw } from "hono/html";
 import { loadUser, type AppEnv } from "../auth";
 import openapi from "../api/openapi-v1.json";
 import openapiV2 from "../api/openapi-v2.json";
@@ -280,7 +281,9 @@ pages.get("/author/:slug/", authorPage);
 pages.get("/author/:slug", (c) => c.redirect(`/author/${c.req.param("slug")}/`, 301));
 
 pages.get("/news/", async (c) => {
-  const { results } = await c.env.DB.prepare("SELECT slug, title, published_at, body_html FROM news ORDER BY published_at DESC").all<any>();
+  const { results } = await c.env.DB.prepare(
+    "SELECT slug, title, published_at, json_extract(legacy_v1, '$.description') AS summary FROM news ORDER BY published_at DESC",
+  ).all<any>();
   const years = results.map((p) => String(p.published_at).slice(0, 4));
   return c.html(
     <Layout user={c.get("user")} title="News" path="/news/">
@@ -293,7 +296,7 @@ pages.get("/news/", async (c) => {
           <article>
             <h2><a href={`/${p.slug}/`}>{p.title}</a></h2>
             <p class="muted small">{String(p.published_at).slice(0, 10)}</p>
-            <p>{p.body_html}</p>
+            <p>{p.summary}</p>
           </article>
         ))}
       </div>
@@ -331,7 +334,8 @@ pages.get("/:slug/", async (c) => {
           {String(post.published_at).slice(0, 10)}
           {author ? ` · ${author}` : ""}
         </p>
-        <p>{post.body_html}</p>
+        {/* Recorded from the old site and reduced to simple tags by eelsdb.legacy.record_news. */}
+        <div>{raw(post.body_html ?? "")}</div>
       </article>
     </Layout>,
   );
