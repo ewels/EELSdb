@@ -1,0 +1,5789 @@
+[
+ {
+  "spectrum_id": 21525,
+  "path": "wp-content/uploads/2015/09/Dspec.1220441.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 226.0,
+   "xperchan": 0.2,
+   "offset": 1555.0
+  },
+  "has_beamkv": false,
+  "n_points": 226,
+  "energy_min": 1555.0,
+  "energy_max": 1600.0,
+  "step_mean": 0.2,
+  "v1_min_energy": 1555.0,
+  "v1_max_energy": 1600.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21526,
+  "path": "wp-content/uploads/2015/09/Dspec.1432103.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 326.0,
+   "xperchan": 0.2,
+   "offset": 1555.0
+  },
+  "has_beamkv": false,
+  "n_points": 326,
+  "energy_min": 1555.0,
+  "energy_max": 1620.0,
+  "step_mean": 0.2,
+  "v1_min_energy": 1555.0,
+  "v1_max_energy": 1620.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21527,
+  "path": "wp-content/uploads/2015/09/Dspec.1371375.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 226.0,
+   "xperchan": 0.2,
+   "offset": 1555.0
+  },
+  "has_beamkv": false,
+  "n_points": 226,
+  "energy_min": 1555.0,
+  "energy_max": 1600.0,
+  "step_mean": 0.2,
+  "v1_min_energy": 1555.0,
+  "v1_max_energy": 1600.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21528,
+  "path": "wp-content/uploads/2015/09/Dspec.530614.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.100006,
+   "offset": 368.300018
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": 368.3,
+  "energy_max": 470.2062,
+  "step_mean": 0.100006,
+  "v1_min_energy": 368.3,
+  "v1_max_energy": 470.21,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21529,
+  "path": "wp-content/uploads/2015/09/Dspec.556981.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.099976,
+   "offset": 1533.399902
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": 1533.3999,
+  "energy_max": 1635.275,
+  "step_mean": 0.099976,
+  "v1_min_energy": 1533.4,
+  "v1_max_energy": 1635.28,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21530,
+  "path": "wp-content/uploads/2015/09/Dspec.569096.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.1,
+   "offset": -14.500001
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": -14.5,
+  "energy_max": 87.3993,
+  "step_mean": 0.099999,
+  "v1_min_energy": -14.5,
+  "v1_max_energy": 87.4,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21531,
+  "path": "wp-content/uploads/2015/09/Dspec.1371227.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 226.0,
+   "xperchan": 0.2,
+   "offset": 1555.0
+  },
+  "has_beamkv": false,
+  "n_points": 226,
+  "energy_min": 1555.0,
+  "energy_max": 1600.0,
+  "step_mean": 0.2,
+  "v1_min_energy": 1555.0,
+  "v1_max_energy": 1600.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21532,
+  "path": "wp-content/uploads/2015/09/Dspec.658019.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 520.0,
+   "xperchan": 0.12,
+   "offset": 181.26
+  },
+  "has_beamkv": false,
+  "n_points": 520,
+  "energy_min": 181.26,
+  "energy_max": 243.61,
+  "step_mean": 0.120135,
+  "v1_min_energy": 181.26,
+  "v1_max_energy": 243.61,
+  "intensity_finite": true,
+  "flags": [
+   "non_uniform"
+  ]
+ },
+ {
+  "spectrum_id": 21533,
+  "path": "wp-content/uploads/2015/09/Dspec.800202.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 520.0,
+   "xperchan": 0.12,
+   "offset": 181.74
+  },
+  "has_beamkv": false,
+  "n_points": 520,
+  "energy_min": 181.74,
+  "energy_max": 244.09,
+  "step_mean": 0.120135,
+  "v1_min_energy": 181.74,
+  "v1_max_energy": 244.09,
+  "intensity_finite": true,
+  "flags": [
+   "non_uniform"
+  ]
+ },
+ {
+  "spectrum_id": 21534,
+  "path": "wp-content/uploads/2015/09/Dspec.114014.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.099976,
+   "offset": 527.400024
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 527.4,
+  "energy_max": 629.675,
+  "step_mean": 0.099976,
+  "v1_min_energy": 527.4,
+  "v1_max_energy": 629.68,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21535,
+  "path": "wp-content/uploads/2015/09/Dspec.122195.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.100006,
+   "offset": 245.0
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 245.0,
+  "energy_max": 347.3062,
+  "step_mean": 0.100006,
+  "v1_min_energy": 245.0,
+  "v1_max_energy": 347.31,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21536,
+  "path": "wp-content/uploads/2015/09/Dspec.125834.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.099975,
+   "offset": 513.799988
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 513.8,
+  "energy_max": 616.075,
+  "step_mean": 0.099976,
+  "v1_min_energy": 513.8,
+  "v1_max_energy": 616.08,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21537,
+  "path": "wp-content/uploads/2015/09/Dspec.57190.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.100007,
+   "offset": 248.400024
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 248.4,
+  "energy_max": 350.7063,
+  "step_mean": 0.100006,
+  "v1_min_energy": 248.4,
+  "v1_max_energy": 350.71,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21538,
+  "path": "wp-content/uploads/2015/09/Dspec.89194.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 1.0,
+   "offset": 5868.0
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": 5868.0,
+  "energy_max": 6887.0,
+  "step_mean": 1.0,
+  "v1_min_energy": 5868.0,
+  "v1_max_energy": 6887.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21539,
+  "path": "wp-content/uploads/2015/09/Dspec.60967.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 946.0,
+   "xperchan": 0.1,
+   "offset": 167.7
+  },
+  "has_beamkv": false,
+  "n_points": 946,
+  "energy_min": 167.7,
+  "energy_max": 262.2,
+  "step_mean": 0.1,
+  "v1_min_energy": 167.7,
+  "v1_max_energy": 262.2,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21540,
+  "path": "wp-content/uploads/2015/09/Dspec.65645.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 812.0,
+   "xperchan": 0.1,
+   "offset": 381.1
+  },
+  "has_beamkv": false,
+  "n_points": 812,
+  "energy_min": 381.1,
+  "energy_max": 462.2,
+  "step_mean": 0.1,
+  "v1_min_energy": 381.1,
+  "v1_max_energy": 462.2,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21541,
+  "path": "wp-content/uploads/2015/09/Dspec.40681.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.100006,
+   "offset": 265.600006
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": 265.6,
+  "energy_max": 367.5062,
+  "step_mean": 0.100006,
+  "v1_min_energy": 265.6,
+  "v1_max_energy": 367.51,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21542,
+  "path": "wp-content/uploads/2015/09/Dspec.45888.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.100001,
+   "offset": -11.400001
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": -11.4,
+  "energy_max": 90.4992,
+  "step_mean": 0.099999,
+  "v1_min_energy": -11.4,
+  "v1_max_energy": 90.5,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21543,
+  "path": "wp-content/uploads/2015/09/Dspec.70158.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.05,
+   "offset": -6.1
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": -6.1,
+  "energy_max": 44.8496,
+  "step_mean": 0.05,
+  "v1_min_energy": -6.1,
+  "v1_max_energy": 44.85,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21544,
+  "path": "wp-content/uploads/2015/09/Dspec.514335.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.1,
+   "offset": 277.8
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": 277.8,
+  "energy_max": 379.69,
+  "step_mean": 0.09999,
+  "v1_min_energy": 277.8,
+  "v1_max_energy": 379.69,
+  "intensity_finite": true,
+  "flags": [
+   "non_uniform"
+  ]
+ },
+ {
+  "spectrum_id": 21545,
+  "path": "wp-content/uploads/2015/09/Dspec.552925.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 341.0,
+   "xperchan": 1.0,
+   "offset": 260.0
+  },
+  "has_beamkv": false,
+  "n_points": 341,
+  "energy_min": 260.0,
+  "energy_max": 600.02,
+  "step_mean": 1.000059,
+  "v1_min_energy": 260.0,
+  "v1_max_energy": 600.02,
+  "intensity_finite": true,
+  "flags": [
+   "non_uniform"
+  ]
+ },
+ {
+  "spectrum_id": 21546,
+  "path": "wp-content/uploads/2015/09/Dspec.102751.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 816.0,
+   "xperchan": 0.2,
+   "offset": 1085.0
+  },
+  "has_beamkv": false,
+  "n_points": 816,
+  "energy_min": 1085.0,
+  "energy_max": 1340.0,
+  "step_mean": 0.312883,
+  "v1_min_energy": 1085.0,
+  "v1_max_energy": 1340.0,
+  "intensity_finite": true,
+  "flags": [
+   "bad_xperchan",
+   "non_uniform"
+  ]
+ },
+ {
+  "spectrum_id": 21547,
+  "path": "wp-content/uploads/2015/09/Dspec.2608.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 501.0,
+   "xperchan": 0.09,
+   "offset": 269.75
+  },
+  "has_beamkv": false,
+  "n_points": 501,
+  "energy_min": 269.75,
+  "energy_max": 313.9,
+  "step_mean": 0.0883,
+  "v1_min_energy": 269.75,
+  "v1_max_energy": 313.9,
+  "intensity_finite": true,
+  "flags": [
+   "non_uniform"
+  ]
+ },
+ {
+  "spectrum_id": 21548,
+  "path": "wp-content/uploads/2015/09/Dspec.63282.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.100006,
+   "offset": 268.300018
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": 268.3,
+  "energy_max": 370.2062,
+  "step_mean": 0.100006,
+  "v1_min_energy": 268.3,
+  "v1_max_energy": 370.21,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21549,
+  "path": "wp-content/uploads/2015/09/Dspec.65569.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.100001,
+   "offset": -10.700001
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": -10.7,
+  "energy_max": 91.1992,
+  "step_mean": 0.099999,
+  "v1_min_energy": -10.7,
+  "v1_max_energy": 91.2,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21550,
+  "path": "wp-content/uploads/2015/09/Dspec.1748251.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 800.0,
+   "xperchan": 0.0,
+   "offset": 123.82
+  },
+  "has_beamkv": false,
+  "n_points": 800,
+  "energy_min": 123.82,
+  "energy_max": 158.78,
+  "step_mean": 0.043755,
+  "v1_min_energy": 123.82,
+  "v1_max_energy": 158.78,
+  "intensity_finite": true,
+  "flags": [
+   "bad_xperchan",
+   "non_uniform",
+   "not_increasing"
+  ]
+ },
+ {
+  "spectrum_id": 21551,
+  "path": "wp-content/uploads/2015/09/Dspec.1445898.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 367.0,
+   "xperchan": 1.0,
+   "offset": 1822.5
+  },
+  "has_beamkv": false,
+  "n_points": 367,
+  "energy_min": 1822.5,
+  "energy_max": 1918.5,
+  "step_mean": 0.262295,
+  "v1_min_energy": 1822.5,
+  "v1_max_energy": 1918.5,
+  "intensity_finite": true,
+  "flags": [
+   "bad_xperchan",
+   "non_uniform",
+   "not_increasing"
+  ]
+ },
+ {
+  "spectrum_id": 21552,
+  "path": "wp-content/uploads/2015/09/Dspec.1451209.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 367.0,
+   "xperchan": 1.0,
+   "offset": 1822.5
+  },
+  "has_beamkv": false,
+  "n_points": 367,
+  "energy_min": 1822.5,
+  "energy_max": 1918.5,
+  "step_mean": 0.262295,
+  "v1_min_energy": 1822.5,
+  "v1_max_energy": 1918.5,
+  "intensity_finite": true,
+  "flags": [
+   "bad_xperchan",
+   "non_uniform",
+   "not_increasing"
+  ]
+ },
+ {
+  "spectrum_id": 21553,
+  "path": "wp-content/uploads/2015/09/Dspec.1230651.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 451.0,
+   "xperchan": 0.2,
+   "offset": 1820.0
+  },
+  "has_beamkv": false,
+  "n_points": 451,
+  "energy_min": 1820.0,
+  "energy_max": 1910.0,
+  "step_mean": 0.2,
+  "v1_min_energy": 1820.0,
+  "v1_max_energy": 1910.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21554,
+  "path": "wp-content/uploads/2015/09/Dspec.1491607.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 401.0,
+   "xperchan": 0.20996,
+   "offset": 1830.0
+  },
+  "has_beamkv": false,
+  "n_points": 401,
+  "energy_min": 1830.0,
+  "energy_max": 1910.0,
+  "step_mean": 0.2,
+  "v1_min_energy": 1830.0,
+  "v1_max_energy": 1910.0,
+  "intensity_finite": true,
+  "flags": [
+   "non_uniform"
+  ]
+ },
+ {
+  "spectrum_id": 21555,
+  "path": "wp-content/uploads/2015/09/Dspec.1368475.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 401.0,
+   "xperchan": 0.20996,
+   "offset": 1830.0
+  },
+  "has_beamkv": false,
+  "n_points": 401,
+  "energy_min": 1830.0,
+  "energy_max": 1910.0,
+  "step_mean": 0.2,
+  "v1_min_energy": 1830.0,
+  "v1_max_energy": 1910.0,
+  "intensity_finite": true,
+  "flags": [
+   "non_uniform"
+  ]
+ },
+ {
+  "spectrum_id": 21556,
+  "path": "wp-content/uploads/2015/09/Dspec.1227104.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 401.0,
+   "xperchan": 0.20996,
+   "offset": 1830.0
+  },
+  "has_beamkv": false,
+  "n_points": 401,
+  "energy_min": 1830.0,
+  "energy_max": 1910.0,
+  "step_mean": 0.2,
+  "v1_min_energy": 1830.0,
+  "v1_max_energy": 1910.0,
+  "intensity_finite": true,
+  "flags": [
+   "non_uniform"
+  ]
+ },
+ {
+  "spectrum_id": 21557,
+  "path": "wp-content/uploads/2015/09/Dspec.1237238.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 399.0,
+   "xperchan": 0.10498,
+   "offset": 1830.10205
+  },
+  "has_beamkv": false,
+  "n_points": 399,
+  "energy_min": 1830.102,
+  "energy_max": 1869.905,
+  "step_mean": 0.100007,
+  "v1_min_energy": 1830.1,
+  "v1_max_energy": 1869.91,
+  "intensity_finite": true,
+  "flags": [
+   "non_uniform"
+  ]
+ },
+ {
+  "spectrum_id": 21558,
+  "path": "wp-content/uploads/2015/09/Dspec.1494361.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 501.0,
+   "xperchan": 0.2,
+   "offset": 1050.0
+  },
+  "has_beamkv": false,
+  "n_points": 501,
+  "energy_min": 1050.0,
+  "energy_max": 1150.0,
+  "step_mean": 0.2,
+  "v1_min_energy": 1050.0,
+  "v1_max_energy": 1150.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21559,
+  "path": "wp-content/uploads/2015/09/Dspec.1481178.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 276.0,
+   "xperchan": 0.3,
+   "offset": 1064.9
+  },
+  "has_beamkv": false,
+  "n_points": 276,
+  "energy_min": 1064.9,
+  "energy_max": 1120.0,
+  "step_mean": 0.200364,
+  "v1_min_energy": 1064.9,
+  "v1_max_energy": 1120.0,
+  "intensity_finite": true,
+  "flags": [
+   "bad_xperchan",
+   "non_uniform"
+  ]
+ },
+ {
+  "spectrum_id": 21560,
+  "path": "wp-content/uploads/2015/09/Dspec.128423.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 780.0,
+   "xperchan": 0.200012,
+   "offset": 423.600006
+  },
+  "has_beamkv": false,
+  "n_points": 780,
+  "energy_min": 423.6,
+  "energy_max": 579.4095,
+  "step_mean": 0.200012,
+  "v1_min_energy": 423.6,
+  "v1_max_energy": 579.41,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21561,
+  "path": "wp-content/uploads/2015/09/Dspec.169162.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 780.0,
+   "xperchan": 0.200012,
+   "offset": 653.600037
+  },
+  "has_beamkv": false,
+  "n_points": 780,
+  "energy_min": 653.6,
+  "energy_max": 809.4095,
+  "step_mean": 0.200012,
+  "v1_min_energy": 653.6,
+  "v1_max_energy": 809.41,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21562,
+  "path": "wp-content/uploads/2015/09/Dspec.154236.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.200001,
+   "offset": -44.399998
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": -44.4,
+  "energy_max": 159.3988,
+  "step_mean": 0.199999,
+  "v1_min_energy": -44.4,
+  "v1_max_energy": 159.4,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21563,
+  "path": "wp-content/uploads/2015/09/Dspec.106755.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 1.0,
+   "offset": 5365.0
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": 5365.0,
+  "energy_max": 6384.0,
+  "step_mean": 1.0,
+  "v1_min_energy": 5365.0,
+  "v1_max_energy": 6384.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21564,
+  "path": "wp-content/uploads/2015/09/Dspec.36108.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.100001,
+   "offset": -14.400001
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": -14.4,
+  "energy_max": 87.4993,
+  "step_mean": 0.099999,
+  "v1_min_energy": -14.4,
+  "v1_max_energy": 87.5,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21565,
+  "path": "wp-content/uploads/2015/09/Dspec.36571.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.100006,
+   "offset": 167.979996
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": 167.98,
+  "energy_max": 269.8862,
+  "step_mean": 0.100006,
+  "v1_min_energy": 167.98,
+  "v1_max_energy": 269.89,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21566,
+  "path": "wp-content/uploads/2015/09/Dspec.36618.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.100006,
+   "offset": 267.700012
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": 267.7,
+  "energy_max": 369.6062,
+  "step_mean": 0.100006,
+  "v1_min_energy": 267.7,
+  "v1_max_energy": 369.61,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21567,
+  "path": "wp-content/uploads/2015/09/Dspec.39168.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.09998,
+   "offset": 512.0
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 512.0,
+  "energy_max": 614.3,
+  "step_mean": 0.1,
+  "v1_min_energy": 512.0,
+  "v1_max_energy": 614.3,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21568,
+  "path": "wp-content/uploads/2015/09/Dspec.39353.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.10001,
+   "offset": 245.20001
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 245.2,
+  "energy_max": 347.5,
+  "step_mean": 0.1,
+  "v1_min_energy": 245.2,
+  "v1_max_energy": 347.5,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21569,
+  "path": "wp-content/uploads/2015/09/Dspec.97999.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 957.0,
+   "xperchan": 0.099999,
+   "offset": 51.100002
+  },
+  "has_beamkv": false,
+  "n_points": 957,
+  "energy_min": 51.1,
+  "energy_max": 146.7,
+  "step_mean": 0.1,
+  "v1_min_energy": 51.1,
+  "v1_max_energy": 146.7,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21570,
+  "path": "wp-content/uploads/2015/09/Dspec.92906.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 769.0,
+   "xperchan": 0.099998,
+   "offset": 69.900002
+  },
+  "has_beamkv": false,
+  "n_points": 769,
+  "energy_min": 69.9,
+  "energy_max": 146.7,
+  "step_mean": 0.1,
+  "v1_min_energy": 69.9,
+  "v1_max_energy": 146.7,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21571,
+  "path": "wp-content/uploads/2015/09/Dspec.55976.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.020813,
+   "offset": 283.700012
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 283.7,
+  "energy_max": 305.0,
+  "step_mean": 0.020821,
+  "v1_min_energy": 283.7,
+  "v1_max_energy": 305.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21572,
+  "path": "wp-content/uploads/2015/09/Dspec.133789.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 803.0,
+   "xperchan": 0.099998,
+   "offset": 71.699997
+  },
+  "has_beamkv": false,
+  "n_points": 803,
+  "energy_min": 71.7,
+  "energy_max": 151.9006,
+  "step_mean": 0.100001,
+  "v1_min_energy": 71.7,
+  "v1_max_energy": 151.9,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21573,
+  "path": "wp-content/uploads/2015/09/Dspec.869025.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 800.0,
+   "xperchan": 0.0,
+   "offset": 155.0
+  },
+  "has_beamkv": false,
+  "n_points": 800,
+  "energy_min": 155.0,
+  "energy_max": 194.95,
+  "step_mean": 0.05,
+  "v1_min_energy": 155.0,
+  "v1_max_energy": 194.95,
+  "intensity_finite": true,
+  "flags": [
+   "bad_xperchan",
+   "non_uniform",
+   "not_increasing"
+  ]
+ },
+ {
+  "spectrum_id": 21574,
+  "path": "wp-content/uploads/2015/09/Dspec.874589.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 800.0,
+   "xperchan": 0.0,
+   "offset": 155.0
+  },
+  "has_beamkv": false,
+  "n_points": 800,
+  "energy_min": 155.0,
+  "energy_max": 194.95,
+  "step_mean": 0.05,
+  "v1_min_energy": 155.0,
+  "v1_max_energy": 194.95,
+  "intensity_finite": true,
+  "flags": [
+   "bad_xperchan",
+   "non_uniform",
+   "not_increasing"
+  ]
+ },
+ {
+  "spectrum_id": 21575,
+  "path": "wp-content/uploads/2015/09/Dspec.132290.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 812.0,
+   "xperchan": 0.099998,
+   "offset": 71.699997
+  },
+  "has_beamkv": false,
+  "n_points": 812,
+  "energy_min": 71.7,
+  "energy_max": 152.8006,
+  "step_mean": 0.100001,
+  "v1_min_energy": 71.7,
+  "v1_max_energy": 152.8,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21576,
+  "path": "wp-content/uploads/2015/09/Dspec.136233.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 670.0,
+   "xperchan": 0.098503,
+   "offset": 71.177994
+  },
+  "has_beamkv": false,
+  "n_points": 670,
+  "energy_min": 71.178,
+  "energy_max": 137.0759,
+  "step_mean": 0.098502,
+  "v1_min_energy": 71.18,
+  "v1_max_energy": 137.08,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21577,
+  "path": "wp-content/uploads/2015/09/Dspec.42170.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 756.0,
+   "xperchan": 0.300048,
+   "offset": 1548.599976
+  },
+  "has_beamkv": false,
+  "n_points": 756,
+  "energy_min": 1548.6,
+  "energy_max": 1775.1368,
+  "step_mean": 0.300049,
+  "v1_min_energy": 1548.6,
+  "v1_max_energy": 1775.14,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21578,
+  "path": "wp-content/uploads/2015/09/Dspec.39707.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 601.0,
+   "xperchan": 0.099999,
+   "offset": 112.900009
+  },
+  "has_beamkv": false,
+  "n_points": 601,
+  "energy_min": 112.9,
+  "energy_max": 172.9025,
+  "step_mean": 0.100004,
+  "v1_min_energy": 112.9,
+  "v1_max_energy": 172.9,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21579,
+  "path": "wp-content/uploads/2015/09/Dspec.48810.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.0984251872,
+   "offset": -17.4212581344
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": -17.4213,
+  "energy_max": 82.874,
+  "step_mean": 0.098425,
+  "v1_min_energy": -17.42,
+  "v1_max_energy": 82.87,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21581,
+  "path": "wp-content/uploads/2015/09/Dspec.53968.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.0999883786,
+   "offset": -13.3984424323
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": -13.3984,
+  "energy_max": 88.4897,
+  "step_mean": 0.099988,
+  "v1_min_energy": -13.4,
+  "v1_max_energy": 88.49,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21582,
+  "path": "wp-content/uploads/2015/09/Dspec.54596.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 424.0,
+   "xperchan": 0.1968503744,
+   "offset": 90.3050092764
+  },
+  "has_beamkv": false,
+  "n_points": 424,
+  "energy_min": 90.305,
+  "energy_max": 173.5727,
+  "step_mean": 0.19685,
+  "v1_min_energy": 90.31,
+  "v1_max_energy": 173.57,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21583,
+  "path": "wp-content/uploads/2015/09/Dspec.56408.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.0999669731,
+   "offset": -12.6958055837
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": -12.6958,
+  "energy_max": 89.1705,
+  "step_mean": 0.099967,
+  "v1_min_energy": -12.7,
+  "v1_max_energy": 89.17,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21584,
+  "path": "wp-content/uploads/2015/09/Dspec.56536.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.0986279994,
+   "offset": -14.2024319136
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": -14.2024,
+  "energy_max": 86.2995,
+  "step_mean": 0.098628,
+  "v1_min_energy": -14.2,
+  "v1_max_energy": 86.3,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21585,
+  "path": "wp-content/uploads/2015/09/Dspec.49088.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.0999669731,
+   "offset": -0.0
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": -0.0,
+  "energy_max": 101.8663,
+  "step_mean": 0.099967,
+  "v1_min_energy": 0.0,
+  "v1_max_energy": 101.87,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21586,
+  "path": "wp-content/uploads/2015/09/Dspec.56420.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 417.0,
+   "xperchan": 0.1999339461,
+   "offset": 90.3050092764
+  },
+  "has_beamkv": false,
+  "n_points": 417,
+  "energy_min": 90.305,
+  "energy_max": 173.4775,
+  "step_mean": 0.199934,
+  "v1_min_energy": 90.31,
+  "v1_max_energy": 173.48,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21587,
+  "path": "wp-content/uploads/2015/09/Dspec.56658.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 423.0,
+   "xperchan": 0.1972559988,
+   "offset": 90.3050092764
+  },
+  "has_beamkv": false,
+  "n_points": 423,
+  "energy_min": 90.305,
+  "energy_max": 173.547,
+  "step_mean": 0.197256,
+  "v1_min_energy": 90.31,
+  "v1_max_energy": 173.55,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21588,
+  "path": "wp-content/uploads/2015/09/Dspec.56469.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.0986279994,
+   "offset": -0.0
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": -0.0,
+  "energy_max": 100.5019,
+  "step_mean": 0.098628,
+  "v1_min_energy": 0.0,
+  "v1_max_energy": 100.5,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21589,
+  "path": "wp-content/uploads/2015/09/Dspec.56160.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1020.0,
+   "xperchan": 0.1,
+   "offset": 88.4961038961
+  },
+  "has_beamkv": false,
+  "n_points": 1020,
+  "energy_min": 88.4961,
+  "energy_max": 190.3961,
+  "step_mean": 0.1,
+  "v1_min_energy": 88.5,
+  "v1_max_energy": 190.4,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21590,
+  "path": "wp-content/uploads/2015/09/Dspec.56364.1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 417.0,
+   "xperchan": 0.2,
+   "offset": 90.3050092764
+  },
+  "has_beamkv": false,
+  "n_points": 417,
+  "energy_min": 90.305,
+  "energy_max": 173.505,
+  "step_mean": 0.2,
+  "v1_min_energy": 90.31,
+  "v1_max_energy": 173.51,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21591,
+  "path": "wp-content/uploads/2015/09/Dspec9r39OR.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1022.0,
+   "xperchan": 0.1,
+   "offset": -9.8
+  },
+  "has_beamkv": false,
+  "n_points": 1022,
+  "energy_min": -9.8,
+  "energy_max": 92.3,
+  "step_mean": 0.1,
+  "v1_min_energy": -9.8,
+  "v1_max_energy": 92.3,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21592,
+  "path": "wp-content/uploads/2015/09/DspecxhYeg9.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1022.0,
+   "xperchan": 0.1,
+   "offset": -9.8
+  },
+  "has_beamkv": false,
+  "n_points": 1022,
+  "energy_min": -9.8,
+  "energy_max": 92.3,
+  "step_mean": 0.1,
+  "v1_min_energy": -9.8,
+  "v1_max_energy": 92.3,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21593,
+  "path": "wp-content/uploads/2015/09/DspecCXRMZ7.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1022.0,
+   "xperchan": 0.1,
+   "offset": -9.6
+  },
+  "has_beamkv": false,
+  "n_points": 1022,
+  "energy_min": -9.6,
+  "energy_max": 92.5,
+  "step_mean": 0.1,
+  "v1_min_energy": -9.6,
+  "v1_max_energy": 92.5,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21594,
+  "path": "wp-content/uploads/2015/09/Dspect90vMY.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1021.0,
+   "xperchan": 0.1,
+   "offset": -14.7
+  },
+  "has_beamkv": false,
+  "n_points": 1021,
+  "energy_min": -14.7,
+  "energy_max": 87.3,
+  "step_mean": 0.1,
+  "v1_min_energy": -14.7,
+  "v1_max_energy": 87.3,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21595,
+  "path": "wp-content/uploads/2015/09/Dspect90vMY1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1021.0,
+   "xperchan": 0.1,
+   "offset": -14.7
+  },
+  "has_beamkv": false,
+  "n_points": 1021,
+  "energy_min": -14.7,
+  "energy_max": 87.3,
+  "step_mean": 0.1,
+  "v1_min_energy": -14.7,
+  "v1_max_energy": 87.3,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21596,
+  "path": "wp-content/uploads/2015/09/DspecMaSofH.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 973.0,
+   "xperchan": 0.05,
+   "offset": -4.6
+  },
+  "has_beamkv": false,
+  "n_points": 973,
+  "energy_min": -4.6,
+  "energy_max": 44.0,
+  "step_mean": 0.05,
+  "v1_min_energy": -4.6,
+  "v1_max_energy": 44.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21597,
+  "path": "wp-content/uploads/2015/09/DspeclNUL3m.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 919.0,
+   "xperchan": 0.05,
+   "offset": -4.9
+  },
+  "has_beamkv": false,
+  "n_points": 919,
+  "energy_min": -4.9,
+  "energy_max": 41.0,
+  "step_mean": 0.05,
+  "v1_min_energy": -4.9,
+  "v1_max_energy": 41.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21598,
+  "path": "wp-content/uploads/2015/09/Dspec0qNXTu.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1002.0,
+   "xperchan": 0.4036,
+   "offset": -9.1767
+  },
+  "has_beamkv": false,
+  "n_points": 1002,
+  "energy_min": -9.1767,
+  "energy_max": 92.122,
+  "step_mean": 0.101198,
+  "v1_min_energy": -9.18,
+  "v1_max_energy": 92.12,
+  "intensity_finite": true,
+  "flags": [
+   "bad_xperchan",
+   "non_uniform"
+  ]
+ },
+ {
+  "spectrum_id": 21599,
+  "path": "wp-content/uploads/2015/09/DspeccVzGat.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 924.0,
+   "xperchan": 0.098,
+   "offset": -10.15
+  },
+  "has_beamkv": false,
+  "n_points": 924,
+  "energy_min": -10.15,
+  "energy_max": 79.931,
+  "step_mean": 0.097596,
+  "v1_min_energy": -10.15,
+  "v1_max_energy": 79.93,
+  "intensity_finite": true,
+  "flags": [
+   "non_uniform"
+  ]
+ },
+ {
+  "spectrum_id": 21600,
+  "path": "wp-content/uploads/2015/09/Dspec2EQMJ0.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1012.0,
+   "xperchan": 0.097,
+   "offset": -17.042
+  },
+  "has_beamkv": false,
+  "n_points": 1012,
+  "energy_min": -17.042,
+  "energy_max": 80.995,
+  "step_mean": 0.09697,
+  "v1_min_energy": -17.04,
+  "v1_max_energy": 81.0,
+  "intensity_finite": true,
+  "flags": [
+   "non_uniform"
+  ]
+ },
+ {
+  "spectrum_id": 21601,
+  "path": "wp-content/uploads/2015/09/DspectVJrUq.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 978.0,
+   "xperchan": 0.1,
+   "offset": -6.1
+  },
+  "has_beamkv": false,
+  "n_points": 978,
+  "energy_min": -6.1,
+  "energy_max": 91.6,
+  "step_mean": 0.1,
+  "v1_min_energy": -6.1,
+  "v1_max_energy": 91.6,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21602,
+  "path": "wp-content/uploads/2015/09/DspecJ0t8eT.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1014.0,
+   "xperchan": 0.05,
+   "offset": 846.5
+  },
+  "has_beamkv": false,
+  "n_points": 1014,
+  "energy_min": 846.5,
+  "energy_max": 897.15,
+  "step_mean": 0.05,
+  "v1_min_energy": 846.5,
+  "v1_max_energy": 897.15,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21603,
+  "path": "wp-content/uploads/2015/09/Dspeck9eQVp.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1015.0,
+   "xperchan": 0.0500000000001,
+   "offset": 847.4
+  },
+  "has_beamkv": false,
+  "n_points": 1015,
+  "energy_min": 847.4,
+  "energy_max": 898.1,
+  "step_mean": 0.05,
+  "v1_min_energy": 847.4,
+  "v1_max_energy": 898.1,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21604,
+  "path": "wp-content/uploads/2015/09/DspecVSLx5S.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 995.0,
+   "xperchan": 0.1,
+   "offset": -7.5
+  },
+  "has_beamkv": false,
+  "n_points": 995,
+  "energy_min": -7.5,
+  "energy_max": 91.9,
+  "step_mean": 0.1,
+  "v1_min_energy": -7.5,
+  "v1_max_energy": 91.9,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21605,
+  "path": "wp-content/uploads/2015/09/DspecHrI4VX.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1022.0,
+   "xperchan": 0.1,
+   "offset": -8.5
+  },
+  "has_beamkv": false,
+  "n_points": 1022,
+  "energy_min": -8.5,
+  "energy_max": 93.6,
+  "step_mean": 0.1,
+  "v1_min_energy": -8.5,
+  "v1_max_energy": 93.6,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21606,
+  "path": "wp-content/uploads/2015/09/Dspec4uEua3.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1004.0,
+   "xperchan": 0.0999,
+   "offset": -8.23
+  },
+  "has_beamkv": false,
+  "n_points": 1004,
+  "energy_min": -8.23,
+  "energy_max": 92.001,
+  "step_mean": 0.099931,
+  "v1_min_energy": -8.23,
+  "v1_max_energy": 92.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21607,
+  "path": "wp-content/uploads/2015/09/DspecarM0aP.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1002.0,
+   "xperchan": 0.0976,
+   "offset": -7.6128
+  },
+  "has_beamkv": false,
+  "n_points": 1002,
+  "energy_min": -7.6128,
+  "energy_max": 90.084,
+  "step_mean": 0.097599,
+  "v1_min_energy": -7.61,
+  "v1_max_energy": 90.08,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21608,
+  "path": "wp-content/uploads/2015/09/Dspeczb8Jk5.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 837.0,
+   "xperchan": 0.0968,
+   "offset": -10.052
+  },
+  "has_beamkv": false,
+  "n_points": 837,
+  "energy_min": -10.052,
+  "energy_max": 71.54,
+  "step_mean": 0.097598,
+  "v1_min_energy": -10.05,
+  "v1_max_energy": 71.54,
+  "intensity_finite": true,
+  "flags": [
+   "non_uniform"
+  ]
+ },
+ {
+  "spectrum_id": 21609,
+  "path": "wp-content/uploads/2015/09/DspecJkF1Ey.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1018.0,
+   "xperchan": 0.0989,
+   "offset": -8.7511
+  },
+  "has_beamkv": false,
+  "n_points": 1018,
+  "energy_min": -8.7511,
+  "energy_max": 91.805,
+  "step_mean": 0.098875,
+  "v1_min_energy": -8.75,
+  "v1_max_energy": 91.81,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21610,
+  "path": "wp-content/uploads/2015/09/DspecgMRSuj.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 996.0,
+   "xperchan": 0.0999,
+   "offset": -7.0735
+  },
+  "has_beamkv": false,
+  "n_points": 996,
+  "energy_min": -7.0735,
+  "energy_max": 92.3,
+  "step_mean": 0.099873,
+  "v1_min_energy": -7.07,
+  "v1_max_energy": 92.3,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21611,
+  "path": "wp-content/uploads/2015/09/DspecEIn4Xv.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.5,
+   "offset": -61.49999
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": -61.5,
+  "energy_max": 449.9999,
+  "step_mean": 0.5,
+  "v1_min_energy": -61.5,
+  "v1_max_energy": 450.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21612,
+  "path": "wp-content/uploads/2015/09/Dspecr1Tl5s.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.3,
+   "offset": -35.99999
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": -36.0,
+  "energy_max": 270.9,
+  "step_mean": 0.3,
+  "v1_min_energy": -36.0,
+  "v1_max_energy": 270.9,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21613,
+  "path": "wp-content/uploads/2015/09/DspecgBe1vf.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.3,
+   "offset": 382.5
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 382.5,
+  "energy_max": 689.4,
+  "step_mean": 0.3,
+  "v1_min_energy": 382.5,
+  "v1_max_energy": 689.4,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21614,
+  "path": "wp-content/uploads/2015/09/DspecnOA4UQ.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.5,
+   "offset": 113.5
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 113.5,
+  "energy_max": 625.0,
+  "step_mean": 0.5,
+  "v1_min_energy": 113.5,
+  "v1_max_energy": 625.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21615,
+  "path": "wp-content/uploads/2015/09/DspecbsF3Mw.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.05,
+   "offset": -15.0
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": -15.0,
+  "energy_max": 36.15,
+  "step_mean": 0.05,
+  "v1_min_energy": -15.0,
+  "v1_max_energy": 36.15,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21616,
+  "path": "wp-content/uploads/2015/09/DspecC8tfo2.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.05,
+   "offset": 447.5
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 447.5,
+  "energy_max": 498.65,
+  "step_mean": 0.05,
+  "v1_min_energy": 447.5,
+  "v1_max_energy": 498.65,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21617,
+  "path": "wp-content/uploads/2015/09/DspecNVXccv.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.05,
+   "offset": 522.5
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 522.5,
+  "energy_max": 573.65,
+  "step_mean": 0.05,
+  "v1_min_energy": 522.5,
+  "v1_max_energy": 573.65,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21618,
+  "path": "wp-content/uploads/2015/09/Dspec8Zuj70.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.05,
+   "offset": -15.0
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": -15.0,
+  "energy_max": 36.15,
+  "step_mean": 0.05,
+  "v1_min_energy": -15.0,
+  "v1_max_energy": 36.15,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21619,
+  "path": "wp-content/uploads/2015/09/DspecHnoeuO.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.05,
+   "offset": 447.7
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 447.7,
+  "energy_max": 498.85,
+  "step_mean": 0.05,
+  "v1_min_energy": 447.7,
+  "v1_max_energy": 498.85,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21620,
+  "path": "wp-content/uploads/2015/09/Dspec3Okksx.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.05,
+   "offset": 522.7
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 522.7,
+  "energy_max": 573.85,
+  "step_mean": 0.05,
+  "v1_min_energy": 522.7,
+  "v1_max_energy": 573.85,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21622,
+  "path": "wp-content/uploads/2015/09/Dspeciyr4j4.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 1.0,
+   "offset": -102.0
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": -102.0,
+  "energy_max": 920.9998,
+  "step_mean": 1.0,
+  "v1_min_energy": -102.0,
+  "v1_max_energy": 921.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21623,
+  "path": "wp-content/uploads/2015/09/DspecacxB3G.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 1.0,
+   "offset": 342.0
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 342.0,
+  "energy_max": 1365.0,
+  "step_mean": 1.0,
+  "v1_min_energy": 342.0,
+  "v1_max_energy": 1365.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21624,
+  "path": "wp-content/uploads/2015/09/DspecLfPbFJ.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 1.0,
+   "offset": -19.0
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": -19.0,
+  "energy_max": 1004.0,
+  "step_mean": 1.0,
+  "v1_min_energy": -19.0,
+  "v1_max_energy": 1004.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21625,
+  "path": "wp-content/uploads/2015/09/DspecelZWOy.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 1.0,
+   "offset": 341.5
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 341.5,
+  "energy_max": 1364.5,
+  "step_mean": 1.0,
+  "v1_min_energy": 341.5,
+  "v1_max_energy": 1364.5,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21626,
+  "path": "wp-content/uploads/2015/09/Dspec4Z9jMQ.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 1.0,
+   "offset": 1090.5
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 1090.5,
+  "energy_max": 2113.5,
+  "step_mean": 1.0,
+  "v1_min_energy": 1090.5,
+  "v1_max_energy": 2113.5,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21627,
+  "path": "wp-content/uploads/2015/09/DspecUTi8lE.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.20576001955,
+   "offset": 257.10751
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 257.1075,
+  "energy_max": 467.6,
+  "step_mean": 0.20576,
+  "v1_min_energy": 257.11,
+  "v1_max_energy": 467.6,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21628,
+  "path": "wp-content/uploads/2015/09/DspecvHYEok.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.208000004292,
+   "offset": 244.409973144531
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 244.41,
+  "energy_max": 457.194,
+  "step_mean": 0.208,
+  "v1_min_energy": 244.41,
+  "v1_max_energy": 457.19,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21629,
+  "path": "wp-content/uploads/2015/09/DspecYylKeR.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 422.0,
+   "xperchan": 0.204899996519,
+   "offset": 352.766
+  },
+  "has_beamkv": false,
+  "n_points": 422,
+  "energy_min": 352.766,
+  "energy_max": 439.0289,
+  "step_mean": 0.2049,
+  "v1_min_energy": 352.77,
+  "v1_max_energy": 439.03,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21630,
+  "path": "wp-content/uploads/2015/09/Dspec015Ulv.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.2,
+   "offset": 853.2
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 853.2,
+  "energy_max": 1057.8,
+  "step_mean": 0.2,
+  "v1_min_energy": 853.2,
+  "v1_max_energy": 1057.8,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21631,
+  "path": "wp-content/uploads/2016/02/DspecSuXdEW.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.3,
+   "offset": 758.1
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 758.1,
+  "energy_max": 1065.0,
+  "step_mean": 0.3,
+  "v1_min_energy": 758.1,
+  "v1_max_energy": 1065.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21633,
+  "path": "wp-content/uploads/2015/09/Dspecmn1BFr.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.203250005841,
+   "offset": 262.415985107422
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 262.416,
+  "energy_max": 470.3407,
+  "step_mean": 0.20325,
+  "v1_min_energy": 262.42,
+  "v1_max_energy": 470.34,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21634,
+  "path": "wp-content/uploads/2015/09/DspeciDRgmA.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1022.0,
+   "xperchan": 0.1,
+   "offset": -20.6
+  },
+  "has_beamkv": false,
+  "n_points": 1022,
+  "energy_min": -20.6,
+  "energy_max": 81.5,
+  "step_mean": 0.1,
+  "v1_min_energy": -20.6,
+  "v1_max_energy": 81.5,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21635,
+  "path": "wp-content/uploads/2015/09/Dspec16f4H0.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1022.0,
+   "xperchan": 0.1,
+   "offset": 904.5
+  },
+  "has_beamkv": false,
+  "n_points": 1022,
+  "energy_min": 904.5,
+  "energy_max": 1006.6,
+  "step_mean": 0.1,
+  "v1_min_energy": 904.5,
+  "v1_max_energy": 1006.6,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21636,
+  "path": "wp-content/uploads/2015/09/DspecQg6Fjc.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1022.0,
+   "xperchan": 0.1,
+   "offset": -11.8
+  },
+  "has_beamkv": false,
+  "n_points": 1022,
+  "energy_min": -11.8,
+  "energy_max": 90.3,
+  "step_mean": 0.1,
+  "v1_min_energy": -11.8,
+  "v1_max_energy": 90.3,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21637,
+  "path": "wp-content/uploads/2015/09/DspecXANZOJ.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1022.0,
+   "xperchan": 0.1,
+   "offset": 509.4
+  },
+  "has_beamkv": false,
+  "n_points": 1022,
+  "energy_min": 509.4,
+  "energy_max": 611.5,
+  "step_mean": 0.1,
+  "v1_min_energy": 509.4,
+  "v1_max_energy": 611.5,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21638,
+  "path": "wp-content/uploads/2015/09/Dspeckb2nlf.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1022.0,
+   "xperchan": 0.1,
+   "offset": 917.6
+  },
+  "has_beamkv": false,
+  "n_points": 1022,
+  "energy_min": 917.6,
+  "energy_max": 1019.7,
+  "step_mean": 0.1,
+  "v1_min_energy": 917.6,
+  "v1_max_energy": 1019.7,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21639,
+  "path": "wp-content/uploads/2015/09/Dspecabtchq.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1022.0,
+   "xperchan": 0.1,
+   "offset": -29.9
+  },
+  "has_beamkv": false,
+  "n_points": 1022,
+  "energy_min": -29.9,
+  "energy_max": 72.2,
+  "step_mean": 0.1,
+  "v1_min_energy": -29.9,
+  "v1_max_energy": 72.2,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21640,
+  "path": "wp-content/uploads/2015/09/Dspec44J1O9.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1022.0,
+   "xperchan": 0.1,
+   "offset": 902.4
+  },
+  "has_beamkv": false,
+  "n_points": 1022,
+  "energy_min": 902.4,
+  "energy_max": 1004.5,
+  "step_mean": 0.1,
+  "v1_min_energy": 902.4,
+  "v1_max_energy": 1004.5,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21641,
+  "path": "wp-content/uploads/2015/09/DspecGDVDBb.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1022.0,
+   "xperchan": 0.1,
+   "offset": 506.5
+  },
+  "has_beamkv": false,
+  "n_points": 1022,
+  "energy_min": 506.5,
+  "energy_max": 608.6,
+  "step_mean": 0.1,
+  "v1_min_energy": 506.5,
+  "v1_max_energy": 608.6,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21642,
+  "path": "wp-content/uploads/2015/09/Dspecx8U1BC.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1022.0,
+   "xperchan": 0.2,
+   "offset": -20.0
+  },
+  "has_beamkv": false,
+  "n_points": 1022,
+  "energy_min": -20.0,
+  "energy_max": 184.2,
+  "step_mean": 0.2,
+  "v1_min_energy": -20.0,
+  "v1_max_energy": 184.2,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21643,
+  "path": "wp-content/uploads/2015/09/DspecgWOANZ.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 894.0,
+   "xperchan": 0.2,
+   "offset": 260.0
+  },
+  "has_beamkv": false,
+  "n_points": 894,
+  "energy_min": 260.0,
+  "energy_max": 438.6,
+  "step_mean": 0.2,
+  "v1_min_energy": 260.0,
+  "v1_max_energy": 438.6,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21644,
+  "path": "wp-content/uploads/2015/09/Dspec8zl4Y4.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1022.0,
+   "xperchan": 0.2,
+   "offset": 400.0
+  },
+  "has_beamkv": false,
+  "n_points": 1022,
+  "energy_min": 400.0,
+  "energy_max": 604.2,
+  "step_mean": 0.2,
+  "v1_min_energy": 400.0,
+  "v1_max_energy": 604.2,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21647,
+  "path": "wp-content/uploads/2015/09/Dspec2vgwS1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.05,
+   "offset": -10.0
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": -10.0,
+  "energy_max": 41.15,
+  "step_mean": 0.05,
+  "v1_min_energy": -10.0,
+  "v1_max_energy": 41.15,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21648,
+  "path": "wp-content/uploads/2015/09/DspecasKgWG.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.05,
+   "offset": -3.45
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": -3.45,
+  "energy_max": 47.7,
+  "step_mean": 0.05,
+  "v1_min_energy": -3.45,
+  "v1_max_energy": 47.7,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21651,
+  "path": "wp-content/uploads/2015/09/DspecZx3DdV.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.05,
+   "offset": -17.5
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": -17.5,
+  "energy_max": 33.65,
+  "step_mean": 0.05,
+  "v1_min_energy": -17.5,
+  "v1_max_energy": 33.65,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21652,
+  "path": "wp-content/uploads/2015/09/DspecTi3wqG.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.05,
+   "offset": 695.0
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 695.0,
+  "energy_max": 746.15,
+  "step_mean": 0.05,
+  "v1_min_energy": 695.0,
+  "v1_max_energy": 746.15,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21653,
+  "path": "wp-content/uploads/2015/09/DspechpLOI9.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.05,
+   "offset": -17.5
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": -17.5,
+  "energy_max": 33.65,
+  "step_mean": 0.05,
+  "v1_min_energy": -17.5,
+  "v1_max_energy": 33.65,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21654,
+  "path": "wp-content/uploads/2015/09/DspecpVsNrj.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.05,
+   "offset": 767.0
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 767.0,
+  "energy_max": 818.15,
+  "step_mean": 0.05,
+  "v1_min_energy": 767.0,
+  "v1_max_energy": 818.15,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21655,
+  "path": "wp-content/uploads/2015/09/DspecT49KWD.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.05,
+   "offset": -17.5
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": -17.5,
+  "energy_max": 33.65,
+  "step_mean": 0.05,
+  "v1_min_energy": -17.5,
+  "v1_max_energy": 33.65,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21656,
+  "path": "wp-content/uploads/2015/09/DspecDa7uil.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.05,
+   "offset": 767.0
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 767.0,
+  "energy_max": 818.15,
+  "step_mean": 0.05,
+  "v1_min_energy": 767.0,
+  "v1_max_energy": 818.15,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21657,
+  "path": "wp-content/uploads/2015/09/DspecBhLyBO.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.05,
+   "offset": -17.5
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": -17.5,
+  "energy_max": 33.65,
+  "step_mean": 0.05,
+  "v1_min_energy": -17.5,
+  "v1_max_energy": 33.65,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21658,
+  "path": "wp-content/uploads/2015/09/DspecpdRrR8.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.05,
+   "offset": 695.0
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 695.0,
+  "energy_max": 746.15,
+  "step_mean": 0.05,
+  "v1_min_energy": 695.0,
+  "v1_max_energy": 746.15,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21663,
+  "path": "wp-content/uploads/2015/09/Dspec4c9XrS.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 977.0,
+   "xperchan": 0.05,
+   "offset": -8.2
+  },
+  "has_beamkv": false,
+  "n_points": 977,
+  "energy_min": -8.2,
+  "energy_max": 40.6,
+  "step_mean": 0.05,
+  "v1_min_energy": -8.2,
+  "v1_max_energy": 40.6,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21664,
+  "path": "wp-content/uploads/2015/09/Dspec9TnZnl.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 920.0,
+   "xperchan": 0.02,
+   "offset": -1.02
+  },
+  "has_beamkv": false,
+  "n_points": 920,
+  "energy_min": -1.02,
+  "energy_max": 17.36,
+  "step_mean": 0.02,
+  "v1_min_energy": -1.02,
+  "v1_max_energy": 17.36,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21665,
+  "path": "wp-content/uploads/2015/09/DspecR8lXfJ.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 980.0,
+   "xperchan": 0.02,
+   "offset": -1.3
+  },
+  "has_beamkv": false,
+  "n_points": 980,
+  "energy_min": -1.3,
+  "energy_max": 18.28,
+  "step_mean": 0.02,
+  "v1_min_energy": -1.3,
+  "v1_max_energy": 18.28,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21666,
+  "path": "wp-content/uploads/2015/09/Dspecshb3tD.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1146.0,
+   "xperchan": 0.02,
+   "offset": -2.11
+  },
+  "has_beamkv": false,
+  "n_points": 1146,
+  "energy_min": -2.11,
+  "energy_max": 20.79,
+  "step_mean": 0.02,
+  "v1_min_energy": -2.11,
+  "v1_max_energy": 20.79,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21667,
+  "path": "wp-content/uploads/2015/09/Dspec5rDstZ.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1192.0,
+   "xperchan": 0.02,
+   "offset": -2.96
+  },
+  "has_beamkv": false,
+  "n_points": 1192,
+  "energy_min": -2.96,
+  "energy_max": 20.86,
+  "step_mean": 0.02,
+  "v1_min_energy": -2.96,
+  "v1_max_energy": 20.86,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21668,
+  "path": "wp-content/uploads/2015/09/DspecgxvQRC.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.1,
+   "offset": 685.9
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 685.9,
+  "energy_max": 788.2,
+  "step_mean": 0.1,
+  "v1_min_energy": 685.9,
+  "v1_max_energy": 788.2,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21669,
+  "path": "wp-content/uploads/2015/09/Dspec9SrwZt.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.1,
+   "offset": 510.0999
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 510.0999,
+  "energy_max": 612.3999,
+  "step_mean": 0.1,
+  "v1_min_energy": 510.1,
+  "v1_max_energy": 612.4,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21670,
+  "path": "wp-content/uploads/2015/09/DspecWnU2Bh.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.02,
+   "offset": -2.0
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": -2.0,
+  "energy_max": 18.46,
+  "step_mean": 0.02,
+  "v1_min_energy": -2.0,
+  "v1_max_energy": 18.46,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21671,
+  "path": "wp-content/uploads/2015/09/DspecT9rL6p.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.02,
+   "offset": 518.0
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 518.0,
+  "energy_max": 538.46,
+  "step_mean": 0.02,
+  "v1_min_energy": 518.0,
+  "v1_max_energy": 538.46,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21672,
+  "path": "wp-content/uploads/2015/09/DspecdV8KrG.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.5,
+   "offset": -50.0
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": -50.0,
+  "energy_max": 461.5,
+  "step_mean": 0.5,
+  "v1_min_energy": -50.0,
+  "v1_max_energy": 461.5,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21673,
+  "path": "wp-content/uploads/2015/09/DspecjCEOHt.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.5,
+   "offset": 455.0
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 455.0,
+  "energy_max": 966.5,
+  "step_mean": 0.5,
+  "v1_min_energy": 455.0,
+  "v1_max_energy": 966.5,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21674,
+  "path": "wp-content/uploads/2015/09/DspecGLrIDj.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1022.0,
+   "xperchan": 0.2,
+   "offset": -16.8
+  },
+  "has_beamkv": false,
+  "n_points": 1022,
+  "energy_min": -16.8,
+  "energy_max": 187.4,
+  "step_mean": 0.2,
+  "v1_min_energy": -16.8,
+  "v1_max_energy": 187.4,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21675,
+  "path": "wp-content/uploads/2015/09/DspecIk9kBZ.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1022.0,
+   "xperchan": 0.2,
+   "offset": 403.8
+  },
+  "has_beamkv": false,
+  "n_points": 1022,
+  "energy_min": 403.8,
+  "energy_max": 608.0,
+  "step_mean": 0.2,
+  "v1_min_energy": 403.8,
+  "v1_max_energy": 608.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21676,
+  "path": "wp-content/uploads/2015/09/DspecKxafiS.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.5,
+   "offset": -19.0
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": -19.0,
+  "energy_max": 650.5,
+  "step_mean": 0.5,
+  "v1_min_energy": -19.0,
+  "v1_max_energy": 650.5,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21677,
+  "path": "wp-content/uploads/2015/09/DspecUQ1g40.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.5,
+   "offset": 50.0
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": 50.0,
+  "energy_max": 719.5,
+  "step_mean": 0.5,
+  "v1_min_energy": 50.0,
+  "v1_max_energy": 719.5,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21678,
+  "path": "wp-content/uploads/2015/09/Dspec9L0TJq.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.1,
+   "offset": -18.2
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": -18.2,
+  "energy_max": 115.7,
+  "step_mean": 0.1,
+  "v1_min_energy": -18.2,
+  "v1_max_energy": 115.7,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21679,
+  "path": "wp-content/uploads/2015/09/DspecKIVRgs.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.6706,
+   "offset": 415.1148
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": 415.1148,
+  "energy_max": 1313.054,
+  "step_mean": 0.670604,
+  "v1_min_energy": 415.11,
+  "v1_max_energy": 1313.05,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21680,
+  "path": "wp-content/uploads/2015/09/DspecEotLtT.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.1,
+   "offset": -14.8
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": -14.8,
+  "energy_max": 119.1,
+  "step_mean": 0.1,
+  "v1_min_energy": -14.8,
+  "v1_max_energy": 119.1,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21681,
+  "path": "wp-content/uploads/2015/09/DspecXesGW1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.1,
+   "offset": 55.2
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": 55.2,
+  "energy_max": 189.1,
+  "step_mean": 0.1,
+  "v1_min_energy": 55.2,
+  "v1_max_energy": 189.1,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21682,
+  "path": "wp-content/uploads/2015/09/Dspecu0vO19.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.671,
+   "offset": -18.788
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": -18.788,
+  "energy_max": 879.681,
+  "step_mean": 0.671,
+  "v1_min_energy": -18.79,
+  "v1_max_energy": 879.68,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21683,
+  "path": "wp-content/uploads/2016/03/DspecByKukd.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1337.0,
+   "xperchan": 0.1,
+   "offset": 435.0
+  },
+  "has_beamkv": false,
+  "n_points": 1337,
+  "energy_min": 435.0,
+  "energy_max": 568.6,
+  "step_mean": 0.1,
+  "v1_min_energy": 435.0,
+  "v1_max_energy": 568.6,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21685,
+  "path": "wp-content/uploads/2015/09/DspecaHgA68.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.674,
+   "offset": 61.83605
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": 61.8361,
+  "energy_max": 964.3221,
+  "step_mean": 0.674,
+  "v1_min_energy": 61.84,
+  "v1_max_energy": 964.32,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21686,
+  "path": "wp-content/uploads/2015/09/DspecSjBk6o.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.3,
+   "offset": 235.0
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": 235.0,
+  "energy_max": 636.7,
+  "step_mean": 0.3,
+  "v1_min_energy": 235.0,
+  "v1_max_energy": 636.7,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21687,
+  "path": "wp-content/uploads/2015/09/Dspec5SoPxR.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.1,
+   "offset": -19.58298
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": -19.583,
+  "energy_max": 114.317,
+  "step_mean": 0.1,
+  "v1_min_energy": -19.58,
+  "v1_max_energy": 114.32,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21688,
+  "path": "wp-content/uploads/2015/09/DspecZkpI4a.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.1,
+   "offset": 506.3
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": 506.3,
+  "energy_max": 640.2,
+  "step_mean": 0.1,
+  "v1_min_energy": 506.3,
+  "v1_max_energy": 640.2,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21689,
+  "path": "wp-content/uploads/2015/09/Dspecu5rWWe.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.658,
+   "offset": 1428.051
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": 1428.051,
+  "energy_max": 2309.82,
+  "step_mean": 0.658528,
+  "v1_min_energy": 1428.05,
+  "v1_max_energy": 2309.82,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21690,
+  "path": "wp-content/uploads/2015/09/Dspec3ArW3G.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.1,
+   "offset": -15.6
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": -15.6,
+  "energy_max": 118.3,
+  "step_mean": 0.1,
+  "v1_min_energy": -15.6,
+  "v1_max_energy": 118.3,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21691,
+  "path": "wp-content/uploads/2015/09/Dspecbdvogf.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.1,
+   "offset": 46.80991
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": 46.8099,
+  "energy_max": 180.7099,
+  "step_mean": 0.1,
+  "v1_min_energy": 46.81,
+  "v1_max_energy": 180.71,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21692,
+  "path": "wp-content/uploads/2015/09/DspecrTy9jb.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.1,
+   "offset": 510.0
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": 510.0,
+  "energy_max": 643.9,
+  "step_mean": 0.1,
+  "v1_min_energy": 510.0,
+  "v1_max_energy": 643.9,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21694,
+  "path": "wp-content/uploads/2015/09/Dspec2sC0sR.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.1,
+   "offset": -19.7
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": -19.7,
+  "energy_max": 114.2,
+  "step_mean": 0.1,
+  "v1_min_energy": -19.7,
+  "v1_max_energy": 114.2,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21695,
+  "path": "wp-content/uploads/2015/09/Dspecu3qCOX.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.1,
+   "offset": 44.25898
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": 44.259,
+  "energy_max": 178.159,
+  "step_mean": 0.1,
+  "v1_min_energy": 44.26,
+  "v1_max_energy": 178.16,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21696,
+  "path": "wp-content/uploads/2015/09/Dspec5JNkE8.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.1,
+   "offset": 505.2717
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": 505.2717,
+  "energy_max": 639.1717,
+  "step_mean": 0.1,
+  "v1_min_energy": 505.27,
+  "v1_max_energy": 639.17,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21697,
+  "path": "wp-content/uploads/2015/09/DspecKMgG4d.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.664,
+   "offset": 1421.473
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": 1421.473,
+  "energy_max": 2311.249,
+  "step_mean": 0.664508,
+  "v1_min_energy": 1421.47,
+  "v1_max_energy": 2311.25,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21698,
+  "path": "wp-content/uploads/2015/09/DspecBJYfzX.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 862.0,
+   "xperchan": 0.1,
+   "offset": 60.0
+  },
+  "has_beamkv": false,
+  "n_points": 862,
+  "energy_min": 60.0,
+  "energy_max": 146.1,
+  "step_mean": 0.1,
+  "v1_min_energy": 60.0,
+  "v1_max_energy": 146.1,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21699,
+  "path": "wp-content/uploads/2015/09/Dspeci8DC1G.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 790.0,
+   "xperchan": 0.1,
+   "offset": 60.0
+  },
+  "has_beamkv": false,
+  "n_points": 790,
+  "energy_min": 60.0,
+  "energy_max": 138.9,
+  "step_mean": 0.1,
+  "v1_min_energy": 60.0,
+  "v1_max_energy": 138.9,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21700,
+  "path": "wp-content/uploads/2015/09/DspecFSVKWt.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1022.0,
+   "xperchan": 0.1,
+   "offset": 50.0
+  },
+  "has_beamkv": false,
+  "n_points": 1022,
+  "energy_min": 50.0,
+  "energy_max": 152.1,
+  "step_mean": 0.1,
+  "v1_min_energy": 50.0,
+  "v1_max_energy": 152.1,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21701,
+  "path": "wp-content/uploads/2015/09/DspecKamqLX.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1231.0,
+   "xperchan": 0.47721,
+   "offset": 156.00999
+  },
+  "has_beamkv": false,
+  "n_points": 1231,
+  "energy_min": 156.01,
+  "energy_max": 742.966,
+  "step_mean": 0.4772,
+  "v1_min_energy": 156.01,
+  "v1_max_energy": 742.97,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21702,
+  "path": "wp-content/uploads/2015/09/DspecInywnN.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1256.0,
+   "xperchan": 0.47721,
+   "offset": 144.08
+  },
+  "has_beamkv": false,
+  "n_points": 1256,
+  "energy_min": 144.08,
+  "energy_max": 742.966,
+  "step_mean": 0.4772,
+  "v1_min_energy": 144.08,
+  "v1_max_energy": 742.97,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21703,
+  "path": "wp-content/uploads/2015/09/Dspec7vKq06.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 786.0,
+   "xperchan": 0.4772,
+   "offset": 373.336
+  },
+  "has_beamkv": false,
+  "n_points": 786,
+  "energy_min": 373.336,
+  "energy_max": 747.938,
+  "step_mean": 0.4772,
+  "v1_min_energy": 373.34,
+  "v1_max_energy": 747.94,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21704,
+  "path": "wp-content/uploads/2015/09/Dspecw23xH4.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 792.0,
+   "xperchan": 0.4772,
+   "offset": 370.47281
+  },
+  "has_beamkv": false,
+  "n_points": 792,
+  "energy_min": 370.4728,
+  "energy_max": 747.938,
+  "step_mean": 0.4772,
+  "v1_min_energy": 370.47,
+  "v1_max_energy": 747.94,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21705,
+  "path": "wp-content/uploads/2015/09/Dspec9tqvBz.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 926.0,
+   "xperchan": 0.0500000000001,
+   "offset": 683.9
+  },
+  "has_beamkv": false,
+  "n_points": 926,
+  "energy_min": 683.9,
+  "energy_max": 730.15,
+  "step_mean": 0.05,
+  "v1_min_energy": 683.9,
+  "v1_max_energy": 730.15,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21706,
+  "path": "wp-content/uploads/2015/09/DspecQWQaGy.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 427.0,
+   "xperchan": 0.0963,
+   "offset": 695.5717
+  },
+  "has_beamkv": false,
+  "n_points": 427,
+  "energy_min": 695.5717,
+  "energy_max": 736.6005,
+  "step_mean": 0.096312,
+  "v1_min_energy": 695.57,
+  "v1_max_energy": 736.6,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21707,
+  "path": "wp-content/uploads/2015/09/DspecEBrZ78.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.05,
+   "offset": 683.95
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 683.95,
+  "energy_max": 735.1,
+  "step_mean": 0.05,
+  "v1_min_energy": 683.95,
+  "v1_max_energy": 735.1,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21708,
+  "path": "wp-content/uploads/2015/09/DspecgAacXx.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 671.0,
+   "xperchan": 0.0500000000001,
+   "offset": 703.15
+  },
+  "has_beamkv": false,
+  "n_points": 671,
+  "energy_min": 703.15,
+  "energy_max": 736.65,
+  "step_mean": 0.05,
+  "v1_min_energy": 703.15,
+  "v1_max_energy": 736.65,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21709,
+  "path": "wp-content/uploads/2015/09/DspecJtJUhK.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 911.0,
+   "xperchan": 0.05,
+   "offset": 683.75
+  },
+  "has_beamkv": false,
+  "n_points": 911,
+  "energy_min": 683.75,
+  "energy_max": 729.25,
+  "step_mean": 0.05,
+  "v1_min_energy": 683.75,
+  "v1_max_energy": 729.25,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21710,
+  "path": "wp-content/uploads/2015/09/DspecTZA2vG.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 826.0,
+   "xperchan": 0.05,
+   "offset": 690.75
+  },
+  "has_beamkv": false,
+  "n_points": 826,
+  "energy_min": 690.75,
+  "energy_max": 732.0,
+  "step_mean": 0.05,
+  "v1_min_energy": 690.75,
+  "v1_max_energy": 732.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21711,
+  "path": "wp-content/uploads/2015/09/DspecVwCaEV.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 620.0,
+   "xperchan": 0.0500000000001,
+   "offset": 523.05
+  },
+  "has_beamkv": false,
+  "n_points": 620,
+  "energy_min": 523.05,
+  "energy_max": 554.0,
+  "step_mean": 0.05,
+  "v1_min_energy": 523.05,
+  "v1_max_energy": 554.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21712,
+  "path": "wp-content/uploads/2015/09/Dspece71xPe.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 552.0,
+   "xperchan": 0.092,
+   "offset": 520.4135
+  },
+  "has_beamkv": false,
+  "n_points": 552,
+  "energy_min": 520.4135,
+  "energy_max": 571.0808,
+  "step_mean": 0.091955,
+  "v1_min_energy": 520.41,
+  "v1_max_energy": 571.08,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21713,
+  "path": "wp-content/uploads/2015/09/DspecEdTbYN.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 704.0,
+   "xperchan": 0.1,
+   "offset": 518.0
+  },
+  "has_beamkv": false,
+  "n_points": 704,
+  "energy_min": 518.0,
+  "energy_max": 588.3,
+  "step_mean": 0.1,
+  "v1_min_energy": 518.0,
+  "v1_max_energy": 588.3,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21714,
+  "path": "wp-content/uploads/2015/09/DspecY9EhAT.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 660.0,
+   "xperchan": 0.0623,
+   "offset": 511.8788
+  },
+  "has_beamkv": false,
+  "n_points": 660,
+  "energy_min": 511.8788,
+  "energy_max": 552.9694,
+  "step_mean": 0.062353,
+  "v1_min_energy": 511.88,
+  "v1_max_energy": 552.97,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21715,
+  "path": "wp-content/uploads/2015/09/DspecmpIe7P.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 629.0,
+   "xperchan": 0.05,
+   "offset": 524.45
+  },
+  "has_beamkv": false,
+  "n_points": 629,
+  "energy_min": 524.45,
+  "energy_max": 555.85,
+  "step_mean": 0.05,
+  "v1_min_energy": 524.45,
+  "v1_max_energy": 555.85,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21716,
+  "path": "wp-content/uploads/2015/09/DspecKG8LNi.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 605.0,
+   "xperchan": 0.05,
+   "offset": 525.95
+  },
+  "has_beamkv": false,
+  "n_points": 605,
+  "energy_min": 525.95,
+  "energy_max": 556.15,
+  "step_mean": 0.05,
+  "v1_min_energy": 525.95,
+  "v1_max_energy": 556.15,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21723,
+  "path": "wp-content/uploads/2015/09/DspecQR6R4Y.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.661,
+   "offset": 1422.223
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": 1422.223,
+  "energy_max": 2307.412,
+  "step_mean": 0.661082,
+  "v1_min_energy": 1422.22,
+  "v1_max_energy": 2307.41,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21724,
+  "path": "wp-content/uploads/2016/03/DspecGDxO8F-1.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.5,
+   "offset": -49.82533
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": -49.8253,
+  "energy_max": 619.6747,
+  "step_mean": 0.5,
+  "v1_min_energy": -49.83,
+  "v1_max_energy": 619.67,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21725,
+  "path": "wp-content/uploads/2015/09/DspecuCQhjm.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.5,
+   "offset": 136.8692
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": 136.8692,
+  "energy_max": 806.3692,
+  "step_mean": 0.5,
+  "v1_min_energy": 136.87,
+  "v1_max_energy": 806.37,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21726,
+  "path": "wp-content/uploads/2015/09/Dspec0e9K4C.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.5,
+   "offset": -22.5
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": -22.5,
+  "energy_max": 647.0,
+  "step_mean": 0.5,
+  "v1_min_energy": -22.5,
+  "v1_max_energy": 647.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21727,
+  "path": "wp-content/uploads/2015/09/DspecYB7EbW.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1340.0,
+   "xperchan": 0.5,
+   "offset": 120.0003
+  },
+  "has_beamkv": false,
+  "n_points": 1340,
+  "energy_min": 120.0003,
+  "energy_max": 789.5003,
+  "step_mean": 0.5,
+  "v1_min_energy": 120.0,
+  "v1_max_energy": 789.5,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21728,
+  "path": "wp-content/uploads/2015/09/DspeczG2X9U.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.0500002,
+   "offset": -5.9000015
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": -5.9,
+  "energy_max": 45.25,
+  "step_mean": 0.05,
+  "v1_min_energy": -5.9,
+  "v1_max_energy": 45.25,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21729,
+  "path": "wp-content/uploads/2015/09/Dspecg6MTkS.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.0499999,
+   "offset": -1.35
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": -1.35,
+  "energy_max": 49.8,
+  "step_mean": 0.05,
+  "v1_min_energy": -1.35,
+  "v1_max_energy": 49.8,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21730,
+  "path": "wp-content/uploads/2015/09/DspecHRDLlq.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.05,
+   "offset": -2.5
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": -2.5,
+  "energy_max": 48.65,
+  "step_mean": 0.05,
+  "v1_min_energy": -2.5,
+  "v1_max_energy": 48.65,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21731,
+  "path": "wp-content/uploads/2015/09/Dspecc0KOZx.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 377.0,
+   "xperchan": 0.0477,
+   "offset": 14.984
+  },
+  "has_beamkv": false,
+  "n_points": 377,
+  "energy_min": 14.984,
+  "energy_max": 32.9267,
+  "step_mean": 0.04772,
+  "v1_min_energy": 14.98,
+  "v1_max_energy": 32.93,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21734,
+  "path": "wp-content/uploads/2015/09/Dspecuw17U0_converted.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 561.0,
+   "xperchan": 0.0477,
+   "offset": 4.01584
+  },
+  "has_beamkv": false,
+  "n_points": 561,
+  "energy_min": 4.0158,
+  "energy_max": 30.739,
+  "step_mean": 0.04772,
+  "v1_min_energy": 4.02,
+  "v1_max_energy": 30.74,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21735,
+  "path": "wp-content/uploads/2015/09/Dspec3krXAW_converted.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 546.0,
+   "xperchan": 0.0477,
+   "offset": 4.007
+  },
+  "has_beamkv": false,
+  "n_points": 546,
+  "energy_min": 4.007,
+  "energy_max": 30.0035,
+  "step_mean": 0.0477,
+  "v1_min_energy": 4.01,
+  "v1_max_energy": 30.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21736,
+  "path": "wp-content/uploads/2015/09/Dspecqt04o9.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 505.0,
+   "xperchan": 0.2,
+   "offset": 260.1
+  },
+  "has_beamkv": false,
+  "n_points": 505,
+  "energy_min": 260.1,
+  "energy_max": 360.9,
+  "step_mean": 0.2,
+  "v1_min_energy": 260.1,
+  "v1_max_energy": 360.9,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21737,
+  "path": "wp-content/uploads/2015/09/DspecrAr6wi.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 128.0,
+   "xperchan": 0.229187,
+   "offset": 633.290649
+  },
+  "has_beamkv": false,
+  "n_points": 128,
+  "energy_min": 633.2906,
+  "energy_max": 662.3974,
+  "step_mean": 0.229187,
+  "v1_min_energy": 633.29,
+  "v1_max_energy": 662.4,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21738,
+  "path": "wp-content/uploads/2015/09/DspechVaibn.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 275.0,
+   "xperchan": 0.213013,
+   "offset": 525.684021
+  },
+  "has_beamkv": false,
+  "n_points": 275,
+  "energy_min": 525.684,
+  "energy_max": 584.0495,
+  "step_mean": 0.213013,
+  "v1_min_energy": 525.68,
+  "v1_max_energy": 584.05,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21739,
+  "path": "wp-content/uploads/2015/09/DspecIGraCJ.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 179.0,
+   "xperchan": 0.22229,
+   "offset": 824.231262
+  },
+  "has_beamkv": false,
+  "n_points": 179,
+  "energy_min": 824.2313,
+  "energy_max": 863.7989,
+  "step_mean": 0.22229,
+  "v1_min_energy": 824.23,
+  "v1_max_energy": 863.8,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21740,
+  "path": "wp-content/uploads/2015/09/DspecX61x1d.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 876.0,
+   "xperchan": 0.212189,
+   "offset": 438.343658
+  },
+  "has_beamkv": false,
+  "n_points": 876,
+  "energy_min": 438.3437,
+  "energy_max": 624.0249,
+  "step_mean": 0.212207,
+  "v1_min_energy": 438.34,
+  "v1_max_energy": 624.02,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21741,
+  "path": "wp-content/uploads/2015/09/Dspec90HguR.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 178.0,
+   "xperchan": 0.242127,
+   "offset": 519.16571
+  },
+  "has_beamkv": false,
+  "n_points": 178,
+  "energy_min": 519.1657,
+  "energy_max": 562.0221,
+  "step_mean": 0.242126,
+  "v1_min_energy": 519.17,
+  "v1_max_energy": 562.02,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21742,
+  "path": "wp-content/uploads/2015/09/Dspec7OdCch.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 740.0,
+   "xperchan": 0.200012,
+   "offset": 531.600037
+  },
+  "has_beamkv": false,
+  "n_points": 740,
+  "energy_min": 531.6,
+  "energy_max": 679.4091,
+  "step_mean": 0.200012,
+  "v1_min_energy": 531.6,
+  "v1_max_energy": 679.41,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21743,
+  "path": "wp-content/uploads/2015/09/Dspec7IU5AP.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 915.0,
+   "xperchan": 0.199951,
+   "offset": 1258.800049
+  },
+  "has_beamkv": false,
+  "n_points": 915,
+  "energy_min": 1258.8,
+  "energy_max": 1441.5554,
+  "step_mean": 0.199951,
+  "v1_min_energy": 1258.8,
+  "v1_max_energy": 1441.56,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21744,
+  "path": "wp-content/uploads/2015/09/DspecmNhoB4.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 424.0,
+   "xperchan": 0.20636,
+   "offset": 518.041687
+  },
+  "has_beamkv": false,
+  "n_points": 424,
+  "energy_min": 518.0417,
+  "energy_max": 605.3319,
+  "step_mean": 0.20636,
+  "v1_min_energy": 518.04,
+  "v1_max_energy": 605.33,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21745,
+  "path": "wp-content/uploads/2015/09/Dspecb0w2RL.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 486.0,
+   "xperchan": 0.288574,
+   "offset": 748.409058
+  },
+  "has_beamkv": false,
+  "n_points": 486,
+  "energy_min": 748.4091,
+  "energy_max": 888.3676,
+  "step_mean": 0.288574,
+  "v1_min_energy": 748.41,
+  "v1_max_energy": 888.37,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21746,
+  "path": "wp-content/uploads/2015/09/DspecznRNmY.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 232.0,
+   "xperchan": 0.202271,
+   "offset": 769.69519
+  },
+  "has_beamkv": false,
+  "n_points": 232,
+  "energy_min": 769.6952,
+  "energy_max": 816.4197,
+  "step_mean": 0.202271,
+  "v1_min_energy": 769.7,
+  "v1_max_energy": 816.42,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21747,
+  "path": "wp-content/uploads/2015/09/DspecWBvXGK.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.051673,
+   "offset": -8.31953
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": -8.3195,
+  "energy_max": 44.5429,
+  "step_mean": 0.051674,
+  "v1_min_energy": -8.32,
+  "v1_max_energy": 44.54,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21748,
+  "path": "wp-content/uploads/2015/09/DspecNHeCfD_converted.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.1,
+   "offset": 679.8
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 679.8,
+  "energy_max": 782.1,
+  "step_mean": 0.1,
+  "v1_min_energy": 679.8,
+  "v1_max_energy": 782.1,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21749,
+  "path": "wp-content/uploads/2015/09/Dspec25qFIG_converted.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.1,
+   "offset": 679.4
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 679.4,
+  "energy_max": 781.7,
+  "step_mean": 0.1,
+  "v1_min_energy": 679.4,
+  "v1_max_energy": 781.7,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21750,
+  "path": "wp-content/uploads/2015/09/DspecXK1qnF_converted.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.1,
+   "offset": 679.2
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 679.2,
+  "energy_max": 781.5,
+  "step_mean": 0.1,
+  "v1_min_energy": 679.2,
+  "v1_max_energy": 781.5,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21751,
+  "path": "wp-content/uploads/2015/09/Dspec39Hoz0_converted.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.1,
+   "offset": 685.2
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 685.2,
+  "energy_max": 787.5,
+  "step_mean": 0.1,
+  "v1_min_energy": 685.2,
+  "v1_max_energy": 787.5,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21752,
+  "path": "wp-content/uploads/2015/09/DspecXNTrOy.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.3,
+   "offset": 244.5
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 244.5,
+  "energy_max": 551.4,
+  "step_mean": 0.3,
+  "v1_min_energy": 244.5,
+  "v1_max_energy": 551.4,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21753,
+  "path": "wp-content/uploads/2015/09/DspecU7rNYi.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.5,
+   "offset": 414.5
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 414.5,
+  "energy_max": 926.0,
+  "step_mean": 0.5,
+  "v1_min_energy": 414.5,
+  "v1_max_energy": 926.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21754,
+  "path": "wp-content/uploads/2015/09/Dspec4Y3D6L.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.5,
+   "offset": 406.5
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 406.5,
+  "energy_max": 918.0,
+  "step_mean": 0.5,
+  "v1_min_energy": 406.5,
+  "v1_max_energy": 918.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21755,
+  "path": "wp-content/uploads/2015/09/DspecHcvFLG.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1024.0,
+   "xperchan": 0.5,
+   "offset": 412.5
+  },
+  "has_beamkv": false,
+  "n_points": 1024,
+  "energy_min": 412.5,
+  "energy_max": 924.0,
+  "step_mean": 0.5,
+  "v1_min_energy": 412.5,
+  "v1_max_energy": 924.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21808,
+  "path": "wp-content/uploads/2015/11/MoO3-LLpubli.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1003.0,
+   "xperchan": 0.1,
+   "offset": -12.94948
+  },
+  "has_beamkv": false,
+  "n_points": 1003,
+  "energy_min": -12.9495,
+  "energy_max": 87.2505,
+  "step_mean": 0.1,
+  "v1_min_energy": -12.95,
+  "v1_max_energy": 87.25,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21810,
+  "path": "wp-content/uploads/2015/09/Pour-Fig1a.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1293.0,
+   "xperchan": 0.312,
+   "offset": 183.16
+  },
+  "has_beamkv": false,
+  "n_points": 1293,
+  "energy_min": 183.16,
+  "energy_max": 586.264,
+  "step_mean": 0.312,
+  "v1_min_energy": 183.16,
+  "v1_max_energy": 586.26,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21812,
+  "path": "wp-content/uploads/2015/09/Profile-Of-350-1c.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1301.0,
+   "xperchan": 0.214,
+   "offset": 313.406
+  },
+  "has_beamkv": false,
+  "n_points": 1301,
+  "energy_min": 313.406,
+  "energy_max": 591.606,
+  "step_mean": 0.214,
+  "v1_min_energy": 313.41,
+  "v1_max_energy": 591.61,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21814,
+  "path": "wp-content/uploads/2015/09/Profile-Of-ll1c.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1301.0,
+   "xperchan": 0.214,
+   "offset": -36.594
+  },
+  "has_beamkv": false,
+  "n_points": 1301,
+  "energy_min": -36.594,
+  "energy_max": 241.606,
+  "step_mean": 0.214,
+  "v1_min_energy": -36.59,
+  "v1_max_energy": 241.61,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21816,
+  "path": "wp-content/uploads/2015/09/MoO3-Profile-Of-350-1c.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1301.0,
+   "xperchan": 0.214,
+   "offset": 315.974
+  },
+  "has_beamkv": false,
+  "n_points": 1301,
+  "energy_min": 315.974,
+  "energy_max": 594.174,
+  "step_mean": 0.214,
+  "v1_min_energy": 315.97,
+  "v1_max_energy": 594.17,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21819,
+  "path": "wp-content/uploads/2015/09/MoO-3Profile-Of-ll1c.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1301.0,
+   "xperchan": 0.214,
+   "offset": -34.026
+  },
+  "has_beamkv": false,
+  "n_points": 1301,
+  "energy_min": -34.026,
+  "energy_max": 244.174,
+  "step_mean": 0.214,
+  "v1_min_energy": -34.03,
+  "v1_max_energy": 244.17,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21821,
+  "path": "wp-content/uploads/2015/09/ol2c.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1261.0,
+   "xperchan": 0.214,
+   "offset": -63.558
+  },
+  "has_beamkv": false,
+  "n_points": 1261,
+  "energy_min": -63.558,
+  "energy_max": 206.082,
+  "step_mean": 0.214,
+  "v1_min_energy": -63.56,
+  "v1_max_energy": 206.08,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21896,
+  "path": "wp-content/uploads/2015/11/S3.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 0.274,
+   "offset": 112.6305
+  },
+  "has_beamkv": true,
+  "n_points": 2048,
+  "energy_min": 112.6305,
+  "energy_max": 673.5085,
+  "step_mean": 0.274,
+  "v1_min_energy": 112.63,
+  "v1_max_energy": 673.51,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21913,
+  "path": "wp-content/uploads/2016/02/lsmo_mn2.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 271.0,
+   "xperchan": 0.2,
+   "offset": 628.4
+  },
+  "has_beamkv": false,
+  "n_points": 271,
+  "energy_min": 628.4,
+  "energy_max": 682.4,
+  "step_mean": 0.2,
+  "v1_min_energy": 628.4,
+  "v1_max_energy": 682.4,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21915,
+  "path": "wp-content/uploads/2016/02/lsmo_mn_interface_oxygen_vacancies2.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 271.0,
+   "xperchan": 0.2,
+   "offset": 628.4
+  },
+  "has_beamkv": false,
+  "n_points": 271,
+  "energy_min": 628.4,
+  "energy_max": 682.4,
+  "step_mean": 0.2,
+  "v1_min_energy": 628.4,
+  "v1_max_energy": 682.4,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21917,
+  "path": "wp-content/uploads/2016/02/lsmo_mn_brownmillerite2.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 382.0,
+   "xperchan": 0.1,
+   "offset": 644.7
+  },
+  "has_beamkv": false,
+  "n_points": 382,
+  "energy_min": 644.7,
+  "energy_max": 682.8,
+  "step_mean": 0.1,
+  "v1_min_energy": 644.7,
+  "v1_max_energy": 682.8,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21918,
+  "path": "wp-content/uploads/2016/02/srtio32.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2044.0,
+   "xperchan": 0.25,
+   "offset": 410.0
+  },
+  "has_beamkv": true,
+  "n_points": 2044,
+  "energy_min": 410.0,
+  "energy_max": 920.75,
+  "step_mean": 0.25,
+  "v1_min_energy": 410.0,
+  "v1_max_energy": 920.75,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21919,
+  "path": "wp-content/uploads/2016/02/lsmo2.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2044.0,
+   "xperchan": 0.25,
+   "offset": 410.0
+  },
+  "has_beamkv": true,
+  "n_points": 2044,
+  "energy_min": 410.0,
+  "energy_max": 920.75,
+  "step_mean": 0.25,
+  "v1_min_energy": 410.0,
+  "v1_max_energy": 920.75,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21926,
+  "path": "wp-content/uploads/2016/02/APL_article_STO_oxygen2.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 150.0,
+   "xperchan": 0.2,
+   "offset": 530.0
+  },
+  "has_beamkv": true,
+  "n_points": 150,
+  "energy_min": 530.0,
+  "energy_max": 559.8,
+  "step_mean": 0.2,
+  "v1_min_energy": 530.0,
+  "v1_max_energy": 559.8,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21927,
+  "path": "wp-content/uploads/2016/02/APL_article_LSMO_oxygen2.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 150.0,
+   "xperchan": 0.2,
+   "offset": 530.0
+  },
+  "has_beamkv": true,
+  "n_points": 150,
+  "energy_min": 530.0,
+  "energy_max": 559.8,
+  "step_mean": 0.2,
+  "v1_min_energy": 530.0,
+  "v1_max_energy": 559.8,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21928,
+  "path": "wp-content/uploads/2016/02/APL_article_interface_oxygen2.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 150.0,
+   "xperchan": 0.2,
+   "offset": 530.0
+  },
+  "has_beamkv": true,
+  "n_points": 150,
+  "energy_min": 530.0,
+  "energy_max": 559.8,
+  "step_mean": 0.2,
+  "v1_min_energy": 530.0,
+  "v1_max_energy": 559.8,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21974,
+  "path": "wp-content/uploads/2016/05/Acquire-3.txt",
+  "format": "txt",
+  "layout": "space",
+  "n_points": 2048,
+  "energy_min": 0.1,
+  "energy_max": 61.51,
+  "step_mean": 0.03,
+  "v1_min_energy": 0.1,
+  "v1_max_energy": 61.51,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21976,
+  "path": "wp-content/uploads/2016/05/low-energy-EELS.txt",
+  "format": "txt",
+  "layout": "space",
+  "n_points": 2048,
+  "energy_min": 0.2,
+  "energy_max": 20.67,
+  "step_mean": 0.01,
+  "v1_min_energy": 0.2,
+  "v1_max_energy": 20.67,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21985,
+  "path": "wp-content/uploads/2016/06/CaCoO-NT-2.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1607.0,
+   "xperchan": 0.526,
+   "offset": 254.8355
+  },
+  "has_beamkv": false,
+  "n_points": 1607,
+  "energy_min": 254.8355,
+  "energy_max": 1099.592,
+  "step_mean": 0.526,
+  "v1_min_energy": 254.84,
+  "v1_max_energy": 1099.59,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21995,
+  "path": "wp-content/uploads/2016/08/7-pm.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 0.0502,
+   "offset": 241.786
+  },
+  "has_beamkv": true,
+  "n_points": 2048,
+  "energy_min": 241.786,
+  "energy_max": 344.5454,
+  "step_mean": 0.0502,
+  "v1_min_energy": 241.79,
+  "v1_max_energy": 344.55,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 21998,
+  "path": "wp-content/uploads/2016/08/e118-255-1-pmmod.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 0.201,
+   "offset": 211.714
+  },
+  "has_beamkv": true,
+  "n_points": 2048,
+  "energy_min": 211.714,
+  "energy_max": 623.161,
+  "step_mean": 0.201,
+  "v1_min_energy": 211.71,
+  "v1_max_energy": 623.16,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22000,
+  "path": "wp-content/uploads/2016/08/e113-k-pm.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 0.0501,
+   "offset": 241.5703
+  },
+  "has_beamkv": true,
+  "n_points": 2048,
+  "energy_min": 241.5703,
+  "energy_max": 344.125,
+  "step_mean": 0.0501,
+  "v1_min_energy": 241.57,
+  "v1_max_energy": 344.13,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22002,
+  "path": "wp-content/uploads/2016/08/E113-250-2-cal-kgd-pm-dm.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 0.203,
+   "offset": 201.2595
+  },
+  "has_beamkv": true,
+  "n_points": 2048,
+  "energy_min": 201.2595,
+  "energy_max": 616.8005,
+  "step_mean": 0.203,
+  "v1_min_energy": 201.26,
+  "v1_max_energy": 616.8,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22004,
+  "path": "wp-content/uploads/2016/08/ti_l23_STO_111.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 0.05,
+   "offset": 392.0
+  },
+  "has_beamkv": true,
+  "n_points": 2048,
+  "energy_min": 392.0,
+  "energy_max": 494.35,
+  "step_mean": 0.05,
+  "v1_min_energy": 392.0,
+  "v1_max_energy": 494.35,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22005,
+  "path": "wp-content/uploads/2016/08/ti_l23_STO_111_low_loss.msa",
+  "format": "msa",
+  "datatype": "Y",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 0.0500000007451,
+   "offset": -10.000000149
+  },
+  "has_beamkv": true,
+  "n_points": 2048,
+  "energy_min": -10.0,
+  "energy_max": 92.35,
+  "step_mean": 0.05,
+  "v1_min_energy": -365.3,
+  "v1_max_energy": 3397059.25,
+  "intensity_finite": true,
+  "flags": [
+   "datatype_y_range_mismatch"
+  ]
+ },
+ {
+  "spectrum_id": 22007,
+  "path": "wp-content/uploads/2016/08/lfo_fe_pre_exposure.msa",
+  "format": "msa",
+  "datatype": "Y",
+  "header": {
+   "npoints": 209.0,
+   "xperchan": 0.25,
+   "offset": 682.75
+  },
+  "has_beamkv": true,
+  "n_points": 209,
+  "energy_min": 682.75,
+  "energy_max": 734.75,
+  "step_mean": 0.25,
+  "v1_min_energy": -615.33,
+  "v1_max_energy": 191579.13,
+  "intensity_finite": true,
+  "flags": [
+   "datatype_y_range_mismatch"
+  ]
+ },
+ {
+  "spectrum_id": 22008,
+  "path": "wp-content/uploads/2016/08/lfo_fe_post_exposure.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 209.0,
+   "xperchan": 0.25,
+   "offset": 682.75
+  },
+  "has_beamkv": true,
+  "n_points": 209,
+  "energy_min": 682.75,
+  "energy_max": 734.75,
+  "step_mean": 0.25,
+  "v1_min_energy": 682.75,
+  "v1_max_energy": 734.75,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22009,
+  "path": "wp-content/uploads/2016/08/lsmo_mn_pre_exposure.msa",
+  "format": "msa",
+  "datatype": "Y",
+  "header": {
+   "npoints": 188.0,
+   "xperchan": 0.25,
+   "offset": 618.0
+  },
+  "has_beamkv": true,
+  "n_points": 188,
+  "energy_min": 618.0,
+  "energy_max": 664.75,
+  "step_mean": 0.25,
+  "v1_min_energy": -1458.47,
+  "v1_max_energy": 147542.68,
+  "intensity_finite": true,
+  "flags": [
+   "datatype_y_range_mismatch"
+  ]
+ },
+ {
+  "spectrum_id": 22010,
+  "path": "wp-content/uploads/2016/08/lsmo_mn_post_exposure.msa",
+  "format": "msa",
+  "datatype": "Y",
+  "header": {
+   "npoints": 188.0,
+   "xperchan": 0.25,
+   "offset": 618.0
+  },
+  "has_beamkv": true,
+  "n_points": 188,
+  "energy_min": 618.0,
+  "energy_max": 664.75,
+  "step_mean": 0.25,
+  "v1_min_energy": -1084.64,
+  "v1_max_energy": 118740.64,
+  "intensity_finite": true,
+  "flags": [
+   "datatype_y_range_mismatch"
+  ]
+ },
+ {
+  "spectrum_id": 22012,
+  "path": "wp-content/uploads/2016/08/lsmo_o_pre_exposure.msa",
+  "format": "msa",
+  "datatype": "Y",
+  "header": {
+   "npoints": 160.0,
+   "xperchan": 0.25,
+   "offset": 515.0
+  },
+  "has_beamkv": true,
+  "n_points": 160,
+  "energy_min": 515.0,
+  "energy_max": 554.75,
+  "step_mean": 0.25,
+  "v1_min_energy": -1216.86,
+  "v1_max_energy": 82220.95,
+  "intensity_finite": true,
+  "flags": [
+   "datatype_y_range_mismatch"
+  ]
+ },
+ {
+  "spectrum_id": 22013,
+  "path": "wp-content/uploads/2016/08/lsmo_o_post_exposure.msa",
+  "format": "msa",
+  "datatype": "Y",
+  "header": {
+   "npoints": 160.0,
+   "xperchan": 0.25,
+   "offset": 515.0
+  },
+  "has_beamkv": true,
+  "n_points": 160,
+  "energy_min": 515.0,
+  "energy_max": 554.75,
+  "step_mean": 0.25,
+  "v1_min_energy": -2051.71,
+  "v1_max_energy": 70696.6,
+  "intensity_finite": true,
+  "flags": [
+   "datatype_y_range_mismatch"
+  ]
+ },
+ {
+  "spectrum_id": 22014,
+  "path": "wp-content/uploads/2016/08/ti_l23_exposure_initial.msa",
+  "format": "msa",
+  "datatype": "Y",
+  "header": {
+   "npoints": 119.0,
+   "xperchan": 0.25,
+   "offset": 450.0
+  },
+  "has_beamkv": true,
+  "n_points": 119,
+  "energy_min": 450.0,
+  "energy_max": 479.5,
+  "step_mean": 0.25,
+  "v1_min_energy": -22.44,
+  "v1_max_energy": 105091.7,
+  "intensity_finite": true,
+  "flags": [
+   "datatype_y_range_mismatch"
+  ]
+ },
+ {
+  "spectrum_id": 22015,
+  "path": "wp-content/uploads/2016/08/ti_l23_exposure_middle.msa",
+  "format": "msa",
+  "datatype": "Y",
+  "header": {
+   "npoints": 119.0,
+   "xperchan": 0.25,
+   "offset": 450.0
+  },
+  "has_beamkv": true,
+  "n_points": 119,
+  "energy_min": 450.0,
+  "energy_max": 479.5,
+  "step_mean": 0.25,
+  "v1_min_energy": -8.08,
+  "v1_max_energy": 85585.14,
+  "intensity_finite": true,
+  "flags": [
+   "datatype_y_range_mismatch"
+  ]
+ },
+ {
+  "spectrum_id": 22016,
+  "path": "wp-content/uploads/2016/08/ti_l23_exposure_end.msa",
+  "format": "msa",
+  "datatype": "Y",
+  "header": {
+   "npoints": 119.0,
+   "xperchan": 0.25,
+   "offset": 450.0
+  },
+  "has_beamkv": true,
+  "n_points": 119,
+  "energy_min": 450.0,
+  "energy_max": 479.5,
+  "step_mean": 0.25,
+  "v1_min_energy": -15.98,
+  "v1_max_energy": 77981.9,
+  "intensity_finite": true,
+  "flags": [
+   "datatype_y_range_mismatch"
+  ]
+ },
+ {
+  "spectrum_id": 22017,
+  "path": "wp-content/uploads/2016/08/o_exposure_initial.msa",
+  "format": "msa",
+  "datatype": "Y",
+  "header": {
+   "npoints": 143.0,
+   "xperchan": 0.25,
+   "offset": 522.0
+  },
+  "has_beamkv": true,
+  "n_points": 143,
+  "energy_min": 522.0,
+  "energy_max": 557.5,
+  "step_mean": 0.25,
+  "v1_min_energy": -541.44,
+  "v1_max_energy": 26091.28,
+  "intensity_finite": true,
+  "flags": [
+   "datatype_y_range_mismatch"
+  ]
+ },
+ {
+  "spectrum_id": 22018,
+  "path": "wp-content/uploads/2016/08/o_exposure_middle.msa",
+  "format": "msa",
+  "datatype": "Y",
+  "header": {
+   "npoints": 143.0,
+   "xperchan": 0.25,
+   "offset": 522.0
+  },
+  "has_beamkv": true,
+  "n_points": 143,
+  "energy_min": 522.0,
+  "energy_max": 557.5,
+  "step_mean": 0.25,
+  "v1_min_energy": -258.98,
+  "v1_max_energy": 15993.58,
+  "intensity_finite": true,
+  "flags": [
+   "datatype_y_range_mismatch"
+  ]
+ },
+ {
+  "spectrum_id": 22019,
+  "path": "wp-content/uploads/2016/08/o_exposure_end.msa",
+  "format": "msa",
+  "datatype": "Y",
+  "header": {
+   "npoints": 143.0,
+   "xperchan": 0.25,
+   "offset": 522.0
+  },
+  "has_beamkv": true,
+  "n_points": 143,
+  "energy_min": 522.0,
+  "energy_max": 557.5,
+  "step_mean": 0.25,
+  "v1_min_energy": -15.34,
+  "v1_max_energy": 13948.36,
+  "intensity_finite": true,
+  "flags": [
+   "datatype_y_range_mismatch"
+  ]
+ },
+ {
+  "spectrum_id": 22020,
+  "path": "wp-content/uploads/2016/08/manganese_pre_exposure.msa",
+  "format": "msa",
+  "datatype": "Y",
+  "header": {
+   "npoints": 176.0,
+   "xperchan": 0.25,
+   "offset": 630.0
+  },
+  "has_beamkv": true,
+  "n_points": 176,
+  "energy_min": 630.0,
+  "energy_max": 673.75,
+  "step_mean": 0.25,
+  "v1_min_energy": -234.33,
+  "v1_max_energy": 37776.23,
+  "intensity_finite": true,
+  "flags": [
+   "datatype_y_range_mismatch"
+  ]
+ },
+ {
+  "spectrum_id": 22022,
+  "path": "wp-content/uploads/2016/08/manganese_post_exposure.msa",
+  "format": "msa",
+  "datatype": "Y",
+  "header": {
+   "npoints": 176.0,
+   "xperchan": 0.25,
+   "offset": 630.0
+  },
+  "has_beamkv": true,
+  "n_points": 176,
+  "energy_min": 630.0,
+  "energy_max": 673.75,
+  "step_mean": 0.25,
+  "v1_min_energy": -239.13,
+  "v1_max_energy": 41535.19,
+  "intensity_finite": true,
+  "flags": [
+   "datatype_y_range_mismatch"
+  ]
+ },
+ {
+  "spectrum_id": 22024,
+  "path": "wp-content/uploads/2016/08/oxygen_pre_exposure.msa",
+  "format": "msa",
+  "datatype": "Y",
+  "header": {
+   "npoints": 140.0,
+   "xperchan": 0.25,
+   "offset": 522.0
+  },
+  "has_beamkv": true,
+  "n_points": 140,
+  "energy_min": 522.0,
+  "energy_max": 556.75,
+  "step_mean": 0.25,
+  "v1_min_energy": -388.84,
+  "v1_max_energy": 20433.7,
+  "intensity_finite": true,
+  "flags": [
+   "datatype_y_range_mismatch"
+  ]
+ },
+ {
+  "spectrum_id": 22025,
+  "path": "wp-content/uploads/2016/08/oxygen_post_exposure.msa",
+  "format": "msa",
+  "datatype": "Y",
+  "header": {
+   "npoints": 140.0,
+   "xperchan": 0.25,
+   "offset": 522.0
+  },
+  "has_beamkv": true,
+  "n_points": 140,
+  "energy_min": 522.0,
+  "energy_max": 556.75,
+  "step_mean": 0.25,
+  "v1_min_energy": -415.47,
+  "v1_max_energy": 18688.01,
+  "intensity_finite": true,
+  "flags": [
+   "datatype_y_range_mismatch"
+  ]
+ },
+ {
+  "spectrum_id": 22047,
+  "path": "wp-content/uploads/2016/11/HL2_-Ge.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2024.0,
+   "xperchan": 0.5,
+   "offset": 713.2957
+  },
+  "has_beamkv": true,
+  "n_points": 2024,
+  "energy_min": 713.2957,
+  "energy_max": 1724.796,
+  "step_mean": 0.5,
+  "v1_min_energy": 713.3,
+  "v1_max_energy": 1724.8,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22048,
+  "path": "wp-content/uploads/2016/11/LL_-Ge.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 340.0,
+   "xperchan": 0.5,
+   "offset": -16.75239
+  },
+  "has_beamkv": true,
+  "n_points": 340,
+  "energy_min": -16.7524,
+  "energy_max": 152.7476,
+  "step_mean": 0.5,
+  "v1_min_energy": -16.75,
+  "v1_max_energy": 152.75,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22049,
+  "path": "wp-content/uploads/2016/11/LL_-Si.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 389.0,
+   "xperchan": 0.5,
+   "offset": -34.38721
+  },
+  "has_beamkv": true,
+  "n_points": 389,
+  "energy_min": -34.3872,
+  "energy_max": 159.6128,
+  "step_mean": 0.5,
+  "v1_min_energy": -34.39,
+  "v1_max_energy": 159.61,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22050,
+  "path": "wp-content/uploads/2016/11/HL_-Si.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1993.0,
+   "xperchan": 0.5,
+   "offset": 1025.113
+  },
+  "has_beamkv": true,
+  "n_points": 1993,
+  "energy_min": 1025.113,
+  "energy_max": 2021.113,
+  "step_mean": 0.5,
+  "v1_min_energy": 1025.11,
+  "v1_max_energy": 2021.11,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22056,
+  "path": "wp-content/uploads/2016/12/FeAl2.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1015.0,
+   "xperchan": 0.25,
+   "offset": 612.0
+  },
+  "has_beamkv": true,
+  "n_points": 1015,
+  "energy_min": 612.0,
+  "energy_max": 865.5,
+  "step_mean": 0.25,
+  "v1_min_energy": 612.0,
+  "v1_max_energy": 865.5,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22058,
+  "path": "wp-content/uploads/2017/03/Cu4O3-Cu-L23.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2028.0,
+   "xperchan": 0.05,
+   "offset": 902.0
+  },
+  "has_beamkv": false,
+  "n_points": 2028,
+  "energy_min": 902.0,
+  "energy_max": 1003.35,
+  "step_mean": 0.05,
+  "v1_min_energy": 902.0,
+  "v1_max_energy": 1003.35,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22059,
+  "path": "wp-content/uploads/2016/12/Spectre-centre-EELSDB.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1328.0,
+   "xperchan": 0.518,
+   "offset": 235.8069
+  },
+  "has_beamkv": true,
+  "n_points": 1328,
+  "energy_min": 235.8069,
+  "energy_max": 923.1929,
+  "step_mean": 0.518,
+  "v1_min_energy": 235.81,
+  "v1_max_energy": 923.19,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22061,
+  "path": "wp-content/uploads/2016/12/8-pm2.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 0.04999999,
+   "offset": 232.5
+  },
+  "has_beamkv": true,
+  "n_points": 2048,
+  "energy_min": 229.1,
+  "energy_max": 331.45,
+  "step_mean": 0.05,
+  "v1_min_energy": 229.1,
+  "v1_max_energy": 331.45,
+  "intensity_finite": true,
+  "flags": [
+   "bad_offset"
+  ]
+ },
+ {
+  "spectrum_id": 22063,
+  "path": "wp-content/uploads/2016/12/8-pm-2.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 0.04999999,
+   "offset": 237.5
+  },
+  "has_beamkv": true,
+  "n_points": 2048,
+  "energy_min": 242.85,
+  "energy_max": 345.2,
+  "step_mean": 0.05,
+  "v1_min_energy": 242.85,
+  "v1_max_energy": 345.2,
+  "intensity_finite": true,
+  "flags": [
+   "bad_offset"
+  ]
+ },
+ {
+  "spectrum_id": 22067,
+  "path": "wp-content/uploads/2017/03/Cu4O3-O-K.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1695.0,
+   "xperchan": 0.05,
+   "offset": 517.65
+  },
+  "has_beamkv": false,
+  "n_points": 1695,
+  "energy_min": 517.65,
+  "energy_max": 602.35,
+  "step_mean": 0.05,
+  "v1_min_energy": 517.65,
+  "v1_max_energy": 602.35,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22069,
+  "path": "wp-content/uploads/2017/04/non-rad-4.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 0.0205,
+   "offset": -4.164804
+  },
+  "has_beamkv": true,
+  "n_points": 2048,
+  "energy_min": -4.1648,
+  "energy_max": 37.7987,
+  "step_mean": 0.0205,
+  "v1_min_energy": -4.16,
+  "v1_max_energy": 37.8,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22071,
+  "path": "wp-content/uploads/2017/04/irrad-c.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 0.0205,
+   "offset": -4.274476
+  },
+  "has_beamkv": true,
+  "n_points": 2048,
+  "energy_min": -4.2745,
+  "energy_max": 37.689,
+  "step_mean": 0.0205,
+  "v1_min_energy": -4.27,
+  "v1_max_energy": 37.69,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22074,
+  "path": "wp-content/uploads/2017/07/016-mo-cross-section-barns-times-1p25.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 1.0,
+   "offset": 1805.51
+  },
+  "has_beamkv": false,
+  "n_points": 2048,
+  "energy_min": 1805.51,
+  "energy_max": 3852.51,
+  "step_mean": 1.0,
+  "v1_min_energy": 1805.51,
+  "v1_max_energy": 3852.51,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22075,
+  "path": "wp-content/uploads/2017/07/006-MoO2-cross-section-barns.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 1.0,
+   "offset": 1805.02
+  },
+  "has_beamkv": false,
+  "n_points": 2048,
+  "energy_min": 1805.02,
+  "energy_max": 3852.02,
+  "step_mean": 1.0,
+  "v1_min_energy": 1805.02,
+  "v1_max_energy": 3852.02,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22079,
+  "path": "wp-content/uploads/2017/07/005-Cross-section-barns.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 1.0,
+   "offset": 1801.58
+  },
+  "has_beamkv": false,
+  "n_points": 2048,
+  "energy_min": 1801.58,
+  "energy_max": 3848.58,
+  "step_mean": 1.0,
+  "v1_min_energy": 1801.58,
+  "v1_max_energy": 3848.58,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22080,
+  "path": "wp-content/uploads/2017/07/008-ZrO2-cross-section-barns.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 1.0,
+   "offset": 1802.53
+  },
+  "has_beamkv": false,
+  "n_points": 2048,
+  "energy_min": 1802.53,
+  "energy_max": 3849.53,
+  "step_mean": 1.0,
+  "v1_min_energy": 1802.53,
+  "v1_max_energy": 3849.53,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22081,
+  "path": "wp-content/uploads/2017/07/Sn-Deconvolved-Spectrum.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 1.0,
+   "offset": 3410.319
+  },
+  "has_beamkv": true,
+  "n_points": 2048,
+  "energy_min": 3410.319,
+  "energy_max": 5457.318,
+  "step_mean": 1.0,
+  "v1_min_energy": 3410.32,
+  "v1_max_energy": 5457.32,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22082,
+  "path": "wp-content/uploads/2017/07/6-SnO-Deconvolved-Spectrum.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 1.0,
+   "offset": 3301.975
+  },
+  "has_beamkv": true,
+  "n_points": 2048,
+  "energy_min": 3301.975,
+  "energy_max": 5348.975,
+  "step_mean": 1.0,
+  "v1_min_energy": 3301.98,
+  "v1_max_energy": 5348.98,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22083,
+  "path": "wp-content/uploads/2017/07/SnO2-final.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 1.0,
+   "offset": 3305.393
+  },
+  "has_beamkv": true,
+  "n_points": 2048,
+  "energy_min": 3305.393,
+  "energy_max": 5352.394,
+  "step_mean": 1.0,
+  "v1_min_energy": 3305.39,
+  "v1_max_energy": 5352.39,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22084,
+  "path": "wp-content/uploads/2017/07/017-WSi-Deconvolved-Spectrum.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 1.0,
+   "offset": 9700.0
+  },
+  "has_beamkv": true,
+  "n_points": 2048,
+  "energy_min": 9700.0,
+  "energy_max": 11747.0,
+  "step_mean": 1.0,
+  "v1_min_energy": 9700.0,
+  "v1_max_energy": 11747.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22092,
+  "path": "wp-content/uploads/2017/11/alpha-Bi2O3.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 452.0,
+   "xperchan": 0.1,
+   "offset": 519.4473
+  },
+  "has_beamkv": true,
+  "n_points": 452,
+  "energy_min": 519.4473,
+  "energy_max": 564.5473,
+  "step_mean": 0.1,
+  "v1_min_energy": 519.45,
+  "v1_max_energy": 564.55,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22102,
+  "path": "wp-content/uploads/2018/01/spred.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2044.0,
+   "xperchan": 0.726,
+   "offset": 524.8338
+  },
+  "has_beamkv": true,
+  "n_points": 2044,
+  "energy_min": 524.8338,
+  "energy_max": 2008.052,
+  "step_mean": 0.726,
+  "v1_min_energy": 524.83,
+  "v1_max_energy": 2008.05,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22105,
+  "path": "wp-content/uploads/2018/01/cvert.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 2048.0,
+   "xperchan": 0.738,
+   "offset": 1124.795
+  },
+  "has_beamkv": true,
+  "n_points": 2048,
+  "energy_min": 1124.795,
+  "energy_max": 2635.481,
+  "step_mean": 0.738,
+  "v1_min_energy": 1124.8,
+  "v1_max_energy": 2635.48,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22107,
+  "path": "wp-content/uploads/2018/03/LL-Co-coating-He-pore.txt",
+  "format": "txt",
+  "layout": "comma",
+  "n_points": 2048,
+  "energy_min": -10.0,
+  "energy_max": 92.35,
+  "step_mean": 0.05,
+  "v1_min_energy": 0.0,
+  "v1_max_energy": 92637.85,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22108,
+  "path": "wp-content/uploads/2018/03/LL-Co-coating-matrix.txt",
+  "format": "txt",
+  "layout": "comma",
+  "n_points": 2031,
+  "energy_min": -9.15,
+  "energy_max": 92.35,
+  "step_mean": 0.05,
+  "v1_min_energy": 0.0,
+  "v1_max_energy": 92734.09,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22123,
+  "path": "wp-content/uploads/2020/06/Full-Spectra-CL-La2NiO4-025eV.txt",
+  "format": "txt",
+  "layout": "tab",
+  "n_points": 2043,
+  "energy_min": 424.0,
+  "energy_max": 934.5,
+  "step_mean": 0.25,
+  "v1_min_energy": 424.0,
+  "v1_max_energy": 934.5,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22124,
+  "path": "wp-content/uploads/2020/06/O-K-edge-in-La2NiO4-01eV-1-modif.txt",
+  "format": "txt",
+  "layout": "tab",
+  "n_points": 377,
+  "energy_min": 521.6,
+  "energy_max": 559.2,
+  "step_mean": 0.1,
+  "v1_min_energy": 521.6,
+  "v1_max_energy": 559.2,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22125,
+  "path": "wp-content/uploads/2019/09/Full-Spectra-CL-Ta2O5-1eV.txt",
+  "format": "txt",
+  "layout": "tab",
+  "n_points": 2998,
+  "energy_min": 150.0,
+  "energy_max": 3147.0,
+  "step_mean": 1.0,
+  "v1_min_energy": 150.0,
+  "v1_max_energy": 3147.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22152,
+  "path": "wp-content/uploads/2021/01/h-BN-B_K.msa",
+  "format": "msa",
+  "datatype": "XY",
+  "header": {
+   "npoints": 1402.0,
+   "xperchan": 0.05,
+   "offset": 180.0
+  },
+  "has_beamkv": true,
+  "n_points": 1402,
+  "energy_min": 180.0,
+  "energy_max": 250.05,
+  "step_mean": 0.05,
+  "v1_min_energy": 180.0,
+  "v1_max_energy": 250.05,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22160,
+  "path": "wp-content/uploads/2021/05/HDPE.txt",
+  "format": "txt",
+  "layout": "tab+spaces",
+  "n_points": 1340,
+  "energy_min": 259.2059,
+  "energy_max": 326.1559,
+  "step_mean": 0.05,
+  "v1_min_energy": 259.21,
+  "v1_max_energy": 326.16,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22161,
+  "path": "wp-content/uploads/2021/05/PP.txt",
+  "format": "txt",
+  "layout": "tab+spaces",
+  "n_points": 1340,
+  "energy_min": 259.3036,
+  "energy_max": 326.2536,
+  "step_mean": 0.05,
+  "v1_min_energy": 259.3,
+  "v1_max_energy": 326.25,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22162,
+  "path": "wp-content/uploads/2021/05/PLA.txt",
+  "format": "txt",
+  "layout": "tab+spaces",
+  "n_points": 1340,
+  "energy_min": 259.328,
+  "energy_max": 326.278,
+  "step_mean": 0.05,
+  "v1_min_energy": 259.33,
+  "v1_max_energy": 326.28,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22164,
+  "path": "wp-content/uploads/2021/05/PBT.txt",
+  "format": "txt",
+  "layout": "tab+spaces",
+  "n_points": 1340,
+  "energy_min": 259.1172,
+  "energy_max": 326.0672,
+  "step_mean": 0.05,
+  "v1_min_energy": 259.12,
+  "v1_max_energy": 326.07,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22165,
+  "path": "wp-content/uploads/2021/05/ABS.txt",
+  "format": "txt",
+  "layout": "tab+spaces",
+  "n_points": 1340,
+  "energy_min": 259.5259,
+  "energy_max": 326.4759,
+  "step_mean": 0.05,
+  "v1_min_energy": 259.53,
+  "v1_max_energy": 326.48,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22166,
+  "path": "wp-content/uploads/2021/05/SAN.txt",
+  "format": "txt",
+  "layout": "tab+spaces",
+  "n_points": 1340,
+  "energy_min": 258.692,
+  "energy_max": 325.642,
+  "step_mean": 0.05,
+  "v1_min_energy": 258.69,
+  "v1_max_energy": 325.64,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22167,
+  "path": "wp-content/uploads/2021/05/SAN_Titan.txt",
+  "format": "txt",
+  "layout": "tab+spaces",
+  "n_points": 2048,
+  "energy_min": 258.0632,
+  "energy_max": 319.4732,
+  "step_mean": 0.03,
+  "v1_min_energy": 258.06,
+  "v1_max_energy": 319.47,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22224,
+  "path": "wp-content/uploads/2023/09/Y100.txt",
+  "format": "txt",
+  "layout": "space-comma-space",
+  "n_points": 1749,
+  "energy_min": 1700.0,
+  "energy_max": 2574.0,
+  "step_mean": 0.5,
+  "v1_min_energy": 1700.0,
+  "v1_max_energy": 2574.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22236,
+  "path": "wp-content/uploads/2023/10/Y20.txt",
+  "format": "txt",
+  "layout": "space-comma-space",
+  "n_points": 1749,
+  "energy_min": 1700.0,
+  "energy_max": 2574.0,
+  "step_mean": 0.5,
+  "v1_min_energy": 1700.0,
+  "v1_max_energy": 2574.0,
+  "intensity_finite": true,
+  "flags": []
+ },
+ {
+  "spectrum_id": 22237,
+  "path": "wp-content/uploads/2023/10/Y60.txt",
+  "format": "txt",
+  "layout": "space-comma-space",
+  "n_points": 1749,
+  "energy_min": 1700.0,
+  "energy_max": 2574.0,
+  "step_mean": 0.5,
+  "v1_min_energy": 1700.0,
+  "v1_max_energy": 2574.0,
+  "intensity_finite": true,
+  "flags": []
+ }
+]

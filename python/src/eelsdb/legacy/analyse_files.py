@@ -1,0 +1,127 @@
+"""Read every downloaded spectrum file and record its true energy axis in data/fixtures/file-analysis.json.
+
+Flags:
+- datatype_y_range_mismatch: MSA `DATATYPE: Y` file whose live-API energy range is wrong (the old PHP
+  parser read the first column of each line as an energy).
+- bad_xperchan: MSA `DATATYPE: XY` file whose XPERCHAN is more than 10% off the mean step of its X column.
+  RosettaSciIO builds the axis from OFFSET and XPERCHAN, so it gets the wrong energies.
+- bad_offset: MSA `DATATYPE: XY` file whose OFFSET is more than one step away from its first X value.
+- non_uniform: the energy axis has uneven steps.
+- not_increasing: the energy axis goes backwards or repeats somewhere.
+"""
+
+import json
+import re
+import warnings
+
+import numpy as np
+from rsciio.msa import file_reader
+
+from eelsdb.legacy.download_files import CACHE, MANIFEST
+from eelsdb.legacy.record_api import OUT as API_FIXTURES
+from eelsdb.legacy.record_api import ROOT
+
+OUTPUT = ROOT / "data" / "fixtures" / "file-analysis.json"
+
+
+def v1_energy(s, key):
+    v = s.get(key)
+    return float(v.removesuffix(" eV")) if v else 0.0
+
+
+def msa_x_column(path):
+    """X values of an XY MSA file, read directly (RosettaSciIO ignores them)."""
+    xs, in_data = [], False
+    for line in path.read_text(encoding="latin-1").splitlines():
+        if line.startswith("#SPECTRUM"):
+            in_data = True
+        elif in_data and line.strip() and not line.startswith("#"):
+            xs.append(float(line.replace(",", " ").split()[0]))
+    return np.array(xs)
+
+
+def analyse_msa(path):
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        sig = file_reader(str(path))[0]
+    header = sig["original_metadata"]
+    ax = sig["axes"][0]
+    n = ax["size"]
+    header_axis = ax["offset"] + ax["scale"] * np.arange(n)
+    datatype = str(header.get("DATATYPE", "")).strip()
+    energy = msa_x_column(path) if datatype == "XY" else header_axis
+    result = {
+        "format": "msa",
+        "datatype": datatype,
+        "header": {"npoints": header.get("NPOINTS"), "xperchan": ax["scale"], "offset": ax["offset"]},
+        "has_beamkv": "BEAMKV" in header or any(k.startswith("BEAMKV") for k in header),
+    }
+    flags = []
+    if datatype == "XY" and len(energy) == n and n > 1:
+        step = (energy.max() - energy.min()) / (n - 1)
+        if abs(ax["scale"] - step) > 0.1 * step:
+            flags.append("bad_xperchan")
+        if abs(ax["offset"] - energy[0]) > step:
+            flags.append("bad_offset")
+    return energy, sig["data"], result, flags
+
+
+TXT_SEPARATORS = {" , ": "space-comma-space", ",": "comma", "\t": "tab", " ": "space"}
+
+
+def txt_layout(path):
+    """Two-column text: return (layout, energy, intensity). The layout names the column separator."""
+    data_lines = [line for line in path.read_text(encoding="latin-1").splitlines() if re.match(r"\s*[-+]?\d", line)]
+    sep = re.match(r"\s*\S+?(\s*[,;]\s*|\s+)[-+\d.]", data_lines[0]).group(1)
+    layout = TXT_SEPARATORS.get(sep, "tab+spaces" if sep.startswith("\t") else repr(sep))
+    rows = np.array([[float(v) for v in re.split(r"[\s,;]+", line.strip())[:2]] for line in data_lines])
+    return layout, rows[:, 0], rows[:, 1]
+
+
+def analyse(s, entry):
+    path = CACHE / entry["path"]
+    flags = []
+    if path.suffix.lower() == ".msa":
+        energy, data, result, flags = analyse_msa(path)
+    else:
+        layout, energy, data = txt_layout(path)
+        result = {"format": "txt", "layout": layout}
+    diffs = np.diff(energy)
+    step = float(np.mean(diffs)) if len(diffs) else None
+    if len(diffs) and not np.allclose(diffs, diffs[0], rtol=1e-2, atol=1e-6):
+        flags.append("non_uniform")
+    if not np.all(diffs > 0):
+        flags.append("not_increasing")
+    e_min, e_max = float(np.min(energy)), float(np.max(energy))
+    v1_min, v1_max = v1_energy(s, "min_energy"), v1_energy(s, "max_energy")
+    if result.get("datatype") == "Y" and (abs(v1_min - e_min) > abs(step) or abs(v1_max - e_max) > abs(step)):
+        flags.append("datatype_y_range_mismatch")
+    return {
+        "spectrum_id": s["id"],
+        "path": entry["path"],
+        **result,
+        "n_points": int(len(energy)),
+        "energy_min": round(e_min, 4),
+        "energy_max": round(e_max, 4),
+        "step_mean": round(step, 6) if step is not None else None,
+        "v1_min_energy": v1_min,
+        "v1_max_energy": v1_max,
+        "intensity_finite": bool(np.all(np.isfinite(data))),
+        "flags": flags,
+    }
+
+
+def main():
+    spectra = {s["id"]: s for s in json.loads((API_FIXTURES / "spectra" / "all.json").read_text())["body"]}
+    manifest = json.loads(MANIFEST.read_text())
+    results = [analyse(spectra[e["spectrum_id"]], e) for e in manifest]
+    OUTPUT.write_text(json.dumps(results, indent=1) + "\n")
+    counts = {}
+    for r in results:
+        for f in r["flags"]:
+            counts[f] = counts.get(f, 0) + 1
+    print(f"{len(results)} files; flags: {counts}")
+
+
+if __name__ == "__main__":
+    main()
