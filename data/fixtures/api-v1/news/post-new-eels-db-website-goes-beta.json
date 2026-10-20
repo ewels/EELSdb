@@ -1,0 +1,25 @@
+{
+ "request": {
+  "path": "/new-eels-db-website-goes-beta/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 18612,
+  "title": "EELS DB website in beta",
+  "permalink": "https://eelsdb.eu/new-eels-db-website-goes-beta/",
+  "author": {
+   "name": "Luc Lajaunie",
+   "profile_url": "https://eelsdb.eu/author/luc-lajaunie/"
+  },
+  "published": "2015-02-04 19:29:10",
+  "description": "After nearly one year of work, it&#8217;s our pleasure to announce that the new EELS database website goes beta. This has been possible thanks to our sponsors and thanks to the hard work of Phil Ewels. If you could try using the site and make a note of any such bad behaviour, that would be [&hellip;]",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/new-eels-db-website-goes-beta/"
+ }
+}

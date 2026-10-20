@@ -1,0 +1,93 @@
+{
+ "request": {
+  "path": "/spectra/srtio3-111-heavy-beam-damage-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22019,
+  "title": "SrTiO3-(111), heavy beam damage",
+  "permalink": "https://eelsdb.eu/spectra/srtio3-111-heavy-beam-damage-2/",
+  "author": {
+   "name": "magnunor",
+   "profile_url": "https://eelsdb.eu/author/magnus/",
+   "profile_api_url": "https://api.eelsdb.eu/author/magnus/"
+  },
+  "published": "2016-08-27 21:53:51",
+  "description": "SrTiO3-(111) substrate. This is a part of an electron beam exposure experiment, this spectrum being from the end of the exposure experiment. There are signs of beam damage, mostly in peak D.",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/srtio3-111-heavy-beam-damage-2/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2016/08/o_exposure_end.msa",
+  "type": "Core Loss",
+  "formula": "SrTiO3",
+  "elements": [
+   "Sr",
+   "Ti",
+   "O"
+  ],
+  "microscope": "ARM 200cF",
+  "max_energy": "13948.36 eV",
+  "min_energy": "-15.34 eV",
+  "edges": [
+   "O_K"
+  ],
+  "guntype": "Cold Field Emission Gun",
+  "beamenergy": "200 kV",
+  "resolution": "0.7 eV",
+  "monochromated": "No",
+  "stepSize": "375.093 eV/pixel",
+  "convergence": "34.2 mrad",
+  "collection": "66 mrad",
+  "detector": "GIF Quantum ER",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "Energy scaled aligned using zero loss peak. Power law background removed.",
+  "reference": {
+   "authors": "Magnus Nord, Per Erik Vullum, Ingrid Hallsteinsen, Thomas Tybell, Randi Holmestad",
+   "year": "2016",
+   "journal": "Ultramicroscopy",
+   "title": "Assessing electron beam sensitivity for SrTiO3 and La0.7Sr0.3MnO3 using electron energy loss spectroscopy",
+   "volume": "169",
+   "page": "98-106",
+   "doi": "10.1016/j.ultramic.2016.07.004",
+   "url": "http://dx.doi.org/10.1016/j.ultramic.2016.07.004"
+  },
+  "associated_spectra": [
+   {
+    "name": "SrTiO3-(111), light beam damage",
+    "link": "https://eelsdb.eu/spectra/srtio3-111-light-beam-damage-2/",
+    "type": "Core Loss"
+   },
+   {
+    "name": "SrTiO3-(111)",
+    "link": "https://eelsdb.eu/spectra/srtio3-111-2/",
+    "type": "Core Loss"
+   },
+   {
+    "name": "SrTiO3-(111)",
+    "link": "https://eelsdb.eu/spectra/srtio3-111/",
+    "type": "Core Loss"
+   },
+   {
+    "name": "SrTiO3-(111), light beam damage",
+    "link": "https://eelsdb.eu/spectra/srtio3-111-light-beam-damage/",
+    "type": "Core Loss"
+   },
+   {
+    "name": "SrTiO3-(111), heavy beam damage",
+    "link": "https://eelsdb.eu/spectra/srtio3-111-heavy-beam-damage/",
+    "type": "Core Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "https://arxiv.org/abs/1608.07814"
+   }
+  ]
+ }
+}

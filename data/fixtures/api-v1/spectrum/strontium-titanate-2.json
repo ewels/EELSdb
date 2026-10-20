@@ -1,0 +1,81 @@
+{
+ "request": {
+  "path": "/spectra/strontium-titanate-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21613,
+  "title": "Strontium Titanate",
+  "permalink": "https://eelsdb.eu/spectra/strontium-titanate-2/",
+  "author": {
+   "name": "Giovanni Bertoni",
+   "profile_url": "https://eelsdb.eu/author/giovanni-bertoni/",
+   "profile_api_url": "https://api.eelsdb.eu/author/giovanni-bertoni/"
+  },
+  "published": "2007-11-12 00:00:00",
+  "description": "the spectrum contains Ti-L and O-K edges.\r\nthis spectrum is the sum of 100 spectra available separately, which can be interesting for testing quantification techniques or deconvolution techniques.\r\n\r\nSee also David A. Muller, Naoyuki Nakagawa, Akira Ohtomo, John L. Grazul & Harold Y. Hwang\r\nNature 430, 657-661(5 August 2004) Analyst: Giovanni Bertoni. Temperature: Room. BEAM/Crystal: 2 degrees out of [100]. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/strontium-titanate-2/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecgBe1vf.msa",
+  "type": "Core Loss",
+  "formula": "SrTiO3",
+  "elements": [
+   "Sr",
+   "Ti",
+   "O"
+  ],
+  "microscope": "JEOL 3000F",
+  "max_energy": "689.4 eV",
+  "min_energy": "382.5 eV",
+  "source_purity": "single crystal",
+  "edges": [
+   "Ti_L2,3"
+  ],
+  "guntype": "feg Schottky",
+  "beamenergy": "300 kV",
+  "resolution": "1.2 eV",
+  "monochromated": "No",
+  "stepSize": "0.3 eV/pixel",
+  "convergence": "0.2 mrad",
+  "collection": "6.8 mrad",
+  "integratetime": "0.5 secs",
+  "readouts": "100",
+  "detector": "Parallel: GIF2000",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.544 t/&lambda;",
+  "reference": {
+   "authors": "J. Verbeeck, G. Bertoni",
+   "year": "2008",
+   "journal": "Ultramicroscopy",
+   "title": "Model-based quantification of EELS spectra: Treating the effect of correlated noise",
+   "volume": "108",
+   "issue": "2",
+   "page": "74-83",
+   "doi": "10.1016/j.ultramic.2007.03.004",
+   "url": "http://dx.doi.org/10.1016/j.ultramic.2007.03.004"
+  },
+  "associated_spectra": [
+   {
+    "name": "Strontium Titanate",
+    "link": "https://eelsdb.eu/spectra/strontium-titanate/",
+    "type": "Low Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=99",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

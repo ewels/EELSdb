@@ -1,0 +1,131 @@
+{
+ "request": {
+  "path": "/news/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": [
+  {
+   "id": 22133,
+   "title": "Hyperspy",
+   "permalink": "https://eelsdb.eu/hyperspy/",
+   "author": {
+    "name": "Chris Ewels",
+    "profile_url": "https://eelsdb.eu/author/chris-ewels/"
+   },
+   "published": "2020-05-18 16:27:01",
+   "description": "Thanks to the nice guys developing Hyperspy, who have produced a module providing tools to interact with The EELS Database, including automatic spectra downloads. http://hyperspy.org/hyperspy-doc/current/api/hyperspy.misc.eels.eelsdb.html",
+   "comment_count": 0,
+   "api_permalink": "https://api.eelsdb.eu/hyperspy/"
+  },
+  {
+   "id": 22131,
+   "title": "Digital Micrograph Scripting",
+   "permalink": "https://eelsdb.eu/digital-micrograph-scripting/",
+   "author": {
+    "name": "Chris Ewels",
+    "profile_url": "https://eelsdb.eu/author/chris-ewels/"
+   },
+   "published": "2020-05-18 16:24:42",
+   "description": "Dave Mitchell has kindly developed a DM Script to allow importing of EELSdb MSA format spectra into Digital Micrograph. http://www.dmscripting.com/import_msa_eels_spectrum_from_eelsdb.html",
+   "comment_count": 0,
+   "api_permalink": "https://api.eelsdb.eu/digital-micrograph-scripting/"
+  },
+  {
+   "id": 21991,
+   "title": "THe EELS Database at EMC",
+   "permalink": "https://eelsdb.eu/the-eels-databse-at-the-emc/",
+   "author": {
+    "name": "Luc Lajaunie",
+    "profile_url": "https://eelsdb.eu/author/luc-lajaunie/"
+   },
+   "published": "2016-08-21 21:16:05",
+   "description": "I will be at the EMC in Lyon next week and I will present several works including one poster session on the EELS DB (IM08-407, Poster session C). Do not hesitate to contact me if you want to discuss about the website or other matters. Luc",
+   "comment_count": 0,
+   "api_permalink": "https://api.eelsdb.eu/the-eels-databse-at-the-emc/"
+  },
+  {
+   "id": 21942,
+   "title": "EELS DB Website Published",
+   "permalink": "https://eelsdb.eu/eels-db-website-published/",
+   "author": {
+    "name": "Phil Ewels",
+    "profile_url": "https://eelsdb.eu/author/phil/"
+   },
+   "published": "2016-02-27 11:43:58",
+   "description": "I&#8217;m pleased to announce that the paper written about the rewrite of the EELS DB website is now published! You can find it here: http://dx.doi.org/10.1017/S1431927616000179 on the website of the publisher and a pre-print version can be dowloaded here. Philip Ewels, Thierry Sikora, Virginie Serin, Chris P. Ewels and Luc Lajaunie. &#8220;A Complete Overhaul of the Electron [&hellip;]",
+   "comment_count": 0,
+   "api_permalink": "https://api.eelsdb.eu/eels-db-website-published/"
+  },
+  {
+   "id": 21909,
+   "title": "JEELS 2016",
+   "permalink": "https://eelsdb.eu/jeels-2016/",
+   "author": {
+    "name": "Luc Lajaunie",
+    "profile_url": "https://eelsdb.eu/author/luc-lajaunie/"
+   },
+   "published": "2016-02-04 16:39:43",
+   "description": "The conference JEELS 2016 will be held in Tarragona, Spain (June 28th-30th 2016) and is organized by Dr. Raul Arenal (U. Zaragoza, Spain) and Dr. Sonia Estrade (U. Barcelona, Spain). More delails here.",
+   "comment_count": 0,
+   "api_permalink": "https://api.eelsdb.eu/jeels-2016/"
+  },
+  {
+   "id": 21900,
+   "title": "The EELS Database recognized by re3data as Open Access",
+   "permalink": "https://eelsdb.eu/the-eels-database-recognized-by-re3data-as-open-access/",
+   "author": {
+    "name": "Luc Lajaunie",
+    "profile_url": "https://eelsdb.eu/author/luc-lajaunie/"
+   },
+   "published": "2016-01-15 23:21:12",
+   "description": "The EELS database has been recognized as an Open Data research repository by the global Registry of Research Data Repositories organization re3data (see also Pampel et al., 2012). The EELS database can thus be included in data management plans, fulfilling an  common requirement found within numerous funding agency grant proposal processes.",
+   "comment_count": 0,
+   "api_permalink": "https://api.eelsdb.eu/the-eels-database-recognized-by-re3data-as-open-access/"
+  },
+  {
+   "id": 21888,
+   "title": "To the contributors of the former website",
+   "permalink": "https://eelsdb.eu/to-the-contributors-of-the-former-website/",
+   "author": {
+    "name": "Luc Lajaunie",
+    "profile_url": "https://eelsdb.eu/author/luc-lajaunie/"
+   },
+   "published": "2015-11-09 03:13:42",
+   "description": "The accounts of the contributors of the former website (which was hosted by the CEMES) have been transferred to the new website. You can reclaim your account by using this link in order to reset your password (check your spambox). If the email address you used on the former website is not valid anymore, please contact [&hellip;]",
+   "comment_count": 0,
+   "api_permalink": "https://api.eelsdb.eu/to-the-contributors-of-the-former-website/"
+  },
+  {
+   "id": 21761,
+   "title": "EELS DB website goes live",
+   "permalink": "https://eelsdb.eu/eels-db-website-goes-live/",
+   "author": {
+    "name": "Phil Ewels",
+    "profile_url": "https://eelsdb.eu/author/phil/"
+   },
+   "published": "2015-09-06 15:34:55",
+   "description": "After a long incubation time spent removing lots of bugs and doing a lot of testing, the new EELS DB website is finally having its training wheels removed. The site is now visible to all users without registration, and we have no plans to wipe the database &#8211; so you&#8217;re free to upload your data [&hellip;]",
+   "comment_count": 0,
+   "api_permalink": "https://api.eelsdb.eu/eels-db-website-goes-live/"
+  },
+  {
+   "id": 18612,
+   "title": "EELS DB website in beta",
+   "permalink": "https://eelsdb.eu/new-eels-db-website-goes-beta/",
+   "author": {
+    "name": "Luc Lajaunie",
+    "profile_url": "https://eelsdb.eu/author/luc-lajaunie/"
+   },
+   "published": "2015-02-04 19:29:10",
+   "description": "After nearly one year of work, it&#8217;s our pleasure to announce that the new EELS database website goes beta. This has been possible thanks to our sponsors and thanks to the hard work of Phil Ewels. If you could try using the site and make a note of any such bad behaviour, that would be [&hellip;]",
+   "comment_count": 0,
+   "api_permalink": "https://api.eelsdb.eu/new-eels-db-website-goes-beta/"
+  }
+ ]
+}

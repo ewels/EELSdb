@@ -1,0 +1,25 @@
+{
+ "request": {
+  "path": "/to-the-contributors-of-the-former-website/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21888,
+  "title": "To the contributors of the former website",
+  "permalink": "https://eelsdb.eu/to-the-contributors-of-the-former-website/",
+  "author": {
+   "name": "Luc Lajaunie",
+   "profile_url": "https://eelsdb.eu/author/luc-lajaunie/"
+  },
+  "published": "2015-11-09 03:13:42",
+  "description": "The accounts of the contributors of the former website (which was hosted by the CEMES) have been transferred to the new website. You can reclaim your account by using this link in order to reset your password (check your spambox). If the email address you used on the former website is not valid anymore, please contact [&hellip;]",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/to-the-contributors-of-the-former-website/"
+ }
+}

@@ -1,0 +1,72 @@
+{
+ "request": {
+  "path": "/spectra/calcium-titanate-perovskite-structure-3/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21644,
+  "title": "Calcium titanate (perovskite structure)",
+  "permalink": "https://eelsdb.eu/spectra/calcium-titanate-perovskite-structure-3/",
+  "author": {
+   "name": "Saso Sturm",
+   "profile_url": "https://eelsdb.eu/author/saso-sturm/",
+   "profile_api_url": "https://api.eelsdb.eu/author/saso-sturm/"
+  },
+  "published": "2007-12-05 00:00:00",
+  "description": "EEL spcetrum shows Ti L2,3 and O-K ionization edges. Analyst: Saso Sturm. Temperature: Room. BEAM/Crystal: crystall was not in the zone axis. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/calcium-titanate-perovskite-structure-3/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec8zl4Y4.msa",
+  "type": "Core Loss",
+  "formula": "CaTiO3",
+  "elements": [
+   "Ca",
+   "Ti",
+   "O"
+  ],
+  "microscope": "JEOL2010F",
+  "max_energy": "604.2 eV",
+  "min_energy": "400 eV",
+  "source_purity": "commercially available powder",
+  "edges": [
+   "Ti_L2,3",
+   "O_K"
+  ],
+  "guntype": "feg Schottky",
+  "beamenergy": "200 kV",
+  "resolution": "1 eV",
+  "monochromated": "No",
+  "stepSize": "0.2 eV/pixel",
+  "convergence": "10 mrad",
+  "collection": "5 mrad",
+  "probesize": "50 nm^2",
+  "integratetime": "5 secs",
+  "readouts": "1",
+  "detector": "Parallel: 766 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.3 t/&lambda;",
+  "associated_spectra": [
+   {
+    "name": "Calcium titanate (perovskite structure)",
+    "link": "https://eelsdb.eu/spectra/calcium-titanate-perovskite-structure/",
+    "type": "Low Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=133",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

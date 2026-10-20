@@ -1,0 +1,69 @@
+{
+ "request": {
+  "path": "/spectra/nickel-titanium/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21622,
+  "title": "Nickel Titanium",
+  "permalink": "https://eelsdb.eu/spectra/nickel-titanium/",
+  "author": {
+   "name": "Giovanni Bertoni",
+   "profile_url": "https://eelsdb.eu/author/giovanni-bertoni/",
+   "profile_api_url": "https://api.eelsdb.eu/author/giovanni-bertoni/"
+  },
+  "published": "2007-11-12 00:00:00",
+  "description": "spectrum on a Ti3Ni4 precipitate in a NiTi memory shape alloy, used for quantification.\r\nthe sample can contain small amount of Oxygen due to surface oxidation. Analyst: Giovanni Bertoni. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/nickel-titanium/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspeciyr4j4.msa",
+  "type": "Low Loss",
+  "formula": "Ti3Ni4",
+  "elements": [
+   "Ti",
+   "Ni"
+  ],
+  "microscope": "CM30",
+  "max_energy": "921 eV",
+  "min_energy": "-102 eV",
+  "source_purity": "Nickel Titanium memory shape alloy precipitate",
+  "guntype": "feg Schottky",
+  "beamenergy": "300 kV",
+  "resolution": "1 eV",
+  "stepSize": "1 eV/pixel",
+  "acquisition_mode": "Diffraction",
+  "convergence": "1 mrad",
+  "collection": "4.01 mrad",
+  "integratetime": "0.2 secs",
+  "readouts": "100",
+  "detector": "Parallel: GIF200",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.376 t/&lambda;",
+  "reference": {
+   "freetext": "W. Tirry, D. Schryvers, K. Jorissen, D. Lamoen, Acta Cryst. B 62, 2006, 966-971.\r\nZ. Yang, W. Tirry, D. Lamoen, S. Kulkova, D. Schryvers, Acta Materialia, In Press, 2007.\r\nG. Bertoni, J.Verbeeck, Ultramicroscopy, submitted."
+  },
+  "associated_spectra": [
+   {
+    "name": "Nickel Titanium",
+    "link": "https://eelsdb.eu/spectra/nickel-titanium-2/",
+    "type": "Core Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=109",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

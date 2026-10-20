@@ -1,0 +1,73 @@
+{
+ "request": {
+  "path": "/spectra/magnesium-carbonate/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21567,
+  "title": "Magnesium carbonate",
+  "permalink": "https://eelsdb.eu/spectra/magnesium-carbonate/",
+  "author": {
+   "name": "Ferdinand Hofer",
+   "profile_url": "https://eelsdb.eu/author/ferdinand-hofer/",
+   "profile_api_url": "https://api.eelsdb.eu/author/ferdinand-hofer/"
+  },
+  "published": "2005-04-20 00:00:00",
+  "description": "The spectra given in the article are analogous to this one but not the same.  Analyst: Irmgard Rom. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/magnesium-carbonate/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.39168.1.msa",
+  "type": "Core Loss",
+  "formula": "MgCO3",
+  "elements": [
+   "Mg",
+   "C",
+   "O"
+  ],
+  "microscope": "Philips CM20",
+  "max_energy": "614.3 eV",
+  "min_energy": "512 eV",
+  "source_purity": "commercial powder Merck",
+  "edges": [
+   "O_K"
+  ],
+  "guntype": "LaB6",
+  "beamenergy": "200 kV",
+  "resolution": "1.2 eV",
+  "monochromated": "No",
+  "stepSize": "0.1 eV/pixel",
+  "convergence": "6.4 mrad",
+  "collection": "7.6 mrad",
+  "probesize": "200 nm^2",
+  "readouts": "1",
+  "detector": "Parallel: GIF",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "reference": {
+   "authors": "Ferdinand Hofer, Peter Golob",
+   "year": "1987",
+   "journal": "Ultramicroscopy",
+   "title": "New examples for near-edge fine structures in electron energy loss spectroscopy",
+   "volume": "21",
+   "issue": "4",
+   "page": "379-383",
+   "doi": "10.1016/0304-3991(87)90036-2",
+   "url": "http://dx.doi.org/10.1016/0304-3991(87)90036-2"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=43",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

@@ -1,0 +1,64 @@
+{
+ "request": {
+  "path": "/spectra/strontium-ferrite/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21749,
+  "title": "Strontium ferrite",
+  "permalink": "https://eelsdb.eu/spectra/strontium-ferrite/",
+  "author": {
+   "name": "Armin Feldhoff",
+   "profile_url": "https://eelsdb.eu/author/armin-feldhoff/",
+   "profile_api_url": "https://api.eelsdb.eu/author/armin-feldhoff/"
+  },
+  "published": "2009-12-17 00:00:00",
+  "description": "The compound was synthesized by a sol-gel based procedure. Phase purity was confimred by XRD. The lattice was filled with oxygen in a high-pressure apparatus to obtain an oxygen stoichiometric compund with Fe4+ valence of iron, which was confirmed by Mössbauer spectroscopy. Analyst: Armin Feldhoff. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/strontium-ferrite/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec25qFIG_converted.msa",
+  "type": "Core Loss",
+  "formula": "SrFeO3",
+  "elements": [
+   "Sr",
+   "Fe",
+   "O"
+  ],
+  "microscope": "JEOL JEM-2100F-UHR",
+  "max_energy": "781.7 eV",
+  "min_energy": "679.4 eV",
+  "source_purity": "synthesized by a sol-gel based procedure (see more at comments)",
+  "edges": [
+   "Fe_L2,3"
+  ],
+  "guntype": "feg Schottky",
+  "beamenergy": "200 kV",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "Imaging",
+  "convergence": "10 mrad",
+  "collection": "16 mrad",
+  "integratetime": "20 secs",
+  "readouts": "10",
+  "detector": "GIF: GIF 2001",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "reference": {
+   "freetext": "A. Feldhoff, J. Martynczuk, M. Arnold, M. Myndyk, I. Bergmann, V. Sepelak, W. Gruner, U. Vogt, A. Hähnel, J. Woltersdorf, Journal of Solid State Chemistry 182, 2961-2971 (2009)"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=240",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

@@ -1,0 +1,56 @@
+{
+ "request": {
+  "path": "/spectra/styrene-acrylonitrile-copolymer-san/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22167,
+  "title": "Styrene Acrylonitrile copolymer (SAN)",
+  "permalink": "https://eelsdb.eu/spectra/styrene-acrylonitrile-copolymer-san/",
+  "author": {
+   "name": "Ruchi Pal",
+   "profile_url": "https://eelsdb.eu/author/ruchi-8118/",
+   "profile_api_url": "https://api.eelsdb.eu/author/ruchi-8118/"
+  },
+  "published": "2022-05-16 19:24:23",
+  "description": "",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/styrene-acrylonitrile-copolymer-san/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2021/05/SAN_Titan.txt",
+  "type": "Core Loss",
+  "formula": "(C8H8)n-(C3H3N)m",
+  "elements": [
+   "C",
+   "H",
+   "N"
+  ],
+  "microscope": "FEI TITAN",
+  "max_energy": "319.47 eV",
+  "min_energy": "258.06 eV",
+  "guntype": "FEG",
+  "beamenergy": "80 kV",
+  "resolution": "0.51 eV",
+  "monochromated": "No",
+  "stepSize": "0.03 eV/pixel",
+  "acquisition_mode": "stem",
+  "convergence": "21 mrad",
+  "collection": "50 mrad",
+  "integratetime": "40 secs",
+  "detector": "Gatan Tridium 863 P",
+  "darkcurrent": "Yes",
+  "gainvariation": "No",
+  "calibration": "low loss+ drift tube",
+  "deconvolutions": [
+   "Fourier-ratio"
+  ],
+  "reference": {
+   "doi": "10.5281/zenodo.4840613"
+  }
+ }
+}

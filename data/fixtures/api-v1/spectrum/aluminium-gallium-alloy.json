@@ -1,0 +1,64 @@
+{
+ "request": {
+  "path": "/spectra/aluminium-gallium-alloy/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21680,
+  "title": "Aluminium gallium alloy",
+  "permalink": "https://eelsdb.eu/spectra/aluminium-gallium-alloy/",
+  "author": {
+   "name": "Wilfried Sigle",
+   "profile_url": "https://eelsdb.eu/author/wsigle/",
+   "profile_api_url": "https://api.eelsdb.eu/author/wsigle/"
+  },
+  "published": "2008-01-21 00:00:00",
+  "description": " Analyst: Wilfried Sigle. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/aluminium-gallium-alloy/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecEotLtT.msa",
+  "type": "Low Loss",
+  "formula": "Al(Ga)",
+  "elements": [
+   "Al",
+   "Ga"
+  ],
+  "microscope": "VG HB501UX",
+  "max_energy": "119.1 eV",
+  "min_energy": "-14.8 eV",
+  "source_purity": "Al-8at%Ga",
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "resolution": "0.6 eV",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "STEM",
+  "convergence": "10 mrad",
+  "collection": "6.5 mrad",
+  "detector": "Parallel: Gatan ENFINA",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.43 t/&lambda;",
+  "associated_spectra": [
+   {
+    "name": "Aluminium gallium alloy",
+    "link": "https://eelsdb.eu/spectra/aluminium-gallium-alloy-2/",
+    "type": "Core Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=170",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

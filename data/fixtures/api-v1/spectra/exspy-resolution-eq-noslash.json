@@ -1,0 +1,116 @@
+{
+ "request": {
+  "path": "/spectra",
+  "query": "resolution=1&resolution_compare=eq&min_energy_compare=gt&max_energy_compare=lt&per_page=-1&order_direction=ASC",
+  "params": [
+   [
+    "resolution",
+    "1"
+   ],
+   [
+    "resolution_compare",
+    "eq"
+   ],
+   [
+    "min_energy_compare",
+    "gt"
+   ],
+   [
+    "max_energy_compare",
+    "lt"
+   ],
+   [
+    "per_page",
+    "-1"
+   ],
+   [
+    "order_direction",
+    "ASC"
+   ]
+  ]
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": "https://api.eelsdb.eu/spectra/?resolution=1&resolution_compare=eq&min_energy_compare=gt&max_energy_compare=lt&per_page=-1&order_direction=ASC",
+ "body_ids": [
+  22236,
+  22237,
+  22224,
+  22061,
+  22063,
+  21584,
+  21587,
+  21588,
+  21528,
+  21529,
+  21530,
+  21609,
+  21564,
+  21565,
+  21566,
+  21607,
+  21608,
+  21611,
+  21614,
+  21541,
+  21542,
+  21543,
+  21548,
+  21549,
+  21747,
+  21539,
+  21540,
+  21985,
+  21642,
+  21643,
+  21644,
+  22107,
+  22108,
+  21610,
+  21913,
+  21915,
+  21927,
+  21928,
+  21567,
+  21568,
+  21624,
+  21625,
+  21626,
+  21812,
+  21814,
+  21816,
+  21819,
+  21724,
+  21725,
+  21726,
+  21727,
+  21602,
+  21603,
+  21821,
+  21579,
+  21582,
+  21676,
+  21677,
+  21583,
+  21585,
+  21586,
+  21581,
+  21589,
+  21590,
+  21926,
+  21612,
+  21613,
+  22125,
+  21622,
+  21623,
+  21674,
+  21675,
+  21723,
+  21689,
+  21679,
+  21682,
+  21685
+ ]
+}

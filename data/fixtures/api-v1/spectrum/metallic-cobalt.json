@@ -1,0 +1,60 @@
+{
+ "request": {
+  "path": "/spectra/metallic-cobalt/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21753,
+  "title": "Metallic Cobalt",
+  "permalink": "https://eelsdb.eu/spectra/metallic-cobalt/",
+  "author": {
+   "name": "Yuan Zhao",
+   "profile_url": "https://eelsdb.eu/author/yuan/",
+   "profile_api_url": "https://api.eelsdb.eu/author/yuan/"
+  },
+  "published": "2014-07-20 00:00:00",
+  "description": " Analyst: Yuan Zhao, Robert F. Klie. Temperature: 723.15. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/metallic-cobalt/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecU7rNYi.msa",
+  "type": "Core Loss",
+  "formula": "Co",
+  "elements": [
+   "Co"
+  ],
+  "microscope": "JEOL2010F",
+  "max_energy": "926 eV",
+  "min_energy": "414.5 eV",
+  "edges": [
+   "Co_L2,3"
+  ],
+  "guntype": "feg Schottky",
+  "beamenergy": "200 kV",
+  "monochromated": "No",
+  "stepSize": "0.5 eV/pixel",
+  "convergence": "15 mrad",
+  "collection": "28 mrad",
+  "integratetime": "5 secs",
+  "detector": "GIF: GIF",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "reference": {
+   "freetext": "Yuan Zhao, Theresa E. Feltes, John R. Regalbuto, Randall J. Meyer, Robert F. Klie, JOURNAL OF APPLIED PHYSICS,108, 063704,2010"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=244",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

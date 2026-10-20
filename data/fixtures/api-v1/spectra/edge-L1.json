@@ -1,0 +1,39 @@
+{
+ "request": {
+  "path": "/spectra/",
+  "query": "edge=L1&per_page=-1",
+  "params": [
+   [
+    "edge",
+    "L1"
+   ],
+   [
+    "per_page",
+    "-1"
+   ]
+  ]
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body_ids": [
+  22224,
+  21578,
+  21985,
+  22047,
+  22105,
+  21919,
+  21673,
+  22102,
+  22074,
+  22075,
+  21918,
+  21896,
+  22079,
+  21679,
+  21685,
+  22080
+ ]
+}

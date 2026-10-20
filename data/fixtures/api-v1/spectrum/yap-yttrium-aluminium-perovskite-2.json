@@ -1,0 +1,61 @@
+{
+ "request": {
+  "path": "/spectra/yap-yttrium-aluminium-perovskite-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21695,
+  "title": "YAP (yttrium aluminium perovskite)",
+  "permalink": "https://eelsdb.eu/spectra/yap-yttrium-aluminium-perovskite-2/",
+  "author": {
+   "name": "Wilfried Sigle",
+   "profile_url": "https://eelsdb.eu/author/wsigle/",
+   "profile_api_url": "https://api.eelsdb.eu/author/wsigle/"
+  },
+  "published": "2008-02-01 00:00:00",
+  "description": " Analyst: Saso Sturm. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/yap-yttrium-aluminium-perovskite-2/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspecu3qCOX.msa",
+  "type": "Core Loss",
+  "formula": "YAlO3",
+  "elements": [
+   "Y",
+   "Al",
+   "O"
+  ],
+  "microscope": "VG HB501UX",
+  "max_energy": "178.16 eV",
+  "min_energy": "44.26 eV",
+  "edges": [
+   "Al_L2,3"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "resolution": "0.7 eV",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "STEM",
+  "convergence": "10 mrad",
+  "collection": "6.5 mrad",
+  "integratetime": "2 secs",
+  "readouts": "3",
+  "detector": "Parallel: Gatan ENFINA",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=185",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

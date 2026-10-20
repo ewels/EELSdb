@@ -1,0 +1,57 @@
+{
+ "request": {
+  "path": "/spectra/iron-phosphate/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21550,
+  "title": "Iron phosphate",
+  "permalink": "https://eelsdb.eu/spectra/iron-phosphate/",
+  "author": {
+   "name": "(Dr) Karine Masenelli-Varlot",
+   "profile_url": "https://eelsdb.eu/author/karine-masenelli-varlot/",
+   "profile_api_url": "https://api.eelsdb.eu/author/karine-masenelli-varlot/"
+  },
+  "published": "2005-04-20 00:00:00",
+  "description": "corrected by IO linear background removed Grasshopper is a grating monochromator with 1800 lines ((Wisconsin, USA) Analyst: Karine Varlot. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/iron-phosphate/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.1748251.1.msa",
+  "type": "X Ray Abs",
+  "formula": "FePO4",
+  "elements": [
+   "Fe",
+   "P",
+   "O"
+  ],
+  "microscope": "SRC (Synchrotron Radiation Center)",
+  "max_energy": "158.78 eV",
+  "min_energy": "123.82 eV",
+  "edges": [
+   "P_L2,3"
+  ],
+  "guntype": "Grasshopper",
+  "beamenergy": "800 kV",
+  "resolution": "0.1 eV",
+  "monochromated": "Yes",
+  "stepSize": "0.044 eV/pixel",
+  "detector": "Grasshopper",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=26",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

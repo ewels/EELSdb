@@ -1,0 +1,52 @@
+{
+ "request": {
+  "path": "/spectra/tungsten-silicide-amorphous/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22084,
+  "title": "Tungsten silicide (amorphous",
+  "permalink": "https://eelsdb.eu/spectra/tungsten-silicide-amorphous/",
+  "author": {
+   "name": "Ian MacLaren",
+   "profile_url": "https://eelsdb.eu/author/maclariz/",
+   "profile_api_url": "https://api.eelsdb.eu/author/maclariz/"
+  },
+  "published": "2017-07-05 14:41:04",
+  "description": "Sputtered thin amorphous film",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/tungsten-silicide-amorphous/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2017/07/017-WSi-Deconvolved-Spectrum.msa",
+  "type": "Core Loss",
+  "formula": "W3Si",
+  "elements": [
+   "W",
+   "Si"
+  ],
+  "microscope": "JEOL ARM200F",
+  "max_energy": "11747 eV",
+  "min_energy": "9700 eV",
+  "source_purity": "Approximate composition, probably a little W-rich",
+  "guntype": "CFEG",
+  "beamenergy": "200 kV",
+  "resolution": "0.5 eV",
+  "monochromated": "No",
+  "stepSize": "1 eV/pixel",
+  "convergence": "29 mrad",
+  "collection": "36 mrad",
+  "probesize": ".04 nm^2",
+  "detector": "GIF Quantum ER",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "Low loss + drift tube + shift of magnet excitation (i.e. absolute energies may be slightly inaccurate)",
+  "deconvolutions": [
+   "Fourier-ratio"
+  ]
+ }
+}

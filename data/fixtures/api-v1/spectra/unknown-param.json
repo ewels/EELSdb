@@ -1,0 +1,21 @@
+{
+ "request": {
+  "path": "/spectra/",
+  "query": "foo=bar",
+  "params": [
+   [
+    "foo",
+    "bar"
+   ]
+  ]
+ },
+ "status": 400,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "message": "Query argument 'foo' not recognised",
+  "documentation_url": "https://eelsdb.eu/api/"
+ }
+}

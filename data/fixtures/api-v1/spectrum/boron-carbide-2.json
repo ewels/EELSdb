@@ -1,0 +1,81 @@
+{
+ "request": {
+  "path": "/spectra/boron-carbide-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21565,
+  "title": "Boron carbide",
+  "permalink": "https://eelsdb.eu/spectra/boron-carbide-2/",
+  "author": {
+   "name": "Virginie Serin",
+   "profile_url": "https://eelsdb.eu/author/serin/",
+   "profile_api_url": "https://api.eelsdb.eu/author/serin/"
+  },
+  "published": "2005-04-20 00:00:00",
+  "description": "Residual detector background removed.   Analyst: Otmane Abidate. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/boron-carbide-2/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.36571.1.msa",
+  "type": "Core Loss",
+  "formula": "B4C",
+  "elements": [
+   "B",
+   "C"
+  ],
+  "microscope": "CM30",
+  "max_energy": "269.89 eV",
+  "min_energy": "167.98 eV",
+  "source_purity": "Commercial powder Aldrich",
+  "edges": [
+   "B_K"
+  ],
+  "guntype": "LaB6",
+  "beamenergy": "100 kV",
+  "resolution": "1.2 eV",
+  "monochromated": "No",
+  "stepSize": "0.1 eV/pixel",
+  "convergence": "3.67 mrad",
+  "collection": "5 mrad",
+  "probesize": "60 nm^2",
+  "integratetime": "1 secs",
+  "readouts": "10",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.6 t/&lambda;",
+  "reference": {
+   "authors": "Virginie Serin, Rik Brydson, Andrew Scott, Yolande Kihn, Otmane Abidate, Bertrand Maquin, Alain Derré",
+   "year": "2000",
+   "journal": "Carbon",
+   "title": "Evidence for the solubility of boron in graphite by electron energy loss spectroscopy",
+   "volume": "38",
+   "issue": "4",
+   "page": "547-554",
+   "doi": "10.1016/S0008-6223(99)00128-1",
+   "url": "http://dx.doi.org/10.1016/S0008-6223(99)00128-1"
+  },
+  "associated_spectra": [
+   {
+    "name": "Boron carbide",
+    "link": "https://eelsdb.eu/spectra/boron-carbide/",
+    "type": "Low Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=41",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

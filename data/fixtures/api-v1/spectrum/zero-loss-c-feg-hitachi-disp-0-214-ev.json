@@ -1,0 +1,78 @@
+{
+ "request": {
+  "path": "/spectra/zero-loss-c-feg-hitachi-disp-0-214-ev/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21821,
+  "title": "Zero-loss c-FEG Hitachi Disp 0.214 eV",
+  "permalink": "https://eelsdb.eu/spectra/zero-loss-c-feg-hitachi-disp-0-214-ev/",
+  "author": {
+   "name": "Luc Lajaunie",
+   "profile_url": "https://eelsdb.eu/author/luc-lajaunie/",
+   "profile_api_url": "https://api.eelsdb.eu/author/luc-lajaunie/"
+  },
+  "published": "2015-09-13 16:11:24",
+  "description": "",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/zero-loss-c-feg-hitachi-disp-0-214-ev/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/ol2c.msa",
+  "type": "Zero Loss",
+  "formula": "No",
+  "elements": [
+   "No"
+  ],
+  "microscope": "Hitachi HF2000",
+  "max_energy": "206.08 eV",
+  "min_energy": "-63.56 eV",
+  "guntype": "c-FEG",
+  "beamenergy": "100 kV",
+  "resolution": "1.5 eV",
+  "monochromated": "No",
+  "stepSize": "0.214 eV/pixel",
+  "convergence": "1.4 mrad",
+  "collection": "4.6 mrad",
+  "probesize": "30 nm^2",
+  "detector": "modiﬁed Gatan PEELS 666 spectrometer",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "reference": {
+   "authors": "L. Lajaunie, F. Boucher, R. Dessapt, P. Moreau",
+   "year": "2015",
+   "journal": "Ultramicroscopy",
+   "title": "Quantitative use of electron energy-loss spectroscopy Mo-M2,3 edges for the study of molybdenum oxides",
+   "volume": "149",
+   "page": "1-8",
+   "doi": "10.1016/j.ultramic.2014.11.002",
+   "url": "http://dx.doi.org/10.1016/j.ultramic.2014.11.002"
+  },
+  "associated_spectra": [
+   {
+    "name": "MoO3",
+    "link": "https://eelsdb.eu/spectra/moo3-2/",
+    "type": "Core Loss"
+   },
+   {
+    "name": "MoO2",
+    "link": "https://eelsdb.eu/spectra/moo2/",
+    "type": "Core Loss"
+   },
+   {
+    "name": "MoO2",
+    "link": "https://eelsdb.eu/spectra/moo2-2/",
+    "type": "Low Loss"
+   },
+   {
+    "name": "MoO3",
+    "link": "https://eelsdb.eu/spectra/moo3-3/",
+    "type": "Low Loss"
+   }
+  ]
+ }
+}

@@ -1,0 +1,65 @@
+{
+ "request": {
+  "path": "/spectra/graphite-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21549,
+  "title": "Graphite",
+  "permalink": "https://eelsdb.eu/spectra/graphite-2/",
+  "author": {
+   "name": "Virginie Serin",
+   "profile_url": "https://eelsdb.eu/author/serin/",
+   "profile_api_url": "https://api.eelsdb.eu/author/serin/"
+  },
+  "published": "2005-04-20 00:00:00",
+  "description": "Low-loss associated (same area) to the graphite-C-K also in the database Analyst: Otmane Abidate. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/graphite-2/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.65569.1.msa",
+  "type": "Low Loss",
+  "formula": "C",
+  "elements": [
+   "C"
+  ],
+  "microscope": "CM30",
+  "max_energy": "91.2 eV",
+  "min_energy": "-10.7 eV",
+  "source_purity": "natural graphite from Madagascar",
+  "guntype": "LaB6",
+  "beamenergy": "100 kV",
+  "resolution": "1.2 eV",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "Diffraction",
+  "convergence": "8.4 mrad",
+  "probesize": "60 nm^2",
+  "integratetime": "0.03 secs",
+  "readouts": "10",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.37 t/&lambda;",
+  "associated_spectra": [
+   {
+    "name": "Graphite",
+    "link": "https://eelsdb.eu/spectra/graphite/",
+    "type": "Core Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=25",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

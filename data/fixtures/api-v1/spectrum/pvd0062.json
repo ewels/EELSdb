@@ -1,0 +1,71 @@
+{
+ "request": {
+  "path": "/spectra/pvd0062/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21974,
+  "title": "Calcium Titanate (polycrystalline layer)",
+  "permalink": "https://eelsdb.eu/spectra/pvd0062/",
+  "author": {
+   "name": "Andreas Krause",
+   "profile_url": "https://eelsdb.eu/author/andreas/",
+   "profile_api_url": "https://api.eelsdb.eu/author/andreas/"
+  },
+  "published": "2016-05-10 14:39:29",
+  "description": "CaTiO3 layer thickness 32 nm",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/pvd0062/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2016/05/Acquire-3.txt",
+  "type": "Low Loss",
+  "formula": "CaTiO3",
+  "elements": [
+   "Ca",
+   "Ti",
+   "O"
+  ],
+  "microscope": "FEI Titan3 80-300",
+  "max_energy": "61.51 eV",
+  "min_energy": "0.1 eV",
+  "source_purity": "CaTiO3 sputter target 99.99% Purity",
+  "edges": [
+   "Ti_M2,3"
+  ],
+  "guntype": "feg Schottky",
+  "beamenergy": "80 kV",
+  "resolution": "0.18 eV",
+  "monochromated": "Yes",
+  "stepSize": "0.03 eV/pixel",
+  "acquisition_mode": "stem",
+  "convergence": "10 mrad",
+  "collection": "4.72 mrad",
+  "detector": "Gatan tridiem 863ER",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "zero + dispersion",
+  "reference": {
+   "authors": "A Krause, W M Weber, D Pohl, B Rellinghaus, A Kersch, T Mikolajick",
+   "year": "2015",
+   "journal": "Journal of Physics D: Applied Physics",
+   "title": "Investigation of band gap and permittivity of the perovskite CaTiO3in ultrathin layers",
+   "volume": "48",
+   "issue": "41",
+   "page": "415304",
+   "doi": "10.1088/0022-3727/48/41/415304",
+   "url": "http://dx.doi.org/10.1088/0022-3727/48/41/415304"
+  },
+  "associated_spectra": [
+   {
+    "name": "Calcium Titanate (polycrystalline layer)",
+    "link": "https://eelsdb.eu/spectra/pvd0062-2/",
+    "type": "Low Loss"
+   }
+  ]
+ }
+}

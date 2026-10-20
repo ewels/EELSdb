@@ -1,0 +1,128 @@
+{
+ "request": {
+  "path": "/index.php",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "api_home": {
+   "url": "https://api.eelsdb.eu"
+  },
+  "api_documentation": {
+   "url": "https://eelsdb.eu/api/"
+  },
+  "browse_news": {
+   "url": "https://api.eelsdb.eu/news/"
+  },
+  "news": {
+   "url": "https://api.eelsdb.eu/{post_slug}/"
+  },
+  "list_users": {
+   "url": "https://api.eelsdb.eu/registered-users/"
+  },
+  "user": {
+   "url": "https://api.eelsdb.eu/author/{user}/"
+  },
+  "browse_spectra": {
+   "url": "https://api.eelsdb.eu/spectra/",
+   "arguments": {
+    "type": "[ coreloss | lowloss | zeroloss | xrayabs ]",
+    "title": "string",
+    "author": "string",
+    "element": "string",
+    "formula": "string",
+    "edge": [
+     "K",
+     "L1",
+     "L2,3",
+     "M2,3",
+     "M4,5",
+     "N2,3",
+     "N4,5",
+     "O2,3",
+     "O4,5"
+    ],
+    "min_energy": "float",
+    "min_energy_compare": [
+     "lt",
+     "eq",
+     "ge"
+    ],
+    "max_energy": "float",
+    "max_energy_compare": [
+     "lt",
+     "eq",
+     "ge"
+    ],
+    "resolution": "float",
+    "resolution_compare": [
+     "lt",
+     "eq",
+     "ge"
+    ],
+    "monochromated": "flag",
+    "per_page": "int",
+    "page": "int",
+    "order": [
+     "spectrumType",
+     "spectrumMin",
+     "spectrumMax",
+     "stepSize",
+     "spectrumFormula",
+     "spectrumElement",
+     "spectrumUpload",
+     "source_purity",
+     "spectrumEdges",
+     "microscope",
+     "guntype",
+     "beamenergy",
+     "resolution",
+     "monochromated",
+     "acquisition_mode",
+     "convergence",
+     "collection",
+     "probesize",
+     "beamcurrent",
+     "integratetime",
+     "readouts",
+     "detector",
+     "darkcurrent",
+     "gainvariation",
+     "calibration",
+     "zeroloss_deconv",
+     "thickness",
+     "deconv_fourier_log",
+     "deconv_fourier_ratio",
+     "deconv_stephens_deconvolution",
+     "deconv_richardson_lucy",
+     "deconv_maximum_entropy",
+     "deconv_other",
+     "assoc_spectra",
+     "ref_freetext",
+     "ref_doi",
+     "ref_url",
+     "ref_authors",
+     "ref_journal",
+     "ref_volume",
+     "ref_issue",
+     "ref_page",
+     "ref_year",
+     "ref_title",
+     "otherURLs"
+    ],
+    "order_direction": [
+     "ASC",
+     "DESC"
+    ]
+   }
+  },
+  "spectrum": {
+   "url": "https://api.eelsdb.eu/spectra/{spectrum}"
+  }
+ }
+}

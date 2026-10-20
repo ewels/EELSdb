@@ -1,0 +1,63 @@
+{
+ "request": {
+  "path": "/spectra/tin/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22081,
+  "title": "Tin",
+  "permalink": "https://eelsdb.eu/spectra/tin/",
+  "author": {
+   "name": "Ian MacLaren",
+   "profile_url": "https://eelsdb.eu/author/maclariz/",
+   "profile_api_url": "https://api.eelsdb.eu/author/maclariz/"
+  },
+  "published": "2017-07-05 14:40:56",
+  "description": "",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/tin/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2017/07/Sn-Deconvolved-Spectrum.msa",
+  "type": "Core Loss",
+  "formula": "Sn",
+  "elements": [
+   "Sn"
+  ],
+  "microscope": "JEOL ARM200F",
+  "max_energy": "5457.32 eV",
+  "min_energy": "3410.32 eV",
+  "source_purity": "High purity tin sheet",
+  "guntype": "CFEG",
+  "beamenergy": "200 kV",
+  "resolution": "0.5 eV",
+  "monochromated": "No",
+  "stepSize": "1 eV/pixel",
+  "convergence": "29 mrad",
+  "collection": "36 mrad",
+  "probesize": ".04 nm^2",
+  "detector": "GIF Quantum ER",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "Low loss + drift tube + shift of magnet excitation (i.e. absolute energies may be slightly inaccurate)",
+  "deconvolutions": [
+   "Fourier-ratio"
+  ],
+  "associated_spectra": [
+   {
+    "name": "Tin (II) oxide",
+    "link": "https://eelsdb.eu/spectra/tin-ii-oxide/",
+    "type": "Core Loss"
+   },
+   {
+    "name": "Tin (IV) oxide",
+    "link": "https://eelsdb.eu/spectra/tin-iv-oxide/",
+    "type": "Core Loss"
+   }
+  ]
+ }
+}

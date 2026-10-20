@@ -1,0 +1,69 @@
+{
+ "request": {
+  "path": "/spectra/graphite/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21548,
+  "title": "Graphite",
+  "permalink": "https://eelsdb.eu/spectra/graphite/",
+  "author": {
+   "name": "Virginie Serin",
+   "profile_url": "https://eelsdb.eu/author/serin/",
+   "profile_api_url": "https://api.eelsdb.eu/author/serin/"
+  },
+  "published": "2005-04-20 00:00:00",
+  "description": "  Low loss associated spectrum , for plural scattering removal, is in the database. Analyst: Otmane Abidate. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/graphite/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.63282.1.msa",
+  "type": "Core Loss",
+  "formula": "C",
+  "elements": [
+   "C"
+  ],
+  "microscope": "CM30",
+  "max_energy": "370.21 eV",
+  "min_energy": "268.3 eV",
+  "source_purity": "natural graphite from Madagascar",
+  "edges": [
+   "C_K"
+  ],
+  "guntype": "LaB6",
+  "beamenergy": "100 kV",
+  "resolution": "1.2 eV",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "Diffraction",
+  "convergence": "8.4 mrad",
+  "collection": "5 mrad",
+  "probesize": "60 nm^2",
+  "integratetime": "0.5 secs",
+  "readouts": "10",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.37 t/&lambda;",
+  "associated_spectra": [
+   {
+    "name": "Graphite",
+    "link": "https://eelsdb.eu/spectra/graphite-2/",
+    "type": "Low Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=24",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

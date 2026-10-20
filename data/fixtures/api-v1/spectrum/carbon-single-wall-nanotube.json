@@ -1,0 +1,61 @@
+{
+ "request": {
+  "path": "/spectra/carbon-single-wall-nanotube/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21730,
+  "title": "Carbon single wall nanotube",
+  "permalink": "https://eelsdb.eu/spectra/carbon-single-wall-nanotube/",
+  "author": {
+   "name": "Odile Stephan",
+   "profile_url": "https://eelsdb.eu/author/stephan/",
+   "profile_api_url": "https://api.eelsdb.eu/author/stephan/"
+  },
+  "published": "2008-02-25 00:00:00",
+  "description": "See also doublewall and multiwall associated data.\r\nThe spectrum was acquired with the electron beam intersecting the nanotube.\r\nzero-loss peak is saturated. Analyst: Odile Stephan. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/carbon-single-wall-nanotube/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecHRDLlq.msa",
+  "type": "Low Loss",
+  "formula": "C",
+  "elements": [
+   "C"
+  ],
+  "microscope": "STEM-VG",
+  "max_energy": "48.65 eV",
+  "min_energy": "-2.5 eV",
+  "source_purity": "arc discharge",
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "resolution": "0.7 eV",
+  "stepSize": "0.05 eV/pixel",
+  "acquisition_mode": "STEM",
+  "convergence": "7.5 mrad",
+  "collection": "6 mrad",
+  "probesize": "1 nm^2",
+  "integratetime": "0.4 secs",
+  "readouts": "1",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "No",
+  "reference": {
+   "freetext": "O. STephan, D. Taverna, M.Kociak et al., Phys. Rev. B, 66,155422,2002 (DOI: 10.1103/PhysRevB.66.155422)"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=220",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

@@ -1,0 +1,64 @@
+{
+ "request": {
+  "path": "/spectra/tbs-crs2-nanotube/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21896,
+  "title": "TbS-CrS2 Misfit Nanotube",
+  "permalink": "https://eelsdb.eu/spectra/tbs-crs2-nanotube/",
+  "author": {
+   "name": "Luc Lajaunie",
+   "profile_url": "https://eelsdb.eu/author/luc-lajaunie/",
+   "profile_api_url": "https://api.eelsdb.eu/author/luc-lajaunie/"
+  },
+  "published": "2015-11-29 20:34:49",
+  "description": "Exact composition unknown, carbon coming from surface contamination.",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/tbs-crs2-nanotube/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/11/S3.msa",
+  "type": "Core Loss",
+  "formula": "TbS-CrS2",
+  "elements": [
+   "Tb",
+   "S",
+   "Cr"
+  ],
+  "microscope": "FEI Titan Low-Base",
+  "max_energy": "673.51 eV",
+  "min_energy": "112.63 eV",
+  "edges": [
+   "S_L2,3",
+   "S_L1",
+   "Cr_L2,3",
+   "Tb_N4,5"
+  ],
+  "guntype": "X-FEG",
+  "beamenergy": "80 kV",
+  "resolution": "0.6 eV",
+  "monochromated": "No",
+  "stepSize": "0.274 eV/pixel",
+  "acquisition_mode": "stem",
+  "convergence": "25 mrad",
+  "collection": "31 mrad",
+  "detector": "Gatan Tridiem ESR 865",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "low loss + drift tube",
+  "reference": {
+   "authors": "Leela S. Panchakarla, Luc Lajaunie, Reshef Tenne, Raul Arenal",
+   "year": "2015",
+   "journal": "J. Phys. Chem. C",
+   "title": "Atomic Structural Studies on Thin Single-Crystalline Misfit-Layered Nanotubes of TbS-CrS 2",
+   "page": "150810161124005",
+   "doi": "10.1021/acs.jpcc.5b05811",
+   "url": "http://dx.doi.org/10.1021/acs.jpcc.5b05811"
+  }
+ }
+}

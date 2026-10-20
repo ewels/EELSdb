@@ -1,0 +1,69 @@
+{
+ "request": {
+  "path": "/spectra/titanium-dioxide-rutile-structure-4/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21675,
+  "title": "Titanium dioxide (rutile structure)",
+  "permalink": "https://eelsdb.eu/spectra/titanium-dioxide-rutile-structure-4/",
+  "author": {
+   "name": "Saso Sturm",
+   "profile_url": "https://eelsdb.eu/author/saso-sturm/",
+   "profile_api_url": "https://api.eelsdb.eu/author/saso-sturm/"
+  },
+  "published": "2008-01-21 00:00:00",
+  "description": " Analyst: Saso Sturm. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/titanium-dioxide-rutile-structure-4/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecIk9kBZ.msa",
+  "type": "Core Loss",
+  "formula": "TiO2",
+  "elements": [
+   "Ti",
+   "O"
+  ],
+  "microscope": "JEOL2010F",
+  "max_energy": "608 eV",
+  "min_energy": "403.8 eV",
+  "edges": [
+   "Ti_L2,3"
+  ],
+  "guntype": "feg Schottky",
+  "beamenergy": "200 kV",
+  "resolution": "1.2 eV",
+  "stepSize": "0.2 eV/pixel",
+  "acquisition_mode": "Diffraction",
+  "convergence": "10 mrad",
+  "collection": "5 mrad",
+  "probesize": "50 nm^2",
+  "integratetime": "5 secs",
+  "readouts": "1",
+  "detector": "Parallel: 766 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.8 t/&lambda;",
+  "associated_spectra": [
+   {
+    "name": "Private: Titanium dioxide (rutile structure)",
+    "link": "https://eelsdb.eu/?post_type=spectra&p=21645",
+    "type": "Low Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=164",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

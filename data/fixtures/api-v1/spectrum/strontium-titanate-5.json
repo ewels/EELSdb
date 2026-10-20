@@ -1,0 +1,65 @@
+{
+ "request": {
+  "path": "/spectra/strontium-titanate-5/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21741,
+  "title": "strontium titanate",
+  "permalink": "https://eelsdb.eu/spectra/strontium-titanate-5/",
+  "author": {
+   "name": "Dominique Imhoff",
+   "profile_url": "https://eelsdb.eu/author/imhoff/",
+   "profile_api_url": "https://api.eelsdb.eu/author/imhoff/"
+  },
+  "published": "2008-03-04 00:00:00",
+  "description": "background removed\r\ncalibration : 1- XAS energy reference from standard similar LSMO (maximum of MnL3 peak)\r\n              2- energy dispersion calibration of the detector from two peaks reference in low and core loss areas (STO substrate area in the multimayer system).\r\n\r\nsee also TiL3 Analyst: imhoff. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/strontium-titanate-5/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec90HguR.msa",
+  "type": "Core Loss",
+  "formula": "SrTiO3",
+  "elements": [
+   "Sr",
+   "Ti",
+   "O"
+  ],
+  "microscope": "STEM-VG",
+  "max_energy": "562.02 eV",
+  "min_energy": "519.17 eV",
+  "source_purity": "STO substrate (perovskite multilayers UMP CNRS-Thales Palaiseau France)",
+  "edges": [
+   "O_K"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "stepSize": "0.242 eV/pixel",
+  "acquisition_mode": "STEM",
+  "convergence": "7 mrad",
+  "collection": "22 mrad",
+  "probesize": "0.7 nm^2",
+  "integratetime": "0.3 secs",
+  "readouts": "10",
+  "detector": "Parallel: 666 + CCD modified Orsay",
+  "darkcurrent": "Yes",
+  "gainvariation": "No",
+  "reference": {
+   "freetext": "EELS study of interfaces in magnetoresistive LSMO/STO/LSMO tunnel junctions\r\nSamet L., Imhoff D., Maurice J-L., Contour J-P., Gloter A., Manoubi T., Fert A., Colliex C.,\r\nEuropean-Physical-Journal-B., 34(2), 179-92, 2003"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=232",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

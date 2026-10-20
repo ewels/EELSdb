@@ -1,0 +1,61 @@
+{
+ "request": {
+  "path": "/spectra/zirconia-monoclinic/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21594,
+  "title": "Zirconia (monoclinic)",
+  "permalink": "https://eelsdb.eu/spectra/zirconia-monoclinic/",
+  "author": {
+   "name": "(Dr) Marie Cheynet",
+   "profile_url": "https://eelsdb.eu/author/mcheynet/",
+   "profile_api_url": "https://api.eelsdb.eu/author/mcheynet/"
+  },
+  "published": "2005-05-20 00:00:00",
+  "description": " Analyst: M. Cheynet. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/zirconia-monoclinic/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspect90vMY.msa",
+  "type": "Low Loss",
+  "formula": "ZrO2",
+  "elements": [
+   "Zr",
+   "O"
+  ],
+  "microscope": "Tecnai F20",
+  "max_energy": "87.3 eV",
+  "min_energy": "-14.7 eV",
+  "source_purity": "Powders from Tosoh Cie (TZ0: 99.9%ZrO2)",
+  "guntype": "feg Schottky",
+  "beamenergy": "200 kV",
+  "resolution": "0.8 eV",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "STEM",
+  "convergence": "13.5 mrad",
+  "collection": "1.2 mrad",
+  "readouts": "2",
+  "detector": "Parallel: GIF",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.8 t/&lambda;",
+  "reference": {
+   "freetext": "Electronic structure and electron energy-loss spectroscopy of ZrO2 zirconia\r\nLouise Dash, Nathalie Vast, Philippe Baranek, Marie-Claude Cheynet, Lucia Reining\r\nPhys. Rev. B 70, (2004)245116."
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=74",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

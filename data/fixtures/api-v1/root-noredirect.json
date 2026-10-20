@@ -1,0 +1,14 @@
+{
+ "request": {
+  "path": "/",
+  "query": "",
+  "params": []
+ },
+ "status": 301,
+ "headers": {
+  "content-type": "text/html; charset=UTF-8",
+  "location": "https://eelsdb.eu/"
+ },
+ "final_url": null,
+ "body": ""
+}

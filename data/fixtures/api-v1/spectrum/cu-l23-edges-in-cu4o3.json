@@ -1,0 +1,73 @@
+{
+ "request": {
+  "path": "/spectra/cu-l23-edges-in-cu4o3/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22058,
+  "title": "Cu L23 edges in Cu4O3",
+  "permalink": "https://eelsdb.eu/spectra/cu-l23-edges-in-cu4o3/",
+  "author": {
+   "name": "Yong Wang",
+   "profile_url": "https://eelsdb.eu/author/wangyongvlsi/",
+   "profile_api_url": "https://api.eelsdb.eu/author/wangyongvlsi/"
+  },
+  "published": "2017-03-15 10:43:11",
+  "description": "",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/cu-l23-edges-in-cu4o3/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2017/03/Cu4O3-Cu-L23.msa",
+  "type": "Core Loss",
+  "formula": "Cu4O3",
+  "elements": [
+   "Cu",
+   "O"
+  ],
+  "microscope": "ARM-200F",
+  "max_energy": "1003.35 eV",
+  "min_energy": "902 eV",
+  "source_purity": "Thin films",
+  "edges": [
+   "Cu_L2,3"
+  ],
+  "guntype": "Cold",
+  "beamenergy": "200 kV",
+  "resolution": "0.45 eV",
+  "monochromated": "No",
+  "stepSize": "0.05 eV/pixel",
+  "acquisition_mode": "diffraction",
+  "convergence": "7 mrad",
+  "collection": "18 mrad",
+  "detector": "GIF quantum ER",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "calibration": "zero+dispersion in Dual EELS",
+  "thickness": "0.6 t/&lambda;",
+  "deconvolutions": [
+   "Fourier-log"
+  ],
+  "reference": {
+   "authors": "Y. Wang, S. Lany, J. Ghanbaja, Y. Fagot-Revurat, Y. P. Chen, F. Soldera, D. Horwat, F. Mücklich, J. F. Pierson",
+   "year": "2016",
+   "journal": "Physical Review B",
+   "title": "Electronic structures of Cu2O, Cu4O3, and CuO: A joint experimental and theoretical study",
+   "volume": "94",
+   "issue": "24",
+   "doi": "10.1103/PhysRevB.94.245418",
+   "url": "http://dx.doi.org/10.1103/PhysRevB.94.245418"
+  },
+  "associated_spectra": [
+   {
+    "name": "O-K edge in Cu4O3",
+    "link": "https://eelsdb.eu/spectra/o-k-edge-in-cu4o3/",
+    "type": "Core Loss"
+   }
+  ]
+ }
+}

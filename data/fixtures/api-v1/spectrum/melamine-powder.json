@@ -1,0 +1,62 @@
+{
+ "request": {
+  "path": "/spectra/melamine-powder/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21627,
+  "title": "Melamine Powder",
+  "permalink": "https://eelsdb.eu/spectra/melamine-powder/",
+  "author": {
+   "name": "Susana Trasobares",
+   "profile_url": "https://eelsdb.eu/author/strasos/",
+   "profile_api_url": "https://api.eelsdb.eu/author/strasos/"
+  },
+  "published": "2007-11-19 00:00:00",
+  "description": "The experiment was performed with the chronospectroscopy mode, every spectrun was acquired using an acquisition time of 9 millisecond. The submitted spectrum is a collection of 10 spectrum. Analyst: Susana Trasobares. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/melamine-powder/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecUTi8lE.msa",
+  "type": "Core Loss",
+  "formula": "C3N6H6",
+  "elements": [
+   "C",
+   "N",
+   "H"
+  ],
+  "microscope": "VG HB501",
+  "max_energy": "467.6 eV",
+  "min_energy": "257.11 eV",
+  "source_purity": "Aldrich 99%",
+  "edges": [
+   "C_K"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "monochromated": "No",
+  "stepSize": "0.206 eV/pixel",
+  "convergence": "15 mrad",
+  "collection": "24 mrad",
+  "probesize": "0.5 nm^2",
+  "beamcurrent": "0.2",
+  "integratetime": "0.090 secs",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=114",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

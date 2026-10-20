@@ -1,0 +1,25 @@
+{
+ "request": {
+  "path": "/eels-db-website-published/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21942,
+  "title": "EELS DB Website Published",
+  "permalink": "https://eelsdb.eu/eels-db-website-published/",
+  "author": {
+   "name": "Phil Ewels",
+   "profile_url": "https://eelsdb.eu/author/phil/"
+  },
+  "published": "2016-02-27 11:43:58",
+  "description": "I&#8217;m pleased to announce that the paper written about the rewrite of the EELS DB website is now published! You can find it here: http://dx.doi.org/10.1017/S1431927616000179 on the website of the publisher and a pre-print version can be dowloaded here. Philip Ewels, Thierry Sikora, Virginie Serin, Chris P. Ewels and Luc Lajaunie. &#8220;A Complete Overhaul of the Electron [&hellip;]",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/eels-db-website-published/"
+ }
+}

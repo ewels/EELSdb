@@ -1,0 +1,76 @@
+{
+ "request": {
+  "path": "/spectra/ti-ferrite-spinel-3/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21562,
+  "title": "Ti-ferrite (spinel)",
+  "permalink": "https://eelsdb.eu/spectra/ti-ferrite-spinel-3/",
+  "author": {
+   "name": "Dr. Gilles Hug",
+   "profile_url": "https://eelsdb.eu/author/gilles-hug/",
+   "profile_api_url": "https://api.eelsdb.eu/author/gilles-hug/"
+  },
+  "published": "2005-04-20 00:00:00",
+  "description": "Residual detector background removed. Analyst: E.Fries-P.Perriat. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/ti-ferrite-spinel-3/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.154236.1.msa",
+  "type": "Low Loss",
+  "formula": "Fe2TiO5",
+  "elements": [
+   "Fe",
+   "Ti",
+   "O"
+  ],
+  "microscope": " Jeol 4000 FX",
+  "max_energy": "159.4 eV",
+  "min_energy": "-44.4 eV",
+  "source_purity": " prepared by soft chemistry >99.9%",
+  "guntype": "LaB6",
+  "beamenergy": "200 kV",
+  "resolution": "2 eV",
+  "stepSize": "0.2 eV/pixel",
+  "acquisition_mode": "Diffraction",
+  "convergence": "1.55 mrad",
+  "collection": "1.24 mrad",
+  "probesize": "70 nm^2",
+  "integratetime": "0.03 secs",
+  "readouts": "100",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.36 t/&lambda;",
+  "reference": {
+   "freetext": "P.Perriat,E.Fries,N.Millot,B.Domenichini,Solid State Ionics,117,175-184,1999"
+  },
+  "associated_spectra": [
+   {
+    "name": "Ti-ferrite (spinel)",
+    "link": "https://eelsdb.eu/spectra/ti-ferrite-spinel/",
+    "type": "Core Loss"
+   },
+   {
+    "name": "Ti-ferrite (spinel)",
+    "link": "https://eelsdb.eu/spectra/ti-ferrite-spinel-2/",
+    "type": "Core Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=38",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

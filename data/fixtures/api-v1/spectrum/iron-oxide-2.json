@@ -1,0 +1,66 @@
+{
+ "request": {
+  "path": "/spectra/iron-oxide-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21652,
+  "title": "Iron Oxide",
+  "permalink": "https://eelsdb.eu/spectra/iron-oxide-2/",
+  "author": {
+   "name": "xu qiang",
+   "profile_url": "https://eelsdb.eu/author/q-xu/",
+   "profile_api_url": "https://api.eelsdb.eu/author/q-xu/"
+  },
+  "published": "2007-12-10 00:00:00",
+  "description": "not calibrated\r\nNo angles because a parallel beam illumination was used Analyst: Qiang Xu. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/iron-oxide-2/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecTi3wqG.msa",
+  "type": "Core Loss",
+  "formula": "Fe2O3",
+  "elements": [
+   "Fe",
+   "O"
+  ],
+  "microscope": "Tecnai F20 monochromator",
+  "max_energy": "746.15 eV",
+  "min_energy": "695 eV",
+  "edges": [
+   "Fe_L2,3"
+  ],
+  "guntype": "feg",
+  "beamenergy": "200 kV",
+  "resolution": "0.3 eV",
+  "monochromated": "Yes",
+  "stepSize": "0.05 eV/pixel",
+  "probesize": "50 nm^2",
+  "integratetime": "15 secs",
+  "readouts": "1",
+  "detector": "Parallel: GIF Tridiem",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "associated_spectra": [
+   {
+    "name": "Iron Oxide",
+    "link": "https://eelsdb.eu/spectra/iron-oxide/",
+    "type": "Low Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=141",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

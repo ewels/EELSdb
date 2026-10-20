@@ -1,0 +1,72 @@
+{
+ "request": {
+  "path": "/spectra/cn-crystal/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21633,
+  "title": "CN crystal",
+  "permalink": "https://eelsdb.eu/spectra/cn-crystal/",
+  "author": {
+   "name": "Susana Trasobares",
+   "profile_url": "https://eelsdb.eu/author/strasos/",
+   "profile_api_url": "https://api.eelsdb.eu/author/strasos/"
+  },
+  "published": "2007-11-19 00:00:00",
+  "description": "The sample was prepared as indicated in ref Q. Zhang, Z.C. Qin, J. Zhu, Philos. Mag. Lett. 80 (2000)\r\n585. The analysis was performed in different areas of the sample. A new crystalline structure of orthorhombic type with a stoichiometry close to CN was determined using EELS, HREM and electron difraction. Analyst: Susana Trasobares. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/cn-crystal/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspecmn1BFr.msa",
+  "type": "Core Loss",
+  "formula": "CN",
+  "elements": [
+   "C",
+   "N"
+  ],
+  "microscope": "VG HB501",
+  "max_energy": "470.34 eV",
+  "min_energy": "262.42 eV",
+  "source_purity": "Sample prepared by magnetron sputtering",
+  "edges": [
+   "C_K"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "resolution": "0.7 eV",
+  "monochromated": "No",
+  "stepSize": "0.203 eV/pixel",
+  "convergence": "15 mrad",
+  "collection": "24 mrad",
+  "probesize": "0.8 nm^2",
+  "integratetime": "0.2 secs",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "reference": {
+   "authors": "S Trasobares, S.P Gao, O Stéphan, A Gloter, C Colliex, J Zhu",
+   "year": "2002",
+   "journal": "Chemical Physics Letters",
+   "title": "Isolating and identifying the ELNES signal of CN nanocrystals embedded in an amorphous matrix",
+   "volume": "352",
+   "issue": "1-2",
+   "page": "12-19",
+   "doi": "10.1016/S0009-2614(01)01429-4",
+   "url": "http://dx.doi.org/10.1016/S0009-2614(01)01429-4"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=122",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

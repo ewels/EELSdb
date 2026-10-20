@@ -1,0 +1,56 @@
+{
+ "request": {
+  "path": "/spectra/aluminium-nitride-4/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21531,
+  "title": "Aluminium nitride",
+  "permalink": "https://eelsdb.eu/spectra/aluminium-nitride-4/",
+  "author": {
+   "name": "(Dr.) Anne-Marie Flank",
+   "profile_url": "https://eelsdb.eu/author/anne-marie-flank/",
+   "profile_api_url": "https://api.eelsdb.eu/author/anne-marie-flank/"
+  },
+  "published": "2005-04-20 00:00:00",
+  "description": " Analyst: Flank. Temperature: 300. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/aluminium-nitride-4/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.1371227.1.msa",
+  "type": "X Ray Abs",
+  "formula": "AlN",
+  "elements": [
+   "Al",
+   "N"
+  ],
+  "microscope": "SuperACO",
+  "max_energy": "1600 eV",
+  "min_energy": "1555 eV",
+  "edges": [
+   "Al_K"
+  ],
+  "guntype": "SA32",
+  "beamenergy": "800 kV",
+  "resolution": "0.3 eV",
+  "stepSize": "0.2 eV/pixel",
+  "acquisition_mode": "XAS Electron yield",
+  "beamcurrent": "200",
+  "detector": "quartz",
+  "darkcurrent": "No",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=7",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

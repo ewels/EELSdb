@@ -1,0 +1,64 @@
+{
+ "request": {
+  "path": "/spectra/silicon-dioxide-amorphous-3/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21588,
+  "title": "Silicon dioxide amorphous",
+  "permalink": "https://eelsdb.eu/spectra/silicon-dioxide-amorphous-3/",
+  "author": {
+   "name": "Sylvie Schamm",
+   "profile_url": "https://eelsdb.eu/author/schamm/",
+   "profile_api_url": "https://api.eelsdb.eu/author/schamm/"
+  },
+  "published": "2007-11-28 00:00:00",
+  "description": "dispersion not 0.09 eV/ch but 0.099 eV/ch biblio cited in \"Reference\" for calibration purpose sama spectrum after deconvolution and normalization is also proposed in this database Analyst: S.Schamm. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/silicon-dioxide-amorphous-3/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.56469.1.msa",
+  "type": "Core Loss",
+  "formula": "a-SiO2",
+  "elements": [
+   "Si",
+   "O"
+  ],
+  "microscope": "CM20",
+  "max_energy": "100.5 eV",
+  "edges": [
+   "Si_L2,3"
+  ],
+  "guntype": "LaB6",
+  "beamenergy": "100 kV",
+  "resolution": "1.08 eV",
+  "stepSize": "0.099 eV/pixel",
+  "acquisition_mode": "Diffraction",
+  "convergence": "5.1 mrad",
+  "collection": "6.14 mrad",
+  "probesize": "55 nm^2",
+  "integratetime": "1.6 secs",
+  "readouts": "3",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "thickness": "0.5 t/&lambda;",
+  "reference": {
+   "freetext": "P.E. Batson 3M 2 (1991) 395-402"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=64",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

@@ -1,0 +1,73 @@
+{
+ "request": {
+  "path": "/spectra/hexagonal-boron-nitride-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21614,
+  "title": "Hexagonal Boron Nitride",
+  "permalink": "https://eelsdb.eu/spectra/hexagonal-boron-nitride-2/",
+  "author": {
+   "name": "Giovanni Bertoni",
+   "profile_url": "https://eelsdb.eu/author/giovanni-bertoni/",
+   "profile_api_url": "https://api.eelsdb.eu/author/giovanni-bertoni/"
+  },
+  "published": "2007-11-12 00:00:00",
+  "description": "polycrystalline sample.\r\nthe powder was heated at 500C for 4 h to remove contamination.\r\nthe spectrum contains B-K and N-K edges.\r\nthis spectrum is the sum of 100 spectra available separately, which can be interesting for testing quantification techniques or deconvolution techniques. Analyst: Giovanni Bertoni. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/hexagonal-boron-nitride-2/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecnOA4UQ.msa",
+  "type": "Core Loss",
+  "formula": "BN (hex)",
+  "elements": [
+   "B",
+   "N"
+  ],
+  "microscope": "JEOL 3000F",
+  "max_energy": "625 eV",
+  "min_energy": "113.5 eV",
+  "source_purity": "Aldrich powder",
+  "edges": [
+   "B_K",
+   "N_K"
+  ],
+  "guntype": "feg Schottky",
+  "beamenergy": "300 kV",
+  "resolution": "1.2 eV",
+  "monochromated": "No",
+  "stepSize": "0.5 eV/pixel",
+  "convergence": "0.2 mrad",
+  "collection": "2.55 mrad",
+  "integratetime": "0.2 secs",
+  "readouts": "100",
+  "detector": "Parallel: GIF2000",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.788 t/&lambda;",
+  "reference": {
+   "freetext": "J. Verbeeck, S. Van Aert, G. Bertoni, Ultramicroscopy, 106, 976-980, 2006"
+  },
+  "associated_spectra": [
+   {
+    "name": "Hexagonal Boron Nitride",
+    "link": "https://eelsdb.eu/spectra/hexagonal-boron-nitride/",
+    "type": "Low Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=100",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

@@ -1,0 +1,71 @@
+{
+ "request": {
+  "path": "/spectra/silicon-nitride-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21677,
+  "title": "Silicon nitride",
+  "permalink": "https://eelsdb.eu/spectra/silicon-nitride-2/",
+  "author": {
+   "name": "Vesna Srot",
+   "profile_url": "https://eelsdb.eu/author/vesna-srot/",
+   "profile_api_url": "https://api.eelsdb.eu/author/vesna-srot/"
+  },
+  "published": "2008-01-21 00:00:00",
+  "description": "not calibrated Analyst: Lingyang Li. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/silicon-nitride-2/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecUQ1g40.msa",
+  "type": "Core Loss",
+  "formula": "Si3N4",
+  "elements": [
+   "Si",
+   "N"
+  ],
+  "microscope": "VG HB501UX",
+  "max_energy": "719.5 eV",
+  "min_energy": "50 eV",
+  "source_purity": "Powder",
+  "edges": [
+   "Si_L2,3",
+   "N_K"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "resolution": "1 eV",
+  "monochromated": "No",
+  "stepSize": "0.5 eV/pixel",
+  "convergence": "10 mrad",
+  "collection": "6.5 mrad",
+  "probesize": "0.5 nm^2",
+  "integratetime": "0.8 secs",
+  "readouts": "5",
+  "detector": "Parallel: Gatan ENFINA",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.46 t/&lambda;",
+  "associated_spectra": [
+   {
+    "name": "Silicon nitride",
+    "link": "https://eelsdb.eu/spectra/silicon-nitride/",
+    "type": "Low Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=166",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

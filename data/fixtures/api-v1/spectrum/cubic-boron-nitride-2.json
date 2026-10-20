@@ -1,0 +1,63 @@
+{
+ "request": {
+  "path": "/spectra/cubic-boron-nitride-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21540,
+  "title": "Cubic boron nitride",
+  "permalink": "https://eelsdb.eu/spectra/cubic-boron-nitride-2/",
+  "author": {
+   "name": "Dr. Gilles Hug",
+   "profile_url": "https://eelsdb.eu/author/gilles-hug/",
+   "profile_api_url": "https://api.eelsdb.eu/author/gilles-hug/"
+  },
+  "published": "2005-04-20 00:00:00",
+  "description": "Correlated to the B-K previously submitted :) Analyst: Gilles Hug. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/cubic-boron-nitride-2/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.65645.1.msa",
+  "type": "Core Loss",
+  "formula": "c-BN",
+  "elements": [
+   "B",
+   "N"
+  ],
+  "microscope": "Jeol 4000FX",
+  "max_energy": "462.2 eV",
+  "min_energy": "381.1 eV",
+  "source_purity": "high pressure synthesis (G. Demazeau ICMCB Bordeaux)",
+  "edges": [
+   "N_K"
+  ],
+  "guntype": "LaB6",
+  "beamenergy": "400 kV",
+  "resolution": "1.8 eV",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "Diffraction",
+  "convergence": "1.5 mrad",
+  "collection": "1.5 mrad",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.275 t/&lambda;",
+  "reference": {
+   "freetext": "M.Jaouen, G. Hug, V. Gonnet, G. Demazeau, G. Tourillon, An EELS and XAS study of cubic Boron Nitride synthezized under high pressure-high temperature conditions. Microsc. Microanal. Microstruc. 6: p. 127-139 (1995)."
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=16",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

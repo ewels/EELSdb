@@ -1,0 +1,73 @@
+{
+ "request": {
+  "path": "/spectra/lafeo3-thin-film-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22007,
+  "title": "LaFeO3 thin film",
+  "permalink": "https://eelsdb.eu/spectra/lafeo3-thin-film-2/",
+  "author": {
+   "name": "magnunor",
+   "profile_url": "https://eelsdb.eu/author/magnus/",
+   "profile_api_url": "https://api.eelsdb.eu/author/magnus/"
+  },
+  "published": "2016-08-27 22:01:40",
+  "description": "LaFeO3 in a La0.7Sr0.3MnO3/LaFeO3/SrTiO3-(111) heterostructure. This is a part of an electron beam exposure experiment, this spectrum being before the exposure.",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/lafeo3-thin-film-2/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2016/08/lfo_fe_pre_exposure.msa",
+  "type": "Core Loss",
+  "formula": "LaFeO3",
+  "elements": [
+   "La",
+   "Fe",
+   "O"
+  ],
+  "microscope": "ARM 200cF",
+  "max_energy": "191579.13 eV",
+  "min_energy": "-615.33 eV",
+  "edges": [
+   "Fe_L2,3"
+  ],
+  "guntype": "Cold Field Emission Gun",
+  "beamenergy": "80 kV",
+  "resolution": "0.7 eV",
+  "monochromated": "No",
+  "stepSize": "2403.014 eV/pixel",
+  "convergence": "20.4 mrad",
+  "collection": "66 mrad",
+  "detector": "GIF Quantum ER",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "Energy scaled aligned using zero loss peak. Power law background removed.",
+  "reference": {
+   "authors": "Magnus Nord, Per Erik Vullum, Ingrid Hallsteinsen, Thomas Tybell, Randi Holmestad",
+   "year": "2016",
+   "journal": "Ultramicroscopy",
+   "title": "Assessing electron beam sensitivity for SrTiO3 and La0.7Sr0.3MnO3 using electron energy loss spectroscopy",
+   "volume": "169",
+   "page": "98-106",
+   "doi": "10.1016/j.ultramic.2016.07.004",
+   "url": "http://dx.doi.org/10.1016/j.ultramic.2016.07.004"
+  },
+  "associated_spectra": [
+   {
+    "name": "LaFeO3 thin film",
+    "link": "https://eelsdb.eu/spectra/lafeo3-thin-film/",
+    "type": "Core Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "https://arxiv.org/abs/1608.07814"
+   }
+  ]
+ }
+}

@@ -1,0 +1,57 @@
+{
+ "request": {
+  "path": "/spectra/titanium/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21683,
+  "title": "Titanium",
+  "permalink": "https://eelsdb.eu/spectra/titanium/",
+  "author": {
+   "name": "Wilfried Sigle",
+   "profile_url": "https://eelsdb.eu/author/wsigle/",
+   "profile_api_url": "https://api.eelsdb.eu/author/wsigle/"
+  },
+  "published": "2008-01-21 00:00:00",
+  "description": " Analyst: Zaoli Zhang. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/titanium/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2016/03/DspecByKukd.msa",
+  "type": "Core Loss",
+  "formula": "Ti",
+  "elements": [
+   "Ti"
+  ],
+  "microscope": "VG HB501UX",
+  "max_energy": "568.6 eV",
+  "min_energy": "435 eV",
+  "source_purity": "Ti substrate",
+  "edges": [
+   "Ti_L2,3"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "monochromated": "No",
+  "stepSize": "0.1 eV/pixel",
+  "convergence": "10 mrad",
+  "collection": "6.5 mrad",
+  "detector": "Parallel: Gatan ENFINA",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=173",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

@@ -1,0 +1,78 @@
+{
+ "request": {
+  "path": "/spectra/strontium-titanate/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21612,
+  "title": "Strontium Titanate",
+  "permalink": "https://eelsdb.eu/spectra/strontium-titanate/",
+  "author": {
+   "name": "Giovanni Bertoni",
+   "profile_url": "https://eelsdb.eu/author/giovanni-bertoni/",
+   "profile_api_url": "https://api.eelsdb.eu/author/giovanni-bertoni/"
+  },
+  "published": "2007-11-12 00:00:00",
+  "description": " Analyst: Giovanni Bertoni. Temperature: Room. BEAM/Crystal: 2 degrees out of [100]. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/strontium-titanate/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspecr1Tl5s.msa",
+  "type": "Low Loss",
+  "formula": "SrTiO3",
+  "elements": [
+   "Sr",
+   "Ti",
+   "O"
+  ],
+  "microscope": "JEOL 3000F",
+  "max_energy": "270.9 eV",
+  "min_energy": "-36 eV",
+  "source_purity": "single crystal",
+  "guntype": "feg Schottky",
+  "beamenergy": "300 kV",
+  "resolution": "1.2 eV",
+  "monochromated": "No",
+  "stepSize": "0.3 eV/pixel",
+  "convergence": "0.2 mrad",
+  "collection": "6.8 mrad",
+  "integratetime": "0.1 secs",
+  "readouts": "100",
+  "detector": "Parallel: GIF2000",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.544 t/&lambda;",
+  "reference": {
+   "authors": "J. Verbeeck, G. Bertoni",
+   "year": "2008",
+   "journal": "Ultramicroscopy",
+   "title": "Model-based quantification of EELS spectra: Treating the effect of correlated noise",
+   "volume": "108",
+   "issue": "2",
+   "page": "74-83",
+   "doi": "10.1016/j.ultramic.2007.03.004",
+   "url": "http://dx.doi.org/10.1016/j.ultramic.2007.03.004"
+  },
+  "associated_spectra": [
+   {
+    "name": "Strontium Titanate",
+    "link": "https://eelsdb.eu/spectra/strontium-titanate-2/",
+    "type": "Core Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=98",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

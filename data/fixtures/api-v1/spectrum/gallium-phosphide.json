@@ -1,0 +1,59 @@
+{
+ "request": {
+  "path": "/spectra/gallium-phosphide/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21663,
+  "title": "Gallium Phosphide",
+  "permalink": "https://eelsdb.eu/spectra/gallium-phosphide/",
+  "author": {
+   "name": "Michael Stöger-Pollach",
+   "profile_url": "https://eelsdb.eu/author/michaels/",
+   "profile_api_url": "https://api.eelsdb.eu/author/michaels/"
+  },
+  "published": "2007-12-18 00:00:00",
+  "description": "arbitary orientation, 000 spot used for acquisition Analyst: M. Stoeger-Pollach. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/gallium-phosphide/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec4c9XrS.msa",
+  "type": "Low Loss",
+  "formula": "GaP",
+  "elements": [
+   "Ga",
+   "P"
+  ],
+  "microscope": "Tecnai F20",
+  "max_energy": "40.6 eV",
+  "min_energy": "-8.2 eV",
+  "source_purity": "commercial sample",
+  "guntype": "feg Schottky",
+  "beamenergy": "200 kV",
+  "resolution": "0.9 eV",
+  "monochromated": "No",
+  "stepSize": "0.05 eV/pixel",
+  "convergence": "0.5 mrad",
+  "collection": "0.25 mrad",
+  "integratetime": "0.5 secs",
+  "readouts": "1",
+  "detector": "Parallel: GIF 2001",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.2 t/&lambda;",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=152",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

@@ -1,0 +1,62 @@
+{
+ "request": {
+  "path": "/spectra/cobalt-oxide/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21653,
+  "title": "Cobalt Oxide",
+  "permalink": "https://eelsdb.eu/spectra/cobalt-oxide/",
+  "author": {
+   "name": "xu qiang",
+   "profile_url": "https://eelsdb.eu/author/q-xu/",
+   "profile_api_url": "https://api.eelsdb.eu/author/q-xu/"
+  },
+  "published": "2007-12-11 00:00:00",
+  "description": "Not calibrated\r\nNo angles because a parallel beam illumination was used Analyst: Qiang Xu. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/cobalt-oxide/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspechpLOI9.msa",
+  "type": "Low Loss",
+  "formula": "CoO",
+  "elements": [
+   "Co",
+   "O"
+  ],
+  "microscope": "Tecnai F20 monochromator",
+  "max_energy": "33.65 eV",
+  "min_energy": "-17.5 eV",
+  "guntype": "feg",
+  "beamenergy": "200 kV",
+  "resolution": "0.3 eV",
+  "monochromated": "Yes",
+  "stepSize": "0.05 eV/pixel",
+  "convergence": "8 mrad",
+  "probesize": "50 nm^2",
+  "detector": "Parallel: GIF Tridiem",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "associated_spectra": [
+   {
+    "name": "Cobalt Oxide",
+    "link": "https://eelsdb.eu/spectra/cobalt-oxide-2/",
+    "type": "Core Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=142",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

@@ -1,0 +1,65 @@
+{
+ "request": {
+  "path": "/spectra/chromium-carbide/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21534,
+  "title": "Chromium carbide",
+  "permalink": "https://eelsdb.eu/spectra/chromium-carbide/",
+  "author": {
+   "name": "Dr. Gilles Hug",
+   "profile_url": "https://eelsdb.eu/author/gilles-hug/",
+   "profile_api_url": "https://api.eelsdb.eu/author/gilles-hug/"
+  },
+  "published": "2005-04-20 00:00:00",
+  "description": "(ccgv = channel to channel gain variation) Analyst: R. Leapman. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/chromium-carbide/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.114014.1.msa",
+  "type": "Core Loss",
+  "formula": "Cr3C2",
+  "elements": [
+   "Cr",
+   "C"
+  ],
+  "microscope": "HB501",
+  "max_energy": "629.68 eV",
+  "min_energy": "527.4 eV",
+  "source_purity": "Cr3C2",
+  "edges": [
+   "Cr_L2,3"
+  ],
+  "guntype": "feg",
+  "beamenergy": "100 kV",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "STEM",
+  "convergence": "10 mrad",
+  "collection": "20 mrad",
+  "probesize": "1 nm^2",
+  "beamcurrent": "1",
+  "integratetime": "4 secs",
+  "readouts": "10",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "No",
+  "gainvariation": "Yes",
+  "reference": {
+   "freetext": "Hug, G., R. Leapman, and M. Jaouen. A study of EELS fine structure in three chromium carbide. in Microbeam Analysis-1995. 1995. Breckenridge: VCH Publishers, Inc."
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=10",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

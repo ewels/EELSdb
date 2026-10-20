@@ -1,0 +1,64 @@
+{
+ "request": {
+  "path": "/spectra/iron-titanium-oxide/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21748,
+  "title": "Iron titanium oxide",
+  "permalink": "https://eelsdb.eu/spectra/iron-titanium-oxide/",
+  "author": {
+   "name": "Armin Feldhoff",
+   "profile_url": "https://eelsdb.eu/author/armin-feldhoff/",
+   "profile_api_url": "https://api.eelsdb.eu/author/armin-feldhoff/"
+  },
+  "published": "2009-12-16 00:00:00",
+  "description": " Analyst: Armin Feldhoff. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/iron-titanium-oxide/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecNHeCfD_converted.msa",
+  "type": "Core Loss",
+  "formula": "FeTiO3",
+  "elements": [
+   "Fe",
+   "Ti",
+   "O"
+  ],
+  "microscope": "JEOL JEM-2100F-UHR",
+  "max_energy": "782.1 eV",
+  "min_energy": "679.8 eV",
+  "source_purity": "Alfa Aesar, purity 99.8%, CAS No. 12022-71-8",
+  "edges": [
+   "Fe_L2,3"
+  ],
+  "guntype": "feg Schottky",
+  "beamenergy": "200 kV",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "Imaging",
+  "convergence": "10 mrad",
+  "collection": "16 mrad",
+  "integratetime": "20 secs",
+  "readouts": "10",
+  "detector": "GIF: GIF 2001",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "reference": {
+   "freetext": "A. Feldhoff, J. Martynczuk, M. Arnold, M. Myndyk, I. Bergmann, V. Sepelak, W. Gruner, U. Vogt, A. Hähnel, J. Woltersdorf, Journal of Solid State Chemistry 182, 2961-2971 (2009)"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=239",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

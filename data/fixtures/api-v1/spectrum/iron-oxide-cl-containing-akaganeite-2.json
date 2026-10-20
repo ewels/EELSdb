@@ -1,0 +1,59 @@
+{
+ "request": {
+  "path": "/spectra/iron-oxide-cl-containing-akaganeite-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21712,
+  "title": "Iron Oxide Cl-containing akaganeite",
+  "permalink": "https://eelsdb.eu/spectra/iron-oxide-cl-containing-akaganeite-2/",
+  "author": {
+   "name": "Alex Gloter",
+   "profile_url": "https://eelsdb.eu/author/alexg/",
+   "profile_api_url": "https://api.eelsdb.eu/author/alexg/"
+  },
+  "published": "2008-02-08 00:00:00",
+  "description": "The energy calibration have been done by measuring the EELS spectra of this phase with respect to the EELS spectra of an Hematite sample. The Hematite and Beta-FeOOH samples beeing deposited onto the same grid. The hematite O-K prepeak maxima have been set at 529.4 and 530.6 eV.\r\n\r\nEnergy resolution improved by Richardson-Lucy deconvolution Analyst: A. Gloter, A. Chen. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/iron-oxide-cl-containing-akaganeite-2/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspece71xPe.msa",
+  "type": "Core Loss",
+  "formula": "FeOOH  (beta)",
+  "elements": [
+   "Fe",
+   "O",
+   "H"
+  ],
+  "microscope": "STEM-VG",
+  "max_energy": "571.08 eV",
+  "min_energy": "520.41 eV",
+  "source_purity": "Synthetic sample obtained by hydrolysis of FeCl3",
+  "edges": [
+   "O_K"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "monochromated": "No",
+  "stepSize": "0.092 eV/pixel",
+  "convergence": "7.5 mrad",
+  "collection": "24 mrad",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=202",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

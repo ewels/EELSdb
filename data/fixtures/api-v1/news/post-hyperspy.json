@@ -1,0 +1,25 @@
+{
+ "request": {
+  "path": "/hyperspy/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22133,
+  "title": "Hyperspy",
+  "permalink": "https://eelsdb.eu/hyperspy/",
+  "author": {
+   "name": "Chris Ewels",
+   "profile_url": "https://eelsdb.eu/author/chris-ewels/"
+  },
+  "published": "2020-05-18 16:27:01",
+  "description": "Thanks to the nice guys developing Hyperspy, who have produced a module providing tools to interact with The EELS Database, including automatic spectra downloads. http://hyperspy.org/hyperspy-doc/current/api/hyperspy.misc.eels.eelsdb.html",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/hyperspy/"
+ }
+}

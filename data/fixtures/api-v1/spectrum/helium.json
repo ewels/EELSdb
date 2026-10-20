@@ -1,0 +1,64 @@
+{
+ "request": {
+  "path": "/spectra/helium/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21731,
+  "title": "Helium",
+  "permalink": "https://eelsdb.eu/spectra/helium/",
+  "author": {
+   "name": "Odile Stephan",
+   "profile_url": "https://eelsdb.eu/author/stephan/",
+   "profile_api_url": "https://api.eelsdb.eu/author/stephan/"
+  },
+  "published": "2008-02-25 00:00:00",
+  "description": "He K line (1s -> 2p) from a pressured He bubble formed in a tritiated PdPt matrix.\r\nThe energy of the K line depends on the pressure (here 22 eV at 0.1 Gpa) . It has to be compared to the value for an isolated atom: 21.218 eV.\r\nThe 1s->3p transition is also visible in the spectrum at 23.8 eV\r\nSee paper for details Analyst: Odile Stephan,Dario Taverna. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/helium/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspecc0KOZx.msa",
+  "type": "Core Loss",
+  "formula": "He",
+  "elements": [
+   "He"
+  ],
+  "microscope": "STEM-VG",
+  "max_energy": "32.93 eV",
+  "min_energy": "14.98 eV",
+  "source_purity": "19.5 nm Helium bubble in an aged tritiated Pd90Pt10 matrix",
+  "edges": [
+   "He_K"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "resolution": "0.7 eV",
+  "stepSize": "0.048 eV/pixel",
+  "acquisition_mode": "STEM",
+  "convergence": "15 mrad",
+  "collection": "24 mrad",
+  "probesize": "1 nm^2",
+  "integratetime": "0.2 secs",
+  "readouts": "50",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "No",
+  "reference": {
+   "freetext": "S. Taverna, M. Kocia, O.Stephan et al., PRL, 100, 035301, 2008"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=221",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

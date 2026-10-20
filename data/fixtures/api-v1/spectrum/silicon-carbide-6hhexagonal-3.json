@@ -1,0 +1,64 @@
+{
+ "request": {
+  "path": "/spectra/silicon-carbide-6hhexagonal-3/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21590,
+  "title": "Silicon carbide 6H(hexagonal)",
+  "permalink": "https://eelsdb.eu/spectra/silicon-carbide-6hhexagonal-3/",
+  "author": {
+   "name": "Sylvie Schamm",
+   "profile_url": "https://eelsdb.eu/author/schamm/",
+   "profile_api_url": "https://api.eelsdb.eu/author/schamm/"
+  },
+  "published": "2005-04-29 00:00:00",
+  "description": "biblio cited in \"Reference\" for calibration purpose same spectrum before deconvolution is also proposed in this database Analyst: S.Schamm. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/silicon-carbide-6hhexagonal-3/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.56364.1.msa",
+  "type": "Core Loss",
+  "formula": "SiC(6H)",
+  "elements": [
+   "Si",
+   "C",
+   "H"
+  ],
+  "microscope": "CM30",
+  "max_energy": "173.51 eV",
+  "min_energy": "90.31 eV",
+  "source_purity": "single crystal",
+  "edges": [
+   "Si_L2,3"
+  ],
+  "guntype": "LaB6",
+  "beamenergy": "100 kV",
+  "resolution": "1 eV",
+  "stepSize": "0.2 eV/pixel",
+  "acquisition_mode": "Diffraction",
+  "convergence": "8.4 mrad",
+  "collection": "10 mrad",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "thickness": "0.4 t/&lambda;",
+  "reference": {
+   "freetext": "W.M. Skiff, R.W. Carpenter, S.H; Lin, J. Appl. Phys. 58(9) (1985) 3463-3469"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=66",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

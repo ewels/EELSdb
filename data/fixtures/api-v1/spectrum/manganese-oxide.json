@@ -1,0 +1,65 @@
+{
+ "request": {
+  "path": "/spectra/manganese-oxide/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21742,
+  "title": "Magnesium oxide",
+  "permalink": "https://eelsdb.eu/spectra/manganese-oxide/",
+  "author": {
+   "name": "Dominique Imhoff",
+   "profile_url": "https://eelsdb.eu/author/imhoff/",
+   "profile_api_url": "https://api.eelsdb.eu/author/imhoff/"
+  },
+  "published": "2008-03-04 00:00:00",
+  "description": "great care has been put on the energy dispersion calibration of the detector. Analyst: dominique IMHOFF. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/manganese-oxide/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec7OdCch.msa",
+  "type": "Core Loss",
+  "formula": "MgO",
+  "elements": [
+   "Mg",
+   "O"
+  ],
+  "microscope": "STEM-VG",
+  "max_energy": "679.41 eV",
+  "min_energy": "531.6 eV",
+  "source_purity": "MgO substrate",
+  "edges": [
+   "O_K"
+  ],
+  "guntype": "cold field emission",
+  "beamenergy": "100 kV",
+  "resolution": "0.6 eV",
+  "monochromated": "No",
+  "stepSize": "0.2 eV/pixel",
+  "convergence": "7 mrad",
+  "collection": "22 mrad",
+  "probesize": "0.7 nm^2",
+  "integratetime": "0.2 secs",
+  "readouts": "10",
+  "detector": "Parallel: 666 + CCD modified Orsay",
+  "darkcurrent": "Yes",
+  "gainvariation": "No",
+  "reference": {
+   "freetext": "acquired in 2002"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=233",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

@@ -1,0 +1,25 @@
+{
+ "request": {
+  "path": "/eels-db-website-goes-live/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21761,
+  "title": "EELS DB website goes live",
+  "permalink": "https://eelsdb.eu/eels-db-website-goes-live/",
+  "author": {
+   "name": "Phil Ewels",
+   "profile_url": "https://eelsdb.eu/author/phil/"
+  },
+  "published": "2015-09-06 15:34:55",
+  "description": "After a long incubation time spent removing lots of bugs and doing a lot of testing, the new EELS DB website is finally having its training wheels removed. The site is now visible to all users without registration, and we have no plans to wipe the database &#8211; so you&#8217;re free to upload your data [&hellip;]",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/eels-db-website-goes-live/"
+ }
+}

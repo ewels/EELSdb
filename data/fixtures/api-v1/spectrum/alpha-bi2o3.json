@@ -1,0 +1,57 @@
+{
+ "request": {
+  "path": "/spectra/alpha-bi2o3/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22092,
+  "title": "alpha-Bi2O3",
+  "permalink": "https://eelsdb.eu/spectra/alpha-bi2o3/",
+  "author": {
+   "name": "PauTorru",
+   "profile_url": "https://eelsdb.eu/author/pautorru/",
+   "profile_api_url": "https://api.eelsdb.eu/author/pautorru/"
+  },
+  "published": "2017-11-02 19:57:17",
+  "description": "",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/alpha-bi2o3/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2017/11/alpha-Bi2O3.msa",
+  "type": "Core Loss",
+  "formula": "Bi2O3",
+  "elements": [
+   "Bi",
+   "O"
+  ],
+  "microscope": "Jeol ARM-200cF",
+  "max_energy": "564.55 eV",
+  "min_energy": "519.45 eV",
+  "source_purity": "99.999% Bi2O3 powder from Sigma-Aldrich",
+  "guntype": "cold FEG",
+  "beamenergy": "200 kV",
+  "resolution": "0.1 eV",
+  "monochromated": "No",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "stem",
+  "convergence": "27.78 mrad",
+  "collection": "35 mrad",
+  "detector": "Quantum GIF",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "Dual EELS",
+  "reference": {
+   "authors": "Pau Torruella, Catalina Coll, Gemma Martin, Lluis Lopez-Conesa, María Vila, Carlos Díaz-Guerra, María Varela, Maria Luisa Ruiz-González, Javier Piqueras, Francesca Peiró, and Sonia Estrade",
+   "year": "2017",
+   "journal": "Journal of Physical Chemistry C",
+   "title": "Assessing Oxygen Vacancies in Bismuth Oxide Through EELS Measurements and DFT Simulations",
+   "doi": "10.1021/acs.jpcc.7b06310",
+   "url": "http://pubs.acs.org/doi/pdf/10.1021/acs.jpcc.7b06310"
+  }
+ }
+}

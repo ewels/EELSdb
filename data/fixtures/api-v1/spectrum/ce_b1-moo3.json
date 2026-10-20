@@ -1,0 +1,64 @@
+{
+ "request": {
+  "path": "/spectra/%ce%b1-moo3/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21808,
+  "title": "α-MoO3",
+  "permalink": "https://eelsdb.eu/spectra/%ce%b1-moo3/",
+  "author": {
+   "name": "Luc Lajaunie",
+   "profile_url": "https://eelsdb.eu/author/luc-lajaunie/",
+   "profile_api_url": "https://api.eelsdb.eu/author/luc-lajaunie/"
+  },
+  "published": "2015-09-13 15:14:34",
+  "description": "",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/%ce%b1-moo3/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/11/MoO3-LLpubli.msa",
+  "type": "Low Loss",
+  "formula": "MoO3",
+  "elements": [
+   "Mo",
+   "O"
+  ],
+  "microscope": "Hitachi HF2000",
+  "max_energy": "87.25 eV",
+  "min_energy": "-12.95 eV",
+  "source_purity": "Acros, 99%",
+  "guntype": "c-FEG",
+  "beamenergy": "100 kV",
+  "resolution": "0.8 eV",
+  "monochromated": "No",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "diffraction",
+  "convergence": "1.4 mrad",
+  "collection": "9 mrad",
+  "probesize": "30 nm^2",
+  "detector": "modiﬁed Gatan PEELS 666 spectrometer",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "zero + dispersion",
+  "thickness": "0.53 t/&lambda;",
+  "deconvolutions": [
+   "Stephen's deconvolution"
+  ],
+  "reference": {
+   "authors": "L. Lajaunie, F. Boucher, R. Dessapt, P. Moreau",
+   "year": "2013",
+   "journal": "Phys. Rev. B",
+   "title": "Strong anisotropic influence of local-field effects on the dielectric response of  α  -MoO    3",
+   "volume": "88",
+   "issue": "11",
+   "doi": "10.1103/PhysRevB.88.115141",
+   "url": "http://dx.doi.org/10.1103/PhysRevB.88.115141"
+  }
+ }
+}

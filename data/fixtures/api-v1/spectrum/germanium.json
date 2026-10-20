@@ -1,0 +1,58 @@
+{
+ "request": {
+  "path": "/spectra/germanium/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21648,
+  "title": "germanium",
+  "permalink": "https://eelsdb.eu/spectra/germanium/",
+  "author": {
+   "name": "Frans Tichelaar",
+   "profile_url": "https://eelsdb.eu/author/f-d-tichelaar/",
+   "profile_api_url": "https://api.eelsdb.eu/author/f-d-tichelaar/"
+  },
+  "published": "2007-12-10 00:00:00",
+  "description": " Analyst: F.D.Tichelaar. Temperature: Room. BEAM/Crystal: 6.7 degrees from (110) and 2 degrees from (001). ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/germanium/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecasKgWG.msa",
+  "type": "Low Loss",
+  "formula": "Ge",
+  "elements": [
+   "Ge"
+  ],
+  "microscope": "Tecnai F20 monochromator",
+  "max_energy": "47.7 eV",
+  "min_energy": "-3.45 eV",
+  "guntype": "feg",
+  "beamenergy": "200 kV",
+  "resolution": "0.3 eV",
+  "monochromated": "Yes",
+  "stepSize": "0.05 eV/pixel",
+  "integratetime": "0.15 secs",
+  "readouts": "50",
+  "detector": "Parallel: GIF Tridiem",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.82 t/&lambda;",
+  "reference": {
+   "freetext": "Pantel R, Cheynet MC, Tichelaar FD, Micron, 37, 657, 2006"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=137",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

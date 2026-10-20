@@ -1,0 +1,56 @@
+{
+ "request": {
+  "path": "/spectra/o-k-edge-la2nio4-structure-of-k2nif4-tetragonale-i4-mmm/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22124,
+  "title": "O-K edge &#8211; La2NiO4 &#8211; Structure of K2NiF4 tetragonale (I4/mmm)",
+  "permalink": "https://eelsdb.eu/spectra/o-k-edge-la2nio4-structure-of-k2nif4-tetragonale-i4-mmm/",
+  "author": {
+   "name": "VILLEPREUX Edouard",
+   "profile_url": "https://eelsdb.eu/author/edouard/",
+   "profile_api_url": "https://api.eelsdb.eu/author/edouard/"
+  },
+  "published": "2020-06-11 19:34:59",
+  "description": "",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/o-k-edge-la2nio4-structure-of-k2nif4-tetragonale-i4-mmm/",
+  "keywords": [
+   "O-K edge"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2020/06/O-K-edge-in-La2NiO4-01eV-1-modif.txt",
+  "type": "Core Loss",
+  "formula": "La2NiO4",
+  "elements": [
+   "La",
+   "Ni",
+   "O"
+  ],
+  "microscope": "FEI - TITAN THEMIS",
+  "max_energy": "559.2 eV",
+  "min_energy": "521.6 eV",
+  "source_purity": "Monocristalline",
+  "edges": [
+   "O_K"
+  ],
+  "guntype": "XFEG",
+  "beamenergy": "200 kV",
+  "resolution": "0.1 eV",
+  "monochromated": "No",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "stem",
+  "convergence": "16.26 mrad",
+  "collection": "33.87 mrad",
+  "detector": "Gatan Quantum Filter (FAST Dual EELS)",
+  "darkcurrent": "Yes",
+  "gainvariation": "No",
+  "calibration": "zero loss peak + dispersion"
+ }
+}

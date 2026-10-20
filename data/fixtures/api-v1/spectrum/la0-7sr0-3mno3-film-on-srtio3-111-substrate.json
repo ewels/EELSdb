@@ -1,0 +1,56 @@
+{
+ "request": {
+  "path": "/spectra/la0-7sr0-3mno3-film-on-srtio3-111-substrate/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21919,
+  "title": "La0.7Sr0.3MnO3 film on SrTiO3-(111) substrate",
+  "permalink": "https://eelsdb.eu/spectra/la0-7sr0-3mno3-film-on-srtio3-111-substrate/",
+  "author": {
+   "name": "magnunor",
+   "profile_url": "https://eelsdb.eu/author/magnus/",
+   "profile_api_url": "https://api.eelsdb.eu/author/magnus/"
+  },
+  "published": "2016-02-10 14:21:27",
+  "description": "",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/la0-7sr0-3mno3-film-on-srtio3-111-substrate/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2016/02/lsmo2.msa",
+  "type": "Core Loss",
+  "formula": "La0.7Sr0.3MnO3",
+  "elements": [
+   "La",
+   "Sr",
+   "Mn",
+   "O"
+  ],
+  "microscope": "ARM 200cF",
+  "max_energy": "920.75 eV",
+  "min_energy": "410 eV",
+  "edges": [
+   "Mn_L2,3",
+   "Mn_L1",
+   "O_K",
+   "La_M4,5"
+  ],
+  "guntype": "Cold Field Emission Gun",
+  "beamenergy": "200 kV",
+  "resolution": "0.7 eV",
+  "monochromated": "No",
+  "stepSize": "0.25 eV/pixel",
+  "acquisition_mode": "stem",
+  "convergence": "27.42 mrad",
+  "collection": "33.19 mrad",
+  "detector": "GIF Quantum ER",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "calibration": "zero + dispersion"
+ }
+}

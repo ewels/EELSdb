@@ -1,0 +1,85 @@
+{
+ "request": {
+  "path": "/spectra/mlc-nanotube-ys-tas2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22224,
+  "title": "MLC Nanotube YS-TaS2",
+  "permalink": "https://eelsdb.eu/spectra/mlc-nanotube-ys-tas2/",
+  "author": {
+   "name": "Simon Hettler",
+   "profile_url": "https://eelsdb.eu/author/simon/",
+   "profile_api_url": "https://api.eelsdb.eu/author/simon/"
+  },
+  "published": "2023-10-18 07:54:16",
+  "description": "",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/mlc-nanotube-ys-tas2/",
+  "keywords": [
+   "Misfit layered compound",
+   "nanotube"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2023/09/Y100.txt",
+  "type": "Core Loss",
+  "formula": "(YS)1.2-TaS2",
+  "elements": [
+   "Y",
+   "S",
+   "Ta"
+  ],
+  "microscope": "Thermo Fisher Scientific Titan Low-Base",
+  "max_energy": "2574 eV",
+  "min_energy": "1700 eV",
+  "source_purity": "Nanotube synthesized by chemical vapour transport technique",
+  "edges": [
+   "Y_L1",
+   "Y_L2,3",
+   "Ta_M4,5",
+   "S_K"
+  ],
+  "guntype": "X-FEG",
+  "beamenergy": "300 kV",
+  "resolution": "1.8 eV",
+  "monochromated": "No",
+  "stepSize": "0.5 eV/pixel",
+  "acquisition_mode": "stem",
+  "convergence": "25 mrad",
+  "collection": "85.7 mrad",
+  "integratetime": "0.5 secs",
+  "readouts": "765",
+  "detector": "Gatan Tridiem ESR 865 EEL spectrometer",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "zero+dispersion",
+  "reference": {
+   "authors": "Simon Hettler, M. B. Sreedhara, Marco Serra, Sudarson S. Sinha, Ronit Popovitz-Biro, Iddo Pinkas, Andrey N. Enyashin, Reshef Tenne, Raul Arenal",
+   "year": "2020",
+   "journal": "ACS Nano",
+   "title": "YS-TaS<sub>2</sub> and Y<sub><i>x</i></sub>La<sub>1–<i>x</i></sub>S-TaS<sub>2</sub> (0 ≤ <i>x</i> ≤ 1) Nanotubes: A Family of Misfit Layered Compounds",
+   "volume": "14",
+   "issue": "5",
+   "page": "5445-5458",
+   "doi": "10.1021/acsnano.9b09284",
+   "url": "http://dx.doi.org/10.1021/acsnano.9b09284"
+  },
+  "associated_spectra": [
+   {
+    "name": "MLC Nanotube (Y,La)S-TaS2",
+    "link": "https://eelsdb.eu/spectra/mlc-nanotube-ylas-tas2/",
+    "type": "Core Loss"
+   },
+   {
+    "name": "MLC Nanotube (Y0.6La0.4)S-TaS2",
+    "link": "https://eelsdb.eu/spectra/mlc-nanotube-y0-6la0-4s-tas2/",
+    "type": "Core Loss"
+   }
+  ]
+ }
+}

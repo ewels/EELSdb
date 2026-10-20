@@ -1,0 +1,25 @@
+{
+ "request": {
+  "path": "/the-eels-database-recognized-by-re3data-as-open-access/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21900,
+  "title": "The EELS Database recognized by re3data as Open Access",
+  "permalink": "https://eelsdb.eu/the-eels-database-recognized-by-re3data-as-open-access/",
+  "author": {
+   "name": "Luc Lajaunie",
+   "profile_url": "https://eelsdb.eu/author/luc-lajaunie/"
+  },
+  "published": "2016-01-15 23:21:12",
+  "description": "The EELS database has been recognized as an Open Data research repository by the global Registry of Research Data Repositories organization re3data (see also Pampel et al., 2012). The EELS database can thus be included in data management plans, fulfilling an  common requirement found within numerous funding agency grant proposal processes.",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/the-eels-database-recognized-by-re3data-as-open-access/"
+ }
+}

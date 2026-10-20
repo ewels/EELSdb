@@ -1,0 +1,46 @@
+{
+ "request": {
+  "path": "/spectra/",
+  "query": "monochromated=1&per_page=-1",
+  "params": [
+   [
+    "monochromated",
+    "1"
+   ],
+   [
+    "per_page",
+    "-1"
+   ]
+  ]
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body_ids": [
+  21532,
+  21533,
+  22152,
+  21571,
+  21974,
+  21976,
+  21655,
+  21656,
+  21653,
+  21654,
+  21651,
+  21652,
+  21550,
+  21657,
+  21658,
+  21664,
+  21665,
+  21648,
+  21666,
+  21667,
+  21647,
+  21670,
+  21671
+ ]
+}

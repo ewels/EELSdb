@@ -1,0 +1,71 @@
+{
+ "request": {
+  "path": "/spectra/zinc-oxide/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21679,
+  "title": "Zinc oxide",
+  "permalink": "https://eelsdb.eu/spectra/zinc-oxide/",
+  "author": {
+   "name": "Wilfried Sigle",
+   "profile_url": "https://eelsdb.eu/author/wsigle/",
+   "profile_api_url": "https://api.eelsdb.eu/author/wsigle/"
+  },
+  "published": "2008-01-21 00:00:00",
+  "description": " Analyst: Wilfried Sigle. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/zinc-oxide/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecKIVRgs.msa",
+  "type": "Core Loss",
+  "formula": "ZnO",
+  "elements": [
+   "Zn",
+   "O"
+  ],
+  "microscope": "VG HB501UX",
+  "max_energy": "1313.05 eV",
+  "min_energy": "415.11 eV",
+  "source_purity": "Stoichiometric ZnO powder",
+  "edges": [
+   "O_K",
+   "Zn_L1",
+   "Zn_L2,3"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "resolution": "1 eV",
+  "monochromated": "No",
+  "stepSize": "0.671 eV/pixel",
+  "convergence": "10 mrad",
+  "collection": "6.5 mrad",
+  "integratetime": "10 secs",
+  "readouts": "1",
+  "detector": "Parallel: Gatan ENFINA",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.42 t/&lambda;",
+  "associated_spectra": [
+   {
+    "name": "Zinc oxide",
+    "link": "https://eelsdb.eu/spectra/zinc-oxide-2/",
+    "type": "Low Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=169",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

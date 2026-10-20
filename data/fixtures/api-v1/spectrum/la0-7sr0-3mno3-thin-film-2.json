@@ -1,0 +1,84 @@
+{
+ "request": {
+  "path": "/spectra/la0-7sr0-3mno3-thin-film-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22024,
+  "title": "La0.7Sr0.3MnO3 thin film",
+  "permalink": "https://eelsdb.eu/spectra/la0-7sr0-3mno3-thin-film-2/",
+  "author": {
+   "name": "magnunor",
+   "profile_url": "https://eelsdb.eu/author/magnus/",
+   "profile_api_url": "https://api.eelsdb.eu/author/magnus/"
+  },
+  "published": "2016-08-27 21:50:42",
+  "description": "La0.7Sr0.3MnO3 in a La0.7Sr0.3MnO3/SrTiO3-(111) heterostructure. This is a part of an electron beam exposure experiment, this spectrum being from the beginning of the experiment.",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/la0-7sr0-3mno3-thin-film-2/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2016/08/oxygen_pre_exposure.msa",
+  "type": "Core Loss",
+  "formula": "La0.7Sr0.3MnO3",
+  "elements": [
+   "La",
+   "Sr",
+   "Mn",
+   "O"
+  ],
+  "microscope": "ARM 200cF",
+  "max_energy": "20433.7 eV",
+  "min_energy": "-388.84 eV",
+  "edges": [
+   "O_K"
+  ],
+  "guntype": "Cold Field Emission Gun",
+  "beamenergy": "200 kV",
+  "resolution": "0.7 eV",
+  "monochromated": "No",
+  "stepSize": "426.354 eV/pixel",
+  "convergence": "34.2 mrad",
+  "collection": "66 mrad",
+  "detector": "GIF Quantum ER",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "Energy scaled aligned using zero loss peak. Power law background removed.",
+  "reference": {
+   "authors": "Magnus Nord, Per Erik Vullum, Ingrid Hallsteinsen, Thomas Tybell, Randi Holmestad",
+   "year": "2016",
+   "journal": "Ultramicroscopy",
+   "title": "Assessing electron beam sensitivity for SrTiO3 and La0.7Sr0.3MnO3 using electron energy loss spectroscopy",
+   "volume": "169",
+   "page": "98-106",
+   "doi": "10.1016/j.ultramic.2016.07.004",
+   "url": "http://dx.doi.org/10.1016/j.ultramic.2016.07.004"
+  },
+  "associated_spectra": [
+   {
+    "name": "La0.7Sr0.3MnO3 thin film",
+    "link": "https://eelsdb.eu/spectra/la0-7sr0-3mno3-thin-film/",
+    "type": "Core Loss"
+   },
+   {
+    "name": "La0.7Sr0.3MnO3 thin film, heavy electron beam damage",
+    "link": "https://eelsdb.eu/spectra/la0-7sr0-3mno3-thin-film-heavy-electron-beam-damage/",
+    "type": "Core Loss"
+   },
+   {
+    "name": "La0.7Sr0.3MnO3 thin film, heavy electron beam damage",
+    "link": "https://eelsdb.eu/spectra/la0-7sr0-3mno3-thin-film-heavy-electron-beam-damage-2/",
+    "type": "Core Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "https://arxiv.org/abs/1608.07814"
+   }
+  ]
+ }
+}

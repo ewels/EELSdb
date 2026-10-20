@@ -1,0 +1,25 @@
+{
+ "request": {
+  "path": "/jeels-2016/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21909,
+  "title": "JEELS 2016",
+  "permalink": "https://eelsdb.eu/jeels-2016/",
+  "author": {
+   "name": "Luc Lajaunie",
+   "profile_url": "https://eelsdb.eu/author/luc-lajaunie/"
+  },
+  "published": "2016-02-04 16:39:43",
+  "description": "The conference JEELS 2016 will be held in Tarragona, Spain (June 28th-30th 2016) and is organized by Dr. Raul Arenal (U. Zaragoza, Spain) and Dr. Sonia Estrade (U. Barcelona, Spain). More delails here.",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/jeels-2016/"
+ }
+}

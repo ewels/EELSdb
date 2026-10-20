@@ -1,0 +1,63 @@
+{
+ "request": {
+  "path": "/spectra/srtio3-001/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21926,
+  "title": "SrTiO3-(001)",
+  "permalink": "https://eelsdb.eu/spectra/srtio3-001/",
+  "author": {
+   "name": "magnunor",
+   "profile_url": "https://eelsdb.eu/author/magnus/",
+   "profile_api_url": "https://api.eelsdb.eu/author/magnus/"
+  },
+  "published": "2016-02-21 15:42:54",
+  "description": "SrTiO3-(001)",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/srtio3-001/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2016/02/APL_article_STO_oxygen2.msa",
+  "type": "Core Loss",
+  "formula": "SrTiO3",
+  "elements": [
+   "Sr",
+   "Ti",
+   "O"
+  ],
+  "microscope": "FEI Titan 80-300ST",
+  "max_energy": "559.8 eV",
+  "min_energy": "530 eV",
+  "edges": [
+   "O_K"
+  ],
+  "guntype": "Field Emission Gun",
+  "beamenergy": "300 kV",
+  "resolution": "1.0 eV",
+  "monochromated": "No",
+  "stepSize": "0.2 eV/pixel",
+  "acquisition_mode": "stem",
+  "convergence": "24.2 mrad",
+  "collection": "33.1 mrad",
+  "detector": "GIF",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "calibration": "PCA + background subtraction",
+  "reference": {
+   "authors": "M. Nord, P. E. Vullum, M. Moreau, J. E. Boschker, S. M. Selbach, R. Holmestad, T. Tybell",
+   "year": "2015",
+   "journal": "Appl. Phys. Lett.",
+   "title": "Structural phases driven by oxygen vacancies at the La0.7Sr0.3MnO3/SrTiO3 hetero-interface",
+   "volume": "106",
+   "issue": "4",
+   "page": "041604",
+   "doi": "10.1063/1.4906920",
+   "url": "http://dx.doi.org/10.1063/1.4906920"
+  }
+ }
+}

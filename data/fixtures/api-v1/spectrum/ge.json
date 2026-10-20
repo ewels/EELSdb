@@ -1,0 +1,58 @@
+{
+ "request": {
+  "path": "/spectra/ge/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22047,
+  "title": "Ge",
+  "permalink": "https://eelsdb.eu/spectra/ge/",
+  "author": {
+   "name": "aneeqa",
+   "profile_url": "https://eelsdb.eu/author/an/",
+   "profile_api_url": "https://api.eelsdb.eu/author/an/"
+  },
+  "published": "2016-11-25 15:37:07",
+  "description": "From a spectrum image of 2250 pixels over a range of thickness",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/ge/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2016/11/HL2_-Ge.msa",
+  "type": "Core Loss",
+  "formula": "Ge",
+  "elements": [
+   "Ge"
+  ],
+  "microscope": "Probe Corrected Jeol ARM 200F",
+  "max_energy": "1724.8 eV",
+  "min_energy": "713.3 eV",
+  "source_purity": "Ge wafer",
+  "edges": [
+   "Ge_L1",
+   "Ge_L2,3"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "200 kV",
+  "resolution": "0.5 eV",
+  "monochromated": "No",
+  "stepSize": "0.5 eV/pixel",
+  "acquisition_mode": "stem",
+  "convergence": "29 mrad",
+  "collection": "36 mrad",
+  "integratetime": "0.2498 secs",
+  "readouts": "2250",
+  "detector": "GIF Quantum ER",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "Low loss + drift tube",
+  "thickness": "0.55 t/&lambda;",
+  "deconvolutions": [
+   "Fourier-ratio"
+  ]
+ }
+}

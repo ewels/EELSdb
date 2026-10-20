@@ -1,0 +1,58 @@
+{
+ "request": {
+  "path": "/spectra/iron-oxide-hematite-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21711,
+  "title": "Iron Oxide Hematite",
+  "permalink": "https://eelsdb.eu/spectra/iron-oxide-hematite-2/",
+  "author": {
+   "name": "Alex Gloter",
+   "profile_url": "https://eelsdb.eu/author/alexg/",
+   "profile_api_url": "https://api.eelsdb.eu/author/alexg/"
+  },
+  "published": "2008-02-08 00:00:00",
+  "description": "The hematite O-K prepeak maxima have been set at 529.4 and 530.6 eV.\r\nEnergy resolution improved by Richardson-Lucy deconvolution Analyst: A. Gloter, A. Chen. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/iron-oxide-hematite-2/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecVwCaEV.msa",
+  "type": "Core Loss",
+  "formula": "Fe2O3 (alpha)",
+  "elements": [
+   "Fe",
+   "O"
+  ],
+  "microscope": "STEM-VG",
+  "max_energy": "554 eV",
+  "min_energy": "523.05 eV",
+  "source_purity": "natural sample, ouro preto mine, Brazil",
+  "edges": [
+   "O_K"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "monochromated": "No",
+  "stepSize": "0.05 eV/pixel",
+  "convergence": "7.5 mrad",
+  "collection": "24 mrad",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=201",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

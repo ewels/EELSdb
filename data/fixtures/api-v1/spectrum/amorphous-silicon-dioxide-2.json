@@ -1,0 +1,63 @@
+{
+ "request": {
+  "path": "/spectra/amorphous-silicon-dioxide-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21606,
+  "title": "amorphous silicon dioxide",
+  "permalink": "https://eelsdb.eu/spectra/amorphous-silicon-dioxide-2/",
+  "author": {
+   "name": "(Dr) Marie Cheynet",
+   "profile_url": "https://eelsdb.eu/author/mcheynet/",
+   "profile_api_url": "https://api.eelsdb.eu/author/mcheynet/"
+  },
+  "published": "2005-05-26 00:00:00",
+  "description": " Analyst: M. Cheynet. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/amorphous-silicon-dioxide-2/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec4uEua3.msa",
+  "type": "Low Loss",
+  "formula": "SiO2",
+  "elements": [
+   "Si",
+   "O"
+  ],
+  "microscope": "Tecnai F20",
+  "max_energy": "92 eV",
+  "min_energy": "-8.23 eV",
+  "source_purity": "4nm amorphous thermal layer on [110] Si substrate",
+  "guntype": "feg Schottky",
+  "beamenergy": "200 kV",
+  "resolution": "0.7 eV",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "STEM",
+  "convergence": "13 mrad",
+  "collection": "1.2 mrad",
+  "probesize": "0.3 nm^2",
+  "integratetime": "1 secs",
+  "readouts": "5",
+  "detector": "Parallel: GIF",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.35 t/&lambda;",
+  "reference": {
+   "freetext": "Structural and chemical analysis of a model Si-SiO2 interface using spatially resolved electron energy-loss spectroscopy\r\nM.C. Cheynet, T. Epicier\r\nPhilosophical Magazine84, 17, (2004), 1753"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=89",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

@@ -1,0 +1,53 @@
+{
+ "request": {
+  "path": "/spectra/ta2o5-amoprhous/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22125,
+  "title": "Ta2O5 &#8211; amoprhous",
+  "permalink": "https://eelsdb.eu/spectra/ta2o5-amoprhous/",
+  "author": {
+   "name": "VILLEPREUX Edouard",
+   "profile_url": "https://eelsdb.eu/author/edouard/",
+   "profile_api_url": "https://api.eelsdb.eu/author/edouard/"
+  },
+  "published": "2020-05-18 16:27:49",
+  "description": "",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/ta2o5-amoprhous/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2019/09/Full-Spectra-CL-Ta2O5-1eV.txt",
+  "type": "Core Loss",
+  "formula": "Ta2O5",
+  "elements": [
+   "Ta",
+   "O"
+  ],
+  "microscope": "FEI - TECNAI OSIRIS",
+  "max_energy": "3147 eV",
+  "min_energy": "150 eV",
+  "edges": [
+   "O_K",
+   "Ta_N2,3",
+   "Ta_M4,5"
+  ],
+  "guntype": "XFEG",
+  "beamenergy": "200 kV",
+  "resolution": "1.0 eV",
+  "monochromated": "No",
+  "stepSize": "1 eV/pixel",
+  "acquisition_mode": "stem",
+  "convergence": "18.3 mrad",
+  "collection": "36.8 mrad",
+  "detector": "Gatan Quantum Filter (FAST Dual EELS)",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "low loss + drift tube"
+ }
+}

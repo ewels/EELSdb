@@ -1,0 +1,63 @@
+{
+ "request": {
+  "path": "/spectra/cacoo-misfit-nt/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21985,
+  "title": "CaCoO Misfit Nanotube",
+  "permalink": "https://eelsdb.eu/spectra/cacoo-misfit-nt/",
+  "author": {
+   "name": "Luc Lajaunie",
+   "profile_url": "https://eelsdb.eu/author/luc-lajaunie/",
+   "profile_api_url": "https://api.eelsdb.eu/author/luc-lajaunie/"
+  },
+  "published": "2016-06-12 21:03:46",
+  "description": "",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/cacoo-misfit-nt/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2016/06/CaCoO-NT-2.msa",
+  "type": "Core Loss",
+  "formula": "CaCoO2−CoO2",
+  "elements": [
+   "Ca",
+   "Co",
+   "O"
+  ],
+  "microscope": "FEI Titan Low-Base",
+  "max_energy": "1099.59 eV",
+  "min_energy": "254.84 eV",
+  "edges": [
+   "Co_L2,3",
+   "O_K",
+   "Ca_L2,3",
+   "Ca_L1"
+  ],
+  "guntype": "X-FEG",
+  "beamenergy": "200 kV",
+  "resolution": "1.5 eV",
+  "monochromated": "No",
+  "stepSize": "0.526 eV/pixel",
+  "acquisition_mode": "stem",
+  "convergence": "18 mrad",
+  "collection": "10 mrad",
+  "detector": "Gatan Tridiem ESR 865",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "calibration": "low loss + drift tube",
+  "reference": {
+   "authors": "Leela S. Panchakarla, Luc Lajaunie, Ashwin Ramasubramaniam, Raul Arenal, Reshef Tenne",
+   "year": "2016",
+   "journal": "ACS Nano",
+   "title": "Nanotubes from Oxide-Based Misfit Family: The Case of Calcium Cobalt Oxide",
+   "doi": "10.1021/acsnano.6b02430",
+   "url": "http://dx.doi.org/10.1021/acsnano.6b02430"
+  }
+ }
+}

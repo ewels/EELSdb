@@ -1,0 +1,59 @@
+{
+ "request": {
+  "path": "/spectra/iron-oxide-cl-containing-akaganeite/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21706,
+  "title": "Iron Oxide Cl-containing akaganeite",
+  "permalink": "https://eelsdb.eu/spectra/iron-oxide-cl-containing-akaganeite/",
+  "author": {
+   "name": "Alex Gloter",
+   "profile_url": "https://eelsdb.eu/author/alexg/",
+   "profile_api_url": "https://api.eelsdb.eu/author/alexg/"
+  },
+  "published": "2008-02-08 00:00:00",
+  "description": "set the L3 maximum line for a trivalent iron (710.5 eV). see  Kuiper et al., Phys. Rev. Lett. 70, 1549 - 1552 (1993)\r\nEnergy resolution improved by Richardson-Lucy deconvolution Analyst: A. Gloter, A. Chen. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/iron-oxide-cl-containing-akaganeite/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecQWQaGy.msa",
+  "type": "Core Loss",
+  "formula": "FeOOH  (beta)",
+  "elements": [
+   "Fe",
+   "O",
+   "H"
+  ],
+  "microscope": "STEM-VG",
+  "max_energy": "736.6 eV",
+  "min_energy": "695.57 eV",
+  "source_purity": "Synthetic sample obtained by hydrolysis of FeCl3",
+  "edges": [
+   "Fe_L2,3"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "monochromated": "No",
+  "stepSize": "0.096 eV/pixel",
+  "convergence": "7.5 mrad",
+  "collection": "24 mrad",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=196",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

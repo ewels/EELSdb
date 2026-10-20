@@ -1,0 +1,72 @@
+{
+ "request": {
+  "path": "/spectra/oxidized-graphenic-nanoplatelets-obtained-from-bamboo/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21995,
+  "title": "Oxidized-graphenic nanoplatelets obtained from bamboo &#8211; high oxygen",
+  "permalink": "https://eelsdb.eu/spectra/oxidized-graphenic-nanoplatelets-obtained-from-bamboo/",
+  "author": {
+   "name": "Luc Lajaunie",
+   "profile_url": "https://eelsdb.eu/author/luc-lajaunie/",
+   "profile_api_url": "https://api.eelsdb.eu/author/luc-lajaunie/"
+  },
+  "published": "2016-08-24 16:06:20",
+  "description": "TCA=673 K. Cf paper for C/O and sp2 ratios.",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/oxidized-graphenic-nanoplatelets-obtained-from-bamboo/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2016/08/7-pm.msa",
+  "type": "Core Loss",
+  "formula": "C-O",
+  "elements": [
+   "C",
+   "O"
+  ],
+  "microscope": "FEI Titan Cube",
+  "max_energy": "344.55 eV",
+  "min_energy": "241.79 eV",
+  "edges": [
+   "C_K"
+  ],
+  "guntype": "FEG",
+  "beamenergy": "80 kV",
+  "resolution": "0.6 eV",
+  "monochromated": "No",
+  "stepSize": "0.05 eV/pixel",
+  "convergence": "4.6 mrad",
+  "collection": "20 mrad",
+  "probesize": "50 nm^2",
+  "detector": "Gatan Tridiem",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "Pi* at 285 eV",
+  "deconvolutions": [
+   "Fourier-ratio"
+  ],
+  "reference": {
+   "authors": "K Gross, J J Prías Barragán, S Sangiao, J M De Teresa, L Lajaunie, R Arenal, H Ariza Calderón, P Prieto",
+   "year": "2016",
+   "journal": "Nanotechnology",
+   "title": "Electrical conductivity of oxidized-graphenic nanoplatelets obtained from bamboo: effect of the oxygen content",
+   "volume": "27",
+   "issue": "36",
+   "page": "365708",
+   "doi": "10.1088/0957-4484/27/36/365708",
+   "url": "http://dx.doi.org/10.1088/0957-4484/27/36/365708"
+  },
+  "associated_spectra": [
+   {
+    "name": "Oxidized-graphenic Nanoplatelets Obtained From Bamboo &#8211; high oxygen",
+    "link": "https://eelsdb.eu/spectra/oxidized-graphenic-nanoplatelets-obtained-from-bamboo-high-oxygen/",
+    "type": "Core Loss"
+   }
+  ]
+ }
+}

@@ -1,0 +1,25 @@
+{
+ "request": {
+  "path": "/the-eels-databse-at-the-emc/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21991,
+  "title": "THe EELS Database at EMC",
+  "permalink": "https://eelsdb.eu/the-eels-databse-at-the-emc/",
+  "author": {
+   "name": "Luc Lajaunie",
+   "profile_url": "https://eelsdb.eu/author/luc-lajaunie/"
+  },
+  "published": "2016-08-21 21:16:05",
+  "description": "I will be at the EMC in Lyon next week and I will present several works including one poster session on the EELS DB (IM08-407, Poster session C). Do not hesitate to contact me if you want to discuss about the website or other matters. Luc",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/the-eels-databse-at-the-emc/"
+ }
+}

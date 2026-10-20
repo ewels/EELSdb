@@ -1,0 +1,22 @@
+{
+ "request": {
+  "path": "/spectra/",
+  "query": "per_page=3",
+  "params": [
+   [
+    "per_page",
+    "3"
+   ]
+  ]
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body_ids": [
+  22236,
+  22237,
+  22164
+ ]
+}

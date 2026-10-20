@@ -1,0 +1,56 @@
+{
+ "request": {
+  "path": "/spectra/reduced-graphene-oxide/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21752,
+  "title": "Reduced graphene oxide",
+  "permalink": "https://eelsdb.eu/spectra/reduced-graphene-oxide/",
+  "author": {
+   "name": "Edgar Jimenez",
+   "profile_url": "https://eelsdb.eu/author/edgar/",
+   "profile_api_url": "https://api.eelsdb.eu/author/edgar/"
+  },
+  "published": "2014-01-29 00:00:00",
+  "description": "Graphene oxide synthesized through a Hummer’s modified method and reduced via wet chemistry in the presence of L-ascorbic acid as reducing reagent. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/reduced-graphene-oxide/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecXNTrOy.msa",
+  "type": "Core Loss",
+  "formula": "C",
+  "elements": [
+   "C"
+  ],
+  "microscope": "Tecnai F30",
+  "max_energy": "551.4 eV",
+  "min_energy": "244.5 eV",
+  "edges": [
+   "C_K"
+  ],
+  "guntype": "feg Schottky",
+  "beamenergy": "300 kV",
+  "monochromated": "No",
+  "stepSize": "0.3 eV/pixel",
+  "convergence": "13.5 mrad",
+  "collection": "136 mrad",
+  "detector": "GIF: GIF",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=243",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

@@ -1,0 +1,61 @@
+{
+ "request": {
+  "path": "/spectra/cerium-praseodymium-mixed-oxide/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21630,
+  "title": "Cerium Praseodymium mixed oxide",
+  "permalink": "https://eelsdb.eu/spectra/cerium-praseodymium-mixed-oxide/",
+  "author": {
+   "name": "Susana Trasobares",
+   "profile_url": "https://eelsdb.eu/author/strasos/",
+   "profile_api_url": "https://api.eelsdb.eu/author/strasos/"
+  },
+  "published": "2007-11-19 00:00:00",
+  "description": "The spectrum is acquired from a cerium mixed oxide, the quantification of this kind of spectrum is really complicated due to the proximity of Ce and Pr edges. Using the DM sofware and optimising the bakground and signal window range we obtain the following values Ce(% at)=90.3 Pr(% at)=9.7\r\nWe will appreaciate if anybody could recommend a really good method for quantifying this kind of spectrum. Analyst: Susana Trasobares. Temperature: Room.",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/cerium-praseodymium-mixed-oxide/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec015Ulv.msa",
+  "type": "Core Loss",
+  "formula": "CePrOx",
+  "elements": [
+   "Ce",
+   "Pr"
+  ],
+  "microscope": "JEOL2010F",
+  "max_energy": "1057.8 eV",
+  "min_energy": "853.2 eV",
+  "edges": [
+   "Ce_M4,5",
+   "Pr_M4,5"
+  ],
+  "guntype": "feg",
+  "beamenergy": "200 kV",
+  "monochromated": "No",
+  "stepSize": "0.2 eV/pixel",
+  "convergence": "8 mrad",
+  "collection": "24 mrad",
+  "probesize": "0.5 nm^2",
+  "integratetime": "10 secs",
+  "detector": "Parallel: GIF2000",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "-",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=119",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

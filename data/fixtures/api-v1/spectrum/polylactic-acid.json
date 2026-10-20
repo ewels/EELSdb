@@ -1,0 +1,58 @@
+{
+ "request": {
+  "path": "/spectra/polylactic-acid/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22162,
+  "title": "Polylactic acid",
+  "permalink": "https://eelsdb.eu/spectra/polylactic-acid/",
+  "author": {
+   "name": "Ruchi Pal",
+   "profile_url": "https://eelsdb.eu/author/ruchi-8118/",
+   "profile_api_url": "https://api.eelsdb.eu/author/ruchi-8118/"
+  },
+  "published": "2022-05-16 19:25:21",
+  "description": "",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/polylactic-acid/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2021/05/PLA.txt",
+  "type": "Core Loss",
+  "formula": "(C3H4O2)n",
+  "elements": [
+   "C",
+   "H",
+   "O"
+  ],
+  "microscope": "JEOL JEM 2100F",
+  "max_energy": "326.28 eV",
+  "min_energy": "259.33 eV",
+  "edges": [
+   "C_K"
+  ],
+  "guntype": "FEG",
+  "beamenergy": "120 kV",
+  "resolution": "0.9 eV",
+  "monochromated": "No",
+  "stepSize": "0.05 eV/pixel",
+  "collection": "100 mrad",
+  "integratetime": "10 secs",
+  "detector": "Gatan Enfina",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "calibration": "zero+dispersion",
+  "thickness": "0.74 t/&lambda;",
+  "deconvolutions": [
+   "Fourier-ratio"
+  ],
+  "reference": {
+   "doi": "10.5281/zenodo.4840613"
+  }
+ }
+}

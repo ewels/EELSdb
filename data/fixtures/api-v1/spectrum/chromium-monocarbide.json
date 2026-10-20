@@ -1,0 +1,74 @@
+{
+ "request": {
+  "path": "/spectra/chromium-monocarbide/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21686,
+  "title": "Chromium monocarbide",
+  "permalink": "https://eelsdb.eu/spectra/chromium-monocarbide/",
+  "author": {
+   "name": "Wilfried Sigle",
+   "profile_url": "https://eelsdb.eu/author/wsigle/",
+   "profile_api_url": "https://api.eelsdb.eu/author/wsigle/"
+  },
+  "published": "2008-01-30 00:00:00",
+  "description": "The O K edge observed on the spectrum corresponds to surface oxidation Analyst: Christina Scheu. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/chromium-monocarbide/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecSjBk6o.msa",
+  "type": "Core Loss",
+  "formula": "CrC",
+  "elements": [
+   "Cr",
+   "C"
+  ],
+  "microscope": "VG HB501UX",
+  "max_energy": "636.7 eV",
+  "min_energy": "235 eV",
+  "source_purity": "Ultrahard CrC+a-C:H film (CVD) on Si substrate. Spectrum from small CrC particle.",
+  "edges": [
+   "C_K",
+   "O_K",
+   "Cr_L2,3"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "resolution": "0.8 eV",
+  "monochromated": "No",
+  "stepSize": "0.3 eV/pixel",
+  "convergence": "10 mrad",
+  "collection": "6.5 mrad",
+  "integratetime": "5 secs",
+  "readouts": "2",
+  "detector": "Parallel: Gatan ENFINA",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "reference": {
+   "authors": "G. Gassner, J. Patscheider, P. H. Mayrhofer, E. Hegedus, L. Tóth, I. Kovacs, B. Pécz, V. Srot, Ch. Scheu, C. Mitterer",
+   "year": "2006",
+   "journal": "J. Vac. Sci. Technol. B",
+   "title": "Structure of sputtered nanocomposite CrC[sub x]∕a-C:H thin films",
+   "volume": "24",
+   "issue": "4",
+   "page": "1837",
+   "doi": "10.1116/1.2216713",
+   "url": "http://dx.doi.org/10.1116/1.2216713"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=176",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

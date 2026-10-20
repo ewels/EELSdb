@@ -1,0 +1,56 @@
+{
+ "request": {
+  "path": "/spectra/sodium-oxyde/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21558,
+  "title": "Sodium Oxyde",
+  "permalink": "https://eelsdb.eu/spectra/sodium-oxyde/",
+  "author": {
+   "name": "(Dr.) Anne-Marie Flank",
+   "profile_url": "https://eelsdb.eu/author/anne-marie-flank/",
+   "profile_api_url": "https://api.eelsdb.eu/author/anne-marie-flank/"
+  },
+  "published": "2005-04-20 00:00:00",
+  "description": " Analyst: Flank. Temperature: 300. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/sodium-oxyde/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.1494361.1.msa",
+  "type": "X Ray Abs",
+  "formula": "Na2O",
+  "elements": [
+   "Na",
+   "O"
+  ],
+  "microscope": "SuperACO",
+  "max_energy": "1150 eV",
+  "min_energy": "1050 eV",
+  "edges": [
+   "Na_K"
+  ],
+  "guntype": "SA32",
+  "beamenergy": "800 kV",
+  "resolution": "0.4 eV",
+  "stepSize": "0.2 eV/pixel",
+  "acquisition_mode": "XAS Electron yield",
+  "beamcurrent": "200",
+  "detector": "Beryls",
+  "darkcurrent": "No",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=34",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

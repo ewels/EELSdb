@@ -1,0 +1,61 @@
+{
+ "request": {
+  "path": "/spectra/zr/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22079,
+  "title": "Zr",
+  "permalink": "https://eelsdb.eu/spectra/zr/",
+  "author": {
+   "name": "Ian MacLaren",
+   "profile_url": "https://eelsdb.eu/author/maclariz/",
+   "profile_api_url": "https://api.eelsdb.eu/author/maclariz/"
+  },
+  "published": "2017-07-05 14:40:50",
+  "description": "Absolute differential cross section in barns",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/zr/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2017/07/005-Cross-section-barns.msa",
+  "type": "Core Loss",
+  "formula": "Zircaloy-4",
+  "microscope": "JEOL ARM200F",
+  "max_energy": "3848.58 eV",
+  "min_energy": "1801.58 eV",
+  "source_purity": "Commercial alloy",
+  "edges": [
+   "Zr_L2,3",
+   "Zr_L1"
+  ],
+  "guntype": "CFEG",
+  "beamenergy": "200 kV",
+  "resolution": "0.5 eV",
+  "monochromated": "No",
+  "stepSize": "1 eV/pixel",
+  "convergence": "29 mrad",
+  "collection": "36 mrad",
+  "probesize": ".04 nm^2",
+  "integratetime": "100 secs",
+  "detector": "GIF Quantum ER",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "Low loss + drift tube",
+  "thickness": ".29 t/&lambda;",
+  "deconvolutions": [
+   "Fourier-ratio"
+  ],
+  "associated_spectra": [
+   {
+    "name": "ZrO2",
+    "link": "https://eelsdb.eu/spectra/zro2/",
+    "type": "Core Loss"
+   }
+  ]
+ }
+}

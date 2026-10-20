@@ -1,0 +1,61 @@
+{
+ "request": {
+  "path": "/spectra/yag-yttrium-aluminium-garnet-3/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21692,
+  "title": "YAG (yttrium aluminium garnet)",
+  "permalink": "https://eelsdb.eu/spectra/yag-yttrium-aluminium-garnet-3/",
+  "author": {
+   "name": "Wilfried Sigle",
+   "profile_url": "https://eelsdb.eu/author/wsigle/",
+   "profile_api_url": "https://api.eelsdb.eu/author/wsigle/"
+  },
+  "published": "2008-01-31 00:00:00",
+  "description": " Analyst: Saso Sturm. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/yag-yttrium-aluminium-garnet-3/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecrTy9jb.msa",
+  "type": "Core Loss",
+  "formula": "Y3Al5O12",
+  "elements": [
+   "Y",
+   "Al",
+   "O"
+  ],
+  "microscope": "VG HB501UX",
+  "max_energy": "643.9 eV",
+  "min_energy": "510 eV",
+  "edges": [
+   "O_K"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "resolution": "0.7 eV",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "STEM",
+  "convergence": "10 mrad",
+  "collection": "6.5 mrad",
+  "integratetime": "30 secs",
+  "readouts": "1",
+  "detector": "Parallel: Gatan ENFINA",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=182",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

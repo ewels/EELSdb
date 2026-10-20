@@ -1,0 +1,67 @@
+{
+ "request": {
+  "path": "/spectra/diamond-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21542,
+  "title": "Diamond",
+  "permalink": "https://eelsdb.eu/spectra/diamond-2/",
+  "author": {
+   "name": "Virginie Serin",
+   "profile_url": "https://eelsdb.eu/author/serin/",
+   "profile_api_url": "https://api.eelsdb.eu/author/serin/"
+  },
+  "published": "2005-04-20 00:00:00",
+  "description": " Analyst: V.Serin. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/diamond-2/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.45888.1.msa",
+  "type": "Low Loss",
+  "formula": "C",
+  "elements": [
+   "C"
+  ],
+  "microscope": "CM20",
+  "max_energy": "90.5 eV",
+  "min_energy": "-11.4 eV",
+  "source_purity": "CVD diamond",
+  "guntype": "LaB6",
+  "beamenergy": "100 kV",
+  "resolution": "1.8 eV",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "Diffraction",
+  "probesize": "105 nm^2",
+  "integratetime": "0.05 secs",
+  "readouts": "10",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.6 t/&lambda;",
+  "reference": {
+   "freetext": "V. Serin, E. Beche, R. Berjoan, O. Abidate, D. Rats, J. Fontaine, L.Vandenbulcke, C. Germain and A. Catherinot,Proc. of the Vth Int. Symp. on Diamond Materials, J. L. Davidson, W.D.Brown, A. Gicquel, B.V. Spytsin and J.C. Angus Eds, The Electrochem. Soc., Pennington, NJ, 1998, p. 126-141."
+  },
+  "associated_spectra": [
+   {
+    "name": "Diamond",
+    "link": "https://eelsdb.eu/spectra/diamond/",
+    "type": "Core Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=18",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

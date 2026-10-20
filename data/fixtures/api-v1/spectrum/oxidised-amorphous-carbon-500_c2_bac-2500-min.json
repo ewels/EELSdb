@@ -1,0 +1,64 @@
+{
+ "request": {
+  "path": "/spectra/oxidised-amorphous-carbon-500%c2%bac-2500-min/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22063,
+  "title": "Oxidised Amorphous Carbon, 500ºC, 2500 min",
+  "permalink": "https://eelsdb.eu/spectra/oxidised-amorphous-carbon-500%c2%bac-2500-min/",
+  "author": {
+   "name": "Luc Lajaunie",
+   "profile_url": "https://eelsdb.eu/author/luc-lajaunie/",
+   "profile_api_url": "https://api.eelsdb.eu/author/luc-lajaunie/"
+  },
+  "published": "2016-12-20 11:13:23",
+  "description": "9.5% H/(C+H) ; ~ 15% O/(C+O), 78% sp2",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/oxidised-amorphous-carbon-500%c2%bac-2500-min/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2016/12/8-pm-2.msa",
+  "type": "Core Loss",
+  "formula": "a-C:H,O",
+  "elements": [
+   "C",
+   "H",
+   "O"
+  ],
+  "microscope": "Tecnai F30",
+  "max_energy": "345.2 eV",
+  "min_energy": "242.85 eV",
+  "edges": [
+   "C_K"
+  ],
+  "guntype": "Schottky",
+  "beamenergy": "300 kV",
+  "resolution": "1.2 eV",
+  "monochromated": "No",
+  "stepSize": "0.05 eV/pixel",
+  "convergence": "6.1 mrad",
+  "collection": "5.9 mrad",
+  "detector": "Gatan Tridiem 863",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "calibration": "Pi* at 285 eV",
+  "deconvolutions": [
+   "Fourier-ratio"
+  ],
+  "reference": {
+   "authors": "L. Lajaunie, C. Pardanaud, C. Martin, P. Puech, C. Hu, M.J. Biggs, R. Arenal",
+   "year": "2017",
+   "journal": "Carbon",
+   "title": "Advanced spectroscopic analyses on a:C-H materials: Revisiting the EELS characterization and its coupling with multi-wavelength Raman spectroscopy",
+   "volume": "112",
+   "page": "149-161",
+   "doi": "10.1016/j.carbon.2016.10.092",
+   "url": "http://dx.doi.org/10.1016/j.carbon.2016.10.092"
+  }
+ }
+}

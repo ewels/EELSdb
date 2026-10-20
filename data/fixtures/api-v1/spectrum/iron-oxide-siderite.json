@@ -1,0 +1,59 @@
+{
+ "request": {
+  "path": "/spectra/iron-oxide-siderite/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21710,
+  "title": "Iron Oxide Siderite",
+  "permalink": "https://eelsdb.eu/spectra/iron-oxide-siderite/",
+  "author": {
+   "name": "Alex Gloter",
+   "profile_url": "https://eelsdb.eu/author/alexg/",
+   "profile_api_url": "https://api.eelsdb.eu/author/alexg/"
+  },
+  "published": "2008-02-08 00:00:00",
+  "description": "The maximum L3 line of the iron divalent FeCO3 siderite has been measured 1.6 eV lower in energy with respect to the L3 line maximum of hematite. Both samples deposited onto the same grid. \r\nWe use the hematite as a Fe3+ reference, maximum of the L3 line set at 710.5 eV to match with some XAS previously reported work. see  Kuiper et al., Phys. Rev. Lett. 70, 1549 - 1552 (1993)\r\nEnergy resolution improved by Richardson-Lucy deconvolution Analyst: A. Gloter, A. Chen. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/iron-oxide-siderite/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecTZA2vG.msa",
+  "type": "Core Loss",
+  "formula": "FeCO3",
+  "elements": [
+   "Fe",
+   "C",
+   "O"
+  ],
+  "microscope": "STEM-VG",
+  "max_energy": "732 eV",
+  "min_energy": "690.75 eV",
+  "source_purity": "Natural sample, strongly substituted (Fe0.79Mn0.12Mg0.07Ca0.02CO3)",
+  "edges": [
+   "Fe_L2,3"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "monochromated": "No",
+  "stepSize": "0.05 eV/pixel",
+  "convergence": "7.5 mrad",
+  "collection": "24 mrad",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=200",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

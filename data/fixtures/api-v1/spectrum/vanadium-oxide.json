@@ -1,0 +1,66 @@
+{
+ "request": {
+  "path": "/spectra/vanadium-oxide/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21670,
+  "title": "vanadium oxide",
+  "permalink": "https://eelsdb.eu/spectra/vanadium-oxide/",
+  "author": {
+   "name": "Ferdinand Hofer",
+   "profile_url": "https://eelsdb.eu/author/ferdinand-hofer/",
+   "profile_api_url": "https://api.eelsdb.eu/author/ferdinand-hofer/"
+  },
+  "published": "2008-01-15 00:00:00",
+  "description": "Not calibrated Analyst: Gerald Kothleitner. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/vanadium-oxide/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecWnU2Bh.msa",
+  "type": "Low Loss",
+  "formula": "V2O5",
+  "elements": [
+   "V",
+   "O"
+  ],
+  "microscope": "Tecnai F20 monochromator",
+  "max_energy": "18.46 eV",
+  "min_energy": "-2 eV",
+  "source_purity": "Dangsheng Su, Fitz-Haber-Institute, Berlin",
+  "guntype": "feg Schottky",
+  "beamenergy": "200 kV",
+  "resolution": "0.2 eV",
+  "monochromated": "Yes",
+  "stepSize": "0.02 eV/pixel",
+  "convergence": "2 mrad",
+  "collection": "7.5 mrad",
+  "detector": "GIF: GIF Tridiem",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "reference": {
+   "freetext": "D.S.Su, H.W.Zandbergen, P.C.Tiemeijer, G. Kothelitner et al.,\r\nMicron 34, 235-238, 2003"
+  },
+  "associated_spectra": [
+   {
+    "name": "vanadium oxide",
+    "link": "https://eelsdb.eu/spectra/vanadium-oxide-2/",
+    "type": "Core Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=159",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

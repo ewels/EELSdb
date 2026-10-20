@@ -1,0 +1,54 @@
+{
+ "request": {
+  "path": "/spectra/srtio3/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21918,
+  "title": "SrTiO3",
+  "permalink": "https://eelsdb.eu/spectra/srtio3/",
+  "author": {
+   "name": "magnunor",
+   "profile_url": "https://eelsdb.eu/author/magnus/",
+   "profile_api_url": "https://api.eelsdb.eu/author/magnus/"
+  },
+  "published": "2016-02-10 14:23:36",
+  "description": "Ti-L23 and O-K from SrTiO3",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/srtio3/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2016/02/srtio32.msa",
+  "type": "Core Loss",
+  "formula": "SrTiO3",
+  "elements": [
+   "Sr",
+   "Ti",
+   "O"
+  ],
+  "microscope": "ARM 200cF",
+  "max_energy": "920.75 eV",
+  "min_energy": "410 eV",
+  "edges": [
+   "Ti_L2,3",
+   "Ti_L1",
+   "O_K"
+  ],
+  "guntype": "Cold Field Emission Gun",
+  "beamenergy": "200 kV",
+  "resolution": "0.7 eV",
+  "monochromated": "No",
+  "stepSize": "0.25 eV/pixel",
+  "acquisition_mode": "stem",
+  "convergence": "27.42 mrad",
+  "collection": "33.19 mrad",
+  "detector": "GIF Quantum ER",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "calibration": "zero + dispersion"
+ }
+}

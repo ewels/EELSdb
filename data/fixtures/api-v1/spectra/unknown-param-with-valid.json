@@ -1,0 +1,25 @@
+{
+ "request": {
+  "path": "/spectra/",
+  "query": "type=coreloss&max_n=5",
+  "params": [
+   [
+    "type",
+    "coreloss"
+   ],
+   [
+    "max_n",
+    "5"
+   ]
+  ]
+ },
+ "status": 400,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "message": "Query argument 'max_n' not recognised",
+  "documentation_url": "https://eelsdb.eu/api/"
+ }
+}

@@ -1,0 +1,61 @@
+{
+ "request": {
+  "path": "/spectra/amorphous-alumina/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21700,
+  "title": "amorphous alumina",
+  "permalink": "https://eelsdb.eu/spectra/amorphous-alumina/",
+  "author": {
+   "name": "daniele Bouchet",
+   "profile_url": "https://eelsdb.eu/author/bouchet/",
+   "profile_api_url": "https://api.eelsdb.eu/author/bouchet/"
+  },
+  "published": "2008-02-07 00:00:00",
+  "description": " Analyst: Daniele Bouchet. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/amorphous-alumina/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecFSVKWt.msa",
+  "type": "Core Loss",
+  "formula": "Al203",
+  "elements": [
+   "Al"
+  ],
+  "microscope": "VG HB-501",
+  "max_energy": "152.1 eV",
+  "min_energy": "50 eV",
+  "edges": [
+   "Al_L2,3"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "resolution": "0.6 eV",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "STEM",
+  "convergence": "15 mrad",
+  "collection": "22 mrad",
+  "probesize": "1.3 nm^2",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "reference": {
+   "freetext": "D. Bouchet, C. Colliex, Ultramic, 96, 139,2003"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=190",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

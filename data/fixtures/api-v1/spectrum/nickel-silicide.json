@@ -1,0 +1,63 @@
+{
+ "request": {
+  "path": "/spectra/nickel-silicide/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21591,
+  "title": "Nickel silicide",
+  "permalink": "https://eelsdb.eu/spectra/nickel-silicide/",
+  "author": {
+   "name": "(Dr) Marie Cheynet",
+   "profile_url": "https://eelsdb.eu/author/mcheynet/",
+   "profile_api_url": "https://api.eelsdb.eu/author/mcheynet/"
+  },
+  "published": "2005-04-22 00:00:00",
+  "description": " Analyst: M. Cheynet, R. Pantel. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/nickel-silicide/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec9r39OR.msa",
+  "type": "Low Loss",
+  "formula": "NiSi",
+  "elements": [
+   "Ni",
+   "Si"
+  ],
+  "microscope": "CM20",
+  "max_energy": "92.3 eV",
+  "min_energy": "-9.8 eV",
+  "source_purity": "thin film prepared by thermal annealing",
+  "guntype": "feg",
+  "beamenergy": "200 kV",
+  "resolution": "0.7 eV",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "Imaging",
+  "convergence": "3 mrad",
+  "collection": "20 mrad",
+  "probesize": "50 nm^2",
+  "integratetime": "1 secs",
+  "readouts": "2",
+  "detector": "Parallel: GIF",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.5 t/&lambda;",
+  "reference": {
+   "freetext": "Proceeding of the EELS Workshop 1-5 May, EDGE, Grundlsee, Austria"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=70",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

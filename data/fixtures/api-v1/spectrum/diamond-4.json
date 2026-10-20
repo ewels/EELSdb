@@ -1,0 +1,58 @@
+{
+ "request": {
+  "path": "/spectra/diamond-4/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21544,
+  "title": "Diamond",
+  "permalink": "https://eelsdb.eu/spectra/diamond-4/",
+  "author": {
+   "name": "Michel Jaouen",
+   "profile_url": "https://eelsdb.eu/author/michel-jaouen/",
+   "profile_api_url": "https://api.eelsdb.eu/author/michel-jaouen/"
+  },
+  "published": "2005-04-20 00:00:00",
+  "description": "Pre-edge substracted Analyst: M. Jaouen, G. Tourillon. Temperature: 300. BEAM/Crystal: none. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/diamond-4/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.514335.1.msa",
+  "type": "X Ray Abs",
+  "formula": "C",
+  "elements": [
+   "C"
+  ],
+  "microscope": "Super-ACO (LURE)",
+  "max_energy": "379.69 eV",
+  "min_energy": "277.8 eV",
+  "source_purity": "CVD grown Diamond - Purity : 100% C",
+  "edges": [
+   "C_K"
+  ],
+  "guntype": "ABS3 (SA22)",
+  "beamenergy": "800 kV",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "XAS Electron yield",
+  "beamcurrent": "180",
+  "detector": "TGM (1200 lines mm-1 grating)",
+  "darkcurrent": "No",
+  "reference": {
+   "freetext": "M. Jaouen, G. Tourillon, J. Delafond, N. Junqua, G. Hug, Diamond & Related Materials Vol.4 200-206 (1995)"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=20",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

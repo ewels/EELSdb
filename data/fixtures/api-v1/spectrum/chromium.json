@@ -1,0 +1,64 @@
+{
+ "request": {
+  "path": "/spectra/chromium/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21538,
+  "title": "Chromium",
+  "permalink": "https://eelsdb.eu/spectra/chromium/",
+  "author": {
+   "name": "Dr. Gilles Hug",
+   "profile_url": "https://eelsdb.eu/author/gilles-hug/",
+   "profile_api_url": "https://api.eelsdb.eu/author/gilles-hug/"
+  },
+  "published": "2005-04-20 00:00:00",
+  "description": "plural scattering deconvoluted Analyst: Gilles Hug. Temperature: 100. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/chromium/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.89194.1.msa",
+  "type": "Core Loss",
+  "formula": "Cr",
+  "elements": [
+   "Cr"
+  ],
+  "microscope": "Jeol 4000FX",
+  "max_energy": "6887 eV",
+  "min_energy": "5868 eV",
+  "source_purity": "Chromium metal",
+  "edges": [
+   "Cr_K"
+  ],
+  "guntype": "LaB6",
+  "beamenergy": "400 kV",
+  "resolution": "2 eV",
+  "stepSize": "1 eV/pixel",
+  "acquisition_mode": "Diffraction",
+  "convergence": "1.5 mrad",
+  "collection": "3 mrad",
+  "probesize": "10000 nm^2",
+  "integratetime": "25 secs",
+  "readouts": "10",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "reference": {
+   "freetext": "Hug, G., B. Blanche, M. Jaouen, A.-M. Flank, and J.J. Rehr. Ultramic. 59(1-4): p. 121-136, 1995."
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=14",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

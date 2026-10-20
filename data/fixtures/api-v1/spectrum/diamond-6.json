@@ -1,0 +1,55 @@
+{
+ "request": {
+  "path": "/spectra/diamond-6/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21571,
+  "title": "diamond",
+  "permalink": "https://eelsdb.eu/spectra/diamond-6/",
+  "author": {
+   "name": "Virginie Serin",
+   "profile_url": "https://eelsdb.eu/author/serin/",
+   "profile_api_url": "https://api.eelsdb.eu/author/serin/"
+  },
+  "published": "2005-04-20 00:00:00",
+  "description": "Type of detector: Scintillator was P46 optically coupled CCD camara (Astromed) 1.Back ground intensity was removed.2.Intensity was normalized. 3.An energy-loss value was calibrated by refering the energy of the graphite K-edge.4. The instrument is equipped with a monochromator Analyst: Masami Terauchi. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/diamond-6/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.55976.1.msa",
+  "type": "Low Loss",
+  "formula": "C",
+  "elements": [
+   "C"
+  ],
+  "microscope": "JEM HREA80",
+  "max_energy": "305 eV",
+  "min_energy": "283.7 eV",
+  "source_purity": "CVD diamond",
+  "guntype": "Thermal type FEG ( monochromator was used )",
+  "beamenergy": "60 kV",
+  "resolution": "0.19 eV",
+  "monochromated": "Yes",
+  "stepSize": "0.021 eV/pixel",
+  "collection": "2.5 mrad",
+  "probesize": "180 nm^2",
+  "detector": "Parallel: others",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=47",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

@@ -1,0 +1,65 @@
+{
+ "request": {
+  "path": "/spectra/molybdenum/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22074,
+  "title": "Molybdenum",
+  "permalink": "https://eelsdb.eu/spectra/molybdenum/",
+  "author": {
+   "name": "Ian MacLaren",
+   "profile_url": "https://eelsdb.eu/author/maclariz/",
+   "profile_api_url": "https://api.eelsdb.eu/author/maclariz/"
+  },
+  "published": "2017-07-05 14:40:48",
+  "description": "Spectrum plotted as an absolute differential cross section in barns",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/molybdenum/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2017/07/016-mo-cross-section-barns-times-1p25.msa",
+  "type": "Core Loss",
+  "formula": "Mo",
+  "elements": [
+   "Mo"
+  ],
+  "microscope": "JEOL ARM200F",
+  "max_energy": "3852.51 eV",
+  "min_energy": "1805.51 eV",
+  "source_purity": "Sputtered thin film",
+  "edges": [
+   "Mo_L2,3",
+   "Mo_L1"
+  ],
+  "guntype": "CFEG",
+  "beamenergy": "200 kV",
+  "resolution": "0.5 eV",
+  "monochromated": "No",
+  "stepSize": "1 eV/pixel",
+  "convergence": "29 mrad",
+  "collection": "36 mrad",
+  "probesize": ".04 nm^2",
+  "integratetime": "40 secs",
+  "readouts": "20",
+  "detector": "GIF Quantum ER",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "Low loss + drift tube",
+  "thickness": ".47 t/&lambda;",
+  "deconvolutions": [
+   "Fourier-ratio"
+  ],
+  "associated_spectra": [
+   {
+    "name": "MoO2",
+    "link": "https://eelsdb.eu/spectra/moo2-3/",
+    "type": "Core Loss"
+   }
+  ]
+ }
+}

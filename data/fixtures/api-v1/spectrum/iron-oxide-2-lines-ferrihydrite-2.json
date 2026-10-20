@@ -1,0 +1,59 @@
+{
+ "request": {
+  "path": "/spectra/iron-oxide-2-lines-ferrihydrite-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21714,
+  "title": "Iron Oxide 2-lines ferrihydrite",
+  "permalink": "https://eelsdb.eu/spectra/iron-oxide-2-lines-ferrihydrite-2/",
+  "author": {
+   "name": "Alex Gloter",
+   "profile_url": "https://eelsdb.eu/author/alexg/",
+   "profile_api_url": "https://api.eelsdb.eu/author/alexg/"
+  },
+  "published": "2008-02-08 00:00:00",
+  "description": "2-lines ferrihydrite also called 2l HFO (hydrous ferric oxide)\r\n\r\nThe energy calibration have been done by measuring the EELS spectra of this phase with respect to the EELS spectra of an Hematite sample. The Hematite and 2l-HFO samples beeing deposited onto the same grid. The hematite O-K prepeak maxima have been set at 529.4 and 530.6 eV.\r\n\r\nEnergy resolution improved by Richardson-Lucy deconvolution Analyst: A. Gloter, A. Chen. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/iron-oxide-2-lines-ferrihydrite-2/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecY9EhAT.msa",
+  "type": "Core Loss",
+  "formula": "FeOOH",
+  "elements": [
+   "Fe",
+   "O",
+   "H"
+  ],
+  "microscope": "STEM-VG",
+  "max_energy": "552.97 eV",
+  "min_energy": "511.88 eV",
+  "source_purity": "synthetic sample (precipitation from iron nitrate, see Cornell and Schwertmann, ISBN 3-527-30274-3)",
+  "edges": [
+   "O_K"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "monochromated": "No",
+  "stepSize": "0.062 eV/pixel",
+  "convergence": "7.5 mrad",
+  "collection": "24 mrad",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=204",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

@@ -1,0 +1,62 @@
+{
+ "request": {
+  "path": "/spectra/boron-nitride-multiwall-nanotube/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21703,
+  "title": "Boron Nitride multiwall nanotube",
+  "permalink": "https://eelsdb.eu/spectra/boron-nitride-multiwall-nanotube/",
+  "author": {
+   "name": "Odile Stephan",
+   "profile_url": "https://eelsdb.eu/author/stephan/",
+   "profile_api_url": "https://api.eelsdb.eu/author/stephan/"
+  },
+  "published": "2008-02-07 00:00:00",
+  "description": "the beam has been focused at the center of a 30 nm tube in diameter. Similar data has been acquired at the B-K edge and for a different orientation Analyst: Odile Stephan, Raul Arenal de la Concha. Temperature: Room. BEAM/Crystal: Beam perpendicular to the planes. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/boron-nitride-multiwall-nanotube/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec7vKq06.msa",
+  "type": "Core Loss",
+  "formula": "BN",
+  "elements": [
+   "B",
+   "N"
+  ],
+  "microscope": "STEM-VG",
+  "max_energy": "747.94 eV",
+  "min_energy": "373.34 eV",
+  "edges": [
+   "N_K"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "resolution": "0.7 eV",
+  "stepSize": "0.477 eV/pixel",
+  "acquisition_mode": "STEM",
+  "convergence": "15 mrad",
+  "collection": "24 mrad",
+  "probesize": "1 nm^2",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "No",
+  "reference": {
+   "freetext": "Raul Arenal de la Concha,PhD thesis,2005 (http://lem.onera.fr/download/These_Raul-Arenal.pdf)"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=193",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

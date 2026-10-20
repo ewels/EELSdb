@@ -1,0 +1,53 @@
+{
+ "request": {
+  "path": "/spectra/h-bn-cvd/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22152,
+  "title": "h-BN CVD",
+  "permalink": "https://eelsdb.eu/spectra/h-bn-cvd/",
+  "author": {
+   "name": "Andrey Chuvilin",
+   "profile_url": "https://eelsdb.eu/author/a-chuvilin/",
+   "profile_api_url": "https://api.eelsdb.eu/author/a-chuvilin/"
+  },
+  "published": "2021-05-22 11:28:30",
+  "description": "",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/h-bn-cvd/",
+  "keywords": [
+   "B_K"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2021/01/h-BN-B_K.msa",
+  "type": "Core Loss",
+  "formula": "BN",
+  "elements": [
+   "B",
+   "N"
+  ],
+  "microscope": "FEI Titan 60-300",
+  "max_energy": "250.05 eV",
+  "min_energy": "180 eV",
+  "guntype": "xFEG",
+  "beamenergy": "60 kV",
+  "resolution": "0.06 eV",
+  "monochromated": "Yes",
+  "stepSize": "0.05 eV/pixel",
+  "acquisition_mode": "stem",
+  "convergence": "5 mrad",
+  "collection": "8.33 mrad",
+  "integratetime": "35 secs",
+  "readouts": "7",
+  "detector": "GIF QUANTUM",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "zero + dispersion"
+ }
+}

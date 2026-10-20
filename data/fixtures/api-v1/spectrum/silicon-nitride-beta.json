@@ -1,0 +1,56 @@
+{
+ "request": {
+  "path": "/spectra/silicon-nitride-beta/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21556,
+  "title": "Silicon nitride beta",
+  "permalink": "https://eelsdb.eu/spectra/silicon-nitride-beta/",
+  "author": {
+   "name": "(Dr.) Anne-Marie Flank",
+   "profile_url": "https://eelsdb.eu/author/anne-marie-flank/",
+   "profile_api_url": "https://api.eelsdb.eu/author/anne-marie-flank/"
+  },
+  "published": "2005-04-20 00:00:00",
+  "description": " Analyst: Flank. Temperature: 300. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/silicon-nitride-beta/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.1227104.1.msa",
+  "type": "X Ray Abs",
+  "formula": "Si3N4 beta",
+  "elements": [
+   "Si",
+   "N"
+  ],
+  "microscope": "SuperACO",
+  "max_energy": "1910 eV",
+  "min_energy": "1830 eV",
+  "edges": [
+   "Si_K"
+  ],
+  "guntype": "SA32",
+  "beamenergy": "800 kV",
+  "resolution": "0.7 eV",
+  "stepSize": "0.2 eV/pixel",
+  "acquisition_mode": "XAS Transmission",
+  "beamcurrent": "200",
+  "detector": "InSb",
+  "darkcurrent": "No",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=32",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

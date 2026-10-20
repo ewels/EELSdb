@@ -1,0 +1,66 @@
+{
+ "request": {
+  "path": "/spectra/lsmo-perovskite-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21738,
+  "title": "LSMO perovskite",
+  "permalink": "https://eelsdb.eu/spectra/lsmo-perovskite-2/",
+  "author": {
+   "name": "Dominique Imhoff",
+   "profile_url": "https://eelsdb.eu/author/imhoff/",
+   "profile_api_url": "https://api.eelsdb.eu/author/imhoff/"
+  },
+  "published": "2008-03-04 00:00:00",
+  "description": "background removed\r\ncalibration : 1- XAS energy reference from standard similar LSMO (maximum of MnL3 peak)\r\n              2- energy dispersion calibration of the detector from two peaks reference in low and core loss areas (STO substrate area in the multimayer system).\r\n\r\nsee also MnL3, LaM Analyst: imhoff. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/lsmo-perovskite-2/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspechVaibn.msa",
+  "type": "Core Loss",
+  "formula": "(La0.7,Sr0.3)MnO3",
+  "elements": [
+   "La",
+   "Sr",
+   "Mn",
+   "O"
+  ],
+  "microscope": "STEM-VG",
+  "max_energy": "584.05 eV",
+  "min_energy": "525.68 eV",
+  "source_purity": "perovskite multilayers UMP CNRS-Thales Palaiseau France (laser ablation)",
+  "edges": [
+   "O_K"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "stepSize": "0.213 eV/pixel",
+  "acquisition_mode": "STEM",
+  "convergence": "7 mrad",
+  "collection": "22 mrad",
+  "probesize": "0.7 nm^2",
+  "integratetime": "0.2 secs",
+  "readouts": "10",
+  "detector": "Parallel: 666 + CCD modified Orsay",
+  "darkcurrent": "Yes",
+  "gainvariation": "No",
+  "reference": {
+   "freetext": "EELS study of interfaces in magnetoresistive LSMO/STO/LSMO tunnel junctions\r\nSamet L., Imhoff D., Maurice J-L., Contour J-P., Gloter A., Manoubi T., Fert A., Colliex C.,\r\nEuropean-Physical-Journal-B., 34(2), 179-92, 2003"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=229",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

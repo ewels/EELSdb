@@ -1,0 +1,64 @@
+{
+ "request": {
+  "path": "/spectra/chromium-carbide-4/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21537,
+  "title": "Chromium carbide",
+  "permalink": "https://eelsdb.eu/spectra/chromium-carbide-4/",
+  "author": {
+   "name": "Dr. Gilles Hug",
+   "profile_url": "https://eelsdb.eu/author/gilles-hug/",
+   "profile_api_url": "https://api.eelsdb.eu/author/gilles-hug/"
+  },
+  "published": "2005-04-20 00:00:00",
+  "description": " Analyst: R. Leapman. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/chromium-carbide-4/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.57190.1.msa",
+  "type": "Core Loss",
+  "formula": "Cr7C3",
+  "elements": [
+   "Cr",
+   "C"
+  ],
+  "microscope": "HB501",
+  "max_energy": "350.71 eV",
+  "min_energy": "248.4 eV",
+  "edges": [
+   "C_K"
+  ],
+  "guntype": "FEG",
+  "beamenergy": "100 kV",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "STEM",
+  "convergence": "10 mrad",
+  "collection": "20 mrad",
+  "probesize": "1 nm^2",
+  "beamcurrent": "1",
+  "integratetime": "8 secs",
+  "readouts": "5",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "reference": {
+   "freetext": "G. Hug, R. Leapman, M. Jaouen, 1995, "
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=13",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

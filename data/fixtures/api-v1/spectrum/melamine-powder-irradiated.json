@@ -1,0 +1,71 @@
+{
+ "request": {
+  "path": "/spectra/melamine-powder-irradiated/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21628,
+  "title": "Melamine Powder -Irradiated",
+  "permalink": "https://eelsdb.eu/spectra/melamine-powder-irradiated/",
+  "author": {
+   "name": "Susana Trasobares",
+   "profile_url": "https://eelsdb.eu/author/strasos/",
+   "profile_api_url": "https://api.eelsdb.eu/author/strasos/"
+  },
+  "published": "2007-11-19 00:00:00",
+  "description": "The experiment was performed with the chronospectroscopy mode, every spectrun was acquired using an acquisition time of 9 millisecond. The submitted spectrum is a collection of 10 spectra.\r\nMelamine is really sensitive to beam damage, after 0.4 seconds the origianl melamine spectra is transformed into the spectrun submitted here. Analyst: Susana Trasobares. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/melamine-powder-irradiated/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecvHYEok.msa",
+  "type": "Core Loss",
+  "formula": "C3N6H6",
+  "elements": [
+   "C",
+   "N",
+   "H"
+  ],
+  "microscope": "VG HB501",
+  "max_energy": "457.19 eV",
+  "min_energy": "244.41 eV",
+  "source_purity": "Aldrich 99%",
+  "edges": [
+   "C_K"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "monochromated": "No",
+  "stepSize": "0.208 eV/pixel",
+  "convergence": "15 mrad",
+  "collection": "24 mrad",
+  "probesize": "0.5 nm^2",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "reference": {
+   "authors": "Susana Trasobares, Christine Kolczewski, Riitta Räty, Niclas Borglund, Arianna Bassan, Gilles Hug, Christian Colliex, Stefan Csillag, Lars G. M. Pettersson",
+   "year": "2003",
+   "journal": "J. Phys. Chem. A",
+   "title": "Monitoring the Decomposition of Melamine in the Solid Phase by Electron Energy Loss Chronospectroscopy",
+   "volume": "107",
+   "issue": "2",
+   "page": "228-235",
+   "doi": "10.1021/jp026340j",
+   "url": "http://dx.doi.org/10.1021/jp026340j"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=115",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

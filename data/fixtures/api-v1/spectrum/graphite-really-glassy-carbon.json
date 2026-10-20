@@ -1,0 +1,62 @@
+{
+ "request": {
+  "path": "/spectra/graphite-really-glassy-carbon/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21547,
+  "title": "Graphite (really glassy carbon)",
+  "permalink": "https://eelsdb.eu/spectra/graphite-really-glassy-carbon/",
+  "author": {
+   "name": "David Muller",
+   "profile_url": "https://eelsdb.eu/author/dm24/",
+   "profile_api_url": "https://api.eelsdb.eu/author/dm24/"
+  },
+  "published": "2005-04-20 00:00:00",
+  "description": "- Energy Axis is not calibrated, CCD point spread function has long tails,these have not be corrected for.- The ratio of the pi*/sigma* peaks depends on sample orientation (See Leapman and Silcox, PRL, V42, 1361 (1979)).- Note 0.7 eV split Analyst: David Muller (at Cornell University) 1995. Temperature: Room. BEAM/Crystal: parallel to c-axis. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/graphite-really-glassy-carbon/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.2608.1.msa",
+  "type": "Core Loss",
+  "formula": "C (graphite)",
+  "elements": [
+   "C"
+  ],
+  "microscope": "VG HB501A",
+  "max_energy": "313.9 eV",
+  "min_energy": "269.75 eV",
+  "source_purity": "Combined test specimen, imaged parallel to c-axis of graphite particle",
+  "edges": [
+   "C_K"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "resolution": "0.5 eV",
+  "stepSize": "0.088 eV/pixel",
+  "acquisition_mode": "STEM",
+  "convergence": "18 mrad",
+  "collection": "16 mrad",
+  "probesize": "0.3 nm^2",
+  "beamcurrent": "0.12",
+  "integratetime": "10 secs",
+  "readouts": "15",
+  "detector": "GIF: ",
+  "darkcurrent": "Yes",
+  "gainvariation": "No",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=23",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

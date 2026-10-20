@@ -1,0 +1,59 @@
+{
+ "request": {
+  "path": "/spectra/moo3/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21810,
+  "title": "MoO3",
+  "permalink": "https://eelsdb.eu/spectra/moo3/",
+  "author": {
+   "name": "Luc Lajaunie",
+   "profile_url": "https://eelsdb.eu/author/luc-lajaunie/",
+   "profile_api_url": "https://api.eelsdb.eu/author/luc-lajaunie/"
+  },
+  "published": "2015-09-13 15:37:36",
+  "description": "Raw spectra of Fig. 1a",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/moo3/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Pour-Fig1a.msa",
+  "type": "Core Loss",
+  "formula": "MoO3",
+  "elements": [
+   "Mo",
+   "O"
+  ],
+  "microscope": "Hitachi HF2000",
+  "max_energy": "586.26 eV",
+  "min_energy": "183.16 eV",
+  "source_purity": "Acros, 99%",
+  "guntype": "c-FEG",
+  "beamenergy": "100 kV",
+  "resolution": "2.2 eV",
+  "monochromated": "No",
+  "stepSize": "0.312 eV/pixel",
+  "convergence": "1.4 mrad",
+  "collection": "4.6 mrad",
+  "probesize": "30 nm^2",
+  "detector": "modiﬁed Gatan PEELS 666 spectrometer",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "low loss + drift tube",
+  "reference": {
+   "authors": "L. Lajaunie, F. Boucher, R. Dessapt, P. Moreau",
+   "year": "2015",
+   "journal": "Ultramicroscopy",
+   "title": "Quantitative use of electron energy-loss spectroscopy Mo-M2,3 edges for the study of molybdenum oxides",
+   "volume": "149",
+   "page": "1-8",
+   "doi": "10.1016/j.ultramic.2014.11.002",
+   "url": "http://dx.doi.org/10.1016/j.ultramic.2014.11.002"
+  }
+ }
+}

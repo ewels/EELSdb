@@ -1,0 +1,33 @@
+{
+ "request": {
+  "path": "/spectra/",
+  "query": "per_page=10&page=29",
+  "params": [
+   [
+    "per_page",
+    "10"
+   ],
+   [
+    "page",
+    "29"
+   ]
+  ]
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": "https://api.eelsdb.eu/spectra/page/29/?per_page=10&page=29",
+ "body_ids": [
+  21696,
+  21697,
+  22079,
+  21679,
+  21682,
+  21685,
+  22080,
+  21594,
+  21595,
+  21601
+ ]
+}

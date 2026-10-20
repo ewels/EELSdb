@@ -1,0 +1,70 @@
+{
+ "request": {
+  "path": "/spectra/niobium-oxide-nbo2-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21727,
+  "title": "Niobium oxide NbO2",
+  "permalink": "https://eelsdb.eu/spectra/niobium-oxide-nbo2-2/",
+  "author": {
+   "name": "Wilfried Sigle",
+   "profile_url": "https://eelsdb.eu/author/wsigle/",
+   "profile_api_url": "https://api.eelsdb.eu/author/wsigle/"
+  },
+  "published": "2008-02-15 00:00:00",
+  "description": " Analyst: David Bach, Wilfried Sigle. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/niobium-oxide-nbo2-2/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecYB7EbW.msa",
+  "type": "Core Loss",
+  "formula": "NbO2",
+  "elements": [
+   "Nb",
+   "O"
+  ],
+  "microscope": "VG HB501UX",
+  "max_energy": "789.5 eV",
+  "min_energy": "120 eV",
+  "edges": [
+   "Nb_M2,3",
+   "Nb_M4,5",
+   "O_K"
+  ],
+  "guntype": "cold field emission",
+  "beamenergy": "100 kV",
+  "resolution": "1.3 eV",
+  "monochromated": "No",
+  "stepSize": "0.5 eV/pixel",
+  "convergence": "10 mrad",
+  "collection": "6.5 mrad",
+  "integratetime": "5 secs",
+  "readouts": "10",
+  "detector": "Parallel: Gatan ENFINA",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.58 t/&lambda;",
+  "associated_spectra": [
+   {
+    "name": "Niobium oxide NbO2",
+    "link": "https://eelsdb.eu/spectra/niobium-oxide-nbo2/",
+    "type": "Low Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=217",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

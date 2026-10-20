@@ -1,0 +1,66 @@
+{
+ "request": {
+  "path": "/spectra/copper-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21635,
+  "title": "Copper",
+  "permalink": "https://eelsdb.eu/spectra/copper-2/",
+  "author": {
+   "name": "KIHN Yolande",
+   "profile_url": "https://eelsdb.eu/author/kihn/",
+   "profile_api_url": "https://api.eelsdb.eu/author/kihn/"
+  },
+  "published": "2007-11-28 00:00:00",
+  "description": "Background removed by ELP Analyst: Y.Kihn. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/copper-2/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec16f4H0.msa",
+  "type": "Core Loss",
+  "formula": "Cu",
+  "elements": [
+   "Cu"
+  ],
+  "microscope": "CM20",
+  "max_energy": "1006.6 eV",
+  "min_energy": "904.5 eV",
+  "edges": [
+   "Cu_L2,3"
+  ],
+  "guntype": "LaB6",
+  "beamenergy": "100 kV",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "Diffraction",
+  "convergence": "3 mrad",
+  "collection": "3 mrad",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "reference": {
+   "freetext": "Correlation between microstructure and mechanical spectroscopy of a Cu-Cu2O alloy between 290K and 873K,J.P. NGANTCHA, M. GERLAND, Y. KIHN, A. RIVIERE,Eur. Phys. J. Appl. Phys., 29, 83-89, 2005."
+  },
+  "associated_spectra": [
+   {
+    "name": "Copper",
+    "link": "https://eelsdb.eu/spectra/copper/",
+    "type": "Low Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=124",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

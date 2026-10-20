@@ -1,0 +1,72 @@
+{
+ "request": {
+  "path": "/spectra/lanathanum-cobalt-oxide/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21673,
+  "title": "Lanathanum Cobalt Oxide",
+  "permalink": "https://eelsdb.eu/spectra/lanathanum-cobalt-oxide/",
+  "author": {
+   "name": "Ferdinand Hofer",
+   "profile_url": "https://eelsdb.eu/author/ferdinand-hofer/",
+   "profile_api_url": "https://api.eelsdb.eu/author/ferdinand-hofer/"
+  },
+  "published": "2008-01-19 00:00:00",
+  "description": "Not calibrated Analyst: Irmgrad Rom, Ferdinand Hofer. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/lanathanum-cobalt-oxide/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecjCEOHt.msa",
+  "type": "Core Loss",
+  "formula": "LaCoO3",
+  "elements": [
+   "La",
+   "Co",
+   "O"
+  ],
+  "microscope": "Philips CM20",
+  "max_energy": "966.5 eV",
+  "min_energy": "455 eV",
+  "source_purity": "stoechiometric phase",
+  "edges": [
+   "O_K",
+   "La_M4,5",
+   "Co_L2,3",
+   "Co_L1"
+  ],
+  "guntype": "LaB6",
+  "beamenergy": "200 kV",
+  "resolution": "2 eV",
+  "monochromated": "No",
+  "stepSize": "0.5 eV/pixel",
+  "convergence": "1.5 mrad",
+  "collection": "7.5 mrad",
+  "integratetime": "20 secs",
+  "detector": "Parallel: GIF200",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "1 t/&lambda;",
+  "associated_spectra": [
+   {
+    "name": "Lanthanum Cobalt Oxide",
+    "link": "https://eelsdb.eu/spectra/lanthanum-cobalt-oxide/",
+    "type": "Low Loss"
+   }
+  ],
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=162",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

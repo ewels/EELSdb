@@ -1,0 +1,25 @@
+{
+ "request": {
+  "path": "/spectra/",
+  "query": "per_page=10&page=30",
+  "params": [
+   [
+    "per_page",
+    "10"
+   ],
+   [
+    "page",
+    "30"
+   ]
+  ]
+ },
+ "status": 404,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "message": "API path not recognised",
+  "documentation_url": "https://eelsdb.eu/api/"
+ }
+}

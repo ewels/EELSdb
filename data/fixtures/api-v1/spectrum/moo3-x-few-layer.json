@@ -1,0 +1,57 @@
+{
+ "request": {
+  "path": "/spectra/moo3-x-few-layer/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22071,
+  "title": "MoO(3-X) few-layer",
+  "permalink": "https://eelsdb.eu/spectra/moo3-x-few-layer/",
+  "author": {
+   "name": "Luc Lajaunie",
+   "profile_url": "https://eelsdb.eu/author/luc-lajaunie/",
+   "profile_api_url": "https://api.eelsdb.eu/author/luc-lajaunie/"
+  },
+  "published": "2017-04-04 11:27:13",
+  "description": "After 60 min of irradiation at low-dose. ZLP subtracted. Artefact at 32 eV",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/moo3-x-few-layer/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2017/04/irrad-c.msa",
+  "type": "Low Loss",
+  "formula": "MoO(3-X)",
+  "elements": [
+   "Mo",
+   "O"
+  ],
+  "microscope": "FEI Titan Low-Base",
+  "max_energy": "37.69 eV",
+  "min_energy": "-4.27 eV",
+  "guntype": "X-FEG",
+  "beamenergy": "80 kV",
+  "resolution": "0.27 eV",
+  "monochromated": "No",
+  "stepSize": "0.021 eV/pixel",
+  "acquisition_mode": "stem",
+  "convergence": "36 mrad",
+  "collection": "51 mrad",
+  "detector": "Gatan Tridiem ESR 865",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "zero + dispersion",
+  "reference": {
+   "authors": "Eve D. Hanson, Luc Lajaunie, Shiqiang Hao, Benjamin D. Myers, Fengyuan Shi, Akshay A. Murthy, Chris Wolverton, Raul Arenal, Vinayak P. Dravid",
+   "year": "2017",
+   "journal": "Advanced Functional Materials",
+   "title": "Systematic Study of Oxygen Vacancy Tunable Transport Properties of Few-Layer MoO3−\r\n                        \r\n                            x\r\n                        \r\n Enabled by Vapor-Based Synthesis",
+   "page": "1605380",
+   "doi": "10.1002/adfm.201605380",
+   "url": "http://dx.doi.org/10.1002/adfm.201605380"
+  }
+ }
+}

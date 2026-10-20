@@ -1,0 +1,63 @@
+{
+ "request": {
+  "path": "/spectra/boron-nitride-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21608,
+  "title": "boron nitride",
+  "permalink": "https://eelsdb.eu/spectra/boron-nitride-2/",
+  "author": {
+   "name": "(Dr) Marie Cheynet",
+   "profile_url": "https://eelsdb.eu/author/mcheynet/",
+   "profile_api_url": "https://api.eelsdb.eu/author/mcheynet/"
+  },
+  "published": "2005-05-26 00:00:00",
+  "description": " Analyst: M. Cheynet. Temperature: Room. BEAM/Crystal: (close to) perpendicular to BN c axis. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/boron-nitride-2/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspeczb8Jk5.msa",
+  "type": "Low Loss",
+  "formula": "BN",
+  "elements": [
+   "B",
+   "N"
+  ],
+  "microscope": "STEM-VG",
+  "max_energy": "71.54 eV",
+  "min_energy": "-10.05 eV",
+  "source_purity": "bamboo-like nanotube",
+  "guntype": "cold field emission",
+  "beamenergy": "100 kV",
+  "resolution": "1 eV",
+  "stepSize": "0.098 eV/pixel",
+  "acquisition_mode": "STEM",
+  "convergence": "9.33 mrad",
+  "collection": "1.2 mrad",
+  "probesize": "1.5 nm^2",
+  "integratetime": "1 secs",
+  "readouts": "6",
+  "detector": "Serial: VG EL80",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "thickness": "0.35 t/&lambda;",
+  "reference": {
+   "freetext": "Improved comparison of low energy loss spectra with band structure calculations: the example of BN filaments\r\nP. Moreau, M.C. Cheynet\r\nUltramicroscopy 94 (2003) 293"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=91",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

@@ -1,0 +1,25 @@
+{
+ "request": {
+  "path": "/digital-micrograph-scripting/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22131,
+  "title": "Digital Micrograph Scripting",
+  "permalink": "https://eelsdb.eu/digital-micrograph-scripting/",
+  "author": {
+   "name": "Chris Ewels",
+   "profile_url": "https://eelsdb.eu/author/chris-ewels/"
+  },
+  "published": "2020-05-18 16:24:42",
+  "description": "Dave Mitchell has kindly developed a DM Script to allow importing of EELSdb MSA format spectra into Digital Micrograph. http://www.dmscripting.com/import_msa_eels_spectrum_from_eelsdb.html",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/digital-micrograph-scripting/"
+ }
+}

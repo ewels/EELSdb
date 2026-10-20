@@ -1,0 +1,57 @@
+{
+ "request": {
+  "path": "/spectra/porous-cobalt-coating-with-he-filled-nanopores-2/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22108,
+  "title": "Porous cobalt coating with He-filled nanopores",
+  "permalink": "https://eelsdb.eu/spectra/porous-cobalt-coating-with-he-filled-nanopores-2/",
+  "author": {
+   "name": "Bertrand Lacroix",
+   "profile_url": "https://eelsdb.eu/author/bertrand-lacroix/",
+   "profile_api_url": "https://api.eelsdb.eu/author/bertrand-lacroix/"
+  },
+  "published": "2018-04-06 10:13:30",
+  "description": "Spectrum recorded across the cobalt matrix.\r\nCoating prepared by magnetron sputtering in He atmosphere.\r\n[Because this is a txt file, the spectrum is not properly displayed below, note from the administrator]",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/porous-cobalt-coating-with-he-filled-nanopores-2/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2018/03/LL-Co-coating-matrix.txt",
+  "type": "Low Loss",
+  "formula": "Co + He",
+  "elements": [
+   "Co",
+   "He"
+  ],
+  "microscope": "FEI TECNAI F30",
+  "max_energy": "92734.09 eV",
+  "guntype": "FEG",
+  "beamenergy": "300 kV",
+  "resolution": "1 eV",
+  "monochromated": "No",
+  "stepSize": "13680.962 eV/pixel",
+  "convergence": "12.4 mrad",
+  "collection": "9.6 mrad",
+  "integratetime": "0.05 secs",
+  "detector": "GATAN GIF Quantum",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "zero + dispersion",
+  "reference": {
+   "authors": "B. Lacroix, V. Godinho, A. Fernández",
+   "year": "2018",
+   "journal": "Micron",
+   "title": "The nanostructure of porous cobalt coatings deposited by magnetron sputtering in helium atmosphere",
+   "volume": "108",
+   "page": "49-54",
+   "doi": "10.1016/j.micron.2018.02.004",
+   "url": "https://doi.org/10.1016/j.micron.2018.02.004"
+  }
+ }
+}

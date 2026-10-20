@@ -1,0 +1,42 @@
+{
+ "request": {
+  "path": "/spectra",
+  "query": "author=Hettler&resolution_compare=lt&min_energy_compare=gt&max_energy_compare=lt&per_page=-1&order_direction=ASC",
+  "params": [
+   [
+    "author",
+    "Hettler"
+   ],
+   [
+    "resolution_compare",
+    "lt"
+   ],
+   [
+    "min_energy_compare",
+    "gt"
+   ],
+   [
+    "max_energy_compare",
+    "lt"
+   ],
+   [
+    "per_page",
+    "-1"
+   ],
+   [
+    "order_direction",
+    "ASC"
+   ]
+  ]
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": "https://api.eelsdb.eu/spectra/?author=Hettler&resolution_compare=lt&min_energy_compare=gt&max_energy_compare=lt&per_page=-1&order_direction=ASC",
+ "body_ids": [
+  22236,
+  22237,
+  22224
+ ]
+}

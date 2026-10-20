@@ -1,0 +1,64 @@
+{
+ "request": {
+  "path": "/spectra/hosse-tas2se-misfit-nanotube/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22105,
+  "title": "HoS(Se)-TaS2(Se) misfit nanotube",
+  "permalink": "https://eelsdb.eu/spectra/hosse-tas2se-misfit-nanotube/",
+  "author": {
+   "name": "Luc Lajaunie",
+   "profile_url": "https://eelsdb.eu/author/luc-lajaunie/",
+   "profile_api_url": "https://api.eelsdb.eu/author/luc-lajaunie/"
+  },
+  "published": "2018-01-15 12:57:04",
+  "description": "",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/hosse-tas2se-misfit-nanotube/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2018/01/cvert.msa",
+  "type": "Core Loss",
+  "formula": "HoS(Se)-TaS2(Se)",
+  "elements": [
+   "Ho",
+   "S",
+   "Se",
+   "Ta"
+  ],
+  "microscope": "FEI Titan Low-Base",
+  "max_energy": "2635.48 eV",
+  "min_energy": "1124.8 eV",
+  "edges": [
+   "S_K",
+   "Se_L1",
+   "Se_L2,3",
+   "Ta_M4,5",
+   "Ho_M4,5"
+  ],
+  "guntype": "X-FEG",
+  "beamenergy": "200 kV",
+  "resolution": "2 eV",
+  "monochromated": "No",
+  "stepSize": "0.738 eV/pixel",
+  "convergence": "18 mrad",
+  "collection": "25 mrad",
+  "detector": "Gatan Tridiem ESR 865",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "calibration": "low loss + drift tube",
+  "reference": {
+   "authors": "Luc Lajaunie, Gal Radovsky, Reshef Tenne, Raul Arenal",
+   "year": "2017",
+   "journal": "Inorganic Chemistry",
+   "title": "Quaternary Chalcogenide-Based Misfit Nanotubes LnS(Se)-TaS(Se)2 (Ln = La, Ce, Nd, and Ho): Synthesis and Atomic Structural Studies",
+   "doi": "10.1021/acs.inorgchem.7b02680",
+   "url": "http://dx.doi.org/10.1021/acs.inorgchem.7b02680"
+  }
+ }
+}

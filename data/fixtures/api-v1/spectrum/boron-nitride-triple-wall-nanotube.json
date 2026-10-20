@@ -1,0 +1,61 @@
+{
+ "request": {
+  "path": "/spectra/boron-nitride-triple-wall-nanotube/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21735,
+  "title": "Boron Nitride triple wall nanotube",
+  "permalink": "https://eelsdb.eu/spectra/boron-nitride-triple-wall-nanotube/",
+  "author": {
+   "name": "Odile Stephan",
+   "profile_url": "https://eelsdb.eu/author/stephan/",
+   "profile_api_url": "https://api.eelsdb.eu/author/stephan/"
+  },
+  "published": "2008-02-25 00:00:00",
+  "description": "Lucy-Richardson deconvoluted (5 iterations, zero loss subtracted)\r\n1 nm tube in diameter - similar data has been acquired for a single wall\r\nThe beam is intersecting the tube. Analyst: Odile Stephan, Raul Arenal de la Concha. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/boron-nitride-triple-wall-nanotube/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec3krXAW_converted.msa",
+  "type": "Low Loss",
+  "formula": "BN",
+  "elements": [
+   "B",
+   "N"
+  ],
+  "microscope": "STEM-VG",
+  "max_energy": "30 eV",
+  "min_energy": "4.01 eV",
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "resolution": "0.2 eV",
+  "stepSize": "0.048 eV/pixel",
+  "acquisition_mode": "STEM",
+  "convergence": "7.5 mrad",
+  "collection": "6 mrad",
+  "probesize": "1 nm^2",
+  "integratetime": "0.004 secs",
+  "readouts": "100",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "No",
+  "reference": {
+   "freetext": "R. Arenal,O. Stephan, M. Kociak et al.,PRL, 95, 127601,2005"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=225",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

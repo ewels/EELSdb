@@ -1,0 +1,65 @@
+{
+ "request": {
+  "path": "/spectra/hematite/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21668,
+  "title": "Hematite",
+  "permalink": "https://eelsdb.eu/spectra/hematite/",
+  "author": {
+   "name": "Andy Brown",
+   "profile_url": "https://eelsdb.eu/author/a-p-brown/",
+   "profile_api_url": "https://api.eelsdb.eu/author/a-p-brown/"
+  },
+  "published": "2008-01-08 00:00:00",
+  "description": "Spectrum has been processed in digitalmicrograph, background subtraction and fourier deconvolved.  Unprocessed data and associated low loss will be uploaded at a later date. Analyst: Ying-Hsi Pan. Temperature: 293. BEAM/Crystal: off-axis. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/hematite/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecgxvQRC.msa",
+  "type": "Core Loss",
+  "formula": "Fe2O3 (alpha)",
+  "elements": [
+   "Fe",
+   "O"
+  ],
+  "microscope": "Philips CM200",
+  "max_energy": "788.2 eV",
+  "min_energy": "685.9 eV",
+  "source_purity": "Powder bought from Alfa-aesar and checked with XRD",
+  "edges": [
+   "Fe_L2,3"
+  ],
+  "guntype": "feg Schottky",
+  "beamenergy": "197 kV",
+  "resolution": "0.8 eV",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "Diffraction",
+  "convergence": "1 mrad",
+  "collection": "5.9 mrad",
+  "probesize": "180 nm^2",
+  "integratetime": "15 secs",
+  "readouts": "1",
+  "detector": "GIF: GIF200",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "reference": {
+   "freetext": "Pan et al., Micron vol 37, 2006"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=157",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

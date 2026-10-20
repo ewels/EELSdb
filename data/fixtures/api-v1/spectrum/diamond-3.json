@@ -1,0 +1,58 @@
+{
+ "request": {
+  "path": "/spectra/diamond-3/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21543,
+  "title": "Diamond",
+  "permalink": "https://eelsdb.eu/spectra/diamond-3/",
+  "author": {
+   "name": "Virginie Serin",
+   "profile_url": "https://eelsdb.eu/author/serin/",
+   "profile_api_url": "https://api.eelsdb.eu/author/serin/"
+  },
+  "published": "2005-04-20 00:00:00",
+  "description": "Optimized intensity Analyst: V.Serin. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/diamond-3/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.70158.1.msa",
+  "type": "Low Loss",
+  "formula": "C",
+  "elements": [
+   "C"
+  ],
+  "microscope": "CM20",
+  "max_energy": "44.85 eV",
+  "min_energy": "-6.1 eV",
+  "source_purity": "CVD diamond",
+  "guntype": "LaB6",
+  "beamenergy": "100 kV",
+  "resolution": "1.6 eV",
+  "stepSize": "0.05 eV/pixel",
+  "acquisition_mode": "Diffraction",
+  "convergence": "8.4 mrad",
+  "probesize": "105 nm^2",
+  "integratetime": "0.05 secs",
+  "readouts": "1",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "1.4 t/&lambda;",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=19",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

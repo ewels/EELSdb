@@ -1,0 +1,54 @@
+{
+ "request": {
+  "path": "/spectra/la2nio4-structure-of-k2nif4/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22123,
+  "title": "La2NiO4 &#8211; Structure of K2NiF4",
+  "permalink": "https://eelsdb.eu/spectra/la2nio4-structure-of-k2nif4/",
+  "author": {
+   "name": "VILLEPREUX Edouard",
+   "profile_url": "https://eelsdb.eu/author/edouard/",
+   "profile_api_url": "https://api.eelsdb.eu/author/edouard/"
+  },
+  "published": "2020-09-17 22:41:43",
+  "description": "",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/la2nio4-structure-of-k2nif4/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2020/06/Full-Spectra-CL-La2NiO4-025eV.txt",
+  "type": "Core Loss",
+  "formula": "La2NiO4",
+  "elements": [
+   "La",
+   "Ni",
+   "O"
+  ],
+  "microscope": "FEI TITAN THEMIS",
+  "max_energy": "934.5 eV",
+  "min_energy": "424 eV",
+  "source_purity": "Monocristalline",
+  "edges": [
+   "O_K",
+   "Ni_L2,3",
+   "La_M4,5"
+  ],
+  "guntype": "XFEG",
+  "beamenergy": "200 kV",
+  "resolution": "0.25 eV",
+  "monochromated": "No",
+  "stepSize": "0.25 eV/pixel",
+  "acquisition_mode": "stem",
+  "readouts": "17",
+  "detector": "Quantum GATAN Filter (STEM - Fast Dual EELS)",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "low loss + drift tube"
+ }
+}

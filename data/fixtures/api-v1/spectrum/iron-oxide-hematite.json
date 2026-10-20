@@ -1,0 +1,58 @@
+{
+ "request": {
+  "path": "/spectra/iron-oxide-hematite/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21705,
+  "title": "Iron Oxide Hematite",
+  "permalink": "https://eelsdb.eu/spectra/iron-oxide-hematite/",
+  "author": {
+   "name": "Alex Gloter",
+   "profile_url": "https://eelsdb.eu/author/alexg/",
+   "profile_api_url": "https://api.eelsdb.eu/author/alexg/"
+  },
+  "published": "2008-02-08 00:00:00",
+  "description": "We use the hematite as a Fe3+ reference, maximum of the L3 line set at 710.5 eV to match with some XAS previously reported work. see  Kuiper et al., Phys. Rev. Lett. 70, 1549 - 1552 (1993)\r\nEnergy resolution improved by Richardson-Lucy deconvolution Analyst: A. Gloter, A. Chen. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/iron-oxide-hematite/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec9tqvBz.msa",
+  "type": "Core Loss",
+  "formula": "Fe2O3 (alpha)",
+  "elements": [
+   "Fe",
+   "O"
+  ],
+  "microscope": "STEM-VG",
+  "max_energy": "730.15 eV",
+  "min_energy": "683.9 eV",
+  "source_purity": "natural sample, Ouro Preto",
+  "edges": [
+   "Fe_L2,3"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "monochromated": "No",
+  "stepSize": "0.05 eV/pixel",
+  "convergence": "7.5 mrad",
+  "collection": "24 mrad",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=195",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

@@ -1,0 +1,50 @@
+{
+ "request": {
+  "path": "/spectra/feal/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 22056,
+  "title": "FeAl",
+  "permalink": "https://eelsdb.eu/spectra/feal/",
+  "author": {
+   "name": "magnunor",
+   "profile_url": "https://eelsdb.eu/author/magnus/",
+   "profile_api_url": "https://api.eelsdb.eu/author/magnus/"
+  },
+  "published": "2016-12-07 11:25:56",
+  "description": "",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/feal/",
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2016/12/FeAl2.msa",
+  "type": "Core Loss",
+  "formula": "FeAl",
+  "elements": [
+   "Fe",
+   "Al"
+  ],
+  "microscope": "ARM 200cF",
+  "max_energy": "865.5 eV",
+  "min_energy": "612 eV",
+  "edges": [
+   "Fe_L2,3"
+  ],
+  "guntype": "Cold Field Emission Gun",
+  "beamenergy": "200 kV",
+  "resolution": "0.7 eV",
+  "monochromated": "No",
+  "stepSize": "0.25 eV/pixel",
+  "convergence": "27.42 mrad",
+  "collection": "33.19 mrad",
+  "detector": "GIF Quantum ER",
+  "darkcurrent": "No",
+  "gainvariation": "No",
+  "calibration": "Energy scale aligned using zero loss peak"
+ }
+}

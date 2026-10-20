@@ -1,0 +1,67 @@
+{
+ "request": {
+  "path": "/spectra/aluminium-nitride/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21528,
+  "title": "Aluminium nitride",
+  "permalink": "https://eelsdb.eu/spectra/aluminium-nitride/",
+  "author": {
+   "name": "Virginie Serin",
+   "profile_url": "https://eelsdb.eu/author/serin/",
+   "profile_api_url": "https://api.eelsdb.eu/author/serin/"
+  },
+  "published": "2005-04-20 00:00:00",
+  "description": " Analyst: V.Serin. Temperature: 300. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/aluminium-nitride/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec.530614.1.msa",
+  "type": "Core Loss",
+  "formula": "AlN",
+  "elements": [
+   "Al",
+   "N"
+  ],
+  "microscope": "CM30",
+  "max_energy": "470.21 eV",
+  "min_energy": "368.3 eV",
+  "source_purity": "AlN fritt",
+  "edges": [
+   "N_K"
+  ],
+  "guntype": "LaB6",
+  "beamenergy": "100 kV",
+  "resolution": "1.6 eV",
+  "stepSize": "0.1 eV/pixel",
+  "acquisition_mode": "Diffraction",
+  "convergence": "8.4 mrad",
+  "collection": "5 mrad",
+  "probesize": "42.5 nm^2",
+  "beamcurrent": "2500",
+  "integratetime": "1.504 secs",
+  "readouts": "10",
+  "detector": "Parallel",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "0.5 t/&lambda;",
+  "reference": {
+   "freetext": "V.serin, C.Colliex, R.Brydson, S.Matar, F.Boucher  Phys Rev B, 58 5106-5115 1998"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=4",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

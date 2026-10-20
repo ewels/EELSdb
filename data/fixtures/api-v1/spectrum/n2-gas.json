@@ -1,0 +1,59 @@
+{
+ "request": {
+  "path": "/spectra/n2-gas/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21629,
+  "title": "N2 gas",
+  "permalink": "https://eelsdb.eu/spectra/n2-gas/",
+  "author": {
+   "name": "Susana Trasobares",
+   "profile_url": "https://eelsdb.eu/author/strasos/",
+   "profile_api_url": "https://api.eelsdb.eu/author/strasos/"
+  },
+  "published": "2007-11-19 00:00:00",
+  "description": "The N2 gas spectrum was acquired through a chronospectroscopy analysis on N2 gas encapsulated inside a C nanotube Analyst: Susana Trasobares. Temperature: Room. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/n2-gas/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/DspecYylKeR.msa",
+  "type": "Core Loss",
+  "formula": "N2",
+  "elements": [
+   "N"
+  ],
+  "microscope": "VG HB501",
+  "max_energy": "439.03 eV",
+  "min_energy": "352.77 eV",
+  "source_purity": "N2 gas encapsulated inside C nanotube",
+  "edges": [
+   "N_K"
+  ],
+  "guntype": "Cold FEG",
+  "beamenergy": "100 kV",
+  "monochromated": "No",
+  "stepSize": "0.205 eV/pixel",
+  "convergence": "15 mrad",
+  "collection": "24 mrad",
+  "probesize": "0.5 nm^2",
+  "integratetime": "0.6 secs",
+  "detector": "Parallel: 666 Gatan",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=118",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

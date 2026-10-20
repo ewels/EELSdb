@@ -1,0 +1,65 @@
+{
+ "request": {
+  "path": "/spectra/cerium-praseodymium-mixed-oxide-supported-on-al2o3-doped-with-la2o3/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21631,
+  "title": "Cerium Praseodymium mixed oxide supported on Al2O3 doped with La2O3",
+  "permalink": "https://eelsdb.eu/spectra/cerium-praseodymium-mixed-oxide-supported-on-al2o3-doped-with-la2o3/",
+  "author": {
+   "name": "Susana Trasobares",
+   "profile_url": "https://eelsdb.eu/author/strasos/",
+   "profile_api_url": "https://api.eelsdb.eu/author/strasos/"
+  },
+  "published": "2007-11-19 00:00:00",
+  "description": "The Cerium mixed oxide is supported on alumina doped with La2O3, The La signal is coming from the support meanwhile Ce and Pr signal are coming from the nanocrystal Analyst: Susana Trasobares. Temperature: Room.",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/cerium-praseodymium-mixed-oxide-supported-on-al2o3-doped-with-la2o3/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2016/02/DspecSuXdEW.msa",
+  "type": "Core Loss",
+  "formula": "CePrOx/Al2O3-La2O3",
+  "elements": [
+   "Ce",
+   "Pr",
+   "Al",
+   "O",
+   "La"
+  ],
+  "microscope": "JEOL2010F",
+  "max_energy": "1065 eV",
+  "min_energy": "758.1 eV",
+  "edges": [
+   "La_M4,5",
+   "Ce_M4,5",
+   "Pr_M4,5"
+  ],
+  "guntype": "feg",
+  "beamenergy": "200 kV",
+  "monochromated": "No",
+  "stepSize": "0.3 eV/pixel",
+  "convergence": "8 mrad",
+  "collection": "24 mrad",
+  "probesize": "0.5 nm^2",
+  "integratetime": "10 secs",
+  "detector": "Parallel: GIF2000",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "calibration": "-",
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=120",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}

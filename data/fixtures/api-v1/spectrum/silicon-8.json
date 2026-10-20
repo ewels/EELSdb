@@ -1,0 +1,61 @@
+{
+ "request": {
+  "path": "/spectra/silicon-8/",
+  "query": "",
+  "params": []
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json; charset=utf-8"
+ },
+ "final_url": null,
+ "body": {
+  "id": 21667,
+  "title": "Silicon",
+  "permalink": "https://eelsdb.eu/spectra/silicon-8/",
+  "author": {
+   "name": "Michael Stöger-Pollach",
+   "profile_url": "https://eelsdb.eu/author/michaels/",
+   "profile_api_url": "https://api.eelsdb.eu/author/michaels/"
+  },
+  "published": "2007-12-18 00:00:00",
+  "description": "Cerenkov losses and light guiding modes are present in the very low loss!\r\nCompare with spectra recorded at other thicknesses in this base. Analyst: M. Stoeger-Pollach. Temperature: Room. BEAM/Crystal: 110. ",
+  "comment_count": 0,
+  "api_permalink": "https://api.eelsdb.eu/spectra/silicon-8/",
+  "keywords": [
+   "imported from old site"
+  ],
+  "download_link": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec5rDstZ.msa",
+  "type": "Low Loss",
+  "formula": "Si",
+  "elements": [
+   "Si"
+  ],
+  "microscope": "Tecnai F20 monochromator",
+  "max_energy": "20.86 eV",
+  "min_energy": "-2.96 eV",
+  "source_purity": "99.999%",
+  "guntype": "Thermal type FEG ( monochromator was used )",
+  "beamenergy": "200 kV",
+  "resolution": "0.12 eV",
+  "monochromated": "Yes",
+  "stepSize": "0.02 eV/pixel",
+  "convergence": "0.5 mrad",
+  "collection": "0.18 mrad",
+  "integratetime": "0.1 secs",
+  "readouts": "1",
+  "detector": "Parallel: GIF",
+  "darkcurrent": "Yes",
+  "gainvariation": "Yes",
+  "thickness": "1.57 t/&lambda;",
+  "reference": {
+   "freetext": "M.Stoeger-Pollach et al., Micron 37(2006)396-402"
+  },
+  "other_links": [
+   {
+    "url": "http://pc-web.cemes.fr/eelsdb/index.php?page=displayspec.php&id=156",
+    "title": "Old EELS DB"
+   }
+  ]
+ }
+}
