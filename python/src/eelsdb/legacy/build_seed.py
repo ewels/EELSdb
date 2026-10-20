@@ -110,6 +110,8 @@ def spectrum_rows(s, rank, ids_by_slug, manifest, analysis):
         "author_slug": slug_of(s["author"]["profile_url"]),
         "published_at": s["published"],
         "created_at": s["published"],
+        "completeness": None if s["type"] == "X Ray Abs" else
+        "full" if all(k in s for k in ("beamenergy", "convergence", "collection")) else "partial",
         "legacy_rank": rank,
         "legacy_v1": json.dumps(legacy, ensure_ascii=False, separators=(",", ":")),
     })]

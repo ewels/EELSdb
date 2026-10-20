@@ -8,7 +8,8 @@
     "typecheck": "tsc --noEmit",
     "seed": "node scripts/seed.mjs",
     "types": "wrangler types",
-    "vendor": "cp node_modules/uplot/dist/uPlot.iife.min.js node_modules/uplot/dist/uPlot.min.css public/vendor/"
+    "vendor": "cp node_modules/uplot/dist/uPlot.iife.min.js node_modules/uplot/dist/uPlot.min.css public/vendor/",
+    "py": "mkdir -p public/py/eelsdb && cp ../python/src/eelsdb/checks.py ../python/src/eelsdb/io.py ../python/src/eelsdb/_elements.py public/py/eelsdb/"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

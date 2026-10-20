@@ -12,3 +12,6 @@ GITHUB_CLIENT_SECRET=
 EMAIL_PROVIDER=log
 # "1" lets migrated accounts sign in with their old WordPress password (CPU-heavy; Workers Paid)
 LEGACY_PASSWORD_LOGIN=0
+# Turnstile on the submit form; without a secret the check is skipped (local development)
+TURNSTILE_SITE_KEY=
+TURNSTILE_SECRET_KEY=

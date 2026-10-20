@@ -6,6 +6,7 @@ import { serveFile } from "../files";
 import { browsePage } from "./browse";
 import { EELSDB_BIBTEX, EELSDB_CITATION } from "./citation";
 import { Formula, Layout, TYPE_NAMES, TypeBadge } from "./layout";
+import { submit } from "../submit/index";
 import { account } from "./account";
 import { spectrumPage } from "./spectrum";
 
@@ -15,6 +16,7 @@ type C = Context<AppEnv>;
 pages.use(csrf());
 pages.use(loadUser);
 pages.route("/", account);
+pages.route("/", submit);
 
 pages.get("/", async (c) => {
   const [{ results: byType }, counts, { results: latest }, { results: news }] = await c.env.DB.batch<any>([
@@ -179,23 +181,6 @@ pages.get("/contact/", (c) =>
         <p>
           Until then, for questions about the database or a spectrum, or to report a problem with the website or the API, open an issue
           on <a href="https://github.com/ewels/EELSdb/issues">GitHub</a>.
-        </p>
-      </div>
-    </Layout>,
-  ),
-);
-
-pages.get("/submit-data/", (c) =>
-  c.html(
-    <Layout user={c.get("user")} title="Submit data" path="/submit-data/">
-      <div class="prose">
-        <h1>Submit data</h1>
-        <p class="notice">
-          The new submission form is not open yet. You will sign in with ORCID, Google or GitHub, upload your file (DM3/DM4, MSA, EMD,
-          HSPY or two-column text) and check it in your browser before sending it to the moderators.
-        </p>
-        <p>
-          Until then, to share a spectrum, get in touch through the <a href="/contact/">contact page</a>.
         </p>
       </div>
     </Layout>,

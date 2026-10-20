@@ -1,22 +1,10 @@
 import type { Context } from "hono";
 import type { AppEnv } from "../auth";
 import { KNOWN_ARGS, buildSpectraQuery, parseParams, sortAndPage, type Params } from "../api/query";
+import { PERIODIC_ROWS } from "../elements";
 import { Formula, Layout, TYPE_NAMES, TypeBadge, fmt } from "./layout";
 
 const PER_PAGE = 50;
-
-// 18-column layout; "." is an empty cell. The last two rows are the lanthanides and actinides.
-const PERIODIC_ROWS = [
-  "H . . . . . . . . . . . . . . . . He",
-  "Li Be . . . . . . . . . . B C N O F Ne",
-  "Na Mg . . . . . . . . . . Al Si P S Cl Ar",
-  "K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr",
-  "Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe",
-  "Cs Ba La Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn",
-  "Fr Ra Ac Rf Db Sg Bh Hs Mt Ds Rg Cn Nh Fl Mc Lv Ts Og",
-  ". . . Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu .",
-  ". . . Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr .",
-].map((r) => r.split(" "));
 
 const EDGES = ["K", "L1", "L2,3", "M2,3", "M4,5", "N2,3", "N4,5", "O2,3", "O4,5"];
 const COMPARES = [

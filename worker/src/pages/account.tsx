@@ -120,6 +120,10 @@ account.get("/account/", requireUser, async (c) => {
       )}
       {notice === "done" && <p class="notice" role="status">Your old account is now linked. Its favourites and spectra are below.</p>}
 
+      <p>
+        <a class="button" href="/submit-data/">Submit a spectrum</a> <a class="button secondary" href="/account/submissions/">Your submissions</a>
+      </p>
+
       <h2>Favourite spectra</h2>
       {favourites.length ? (
         <div class="table-scroll">
