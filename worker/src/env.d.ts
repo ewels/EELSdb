@@ -1,4 +1,4 @@
-// Secrets and optional settings from .dev.vars (see .dev.vars.example); `wrangler types` does not know them.
+// Secrets and optional settings from .env (see .env.example); `wrangler types` does not know them.
 interface Env {
   ORCID_CLIENT_ID?: string;
   ORCID_CLIENT_SECRET?: string;

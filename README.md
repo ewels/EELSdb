@@ -26,7 +26,7 @@ npm run dev      # wrangler dev on http://localhost:8787 (pages) and http://api.
 npm test         # Vitest, in the Workers runtime
 ```
 
-Run `npm run types` after changing `wrangler.jsonc`.
+Run `npm run types` after changing `wrangler.jsonc`. OAuth, Turnstile and other keys go in `worker/.env` (gitignored); `worker/.env.example` lists them.
 
 The Python tools (import scripts, file checks) are in `python/`, managed with [uv](https://docs.astral.sh/uv/):
 

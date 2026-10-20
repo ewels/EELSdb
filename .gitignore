@@ -13,6 +13,9 @@ data/private/
 node_modules/
 .wrangler/
 .dev.vars
+.env
+.env.*
+!.env.example
 .venv/
 __pycache__/
 
