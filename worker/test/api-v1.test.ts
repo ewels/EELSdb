@@ -32,6 +32,14 @@ describe("API v1 deliberate changes", () => {
     expect((await get("/nope/")).headers.get("Access-Control-Allow-Origin")).toBe("*");
   });
 
+  it("lists gas-phase spectra only when asked for", async () => {
+    await env.DB.prepare(
+      "INSERT INTO spectra (id, slug, status, title, type, phase, formula, author_display, author_slug) VALUES (8800002, 'gas-n2', 'published', 'N2 gas', 'coreloss', 'gas', 'N2', 'Corex', 'corex')",
+    ).run();
+    expect((await getJson("/spectra/?formula=N2&per_page=-1")).map((s: any) => s.id)).not.toContain(8800002);
+    expect((await getJson("/spectra/?phase=gas&per_page=-1")).map((s: any) => s.id)).toEqual([8800002]);
+  });
+
   it("serves the route index at the root", async () => {
     const body = await getJson("/");
     expect(body.browse_spectra.arguments.order).toContain("spectrumFormula");

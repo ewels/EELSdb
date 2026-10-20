@@ -16,47 +16,83 @@ type Row = Record<string, any>;
 export type SpectrumBundle = {
   spectrum: Row;
   acquisition: Row | null;
+  xas: Row | null;
   treatment: Row | null;
   reference: Row | null;
   elements: string[];
   edges: { element: string; edge: string }[];
   keywords: string[];
-  links: { title: string; slug: string; type: string }[];
+  links: { id: number; title: string; slug: string; type: string }[];
   otherUrls: { url: string; title: string | null }[];
+  /** The public download: the legacy file, else the reviewed MSA (exSpy reads only .msa), else the upload. */
   legacyFile: string | null;
+  files: Row[];
+  processing: Row[];
 };
 
-export async function loadBundle(db: D1Database, id: number): Promise<SpectrumBundle | null> {
-  const q = (sql: string) => db.prepare(sql).bind(id);
-  const [s, a, t, r, el, ed, kw, ln, ou, f] = await db.batch<Row>([
-    q("SELECT * FROM spectra WHERE id = ?"),
-    q("SELECT * FROM eels_acquisition WHERE spectrum_id = ?"),
-    q("SELECT * FROM treatment WHERE spectrum_id = ?"),
-    q("SELECT * FROM reference WHERE spectrum_id = ?"),
-    q("SELECT element FROM spectrum_elements WHERE spectrum_id = ? ORDER BY position"),
-    q("SELECT element, edge FROM spectrum_edges WHERE spectrum_id = ? ORDER BY position"),
-    q("SELECT keyword FROM spectrum_keywords WHERE spectrum_id = ? ORDER BY position"),
-    q(`SELECT r.title, r.slug, r.type FROM spectrum_links l JOIN spectra r ON r.id = l.related_id
-       WHERE l.spectrum_id = ? AND r.status = 'published' ORDER BY l.position`),
-    q("SELECT url, title FROM spectrum_other_urls WHERE spectrum_id = ? ORDER BY position"),
-    // The download is the legacy file, else the reviewed MSA (exSpy reads only .msa), else the upload.
-    q(`SELECT r2_key FROM files WHERE spectrum_id = ? AND role IN ('legacy', 'msa', 'original')
-       ORDER BY CASE role WHEN 'legacy' THEN 0 WHEN 'msa' THEN 1 ELSE 2 END LIMIT 1`),
+const DOWNLOAD_ORDER = ["legacy", "msa", "original"];
+
+const D1_MAX_PARAMS = 100;
+
+/** Every row for several spectra in a fixed number of queries per 100 spectra, in the order of `ids`. */
+export async function loadMany(db: D1Database, ids: number[]): Promise<SpectrumBundle[]> {
+  if (ids.length > D1_MAX_PARAMS) {
+    const out: SpectrumBundle[] = [];
+    for (let i = 0; i < ids.length; i += D1_MAX_PARAMS) out.push(...(await loadMany(db, ids.slice(i, i + D1_MAX_PARAMS))));
+    return out;
+  }
+  if (!ids.length) return [];
+  const list = ids.map(() => "?").join(",");
+  const q = (sql: string) => db.prepare(sql.replace("(?)", `(${list})`)).bind(...ids);
+  const [s, a, x, t, r, el, ed, kw, ln, ou, f, p] = await db.batch<Row>([
+    q("SELECT * FROM spectra WHERE id IN (?)"),
+    q("SELECT * FROM eels_acquisition WHERE spectrum_id IN (?)"),
+    q("SELECT * FROM xas_acquisition WHERE spectrum_id IN (?)"),
+    q("SELECT * FROM treatment WHERE spectrum_id IN (?)"),
+    q("SELECT * FROM reference WHERE spectrum_id IN (?)"),
+    q("SELECT spectrum_id, element FROM spectrum_elements WHERE spectrum_id IN (?) ORDER BY position"),
+    q("SELECT spectrum_id, element, edge FROM spectrum_edges WHERE spectrum_id IN (?) ORDER BY position"),
+    q("SELECT spectrum_id, keyword FROM spectrum_keywords WHERE spectrum_id IN (?) ORDER BY position"),
+    q(`SELECT l.spectrum_id, r.id, r.title, r.slug, r.type FROM spectrum_links l JOIN spectra r ON r.id = l.related_id
+       WHERE l.spectrum_id IN (?) AND r.status = 'published' ORDER BY l.position`),
+    q("SELECT spectrum_id, url, title FROM spectrum_other_urls WHERE spectrum_id IN (?) ORDER BY position"),
+    q("SELECT * FROM files WHERE spectrum_id IN (?) ORDER BY id"),
+    q("SELECT spectrum_id, tool, version, run_at FROM processing WHERE spectrum_id IN (?) ORDER BY rowid"),
   ]);
-  const spectrum = s.results[0] as Row | undefined;
-  if (!spectrum) return null;
-  return {
-    spectrum,
-    acquisition: (a.results[0] as Row) ?? null,
-    treatment: (t.results[0] as Row) ?? null,
-    reference: (r.results[0] as Row) ?? null,
-    elements: el.results.map((x) => x.element),
-    edges: ed.results as SpectrumBundle["edges"],
-    keywords: kw.results.map((x) => x.keyword),
-    links: ln.results as SpectrumBundle["links"],
-    otherUrls: ou.results as SpectrumBundle["otherUrls"],
-    legacyFile: ((f.results[0] as Row) ?? null)?.r2_key ?? null,
+  const one = (res: D1Result<Row>) => new Map(res.results.map((row) => [row.spectrum_id ?? row.id, row]));
+  const many = (res: D1Result<Row>) => {
+    const out = new Map<number, Row[]>();
+    for (const row of res.results) out.set(row.spectrum_id, [...(out.get(row.spectrum_id) ?? []), row]);
+    return out;
   };
+  const [spectra, acq, xas, treat, ref] = [s, a, x, t, r].map(one);
+  const [els, eds, kws, lns, ous, fs, ps] = [el, ed, kw, ln, ou, f, p].map(many);
+  const strip = ({ spectrum_id, ...rest }: Row) => rest;
+  return ids
+    .filter((id) => spectra.has(id))
+    .map((id) => {
+      const files = fs.get(id) ?? [];
+      const download = DOWNLOAD_ORDER.map((role) => files.find((file) => file.role === role)).find(Boolean);
+      return {
+        spectrum: spectra.get(id)!,
+        acquisition: acq.get(id) ?? null,
+        xas: xas.get(id) ?? null,
+        treatment: treat.get(id) ?? null,
+        reference: ref.get(id) ?? null,
+        elements: (els.get(id) ?? []).map((e) => e.element),
+        edges: (eds.get(id) ?? []).map((e) => ({ element: e.element, edge: e.edge })),
+        keywords: (kws.get(id) ?? []).map((k) => k.keyword),
+        links: (lns.get(id) ?? []).map(strip) as SpectrumBundle["links"],
+        otherUrls: (ous.get(id) ?? []).map(strip) as SpectrumBundle["otherUrls"],
+        legacyFile: download?.r2_key ?? null,
+        files,
+        processing: (ps.get(id) ?? []).map(strip),
+      };
+    });
+}
+
+export async function loadBundle(db: D1Database, id: number): Promise<SpectrumBundle | null> {
+  return (await loadMany(db, [id]))[0] ?? null;
 }
 
 /** Slug as WordPress printed it in URLs: percent-encoded, lower-case hex. */

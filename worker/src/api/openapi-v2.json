@@ -1,0 +1,924 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "EELS Data Base API v2",
+  "version": "2",
+  "description": "Read-only JSON API with typed values: numbers are numbers, units are in the field names, and acquisition values say where they came from. No key is needed. Responses have `Access-Control-Allow-Origin: *`. Errors return `{\"error\": {\"code\", \"message\"}}`. Field names follow HyperSpy's metadata where they can (beam energy in kV, angles in mrad)."
+ },
+ "servers": [
+  {
+   "url": "https://api.eelsdb.eu/v2"
+  }
+ ],
+ "paths": {
+  "/spectra": {
+   "get": {
+    "summary": "List spectra",
+    "description": "Published spectra matching all given filters, with a total count and links to the next and previous pages. An unknown query parameter returns 400. Gas-phase spectra are included only when `phase=gas` is given.",
+    "parameters": [
+     {
+      "name": "type",
+      "in": "query",
+      "description": "Spectrum type.",
+      "schema": {
+       "type": "string",
+       "enum": [
+        "coreloss",
+        "lowloss",
+        "zeroloss",
+        "xrayabs"
+       ]
+      }
+     },
+     {
+      "name": "technique",
+      "in": "query",
+      "description": "Measurement technique.",
+      "schema": {
+       "type": "string",
+       "enum": [
+        "eels",
+        "xas"
+       ]
+      }
+     },
+     {
+      "name": "phase",
+      "in": "query",
+      "description": "Specimen phase.",
+      "schema": {
+       "type": "string",
+       "enum": [
+        "solid",
+        "liquid",
+        "gas"
+       ]
+      }
+     },
+     {
+      "name": "element",
+      "in": "query",
+      "description": "Element symbol; repeat to require several (all must be present).",
+      "schema": {
+       "type": "string"
+      },
+      "example": "Fe"
+     },
+     {
+      "name": "edge",
+      "in": "query",
+      "description": "Edge, matched whole: `L2,3` (any element) or `Fe_L2,3`. Repeat to require several.",
+      "schema": {
+       "type": "string"
+      },
+      "example": "Fe_L2,3"
+     },
+     {
+      "name": "formula",
+      "in": "query",
+      "description": "Text the formula contains.",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "q",
+      "in": "query",
+      "description": "Text in the title or description.",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "author",
+      "in": "query",
+      "description": "Part of the contributor's name, or their profile name.",
+      "schema": {
+       "type": "string"
+      }
+     },
+     {
+      "name": "complete",
+      "in": "query",
+      "description": "`true`: only spectra whose beam energy and both angles are known.",
+      "schema": {
+       "type": "string",
+       "enum": [
+        "true"
+       ]
+      }
+     },
+     {
+      "name": "monochromated",
+      "in": "query",
+      "description": "Monochromated or not.",
+      "schema": {
+       "type": "string",
+       "enum": [
+        "true",
+        "false"
+       ]
+      }
+     },
+     {
+      "name": "min_energy_ev",
+      "in": "query",
+      "description": "Spectra starting at or above this energy (eV).",
+      "schema": {
+       "type": "number"
+      }
+     },
+     {
+      "name": "max_energy_ev",
+      "in": "query",
+      "description": "Spectra ending at or below this energy (eV).",
+      "schema": {
+       "type": "number"
+      }
+     },
+     {
+      "name": "covers_ev",
+      "in": "query",
+      "description": "Spectra whose energy range includes this energy (eV).",
+      "schema": {
+       "type": "number"
+      },
+      "example": 708
+     },
+     {
+      "name": "beam_energy_kv",
+      "in": "query",
+      "description": "Beam energy (kV).",
+      "schema": {
+       "type": "number"
+      }
+     },
+     {
+      "name": "sort",
+      "in": "query",
+      "description": "Sort key; missing values sort last.",
+      "schema": {
+       "type": "string",
+       "enum": [
+        "formula",
+        "title",
+        "published_at",
+        "min_energy_ev",
+        "max_energy_ev",
+        "beam_energy_kv",
+        "resolution_ev",
+        "id"
+       ],
+       "default": "formula"
+      }
+     },
+     {
+      "name": "order",
+      "in": "query",
+      "description": "Sort direction.",
+      "schema": {
+       "type": "string",
+       "enum": [
+        "asc",
+        "desc"
+       ],
+       "default": "asc"
+      }
+     },
+     {
+      "name": "page",
+      "in": "query",
+      "description": "Page number, from 1.",
+      "schema": {
+       "type": "integer",
+       "default": 1
+      }
+     },
+     {
+      "name": "per_page",
+      "in": "query",
+      "description": "Spectra per page, at most 500.",
+      "schema": {
+       "type": "integer",
+       "default": 50
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "A page of spectra.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "object",
+         "properties": {
+          "total": {
+           "type": "integer"
+          },
+          "page": {
+           "type": "integer"
+          },
+          "per_page": {
+           "type": "integer"
+          },
+          "next": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "previous": {
+           "type": [
+            "string",
+            "null"
+           ]
+          },
+          "results": {
+           "type": "array",
+           "items": {
+            "$ref": "#/components/schemas/Spectrum"
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Unknown or invalid parameter.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/spectra/{id}": {
+   "get": {
+    "summary": "One spectrum",
+    "description": "By numeric id or by slug.",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "description": "Numeric id (the old WordPress id for migrated spectra) or slug.",
+      "schema": {
+       "type": "string"
+      },
+      "example": "21751"
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "A spectrum.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Spectrum"
+        }
+       }
+      }
+     },
+     "404": {
+      "description": "Not found.",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Error"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "Error": {
+    "type": "object",
+    "properties": {
+     "error": {
+      "type": "object",
+      "properties": {
+       "code": {
+        "type": "string"
+       },
+       "message": {
+        "type": "string"
+       }
+      }
+     }
+    }
+   },
+   "Spectrum": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "integer"
+     },
+     "slug": {
+      "type": "string"
+     },
+     "url": {
+      "type": "string"
+     },
+     "api_url": {
+      "type": "string"
+     },
+     "title": {
+      "type": "string"
+     },
+     "type": {
+      "type": "string",
+      "enum": [
+       "coreloss",
+       "lowloss",
+       "zeroloss",
+       "xrayabs"
+      ]
+     },
+     "technique": {
+      "type": "string",
+      "enum": [
+       "eels",
+       "xas"
+      ]
+     },
+     "phase": {
+      "type": "string",
+      "enum": [
+       "solid",
+       "liquid",
+       "gas"
+      ]
+     },
+     "intensity_units": {
+      "type": "string",
+      "enum": [
+       "counts",
+       "oscillator_strength",
+       "mu",
+       "optical_density",
+       "normalised"
+      ]
+     },
+     "formula": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "elements": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "edges": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "element": {
+         "type": "string"
+        },
+        "edge": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "keywords": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "description": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "source_purity": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "licence": {
+      "type": [
+       "string",
+       "null"
+      ],
+      "description": "SPDX identifier, for example ODbL-1.0. Null for spectra migrated from the old site."
+     },
+     "completeness": {
+      "type": [
+       "string",
+       "null"
+      ],
+      "enum": [
+       "full",
+       "partial",
+       null
+      ],
+      "description": "`full` when beam energy and both angles are known."
+     },
+     "published_at": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "updated_at": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "author": {
+      "type": "object",
+      "properties": {
+       "name": {
+        "type": "string"
+       },
+       "profile_url": {
+        "type": "string"
+       }
+      }
+     },
+     "energy": {
+      "type": "object",
+      "properties": {
+       "min_ev": {
+        "type": [
+         "number",
+         "null"
+        ]
+       },
+       "max_ev": {
+        "type": [
+         "number",
+         "null"
+        ]
+       },
+       "step_ev": {
+        "type": [
+         "number",
+         "null"
+        ]
+       }
+      }
+     },
+     "acquisition": {
+      "type": [
+       "object",
+       "null"
+      ],
+      "properties": {
+       "microscope": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "gun_type": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "mode": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "detector": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "beam_energy": {
+        "type": [
+         "object",
+         "null"
+        ],
+        "description": "Value with its source. `source` is file, companion, profile, user, estimate or unknown; `value_kv` is null when unknown.",
+        "properties": {
+         "value_kv": {
+          "type": [
+           "number",
+           "null"
+          ]
+         },
+         "source": {
+          "type": [
+           "string",
+           "null"
+          ],
+          "enum": [
+           "file",
+           "companion",
+           "profile",
+           "user",
+           "estimate",
+           "unknown",
+           null
+          ]
+         },
+         "uncertainty_kv": {
+          "type": [
+           "number",
+           "null"
+          ]
+         }
+        }
+       },
+       "convergence_angle": {
+        "type": [
+         "object",
+         "null"
+        ],
+        "description": "Value with its source. `source` is file, companion, profile, user, estimate or unknown; `value_mrad` is null when unknown.",
+        "properties": {
+         "value_mrad": {
+          "type": [
+           "number",
+           "null"
+          ]
+         },
+         "source": {
+          "type": [
+           "string",
+           "null"
+          ],
+          "enum": [
+           "file",
+           "companion",
+           "profile",
+           "user",
+           "estimate",
+           "unknown",
+           null
+          ]
+         },
+         "uncertainty_mrad": {
+          "type": [
+           "number",
+           "null"
+          ]
+         }
+        }
+       },
+       "collection_angle": {
+        "type": [
+         "object",
+         "null"
+        ],
+        "description": "Value with its source. `source` is file, companion, profile, user, estimate or unknown; `value_mrad` is null when unknown.",
+        "properties": {
+         "value_mrad": {
+          "type": [
+           "number",
+           "null"
+          ]
+         },
+         "source": {
+          "type": [
+           "string",
+           "null"
+          ],
+          "enum": [
+           "file",
+           "companion",
+           "profile",
+           "user",
+           "estimate",
+           "unknown",
+           null
+          ]
+         },
+         "uncertainty_mrad": {
+          "type": [
+           "number",
+           "null"
+          ]
+         }
+        }
+       },
+       "resolution_ev": {
+        "type": [
+         "number",
+         "null"
+        ]
+       },
+       "monochromated": {
+        "type": [
+         "boolean",
+         "null"
+        ]
+       },
+       "dispersion_ev": {
+        "type": [
+         "number",
+         "null"
+        ]
+       },
+       "probe_size_nm2": {
+        "type": [
+         "number",
+         "null"
+        ]
+       },
+       "beam_current": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "integration_time_s": {
+        "type": [
+         "number",
+         "null"
+        ]
+       },
+       "readouts": {
+        "type": [
+         "number",
+         "null"
+        ]
+       },
+       "instrument_profile": {
+        "type": [
+         "object",
+         "null"
+        ],
+        "properties": {
+         "id": {
+          "type": "integer"
+         },
+         "version": {
+          "type": "integer"
+         },
+         "url": {
+          "type": "string"
+         }
+        }
+       }
+      }
+     },
+     "xas": {
+      "type": [
+       "object",
+       "null"
+      ],
+      "description": "For X-ray absorption spectra.",
+      "properties": {
+       "facility": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "beamline": {
+        "type": [
+         "string",
+         "null"
+        ]
+       }
+      }
+     },
+     "treatment": {
+      "type": [
+       "object",
+       "null"
+      ],
+      "properties": {
+       "dark_current_corrected": {
+        "type": [
+         "boolean",
+         "null"
+        ]
+       },
+       "gain_variation_corrected": {
+        "type": [
+         "boolean",
+         "null"
+        ]
+       },
+       "calibration": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "thickness": {
+        "type": [
+         "object",
+         "null"
+        ],
+        "properties": {
+         "value_t_lambda": {
+          "type": "number"
+         },
+         "source": {
+          "type": [
+           "string",
+           "null"
+          ]
+         }
+        }
+       },
+       "deconvolutions": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "reference": {
+      "type": [
+       "object",
+       "null"
+      ],
+      "properties": {
+       "doi": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "doi_url": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "url": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "authors": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "title": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "journal": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "volume": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "issue": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "pages": {
+        "type": [
+         "string",
+         "null"
+        ]
+       },
+       "year": {
+        "type": [
+         "integer",
+         "null"
+        ]
+       },
+       "freetext": {
+        "type": [
+         "string",
+         "null"
+        ]
+       }
+      }
+     },
+     "associated": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "id": {
+         "type": "integer"
+        },
+        "title": {
+         "type": "string"
+        },
+        "type": {
+         "type": "string"
+        },
+        "api_url": {
+         "type": "string"
+        }
+       }
+      }
+     },
+     "links": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "url": {
+         "type": "string"
+        },
+        "title": {
+         "type": [
+          "string",
+          "null"
+         ]
+        }
+       }
+      }
+     },
+     "files": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "role": {
+         "type": "string",
+         "enum": [
+          "legacy",
+          "original",
+          "lowloss",
+          "msa",
+          "hspy"
+         ]
+        },
+        "url": {
+         "type": "string"
+        },
+        "filename": {
+         "type": "string"
+        },
+        "bytes": {
+         "type": [
+          "integer",
+          "null"
+         ]
+        },
+        "sha256": {
+         "type": [
+          "string",
+          "null"
+         ]
+        }
+       }
+      }
+     },
+     "download_url": {
+      "type": [
+       "string",
+       "null"
+      ],
+      "description": "The main file: the old upload, else the reviewed MSA, else the submitted file."
+     },
+     "processing": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "tool": {
+         "type": "string"
+        },
+        "version": {
+         "type": "string"
+        },
+        "run_at": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

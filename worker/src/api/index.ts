@@ -1,7 +1,8 @@
 import { Hono, type Context } from "hono";
 import type { AppEnv } from "../auth";
-import { API_HOST, SITE, formatV1, loadBundle } from "./format";
+import { API_HOST, SITE, formatV1, loadBundle, loadMany } from "./format";
 import { cli } from "./moderation";
+import { v2 } from "./v2";
 import { ORDER_META_KEYS, buildSpectraQuery, firstUnknownArg, parseParams, sortAndPage, type SpectrumRow } from "./query";
 
 export const api = new Hono<AppEnv>();
@@ -51,6 +52,7 @@ const INDEX = {
 };
 
 api.route("/cli", cli);
+api.route("/v2", v2);
 
 api.get("/", (c) => json(c, INDEX));
 api.get("/index.php", (c) => json(c, INDEX));
@@ -72,7 +74,8 @@ async function listSpectra(c: Context<AppEnv>) {
   const results = sortAndPage(all, q);
   // WordPress answered an empty page after the first with its 404.
   if (!results.length && q.page > 1) return notFound(c);
-  return json(c, await Promise.all(results.map((r) => spectrumObject(c.env.DB, r))));
+  const fresh = new Map((await loadMany(c.env.DB, results.filter((r) => !r.legacy_v1).map((r) => r.id))).map((b) => [b.spectrum.id, b]));
+  return json(c, results.map((r) => (r.legacy_v1 ? JSON.parse(r.legacy_v1) : formatV1(fresh.get(r.id)!))));
 }
 
 async function oneSpectrum(c: Context<AppEnv>) {

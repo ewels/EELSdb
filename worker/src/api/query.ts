@@ -5,6 +5,7 @@ export const KNOWN_ARGS = [
   "type", "title", "author", "element", "formula", "edge",
   "min_energy", "min_energy_compare", "max_energy", "max_energy_compare",
   "resolution", "resolution_compare", "monochromated", "per_page", "page", "order", "order_direction",
+  "phase",
 ];
 
 // Old `order` keys (WordPress meta keys) → SQL sort expression, and whether WordPress sorted it as a number.
@@ -131,6 +132,15 @@ export function buildSpectraQuery(params: Params, opts: { exact?: boolean; compl
   const where = ["s.status = 'published'"];
   if (opts.complete) where.push("s.completeness = 'full'");
   const binds: unknown[] = [];
+
+  // Spectra of new kinds (gas phase) are only listed when asked for, so old queries return what they did.
+  const phase = str(params, "phase");
+  if (phase) {
+    where.push("s.phase = ?");
+    binds.push(phase);
+  } else {
+    where.push("s.phase != 'gas'");
+  }
 
   const type = str(params, "type");
   if (type) {

@@ -2,7 +2,9 @@ import { Hono, type Context } from "hono";
 import { csrf } from "hono/csrf";
 import { loadUser, type AppEnv } from "../auth";
 import openapi from "../api/openapi-v1.json";
+import openapiV2 from "../api/openapi-v2.json";
 import { serveFile } from "../files";
+import { apiDocs } from "./api-docs";
 import { browsePage } from "./browse";
 import { EELSDB_BIBTEX, EELSDB_CITATION } from "./citation";
 import { Formula, Layout, TYPE_NAMES, TypeBadge } from "./layout";
@@ -195,68 +197,50 @@ pages.get("/contact/", (c) =>
   ),
 );
 
-const API_EXAMPLES = [
-  ["All core-loss spectra", "https://api.eelsdb.eu/spectra/?type=coreloss&per_page=-1"],
-  ["Spectra containing both Fe and O", "https://api.eelsdb.eu/spectra/?element[]=Fe&element[]=O"],
-  ["One spectrum", "https://api.eelsdb.eu/spectra/mlc-nanotube-ylas-tas2/"],
-];
-
 pages.get("/api/", (c) =>
-  c.html(
-    <Layout user={c.get("user")} title="API" path="/api/">
-      <div class="prose">
-        <h1>{openapi.info.title}</h1>
-        <p>{openapi.info.description.replaceAll("`", "")}</p>
-        <p>
-          The full description is an <a href="/api/openapi-v1.json">OpenAPI file</a>. Base address: <code>{openapi.servers[0].url}</code>.
+  apiDocs(c, openapi, {
+    path: "/api/",
+    file: "/api/openapi-v1.json",
+    intro: (
+      <>
+        <p class="notice">
+          New scripts should use <a href="/api/v2/">API v2</a>: typed values with units in the field names, where each acquisition value
+          came from, total counts and paging links. v1 stays as it is for exSpy and older scripts.
         </p>
         <h2>From Python</h2>
         <pre>{`import exspy
 spectra = exspy.data.eelsdb(spectrum_type="coreloss", element="Fe")`}</pre>
-        <h2>Examples</h2>
-        <ul>
-          {API_EXAMPLES.map(([label, url]) => (
-            <li>
-              {label}: <a href={url}><code>{url.replace("https://api.eelsdb.eu", "")}</code></a>
-            </li>
-          ))}
-        </ul>
-      </div>
-      {Object.entries(openapi.paths).map(([path, ops]: [string, any]) => {
-        const op = ops.get;
-        return (
-          <section class="endpoint prose">
-            <h2>
-              <span class="method">GET</span>
-              <code class="path">{path}</code>
-            </h2>
-            <p>
-              <strong>{op.summary}.</strong> {op.description?.replaceAll("`", "")}
-            </p>
-            {op.parameters?.some((p: any) => p.in === "query") && (
-              <div class="table-scroll">
-                <table>
-                  <thead>
-                    <tr><th>Parameter</th><th>Values</th><th>Meaning</th></tr>
-                  </thead>
-                  <tbody>
-                    {op.parameters.filter((p: any) => p.in === "query").map((p: any) => (
-                      <tr>
-                        <td><code>{p.name}</code></td>
-                        <td>{p.schema.enum ? p.schema.enum.join(", ") : p.schema.type}</td>
-                        <td>{p.description.replaceAll("`", "")}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
-        );
-      })}
-    </Layout>,
-  ),
+      </>
+    ),
+    examples: [
+      ["All core-loss spectra", "https://api.eelsdb.eu/spectra/?type=coreloss&per_page=-1"],
+      ["Spectra containing both Fe and O", "https://api.eelsdb.eu/spectra/?element[]=Fe&element[]=O"],
+      ["One spectrum", "https://api.eelsdb.eu/spectra/mlc-nanotube-ylas-tas2/"],
+    ],
+  }),
 );
+
+pages.get("/api/v2/", (c) =>
+  apiDocs(c, openapiV2, {
+    path: "/api/",
+    file: "/api/openapi-v2.json",
+    intro: (
+      <>
+        <h2>From Python</h2>
+        <pre>{`import requests
+page = requests.get("https://api.eelsdb.eu/v2/spectra", params={"element": "Fe", "covers_ev": 708}).json()
+for s in page["results"]:
+    print(s["title"], s["acquisition"]["beam_energy"], s["download_url"])`}</pre>
+      </>
+    ),
+    examples: [
+      ["Fe spectra that include 708 eV", "https://api.eelsdb.eu/v2/spectra?element=Fe&covers_ev=708"],
+      ["Spectra with beam energy and angles known, newest first", "https://api.eelsdb.eu/v2/spectra?complete=true&sort=published_at&order=desc"],
+      ["One spectrum", "https://api.eelsdb.eu/v2/spectra/21751"],
+    ],
+  }),
+);
+pages.get("/api/openapi-v2.json", (c) => c.json(openapiV2));
 pages.get("/api/openapi-v1.json", (c) => c.json(openapi));
 
 async function authorPage(c: C) {

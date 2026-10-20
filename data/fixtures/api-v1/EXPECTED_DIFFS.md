@@ -113,6 +113,7 @@ These are tested in `worker/test/api-v1.test.ts`:
 - `/` returns the route index (the live site redirected to eelsdb.eu; `/index.php` returned the index and still does).
 - `/registered-users/` and `/author/{slug}/` list contributors only (people with published spectra), with no email, address, phone or social IDs other than ORCID.
 - `Access-Control-Allow-Origin: *` on every API response.
+- A new `phase` parameter. Gas-phase spectra (for example from Corex) are listed only when `phase=gas` is given, so every older query returns what it did.
 
 ## Kept on purpose
 
