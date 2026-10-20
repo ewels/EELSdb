@@ -21,3 +21,4 @@ data/cache/
 
 # D1 migrations are schema only
 !worker/migrations/*.sql
+!data/seed/seed.sql

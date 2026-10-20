@@ -4,7 +4,7 @@
     "module": "es2022",
     "moduleResolution": "bundler",
     "lib": ["es2024"],
-    "types": ["@cloudflare/vitest-plugin/types"],
+    "types": ["@cloudflare/vitest-plugin/types", "vite/client"],
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "strict": true,
