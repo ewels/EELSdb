@@ -207,6 +207,17 @@ export async function spectrumPage(c: Context<AppEnv>) {
 
       {s.description && <p class="prose" style="margin-top:1.25rem">{s.description}</p>}
 
+      {fileUrl?.toLowerCase().endsWith(".msa") && (
+        <details class="snippet">
+          <summary>Use in HyperSpy</summary>
+          <pre>{`import exspy
+
+spectra = exspy.data.eelsdb(title=${JSON.stringify(s.title)}${s.formula ? `, formula=${JSON.stringify(s.formula)}` : ""})
+s = next(sp for sp in spectra if sp.original_metadata.json.id == ${s.id})
+s.plot(plot_edges=True)`}</pre>
+        </details>
+      )}
+
       <div class="spectrum-cols">
         <section>
           <h2>Specimen</h2>

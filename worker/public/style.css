@@ -291,6 +291,8 @@ dialog h2 { margin-top: 0; }
 .dialog-actions { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem; flex-wrap: wrap; }
 
 .prose { max-width: 72ch; }
+.snippet { margin-top: 1rem; max-width: 72ch; }
+.snippet summary { cursor: pointer; font-weight: 600; font-size: 0.9rem; }
 .notice { border: 1px solid var(--line); background: var(--sunken); border-radius: 8px; padding: 1rem 1.25rem; }
 
 .endpoint { border-top: 1px solid var(--line); padding-top: 0.5rem; }
