@@ -75,6 +75,13 @@ def spectrum_rows(s, rank, ids_by_slug, manifest, analysis):
     sid = s["id"]
     legacy = dict(s)
     min_e, max_e = num(s.get("min_energy"), "eV"), num(s.get("max_energy"), "eV")
+    # Links to private spectra exposed their titles and led to a login page.
+    public_links = [x for x in s.get("associated_spectra", []) if "?post_type=" not in x["link"]]
+    if len(public_links) != len(s.get("associated_spectra", [])):
+        if public_links:
+            legacy["associated_spectra"] = public_links
+        else:
+            del legacy["associated_spectra"]
     a = analysis.get(sid)
     if a and FIXED_FLAGS & set(a["flags"]):
         min_e, max_e = a["energy_min"], a["energy_max"]
