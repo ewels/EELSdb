@@ -12,6 +12,34 @@ Website source code for the **EELS Data Base** - _Inner & Outer Shell Excitation
 
 Source code for EELSdb. This branch is a fresh rewrite of the site. The previous WordPress plugin and theme are on the [`main`](https://github.com/ewels/EELSdb/tree/main) branch. The repository also holds high-res versions of the logo and past conference posters.
 
+## Development
+
+Everything runs locally. No Cloudflare account is needed.
+
+The Worker (TypeScript, Hono) is in `worker/`:
+
+```bash
+cd worker
+npm install
+npm run seed     # build the local D1 database and R2 bucket from data/fixtures and data/cache
+npm run dev      # wrangler dev on http://localhost:8787 (pages) and http://api.localhost:8787 (API)
+npm test         # Vitest, in the Workers runtime
+```
+
+Run `npm run types` after changing `wrangler.jsonc`.
+
+The Python tools (import scripts, file checks) are in `python/`, managed with [uv](https://docs.astral.sh/uv/):
+
+```bash
+cd python
+uv run pytest
+uv run eelsdb --version
+uv run python -m eelsdb.legacy.record_api      # record the live API into data/fixtures/api-v1/
+uv run python -m eelsdb.legacy.download_files  # download spectrum files into data/cache/files/
+uv run python -m eelsdb.legacy.analyse_files   # write data/fixtures/file-analysis.json
+uv run python -m eelsdb.legacy.build_seed      # write the local D1 seed and R2 upload list
+```
+
 ## Citation
 
 If you use EELSdb in your research, please consider citing the main paper:

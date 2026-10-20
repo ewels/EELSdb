@@ -1,0 +1,28 @@
+{
+  "name": "eelsdb-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "seed": "node scripts/seed.mjs",
+    "types": "wrangler types"
+  },
+  "dependencies": {
+    "hono": "^4.13.13"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.4.6",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5",
+    "wrangler": "^4.151.3"
+  },
+  "allowScripts": {
+    "workerd@1.20260815.1": true,
+    "workerd@1.20261019.1": true,
+    "esbuild@0.28.1": true,
+    "esbuild@0.28.2": true,
+    "fsevents": false
+  }
+}

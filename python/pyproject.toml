@@ -1,0 +1,27 @@
+[project]
+name = "eelsdb"
+version = "0.1.0"
+description = "Tools for the EELS Data Base: legacy import, file checks and moderation"
+readme = "README.md"
+authors = [
+    { name = "Phil Ewels", email = "phil.ewels@seqera.io" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "exspy>=0.3.2",
+    "hyperspy>=2.5.0",
+    "numpy>=2.5.4",
+    "rosettasciio>=0.15.0",
+]
+
+[project.scripts]
+eelsdb = "eelsdb.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.12.3,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
