@@ -15,6 +15,11 @@ export default defineConfig({
           GITHUB_CLIENT_ID: "github-id",
           GITHUB_CLIENT_SECRET: "github-secret",
           LEGACY_PASSWORD_LOGIN: "1",
+          // Tests must not depend on the developer's worker/.env.
+          TURNSTILE_SITE_KEY: "",
+          TURNSTILE_SECRET_KEY: "",
+          EMAIL_PROVIDER: "log",
+          ORCID_BASE: "https://orcid.org",
         },
       },
     })),

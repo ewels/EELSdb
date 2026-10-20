@@ -281,7 +281,12 @@ async function check(input, role) {
 
   const el = $("#preview");
   plot?.destroy();
-  const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const probe = Object.assign(document.createElement("span"), { hidden: true });
+  document.body.append(probe);
+  const css = (n) => {
+    probe.style.color = `var(${n})`;
+    return getComputedStyle(probe).color;
+  };
   const axis = { stroke: css("--muted"), grid: { stroke: css("--line") }, ticks: { stroke: css("--line") } };
   plot = new uPlot(
     {
@@ -289,7 +294,7 @@ async function check(input, role) {
       height: 220,
       scales: { x: { time: false } },
       axes: [{ ...axis, label: "Energy (eV)" }, { ...axis, size: 60 }],
-      series: [{}, { stroke: css("--red"), width: 1.25, points: { show: false } }],
+      series: [{}, { stroke: css("--plot"), width: 1.25, points: { show: false } }],
       legend: { show: false },
     },
     [result.x, result.y],

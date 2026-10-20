@@ -50,7 +50,14 @@ function parseSpectrum(text) {
   return [order.map((i) => x[i]), order.map((i) => y[i])];
 }
 
-const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+/** A colour token resolved for canvas drawing (tokens use light-dark(), which only the cascade resolves). */
+const probe = document.createElement("span");
+probe.hidden = true;
+document.body.append(probe);
+const css = (name) => {
+  probe.style.color = `var(${name})`;
+  return getComputedStyle(probe).color;
+};
 
 async function main() {
   const el = document.getElementById("plot");
@@ -96,14 +103,14 @@ async function main() {
           if (!edge.major && !showMinor.checked) continue;
           const px = u.valToPos(edge.energy, "x", true);
           if (px < u.bbox.left || px > u.bbox.left + u.bbox.width) continue;
-          ctx.strokeStyle = edge.major ? css("--ochre") : css("--muted");
+          ctx.strokeStyle = edge.major ? css("--edge") : css("--muted");
           ctx.setLineDash(edge.major ? [] : [3 * dpr, 3 * dpr]);
           ctx.lineWidth = dpr;
           ctx.beginPath();
           ctx.moveTo(px, u.bbox.top);
           ctx.lineTo(px, u.bbox.top + u.bbox.height);
           ctx.stroke();
-          ctx.fillStyle = edge.major ? css("--ochre") : css("--muted");
+          ctx.fillStyle = edge.major ? css("--edge") : css("--muted");
           ctx.fillText(edge.label, px + 3 * dpr, u.bbox.top + 4 * dpr + (row++ % 3) * 13 * dpr);
         }
         ctx.restore();
@@ -118,7 +125,7 @@ async function main() {
     height: Math.max(280, Math.min(460, el.clientWidth * 0.5)),
     scales: { x: { time: false } },
     axes: [{ ...axis(), label: "Energy (eV)" }, { ...axis(), label: el.dataset.type === "xrayabs" ? "Intensity" : "Counts", size: 70 }],
-    series: [{ label: "Energy (eV)" }, { label: "Intensity", stroke: css("--red"), width: 1.5, points: { show: false } }],
+    series: [{ label: "Energy (eV)" }, { label: "Intensity", stroke: css("--plot"), width: 1.5, points: { show: false } }],
     cursor: { drag: { x: true, y: false } },
     plugins: [edgePlugin],
   });
