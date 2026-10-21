@@ -81,14 +81,105 @@ const fillIfEmpty = (name, value) => {
   return true;
 };
 
-// Elements from the formula, until the submitter edits them.
+// Elements from the formula, until the submitter edits them. Only real symbols, as the server does.
+const SYMBOLS = new Set(field("formula").dataset.symbols.split(" "));
 let elementsTouched = !!field("elements").value;
 field("elements").addEventListener("input", () => (elementsTouched = true));
 const elementsFromFormula = () => {
   if (elementsTouched) return;
-  field("elements").value = [...new Set(field("formula").value.match(/[A-Z][a-z]?/g) ?? [])].join(", ");
+  field("elements").value = [...new Set(field("formula").value.match(/[A-Z][a-z]?/g) ?? [])].filter((e) => SYMBOLS.has(e)).join(", ");
 };
-field("formula").addEventListener("input", elementsFromFormula);
+
+// Odd formulas get a warning, never a block: names like "Zircaloy-4" are real submissions.
+const VARIABLES = new Set(["x", "y", "z", "n", "m"]);
+const WORDS = new Set(["alpha", "beta", "gamma", "delta", "mol", "wt", "at", "doped", "film", "bulk", "amorphous"]);
+const BRACKETS = { ")": "(", "]": "[", "}": "{" };
+
+/** "CePrOx" -> ["Ce", "Pr", "O", "x"]; with ignoreCase, "fe" -> ["Fe"]. Null if the word is not symbols. */
+function splitSymbols(word, ignoreCase) {
+  if (!word) return [];
+  for (const n of [2, 1]) {
+    const head = word.slice(0, n);
+    if (head.length < n) continue;
+    const sym = ignoreCase ? head[0].toUpperCase() + head.slice(1).toLowerCase() : head;
+    if (SYMBOLS.has(sym) || (n === 1 && !ignoreCase && VARIABLES.has(head))) {
+      const rest = splitSymbols(word.slice(n), ignoreCase);
+      if (rest) return [sym, ...rest];
+    }
+  }
+  return null;
+}
+
+/** Warnings about a formula: [message, suggested formula?][]. */
+function lintFormula(formula, listed) {
+  const notes = [];
+  const unknown = [];
+  let fixable = false;
+  const found = new Set();
+  const fixed = formula.replace(/[A-Za-z]+/g, (word) => {
+    if (WORDS.has(word.toLowerCase())) return word;
+    const exact = splitSymbols(word, false);
+    if (exact) {
+      exact.filter((x) => SYMBOLS.has(x)).forEach((x) => found.add(x));
+      return word;
+    }
+    const loose = splitSymbols(word, true);
+    if (loose) {
+      fixable = true;
+      return loose.join("");
+    }
+    unknown.push(word);
+    return word;
+  });
+  if (fixable) notes.push([`Element symbols start with a capital letter. Did you mean ${fixed}?`, fixed]);
+  if (unknown.length) notes.push([`Not element symbols: ${[...new Set(unknown)].join(", ")}.`]);
+  const stray = [...new Set(formula.match(/[^\p{L}\p{N}\s()[\]{}.,+\-–−·*/%_^:=~']/gu) ?? [])];
+  if (stray.length) notes.push([`Unexpected characters: ${stray.join(" ")}`]);
+  const stack = [];
+  let balanced = true;
+  for (const ch of formula) {
+    if ("([{".includes(ch)) stack.push(ch);
+    else if (BRACKETS[ch] && stack.pop() !== BRACKETS[ch]) balanced = false;
+  }
+  if (!balanced || stack.length) notes.push(["The brackets do not match."]);
+  if (listed) {
+    const missing = listed.filter((e) => SYMBOLS.has(e) && !found.has(e));
+    const extra = [...found].filter((e) => !listed.includes(e));
+    if (missing.length) notes.push([`Listed in Elements but not in the formula: ${missing.join(", ")}.`]);
+    if (extra.length) notes.push([`In the formula but not in Elements: ${extra.join(", ")}.`]);
+  }
+  return notes;
+}
+
+const formulaWarning = $("#formula-warning");
+function checkFormula() {
+  const formula = field("formula").value.trim();
+  const listed = elementsTouched ? field("elements").value.split(/[\s,;]+/).filter(Boolean) : null;
+  const notes = formula ? lintFormula(formula, listed) : [];
+  formulaWarning.replaceChildren(
+    ...notes.map(([message, suggestion]) => {
+      const line = el("span", {}, message);
+      if (suggestion) {
+        const use = el("button", { type: "button", className: "link-button", textContent: `Use ${suggestion}` });
+        use.addEventListener("click", () => {
+          field("formula").value = suggestion;
+          field("formula").dispatchEvent(new Event("input", { bubbles: true }));
+          field("formula").focus();
+        });
+        line.append(" ", use);
+      }
+      return line;
+    }),
+  );
+  if (notes.length) formulaWarning.append(el("span", { className: "hint" }, "You can still submit it as it is."));
+  formulaWarning.hidden = !notes.length;
+}
+field("formula").addEventListener("input", () => {
+  elementsFromFormula();
+  checkFormula();
+});
+field("elements").addEventListener("input", checkFormula);
+checkFormula();
 
 // Beam energy "Other" box only matters when "Other" is chosen.
 const beamOther = $(".beam-other", form);
@@ -163,6 +254,8 @@ const reached = new Set();
 function syncXas() {
   $("#step-xas").hidden = !isXas();
   navItems.get("xas").hidden = !isXas();
+  form.classList.toggle("is-xas", isXas());
+  for (const n of $$("[data-eels-required]", form)) n.setAttribute("aria-required", String(!isXas()));
 }
 field("type").addEventListener("change", syncXas);
 
@@ -295,11 +388,13 @@ function render() {
   assignRoles();
   for (const f of files) paintCard(f);
   syncInputs();
+  updatePanel();
 }
 
 function paintCard(f) {
   f.card ??= buildCard(f);
   f.card.dataset.state = f.rejected ? "failed" : f.state;
+  f.card.dataset.role = f.role ?? "";
   const select = $("select", f.card);
   select.value = f.role ?? "";
   select.disabled = !!f.rejected || f.state === "reading";
@@ -410,6 +505,7 @@ def run(path, kind, formula, elements, edges, thickness, table_json):
     if sp.energy is None:
         return json.dumps(out)
     energy, intensity = sp.energy, sp.intensity
+    DATA[path] = (energy, intensity)
     findings = checks.run_all(energy, intensity, spectrum_type=kind or None, formula=formula or None,
                               elements=elements, edges=edges, edge_table=json.loads(table_json), thickness=thickness,
                               header_axis=sp.header_axis)
@@ -422,9 +518,24 @@ def run(path, kind, formula, elements, edges, thickness, table_json):
         "x": energy[::step].tolist(), "y": np.nan_to_num(intensity[::step]).tolist(),
     })
     return json.dumps(out)
+
+DATA = {}
+TABLE = json.loads(TABLE_JSON)
+
+def suggest(path, kind):
+    if not hasattr(checks, "detect_edges") or path not in DATA:
+        return "[]"
+    energy, intensity = DATA[path]
+    return json.dumps(checks.detect_edges(energy, intensity, TABLE, spectrum_type=kind or None), default=float)
+
+def near(energy):
+    if not hasattr(checks, "edges_near"):
+        return "[]"
+    return json.dumps(checks.edges_near(float(energy), TABLE), default=float)
 `;
 
 let pyodidePromise;
+let edgeTable = {};
 function pyodideReady() {
   pyodidePromise ??= (async () => {
     const { loadPyodide } = await import(`${PYODIDE}pyodide.mjs`);
@@ -437,6 +548,7 @@ function pyodideReady() {
       py.FS.writeFile(`/home/pyodide/eelsdb/${f}`, await (await fetch(`/py/eelsdb/${f}`)).text());
     }
     const table = await (await fetch("/eels_binding_energies.json")).json();
+    edgeTable = table.elements;
     py.globals.set("TABLE_JSON", JSON.stringify(table.elements));
     await py.runPythonAsync(READ_PY);
     return py;
@@ -452,6 +564,7 @@ const withTimeout = (p) => Promise.race([p, new Promise((_, reject) => setTimeou
 async function runChecks(f, kind) {
   const py = await withTimeout(pyodideReady());
   const path = `/tmp/${files.indexOf(f)}-${f.file.name.replace(/[^\w.\-]+/g, "_")}`;
+  f.path = path;
   py.FS.writeFile(path, new Uint8Array(await f.file.arrayBuffer()));
   const edges = field("edges").value.split(/[;\n]+/).map((s) => s.trim()).filter(Boolean);
   const elements = field("elements").value.split(/[\s,;]+/).filter(Boolean);
@@ -540,7 +653,7 @@ const css = (n) => {
 };
 
 const compact = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
-function drawPlot(node, x, y, old) {
+function drawPlot(node, x, y, old, extra = {}) {
   old?.destroy();
   const axis = { stroke: css("--muted"), grid: { stroke: css("--rule") }, ticks: { stroke: css("--line") } };
   return new uPlot(
@@ -552,9 +665,225 @@ function drawPlot(node, x, y, old) {
       series: [{}, { stroke: css("--plot"), width: 1.25, points: { show: false } }],
       legend: { show: false },
       cursor: { show: false },
+      ...extra,
     },
     [x, y],
     node,
+  );
+}
+
+// ---- Spectrum panel and edges -----------------------------------------------------------------
+// The edges text field is the source of truth: markers are drawn from it, and suggestions only
+// reach it when confirmed. Without Pyodide there is no plot, so the form works as before.
+
+const panel = $("#spectrum-panel");
+const panelPlot = $(".panel-plot", panel);
+const menu = $("#edge-menu");
+const edgeStatus = $("#edge-status");
+// Keep in step with EDGE in src/submit/form.ts.
+const EDGE = /^([A-Z][a-z]?)[_ ]((?:K|L1|L2,3|L2|L3|M1|M2,3|M4,5|M|N2,3|N4,5|N6,7|O2,3|O4,5))$/;
+const edgeKey = (c) => `${c.element}_${c.edge}`;
+const edgeName = (c) => `${c.element} ${c.edge}`;
+const validEdge = (c) => EDGE.test(edgeKey(c)) && SYMBOLS.has(c.element);
+const eV = (e) => `${Math.round(e)} eV`;
+const shown = { file: null, plot: null, suggestions: [] };
+
+/** Lowest table onset of the label's subshells: "L2,3" is drawn at L3. */
+function onset({ element, edge }) {
+  const [, shell, a, b] = edge.match(/^([KLMNO])(\d)?(?:,(\d))?$/) ?? [];
+  if (!shell) return null;
+  const subshells = shell === "K" ? ["K"] : a ? Array.from({ length: (b ?? a) - a + 1 }, (_, i) => `${shell}${+a + i}`) : [1, 2, 3, 4, 5, 6, 7].map((i) => `${shell}${i}`);
+  const energies = subshells.map((s) => edgeTable[element]?.[s]?.["onset_energy (eV)"]).filter(Number.isFinite);
+  return energies.length ? Math.min(...energies) : null;
+}
+
+const fieldEntries = () => field("edges").value.split(/[;\n]+/).map((s) => s.trim()).filter(Boolean);
+const entryEdge = (s) => {
+  const m = s.match(EDGE);
+  return m ? { element: m[1], edge: m[2] } : null;
+};
+const fieldEdges = () => fieldEntries().map(entryEdge).filter(Boolean);
+
+function writeEdges(entries) {
+  field("edges").value = entries.join("; ");
+  field("edges").dispatchEvent(new Event("input", { bubbles: true }));
+}
+/** Replace `old` (or append) with `next`, leaving everything else the submitter typed alone. */
+function setEdge(old, next) {
+  const entries = fieldEntries();
+  const at = old ? entries.findIndex((s) => entryEdge(s) && edgeKey(entryEdge(s)) === edgeKey(old)) : -1;
+  const dup = next && entries.some((s) => entryEdge(s) && edgeKey(entryEdge(s)) === edgeKey(next));
+  if (at >= 0) entries.splice(at, 1, ...(next && !dup ? [edgeKey(next)] : []));
+  else if (next && !dup) entries.push(edgeKey(next));
+  writeEdges(entries);
+  edgeStatus.textContent = next ? `${edgeName(next)} is in the edges field.` : `${edgeName(old)} removed from the edges field.`;
+}
+
+async function pyCall(name, ...args) {
+  const py = await withTimeout(pyodideReady());
+  const fn = py.globals.get(name);
+  try {
+    return JSON.parse(fn(...args));
+  } finally {
+    fn.destroy();
+  }
+}
+
+function updatePanel() {
+  const f = files.find((x) => x.role === "original" && x.result?.x);
+  if (f === shown.file) return;
+  shown.plot?.destroy();
+  Object.assign(shown, { file: f, plot: null, suggestions: [] });
+  panel.hidden = !f;
+  menu.hidePopover?.();
+  if (!f) return;
+  $(".panel-name", panel).textContent = f.file.name;
+  shown.plot = drawPlot(panelPlot, f.result.x, f.result.y, null, {
+    height: 220,
+    cursor: { y: false, points: { show: false }, drag: { x: false, y: false } },
+    hooks: { draw: [paintMarkers] },
+  });
+  shown.plot.over.append(el("div", { className: "edge-layer" }));
+  shown.plot.over.addEventListener("click", plotClick);
+  suggestEdges(f);
+}
+
+new ResizeObserver(() => shown.plot?.setSize({ width: panelPlot.clientWidth, height: 220 })).observe(panelPlot);
+
+async function suggestEdges(f) {
+  let found = [];
+  try {
+    found = await pyCall("suggest", f.path, field("type").value || guessType(f));
+  } catch {}
+  if (shown.file !== f) return;
+  shown.suggestions = found
+    .map((s) => ({ ...s, candidates: (s.candidates ?? []).filter(validEdge), pick: 0 }))
+    .filter((s) => s.candidates.length);
+  $(".edge-help", panel).textContent = shown.suggestions.length
+    ? "Dashed lines are suggested edges: choose one to add it. Click the plot to find edges near that energy."
+    : "Click the plot to find edges near that energy.";
+  paintMarkers();
+}
+field("type").addEventListener("change", () => shown.file && suggestEdges(shown.file));
+field("edges").addEventListener("input", () => paintMarkers());
+
+function paintMarkers() {
+  const u = shown.plot;
+  const layer = u && $(".edge-layer", u.over);
+  if (!layer) return;
+  const [lo, hi] = [u.scales.x.min, u.scales.x.max];
+  const listed = fieldEdges();
+  const keys = new Set(listed.map(edgeKey));
+  const marks = [
+    ...listed.map((c) => ({ c, energy: onset(c) })),
+    ...shown.suggestions
+      .filter((s) => !s.candidates.some((c) => keys.has(edgeKey(c))))
+      .map((s) => ({ s, c: s.candidates[s.pick], energy: onset(s.candidates[s.pick]) ?? s.energy })),
+  ]
+    .filter((m) => m.energy !== null && m.energy >= lo && m.energy <= hi)
+    .sort((a, b) => a.energy - b.energy);
+  layer.replaceChildren(
+    ...marks.map((m, i) => {
+      const x = u.valToPos(m.energy, "x");
+      const b = el(
+        "button",
+        {
+          type: "button",
+          className: `edge-mark${m.s ? " suggested" : ""}${x > u.over.clientWidth - 70 ? " flip" : ""}`,
+          ariaLabel: `${m.s ? "Suggested edge" : "Edge"} ${edgeName(m.c)}, ${eV(m.energy)}`,
+        },
+        el("span", { textContent: edgeName(m.c) }),
+      );
+      b.style.left = `${x}px`;
+      b.style.setProperty("--row", i % 3);
+      b.addEventListener("click", (e) => {
+        e.stopPropagation();
+        (m.s ? suggestionMenu : edgeMenu)(m, b);
+      });
+      return b;
+    }),
+  );
+}
+
+function openMenu(opener, x, title, actions) {
+  menu.replaceChildren(el("p", { className: "edge-menu-title", textContent: title }));
+  for (const a of actions) {
+    const b = el("button", { type: "button", className: a.primary ? "primary" : "", textContent: a.label });
+    b.addEventListener("click", () => {
+      menu.hidePopover();
+      a.run?.();
+    });
+    menu.append(b);
+  }
+  menu.opener = opener;
+  menu.showPopover();
+  const over = shown.plot.over.getBoundingClientRect();
+  const left = Math.min(Math.max(8, over.left + x - menu.offsetWidth / 2), innerWidth - menu.offsetWidth - 8);
+  menu.style.left = `${left}px`;
+  // Below the plot so the edge being chosen stays visible; above it when the window is too short.
+  const below = over.bottom + 6;
+  menu.style.top = `${below + menu.offsetHeight + 8 <= innerHeight ? below : Math.max(8, over.top - menu.offsetHeight - 6)}px`;
+  $("button", menu)?.focus();
+}
+menu.addEventListener("toggle", (e) => {
+  if (e.newState === "closed" && menu.opener?.isConnected && (menu.contains(document.activeElement) || document.activeElement === document.body)) {
+    menu.opener.focus({ preventScroll: true });
+  }
+});
+
+function suggestionMenu(m, opener) {
+  const { s } = m;
+  openMenu(opener, shown.plot.valToPos(m.energy, "x"), `Suggested edge at ${eV(m.energy)}`, [
+    { label: `Add ${edgeName(m.c)}`, primary: true, run: () => setEdge(null, m.c) },
+    ...s.candidates
+      .filter((c) => c !== m.c)
+      .map((c) => ({
+        label: `Add ${edgeName(c)} instead`,
+        run: () => {
+          s.pick = s.candidates.indexOf(c);
+          setEdge(null, c);
+        },
+      })),
+    {
+      label: "Dismiss",
+      run: () => {
+        shown.suggestions.splice(shown.suggestions.indexOf(s), 1);
+        edgeStatus.textContent = `Suggestion ${edgeName(m.c)} dismissed.`;
+        paintMarkers();
+      },
+    },
+  ]);
+}
+
+async function edgeMenu(m, opener) {
+  let near = [];
+  try {
+    near = (await pyCall("near", m.energy)).filter(validEdge).filter((c) => edgeKey(c) !== edgeKey(m.c));
+  } catch {}
+  openMenu(opener, shown.plot.valToPos(m.energy, "x"), `${edgeName(m.c)} at ${eV(m.energy)}`, [
+    { label: `Remove ${edgeName(m.c)}`, run: () => setEdge(m.c, null) },
+    ...near.slice(0, 5).map((c) => ({ label: `Change to ${edgeName(c)} (${eV(c.onset)})`, run: () => setEdge(m.c, c) })),
+    { label: "Cancel" },
+  ]);
+}
+
+async function plotClick(e) {
+  const u = shown.plot;
+  const x = e.clientX - u.over.getBoundingClientRect().left;
+  const energy = u.posToVal(x, "x");
+  let near = [];
+  try {
+    near = await pyCall("near", energy);
+  } catch {
+    return;
+  }
+  const listed = new Set(fieldEdges().map(edgeKey));
+  near = near.filter(validEdge).filter((c) => !listed.has(edgeKey(c)));
+  openMenu(
+    u.over,
+    x,
+    near.length ? `Edges near ${eV(energy)}` : `No other known edges within 15 eV of ${eV(energy)}.`,
+    [...near.slice(0, 6).map((c, i) => ({ label: `Add ${edgeName(c)} (${eV(c.onset)})`, primary: i === 0, run: () => setEdge(null, c) })), { label: "Cancel" }],
   );
 }
 

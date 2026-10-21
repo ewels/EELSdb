@@ -782,6 +782,53 @@ html:not(.js) [data-back], html:not(.js) [data-next] { display: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .file-plot:not(:empty) { margin-top: 0.5rem; overflow-x: auto; }
 .file-card .findings:empty { display: none; }
+.file-card[data-role="original"] .file-plot { display: none; }
+
+/* The original spectrum, beside the form on wide screens and above it otherwise. */
+.wizard { grid-template-areas: "steps form"; }
+.steps { grid-area: steps; }
+.submit-form { grid-area: form; }
+.spectrum-panel { grid-area: panel; min-width: 0; padding: 0.75rem 1rem 0.9rem; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+.wizard:has(> .spectrum-panel:not([hidden])) { grid-template-areas: "steps panel" "steps form"; }
+@media (min-width: 1200px) {
+  .wizard:has(> .spectrum-panel:not([hidden])) { grid-template-columns: 13rem minmax(0, 1fr) minmax(19rem, 26rem); grid-template-areas: "steps form panel"; column-gap: 2.5rem; }
+  .spectrum-panel { position: sticky; top: 5.5rem; }
+}
+.panel-name { margin: 0 0 0.35rem; font-weight: 600; font-size: 0.9rem; overflow-wrap: anywhere; }
+.panel-plot { position: relative; }
+.spectrum-panel .hint { margin-top: 0.35rem; }
+.spectrum-panel .hint:empty { display: none; }
+
+.edge-layer { position: absolute; inset: 0; pointer-events: none; }
+.edge-mark { all: unset; pointer-events: auto; position: absolute; top: 0; bottom: 0; width: 0; border-left: 1.5px solid var(--edge); cursor: pointer; }
+.edge-mark.suggested { border-left-style: dashed; }
+.edge-mark:not(.suggested) { z-index: 1; }
+.edge-mark::before { content: ""; position: absolute; inset: 0 -6px; }
+.edge-mark span {
+  position: absolute;
+  top: calc(0.2rem + var(--row) * 1.15rem);
+  left: 0.25rem;
+  padding: 0 0.2rem;
+  border-radius: 3px;
+  background: color-mix(in oklab, var(--surface) 85%, transparent);
+  color: var(--edge);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.edge-mark.flip span { left: auto; right: 0.25rem; }
+.edge-mark.suggested span { color: var(--muted); font-style: italic; }
+.edge-mark:hover span, .edge-mark:focus-visible span { color: var(--ink); background: var(--sunken); }
+.edge-mark:focus-visible { outline: none; }
+.edge-mark:focus-visible span { outline: 2px solid var(--focus); }
+
+.edge-menu { position: fixed; inset: auto; margin: 0; padding: 0.4rem; min-width: 12rem; max-width: min(20rem, calc(100vw - 2rem)); border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.edge-menu:popover-open { display: grid; gap: 0.1rem; }
+.edge-menu-title { margin: 0 0 0.2rem; padding: 0.2rem 0.5rem; font-size: 0.8rem; color: var(--muted); }
+.edge-menu button { all: unset; cursor: pointer; padding: 0.35rem 0.5rem; border-radius: 4px; font-size: 0.9rem; }
+.edge-menu button:hover { background: var(--sunken); }
+.edge-menu button:focus-visible { background: var(--sunken); outline: 2px solid var(--focus); outline-offset: -2px; }
+.edge-menu button.primary { font-weight: 600; color: var(--accent-ink); }
 
 .summary { display: grid; gap: 1.25rem; margin-bottom: 1.5rem; }
 .summary-group { border-bottom: 1px solid var(--rule); padding-bottom: 1rem; }
@@ -817,6 +864,11 @@ input[type="file"]::file-selector-button {
 }
 input[type="file"]::file-selector-button:hover { background: var(--surface); border-color: var(--muted); }
 .hint { margin: 0; font-size: 0.8rem; color: var(--muted); }
+.req { margin-left: 0.2em; color: var(--danger); font-weight: 600; }
+.is-xas .req-eels { display: none; }
+.required-legend { margin-bottom: 0.25rem; }
+.formula-warning { display: grid; gap: 0.15rem; margin: 0; font-size: 0.85rem; color: var(--note); }
+.formula-warning .hint { color: var(--muted); }
 .error { margin: 0; font-size: 0.85rem; color: var(--danger); font-weight: 600; }
 .has-error input, .has-error select, .has-error textarea { border-color: var(--danger); }
 .error-summary { border-color: var(--danger); margin-bottom: 1rem; }
@@ -855,7 +907,8 @@ input[type="file"]::file-selector-button:hover { background: var(--surface); bor
 
 @media (max-width: 860px) {
   .grid-2, .grid-3 { grid-template-columns: minmax(0, 1fr); }
-  .wizard { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+  .wizard { grid-template-columns: minmax(0, 1fr); grid-template-areas: "steps" "form"; gap: 1.5rem; }
+  .wizard:has(> .spectrum-panel:not([hidden])) { grid-template-areas: "steps" "panel" "form"; }
   .steps { position: static; }
   .js .steps ol { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
   .js .steps li { padding: 0; }

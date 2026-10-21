@@ -3,6 +3,7 @@ import { raw } from "hono/html";
 import type { Child } from "hono/jsx";
 import { requireUser, type AppEnv } from "../auth";
 import { mediaType } from "../files";
+import { ELEMENTS } from "../elements";
 import { Layout, TYPE_NAMES } from "../pages/layout";
 import { BEAM_ENERGIES, COMPANION_EXTENSIONS, MAX_FILE_BYTES, SPECTRUM_EXTENSIONS, checkUpload, cleanBrowserChecks, parseForm } from "./form";
 import { createSpectrum, instrumentOk } from "./store";
@@ -59,11 +60,13 @@ export async function approvedInstruments(db: D1Database) {
   return results;
 }
 
-function Field(props: { name: string; label: string; errors: Record<string, string>; hint?: string; children: Child }) {
+const Req = (props: { eels?: boolean }) => <span class={`req${props.eels ? " req-eels" : ""}`} aria-hidden="true">*</span>;
+
+function Field(props: { name: string; label: string; errors: Record<string, string>; hint?: string; required?: boolean; children: Child }) {
   const error = props.errors[props.name];
   return (
     <div class={`field${error ? " has-error" : ""}`}>
-      <label for={`f-${props.name}`}>{props.label}</label>
+      <label for={`f-${props.name}`}>{props.label}{props.required && <Req />}</label>
       {props.children}
       {props.hint && <p class="hint">{props.hint}</p>}
       {error && <p class="error" id={`e-${props.name}`}>{error}</p>}
@@ -79,9 +82,9 @@ function Measured(props: { name: string; label: string; unit: string; v: Values;
   const { name, v } = props;
   return (
     <fieldset class={`field measured${props.errors[name] || props.errors[`${name}_uncertainty`] ? " has-error" : ""}`} data-measured={name}>
-      <legend>{props.label}</legend>
+      <legend>{props.label}<Req eels /></legend>
       <div class="measured-row">
-        <input id={`f-${name}`} name={name} type="number" step="any" min="0" value={v[name] ?? ""} aria-label={`${props.label} (${props.unit})`} />
+        <input id={`f-${name}`} name={name} type="number" step="any" min="0" value={v[name] ?? ""} aria-label={`${props.label} (${props.unit})`} aria-required={String(v.type !== "xrayabs")} data-eels-required />
         <span class="unit">{props.unit}</span>
         <label class="check"><input type="checkbox" name={`${name}_approx`} value="1" checked={!!v[`${name}_approx`]} /> Approximate</label>
         <label class="check"><input type="checkbox" name={`${name}_unknown`} value="1" checked={!!v[`${name}_unknown`]} /> Unknown</label>
@@ -184,6 +187,7 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
           </ol>
         </nav>
         <form method="post" enctype="multipart/form-data" class="submit-form" id="submit-form" novalidate data-edit={props.edit ? "1" : undefined}>
+          <p class="hint required-legend"><Req /> Required</p>
           <Step id="files">
             <div class="dropzone" id="dropzone" hidden>
               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -207,6 +211,7 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
                 name="file"
                 label={props.edit ? "Replace the spectrum file (optional)" : "Spectrum file"}
                 errors={errors}
+                required={!props.edit}
                 hint="DM3/DM4, MSA, Velox EMD, HyperSpy HSPY, XDI, or two columns of numbers (.txt, .csv)."
               >
                 <input id="f-file" name="file" type="file" required={!props.edit} accept={accept} />
@@ -225,8 +230,8 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
           <Step id="specimen">
             <p class="hint step-intro" data-prefilled hidden>Some fields are filled in from your file. Please check them.</p>
             <div class="grid-2">
-              <Field name="title" label="Specimen name" errors={errors}>{input("title", v, { required: true, maxlength: 200 })}</Field>
-              <Field name="type" label="Spectrum type" errors={errors}>
+              <Field name="title" label="Specimen name" errors={errors} required>{input("title", v, { required: true, maxlength: 200 })}</Field>
+              <Field name="type" label="Spectrum type" errors={errors} required>
                 <select id="f-type" name="type" required>
                   <option value="">Choose…</option>
                   {Object.entries(TYPE_NAMES).map(([code, name]) => (
@@ -234,7 +239,10 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
                   ))}
                 </select>
               </Field>
-              <Field name="formula" label="Chemical formula" errors={errors} hint="For example Fe2O3 or (La0.7,Sr0.3)MnO3.">{input("formula", v, { required: true })}</Field>
+              <Field name="formula" label="Chemical formula" errors={errors} required hint="For example Fe2O3 or (La0.7,Sr0.3)MnO3.">
+                {input("formula", v, { required: true, "data-symbols": [...ELEMENTS].join(" "), "aria-describedby": "formula-warning" })}
+                <p class="formula-warning" id="formula-warning" aria-live="polite" hidden></p>
+              </Field>
               <Field name="elements" label="Elements" errors={errors} hint="Filled from the formula; correct it if needed.">{input("elements", v, { placeholder: "Fe, O" })}</Field>
               <Field name="edges" label="Edges" errors={errors} hint='Separate with semicolons, for example "Fe_L2,3; O_K".'>{input("edges", v)}</Field>
               <Field name="keywords" label="Keywords" errors={errors} hint="Comma-separated.">{input("keywords", v)}</Field>
@@ -289,8 +297,8 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
             </div>
 
             <fieldset class={`field${errors.beam_energy || errors.beam_energy_uncertainty || errors.beam_energy_choice ? " has-error" : ""}`} data-measured="beam_energy">
-              <legend>Beam energy</legend>
-              <div class="choice-buttons" role="radiogroup" aria-label="Beam energy">
+              <legend>Beam energy<Req eels /></legend>
+              <div class="choice-buttons" role="radiogroup" aria-label="Beam energy" aria-required={String(v.type !== "xrayabs")} data-eels-required>
                 {BEAM_ENERGIES.map((kv) => (
                   <label><input type="radio" name="beam_energy_choice" value={String(kv)} checked={choice === String(kv)} /><span>{kv} kV</span></label>
                 ))}
@@ -412,7 +420,7 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
                 <label class="check agreement">
                   <input type="checkbox" name="agreement" value="1" required checked={!!v.agreement} /> I agree to publish this data under the{" "}
                   <a href="https://opendatacommons.org/licenses/odbl/">Open Data Commons Open Database Licence (ODbL)</a>: others may reuse it if they
-                  credit me and the EELS Data Base.
+                  credit me and the EELS Data Base.<Req />
                 </label>
                 {errors.agreement && <p class="error">{errors.agreement}</p>}
               </div>
@@ -427,6 +435,13 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
             </div>
           </Step>
         </form>
+        <aside class="spectrum-panel" id="spectrum-panel" aria-label="Your spectrum" hidden>
+          <p class="panel-name"></p>
+          <div class="panel-plot"></div>
+          <p class="hint edge-help"></p>
+          <p class="hint" id="edge-status" aria-live="polite"></p>
+          <div class="edge-menu" id="edge-menu" popover="auto"></div>
+        </aside>
       </div>
       <script src="/vendor/uPlot.iife.min.js" defer></script>
       <script src="/submit.js" type="module"></script>

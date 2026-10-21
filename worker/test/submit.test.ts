@@ -68,6 +68,18 @@ describe("form parsing", () => {
     expect(parseForm({ title: "x", type: "xrayabs", formula: "C" }).errors).toEqual({});
   });
 
+  it.each([
+    ["fe2o3", []],
+    ["Zircaloy-4", []],
+    ["Fe2O3 @ Xx#", ["Fe", "O"]],
+    ["(La0.7,Sr0.3MnO3", ["La", "Sr", "Mn", "O"]],
+  ])("accepts the odd formula %s and keeps only real elements", (formula, elements) => {
+    const { form, errors } = parseForm({ ...fields, formula, elements: "" });
+    expect(errors).toEqual({});
+    expect(form.spectrum.formula).toBe(formula);
+    expect(form.elements).toEqual(elements);
+  });
+
   it("slugifies titles", () => {
     expect(slugify("α-MoO₃ (rutile) – 2 nm")).toBe("moo3-rutile-2-nm");
   });

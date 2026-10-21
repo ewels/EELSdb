@@ -1,6 +1,7 @@
 import json
 import logging
 import warnings
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -125,3 +126,71 @@ def test_cli_check(capsys):
     findings = json.loads(capsys.readouterr().out)
     assert "energy_not_increasing" in {f["code"] for f in findings}
     assert main(["check", str(cached(21529)), "--type", "coreloss", "--formula", "AlN", "--edges", "Al_K"]) == 0
+
+
+BINDING = json.loads((Path(__file__).parents[2] / "worker" / "public" / "eels_binding_energies.json").read_text())["elements"]
+
+
+def synthetic(edges, lo=250.0, hi=900.0, n=2048, seed=0):
+    """Power law with step edges {onset: relative jump}, Poisson noise at about 10^4 counts."""
+    e = np.linspace(lo, hi, n)
+    y = 1e4 * (e / hi) ** -3.0
+    for at, jump in edges.items():
+        y *= 1 + jump * (e >= at) * np.exp(-np.clip(e - at, 0, None) / 200)
+    return e, np.random.default_rng(seed).poisson(y).astype(float)
+
+
+def top(found):
+    return [(d["candidates"][0]["element"], d["candidates"][0]["edge"]) for d in found]
+
+
+@pytest.mark.parametrize("seed", range(3))
+def test_detect_edges_synthetic(seed):
+    e, y = synthetic({284: 0.5, 532: 0.3, 708: 0.5}, seed=seed)
+    found = checks.detect_edges(e, y, BINDING)
+    json.dumps(found)
+    assert sorted(top(found)) == [("C", "K"), ("Fe", "L2,3"), ("O", "K")]
+    for d in found:
+        assert abs(d["energy"] - d["candidates"][0]["onset"]) < 3
+        assert 0.5 <= d["confidence"] <= 1
+
+
+def test_detect_edges_high_energy_k_edge():
+    e, y = synthetic({1560: 0.3}, lo=1400, hi=2000)
+    assert top(checks.detect_edges(e, y, BINDING)) == [("Al", "K")]
+
+
+def test_detect_edges_plain_background_finds_nothing():
+    e, y = synthetic({})
+    assert checks.detect_edges(e, y, BINDING) == []
+
+
+def test_detect_edges_skips_low_loss_and_xas():
+    e, y = synthetic({532: 0.5})
+    for kind in ("lowloss", "zeroloss", "xrayabs"):
+        assert checks.detect_edges(e, y, BINDING, spectrum_type=kind) == []
+    assert checks.detect_edges(e, y, BINDING, spectrum_type="coreloss")
+
+
+def test_edges_near():
+    near = checks.edges_near(708, BINDING)
+    assert near[0] == {"element": "Fe", "edge": "L2,3", "onset": 708.0}
+    assert checks.edges_near(286, BINDING)[0]["element"] == "C"  # C K before Ru M4,5 despite being further
+    assert {"element": "Fe", "edge": "L1", "onset": 846.0} in checks.edges_near(846, BINDING)
+    assert checks.edges_near(5, BINDING, window=1) == []
+
+
+@needs_cache
+@pytest.mark.parametrize(
+    "spectrum_id, expected",
+    [
+        (21633, {("C", "K"), ("N", "K")}),
+        (21644, {("Ti", "L2,3"), ("O", "K")}),
+        (21702, {("B", "K"), ("N", "K")}),
+        (21529, {("Al", "K")}),
+        (22056, {("Fe", "L2,3")}),
+    ],
+)
+def test_detect_edges_real_core_loss(spectrum_id, expected):
+    sp = read_spectrum(cached(spectrum_id))
+    assert set(top(checks.detect_edges(sp.energy, sp.intensity, BINDING, spectrum_type="coreloss"))) == expected

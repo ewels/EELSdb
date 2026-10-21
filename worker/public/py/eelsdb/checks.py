@@ -174,6 +174,142 @@ def check_edges(energy, elements, edges, edge_table, spectrum_type=None):
     return out
 
 
+
+def _edge_label(subshell):
+    """'L3' -> 'L2,3', 'M4' -> 'M4,5': the pairs EELS treats as one edge. K, *1 and odd keys stay as they are."""
+    m = re.fullmatch(r"([LMNO])([2-7])", subshell)
+    if not m:
+        return subshell
+    a = int(m[2]) - int(m[2]) % 2
+    return f"{m[1]}{a},{a + 1}"
+
+
+# Within a few eV the table onset says little (calibration, chemical shift), so the common edge wins.
+EDGE_PRIORITY = {"K": 0, "L2,3": 1, "M4,5": 2}
+EDGE_TIE_EV = 5.0
+
+
+def edges_near(energy, edge_table, window=15.0):
+    """Edges with an onset within `window` eV: major ones first, then by distance in 5 eV steps, K before L2,3
+    before M4,5 before the rest within a step.
+
+    [{"element": "Fe", "edge": "L2,3", "onset": 708.0}, ...]; "onset" is the edge's lowest subshell onset.
+    """
+    groups = {}
+    for el, shell, onset, major in edge_onsets(list(edge_table), edge_table):
+        g = groups.setdefault((el, _edge_label(shell)), {"onsets": [], "major": False})
+        g["onsets"].append(onset)
+        g["major"] |= major
+    found = []
+    for (el, label), g in groups.items():
+        dist = min(abs(o - energy) for o in g["onsets"])
+        if dist <= window:
+            rank = (not g["major"], int(dist // EDGE_TIE_EV), EDGE_PRIORITY.get(label, 3), dist, el)
+            found.append((rank, el, label, min(g["onsets"])))
+    return [{"element": el, "edge": label, "onset": float(onset)} for _, el, label, onset in sorted(found)]
+
+
+NOT_CORE_LOSS = ("lowloss", "zeroloss", "xrayabs")
+DETECT_SMOOTH_EV = 1.0
+DETECT_PRE_EV = 20.0  # power-law fit window before each point
+DETECT_POST_EV = 10.0  # window after an onset over which the jump is measured
+DETECT_JUMP_SCALE = 0.2  # ln(post/pre) at which confidence reaches 63 %
+DETECT_SNR_FULL = 3.0
+DETECT_JUMP_Z_FULL = 5.0
+DETECT_MIN_CONFIDENCE = 0.5
+DETECT_MERGE_EV = 10.0
+# A weaker rise this soon after a stronger edge is almost always its fine structure, not a new edge.
+DETECT_ELNES_EV = 50.0
+DETECT_MAX_EDGES = 6
+
+
+def _gaussian_smooth(y, sigma):
+    r = max(1, int(3 * sigma))
+    k = np.exp(-0.5 * (np.arange(-r, r + 1) / sigma) ** 2)
+    return np.convolve(np.pad(y, r, mode="reflect"), k / k.sum(), mode="valid")
+
+
+def detect_edges(energy, intensity, edge_table, *, spectrum_type=None):
+    """Likely edge onsets in a core-loss spectrum, strongest first.
+
+    The local power-law exponent (slope of the smoothed log-log spectrum) is compared with a power law
+    fitted over a sliding pre-edge window; peaks in the excess are onsets. Confidence comes from the
+    jump above the extrapolated background over the next few eV and from how far the peak stands out of
+    the noise. Returns [{"energy", "confidence", "candidates": edges_near(...)}].
+    """
+    if spectrum_type in NOT_CORE_LOSS:
+        return []
+    e, y = np.asarray(energy, float), np.asarray(intensity, float)
+    ok = np.isfinite(e) & np.isfinite(y) & (e > 1)
+    e, y = e[ok], y[ok]
+    n = e.size
+    if n < 50 or np.any(np.diff(e) <= 0):
+        return []
+    step = (e[-1] - e[0]) / (n - 1)
+    grid = e[0] + step * np.arange(n)
+    y, e = np.interp(grid, e, y), grid
+    sigma = max(DETECT_SMOOTH_EV / step, 2.0)
+    ys = _gaussian_smooth(y, sigma)
+    span = ys.max() - ys.min()
+    channel_noise = 1.4826 * np.median(np.abs(np.diff(y))) / math.sqrt(2)
+    if ys.min() < 2 * channel_noise:  # background-subtracted: no power law, and log(≈0) is all noise
+        ys = ys - ys.min() + 0.02 * span
+    L, X = np.log(ys), np.log(e)
+    slope = np.gradient(L, X)
+
+    # Least-squares line in log-log over [i - gap - w, i - gap) for every i, from running sums.
+    gap = int(3 * sigma)
+    hi = np.arange(n) - gap
+    lo = np.maximum(hi - max(10, int(DETECT_PRE_EV / step)), 0)
+    m = (hi - lo).astype(float)
+    fitted = m >= max(10, int(5 / step))
+    hi, lo = np.clip(hi, 0, n), np.clip(lo, 0, n)
+    sums = [np.concatenate([[0.0], np.cumsum(v)]) for v in (X, L, X * X, X * L)]
+    sx, sy, sxx, sxy = (c[hi] - c[lo] for c in sums)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        a = (m * sxy - sx * sy) / (m * sxx - sx * sx)
+        b = (sy - a * sx) / m
+    fitted &= np.isfinite(a) & np.isfinite(b)
+    if not np.any(fitted):
+        return []
+    excess = np.where(fitted, slope - a, -np.inf)
+    noise = 1.4826 * np.median(np.abs(excess[fitted] - np.median(excess[fitted])))
+
+    post = max(3, int(DETECT_POST_EV / step))
+    peaks = np.where((excess[1:-1] > 0) & (excess[1:-1] >= excess[:-2]) & (excess[1:-1] > excess[2:]))[0] + 1
+    found = []
+    for p in peaks:
+        o = p
+        while o > 0 and excess[o - 1] > 0.5 * excess[p]:
+            o -= 1
+        if not fitted[o] or o + post > n:
+            continue
+        seg = slice(o, o + post)
+        jump = float(np.mean(L[seg] - (a[o] * X[seg] + b[o])))
+        if jump <= 0:
+            continue
+        snr = float(excess[p] / noise) if noise > 0 else DETECT_SNR_FULL
+        # Counting noise on the mean of the post-edge window and of the fit, relative to the level.
+        jump_noise = channel_noise / ys[o] * math.sqrt(1 / post + 1 / m[o])
+        jump_z = jump / jump_noise if jump_noise > 0 else DETECT_JUMP_Z_FULL
+        conf = float((1 - math.exp(-jump / DETECT_JUMP_SCALE)) * min(1.0, snr / DETECT_SNR_FULL)
+                * min(1.0, jump_z / DETECT_JUMP_Z_FULL))
+        if conf >= DETECT_MIN_CONFIDENCE:
+            # Steepest rise, not the half-height start: closer to how tabulated onsets are placed.
+            found.append((conf, jump, float(e[p])))
+
+    kept = []
+    for conf, jump, at in sorted(found, reverse=True):
+        if any(abs(at - k_at) < DETECT_MERGE_EV or (k_at < at < k_at + DETECT_ELNES_EV and jump < k_jump / 2)
+               for _, k_jump, k_at in kept):
+            continue
+        kept.append((conf, jump, at))
+        if len(kept) == DETECT_MAX_EDGES:
+            break
+    return [{"energy": round(at, 1), "confidence": round(conf, 2), "candidates": edges_near(at, edge_table)}
+            for conf, _, at in kept]
+
+
 def elastic_threshold(energy, intensity, start=1.0, window=10.0):
     """End of the zero-loss peak: where the smoothed slope is flattest between `start` and `start + window` eV.
 
