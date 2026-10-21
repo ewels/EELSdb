@@ -2,12 +2,15 @@
 
 const header = document.querySelector(".site-header");
 const headerMark = header.querySelector(".logo");
+// Below 1000px the small logo always shows (style.css), so it stays in the tab order.
+const narrow = matchMedia("(max-width: 999px)");
 function updateHeader() {
   const stuck = scrollY > 0;
   header.classList.toggle("stuck", stuck);
-  headerMark.tabIndex = stuck ? 0 : -1;
+  headerMark.tabIndex = stuck || narrow.matches ? 0 : -1;
 }
 addEventListener("scroll", updateHeader, { passive: true });
+narrow.addEventListener("change", updateHeader);
 updateHeader();
 
 const table = document.querySelector(".pt");

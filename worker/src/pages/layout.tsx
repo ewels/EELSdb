@@ -55,12 +55,6 @@ export function Layout(props: {
           <header class={props.home ? "site-header" : "site-header stuck"}>
             <div class="wrap">
               <a class="logo" href="/" aria-label="EELSdb home" tabindex={props.home ? -1 : undefined}>{raw(LOGO_SVG)}</a>
-              <button class="theme-toggle" type="button" aria-label="Switch between light and dark" title="Light or dark" data-save={props.user ? "1" : undefined}>
-                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-                  <circle cx="10" cy="10" r="6.5" />
-                  <path d="M10 3.5a6.5 6.5 0 0 1 0 13z" fill="currentColor" stroke="none" />
-                </svg>
-              </button>
               <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" aria-label="Menu">
                 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
                   <path class="burger" d="M3 5.5h14M3 10h14M3 14.5h14" />
@@ -75,6 +69,13 @@ export function Layout(props: {
                   </svg>
                   <input type="search" name="title" placeholder="Search spectra" aria-label="Search spectra" />
                 </form>
+                <button class="theme-toggle" type="button" title="Light or dark" data-save={props.user ? "1" : undefined}>
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                    <circle cx="10" cy="10" r="6.5" />
+                    <path d="M10 3.5a6.5 6.5 0 0 1 0 13z" fill="currentColor" stroke="none" />
+                  </svg>
+                  <span class="theme-label"><span class="to-dark">Dark mode</span><span class="to-light">Light mode</span></span>
+                </button>
                 <nav class="site-nav" aria-label="Main">
                   {NAV.map(([href, label]) => (
                     <a href={href} aria-current={props.path.startsWith(href) ? "page" : undefined}>{label}</a>

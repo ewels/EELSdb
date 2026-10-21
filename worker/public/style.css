@@ -122,17 +122,19 @@ pre {
 .site-header .wrap { display: flex; align-items: center; gap: 1rem 1.4rem; padding-block: 0.8rem; }
 .logo { display: block; width: 170px; flex: none; margin-right: 0.6rem; color: var(--ink); line-height: 0; }
 .logo svg { width: 100%; height: auto; }
-.home .site-header:not(.stuck, .menu-open) .logo { visibility: hidden; opacity: 0; }
-@media (prefers-reduced-motion: no-preference) {
+/* Narrow screens always show it. Keep 1000px in step with home.js. */
+@media (min-width: 1000px) {
+  .home .site-header:not(.stuck) .logo { visibility: hidden; opacity: 0; }
+}
+@media (min-width: 1000px) and (prefers-reduced-motion: no-preference) {
   /* Fades up on the way in; fades straight out, then drops back to its start position unseen. */
   .home .logo { transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s; }
-  .home .site-header:not(.stuck, .menu-open) .logo { transform: translateY(6px); transition: opacity 0.2s, transform 0s 0.2s, visibility 0s 0.2s, width 0s 0.2s; }
+  .home .site-header:not(.stuck) .logo { transform: translateY(6px); transition: opacity 0.2s, transform 0s 0.2s, visibility 0s 0.2s, width 0s 0.2s; }
 }
-/* Wide screens: the menu's contents sit in the header row, with the theme toggle between search and links. */
+/* Wide screens: the menu's contents sit in the header row. */
 .menu { display: contents; }
-.nav-search { order: 1; margin-left: auto; }
-.theme-toggle { order: 2; }
-.site-nav { order: 3; display: flex; align-items: center; gap: 0.2rem 1.4rem; }
+.nav-search { margin-left: auto; }
+.site-nav { display: flex; align-items: center; gap: 0.2rem 1.4rem; }
 .site-nav a:not(.button, .account-link) { color: var(--ink); text-decoration: none; font-weight: 500; padding-block: 0.2rem; border-bottom: 2px solid transparent; }
 .site-nav a:not(.button, .account-link):hover { border-bottom-color: var(--line); }
 .site-nav a[aria-current="page"] { border-bottom-color: var(--accent); }
@@ -144,6 +146,13 @@ pre {
 .nav-search input:hover { border-color: var(--muted); }
 :is(.theme-toggle, .menu-toggle) { display: grid; place-items: center; width: 2rem; height: 2rem; padding: 0; border: 0; border-radius: 4px; background: none; color: var(--muted); cursor: pointer; }
 .theme-toggle { margin-right: 0.6rem; }
+.theme-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.to-light, :root[data-theme="dark"] .to-dark { display: none; }
+:root[data-theme="dark"] .to-light { display: inline; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .to-dark { display: none; }
+  :root:not([data-theme="light"]) .to-light { display: inline; }
+}
 :is(.theme-toggle, .menu-toggle):hover { color: var(--ink); background: var(--sunken); }
 :is(.theme-toggle, .menu-toggle) svg { width: 18px; height: 18px; }
 .menu-toggle { display: none; }
@@ -154,19 +163,22 @@ pre {
 .account-link:hover .av, .account-link[aria-current="page"] .av { box-shadow: 0 0 0 2px var(--accent); }
 .account-name { display: none; }
 
-/* Narrow screens: theme toggle and burger on the right; the menu drops down below the header. Keep 999px in step with MENU_SCRIPT in layout.tsx. */
+/* Narrow screens: the burger on the right; the menu drops down below the header. Keep 999px in step with MENU_SCRIPT in layout.tsx. */
 @media (max-width: 999px) {
   .site-header .wrap { flex-wrap: wrap; gap: 0.5rem; }
   .site-header.menu-open { background: var(--bg); border-bottom-color: var(--rule); }
-  :is(.theme-toggle, .menu-toggle) { width: 2.5rem; height: 2.5rem; }
-  .theme-toggle { order: 0; margin: 0 0 0 auto; }
+  .menu-toggle { width: 2.5rem; height: 2.5rem; margin-left: auto; }
   .js .menu-toggle { display: grid; color: var(--ink); }
   /* Without JavaScript the menu stays open, in the header's flow, so the header must not stick. */
   html:not(.js) .site-header { position: static; }
-  .menu { display: flex; flex-direction: column; gap: 0.75rem; flex-basis: 100%; padding-block: 0.25rem 0.5rem; }
+  .menu { display: flex; flex-direction: column; flex-basis: 100%; padding-block: 0.25rem 0.5rem; }
   .js .menu { position: absolute; top: 100%; left: 0; right: 0; max-height: calc(100dvh - 100%); overflow-y: auto; padding: 1rem 1rem 1.25rem; background: var(--bg); border-bottom: 1px solid var(--rule); box-shadow: var(--shadow); }
   .js .site-header:not(.menu-open) .menu { display: none; }
-  .nav-search { margin-left: 0; }
+  .nav-search { margin: 0 0 0.75rem; }
+  .theme-toggle { display: flex; justify-content: flex-start; gap: 0.6rem; width: auto; height: auto; margin: 0; padding-block: 0.75rem; border-bottom: 1px solid var(--rule); border-radius: 0; color: var(--ink); font-weight: 500; text-align: left; text-underline-offset: 0.4em; text-decoration-thickness: 2px; }
+  .theme-toggle svg { color: var(--muted); }
+  .theme-toggle:hover { background: none; text-decoration-line: underline; text-decoration-color: var(--line); }
+  .theme-label { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
   .site-header .nav-search input { width: 100%; font-size: 1rem; padding: 0.55rem 0.7rem 0.55rem 2.1rem; }
   .site-nav { flex-direction: column; align-items: stretch; gap: 0; }
   .site-nav a:not(.button, .account-link) { padding-block: 0.75rem; border-bottom: 1px solid var(--rule); text-underline-offset: 0.4em; text-decoration-thickness: 2px; }

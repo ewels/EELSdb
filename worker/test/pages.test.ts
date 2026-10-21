@@ -26,7 +26,7 @@ describe("pages", () => {
     expect(button).toContain('aria-expanded="false"');
     const id = button.match(/aria-controls="([^"]+)"/)?.[1];
     expect(id).toBeTruthy();
-    expect(html).toMatch(new RegExp(`<div class="menu" id="${id}">[\\s\\S]*?class="nav-search"[\\s\\S]*?href="/about/"`));
+    expect(html).toMatch(new RegExp(`<div class="menu" id="${id}">[\\s\\S]*?class="nav-search"[\\s\\S]*?class="theme-toggle"[\\s\\S]*?href="/about/"`));
   });
 
   it("home shows live counts", async () => {
