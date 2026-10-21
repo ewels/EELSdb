@@ -10,6 +10,11 @@ import urllib.parse
 from eelsdb.legacy.record_api import OUT as API_FIXTURES
 from eelsdb.legacy.record_api import ROOT
 
+# The old site tagged every spectrum it migrated from the first database, and linked each to its page there, which
+# is gone. Both are left out of the typed rows; the recorded v1 objects keep them, so API v1 replays unchanged.
+DROPPED_KEYWORDS = {"imported from old site"}
+DEAD_HOSTS = {"pc-web.cemes.fr"}
+
 FIXTURES = ROOT / "data" / "fixtures"
 SEED_DIR = ROOT / "data" / "seed"
 TYPE_CODES = {"Core Loss": "coreloss", "Low Loss": "lowloss", "Zero Loss": "zeroloss", "X Ray Abs": "xrayabs"}
@@ -121,13 +126,14 @@ def spectrum_rows(s, rank, ids_by_slug, manifest, analysis):
     for i, edge in enumerate(dict.fromkeys(s.get("edges", []))):
         el, _, name = edge.partition("_")
         out.append(insert("spectrum_edges", {"spectrum_id": sid, "element": el, "edge": name, "position": i}))
-    for i, kw in enumerate(dict.fromkeys(s.get("keywords", []))):
+    keywords = [kw for kw in dict.fromkeys(s.get("keywords", [])) if kw.strip().lower() not in DROPPED_KEYWORDS]
+    for i, kw in enumerate(keywords):
         out.append(insert("spectrum_keywords", {"spectrum_id": sid, "keyword": kw, "position": i}))
     for i, link in enumerate(s.get("associated_spectra", [])):
         related = ids_by_slug.get(slug_of(link["link"]))
         if related is not None:
             out.append(insert("spectrum_links", {"spectrum_id": sid, "related_id": related, "position": i}))
-    for i, link in enumerate(s.get("other_links", [])):
+    for i, link in enumerate(link for link in s.get("other_links", []) if urllib.parse.urlparse(link["url"]).hostname not in DEAD_HOSTS):
         out.append(insert("spectrum_other_urls",
                           {"spectrum_id": sid, "url": link["url"], "title": link.get("title"), "position": i}))
 

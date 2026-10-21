@@ -592,6 +592,7 @@ dialog h2 { margin-top: 0; }
 .spectrum-intro .compare { margin-top: 0; }
 .snippet h2 { font-size: 0.95rem; margin: 0 0 0.5rem; }
 .snippet pre { margin: 0; white-space: pre; font-size: 0.8rem; }
+.snippet .hint { margin: 0.5rem 0 0; }
 .snippet pre { background: var(--sunken); border: 0; border-radius: 6px; padding: 0.9rem 1rem; margin: 0.6rem 0 0; white-space: pre; word-break: normal; line-height: 1.6; font-size: 0.85rem; }
 .notice { border: 1px solid var(--line); background: var(--sunken); border-radius: 8px; padding: 1rem 1.25rem; }
 

@@ -340,16 +340,15 @@ export async function spectrumPage(c: Context<AppEnv>) {
               </div>
             )}
           </div>
-          {fileUrl?.toLowerCase().endsWith(".msa") && (
+          {s.status === "published" && fileName && PLOTTABLE.test(fileName) && (
             <section class="snippet" aria-labelledby="snippet-title">
               <h2 id="snippet-title">Use in HyperSpy</h2>
               <pre><code>
-                <span class="k">import</span> exspy{"\n\n"}
-                spectra = exspy.data.eelsdb(title=<span class="s">{JSON.stringify(s.title)}</span>
-                {s.formula && <>, formula=<span class="s">{JSON.stringify(s.formula)}</span></>}){"\n"}
-                s = next(sp <span class="k">for</span> sp <span class="k">in</span> spectra <span class="k">if</span> sp.original_metadata.json.id == <span class="n">{s.id}</span>){"\n"}
+                <span class="k">import</span> eelsdb{"\n\n"}
+                s = eelsdb.load(<span class="s">{JSON.stringify(s.slug)}</span>){"\n"}
                 s.plot(plot_edges=<span class="k">True</span>)
               </code></pre>
+              <p class="hint">With the <a href="/docs/use/python/">eelsdb Python package</a>: the spectrum, its acquisition metadata and its reference.</p>
             </section>
           )}
         </div>

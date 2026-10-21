@@ -264,11 +264,11 @@ export async function homePage(c: Context<AppEnv>) {
       <section class="extras">
         <div>
           <h2>Load spectra in Python</h2>
-          <p>HyperSpy and exSpy read the database directly. Each spectrum loads with its acquisition metadata.</p>
-          <pre><code><span class="k">import</span> exspy{"\n"}s = exspy.data.eelsdb(element=<span class="s">"Ti"</span>, spectrum_type=<span class="s">"coreloss"</span>)</code></pre>
+          <p>The eelsdb package loads any spectrum into HyperSpy, with its acquisition metadata and reference.</p>
+          <pre><code><span class="k">import</span> eelsdb{"\n"}s = eelsdb.load(<span class="s">"iron-iii-oxide-hematite"</span>){"\n"}s.plot(plot_edges=<span class="k">True</span>)</code></pre>
           <div class="cite-actions">
-            <a class="button secondary" href="https://hyperspy.org/">HyperSpy {ARROW}</a>
-            <a class="button secondary" href="https://hyperspy.org/exspy/">exSpy {ARROW}</a>
+            <a class="button secondary" href="/docs/use/python/">Python guide {ARROW}</a>
+            <a class="button secondary" href="/docs/use/api/">API {ARROW}</a>
           </div>
         </div>
         <div>
