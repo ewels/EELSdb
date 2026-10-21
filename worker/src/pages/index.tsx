@@ -58,9 +58,9 @@ pages.get(`/${EXPORT_KEY}`, async (c) => {
 pages.get("/downloads/", async (c) => {
   const head = await c.env.FILES.head(EXPORT_KEY);
   return c.html(
-    <Layout user={c.get("user")} title="Download everything" path="/downloads/">
+    <Layout user={c.get("user")} title="Bulk download" path="/downloads/">
       <div class="prose">
-        <h1>Download everything</h1>
+        <h1>Bulk download</h1>
         <p>
           One zip file with every public spectrum: the data files, all metadata in the <a href="/api/v2/">API v2</a> format (including where
           each acquisition value came from), and a README with the licence and how to cite.

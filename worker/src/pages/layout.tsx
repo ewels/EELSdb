@@ -114,7 +114,7 @@ export function Layout(props: {
             <div class="wrap">
               <a href="/contact/">Contact</a>
               <a href="https://github.com/ewels/EELSdb">Website source code on GitHub</a>
-              <a class="downloads" href="/downloads/">Download everything</a>
+              <a class="downloads" href="/downloads/">Bulk download</a>
               <span class="licence">
                 Data under the <a href="https://opendatacommons.org/licenses/odbl/">Open Database Licence (ODbL)</a>
               </span>
