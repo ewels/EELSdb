@@ -308,7 +308,7 @@ function paintCard(f) {
 }
 
 function buildCard(f) {
-  const select = el("select", { "aria-label": `How to use ${f.file.name}` }, el("option", { value: "", textContent: "…" }));
+  const select = el("select", { "aria-label": `How to use ${f.file.name}` }, el("option", { value: "", textContent: "Choose…" }));
   for (const [value, label] of Object.entries(ROLES)) select.append(el("option", { value, textContent: label }));
   select.addEventListener("change", () => {
     const role = select.value;
@@ -539,6 +539,7 @@ const css = (n) => {
   return getComputedStyle(probe).color;
 };
 
+const compact = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
 function drawPlot(node, x, y, old) {
   old?.destroy();
   const axis = { stroke: css("--muted"), grid: { stroke: css("--rule") }, ticks: { stroke: css("--line") } };
@@ -547,7 +548,7 @@ function drawPlot(node, x, y, old) {
       width: node.clientWidth || 600,
       height: 170,
       scales: { x: { time: false } },
-      axes: [{ ...axis, label: "Energy (eV)" }, { ...axis, size: 60 }],
+      axes: [{ ...axis, label: "Energy (eV)" }, { ...axis, size: 56, values: (u, vals) => vals.map(compact.format) }],
       series: [{}, { stroke: css("--plot"), width: 1.25, points: { show: false } }],
       legend: { show: false },
       cursor: { show: false },

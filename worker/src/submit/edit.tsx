@@ -196,6 +196,13 @@ edit.post("/spectra/:slug/edit/", requireUser, async (c) => {
   return finishForm(c, status === "published" ? back : "/account/submissions/");
 });
 
+const FIELD_NAMES: Record<string, string> = {
+  source_purity: "source and purity",
+  other_urls: "other links",
+  associated: "associated spectra",
+  core: "measurement details",
+};
+
 edit.get("/spectra/:slug/history/", async (c) => {
   const row = await c.env.DB.prepare("SELECT id, title, slug FROM spectra WHERE slug = ? AND status = 'published'").bind(c.req.param("slug")).first<any>();
   if (!row) return c.notFound();
@@ -204,22 +211,29 @@ edit.get("/spectra/:slug/history/", async (c) => {
   ).bind(row.id).all<any>();
   return c.html(
     <Layout title={`History of ${row.title}`} path="/spectra/" user={c.get("user")}>
-      <p class="small" style="margin-top:1.25rem"><a href={`/spectra/${encodeURIComponent(row.slug)}/`}>← {row.title}</a></p>
+      <p class="small back-link"><a href={`/spectra/${encodeURIComponent(row.slug)}/`}>← {row.title}</a></p>
       <h1>History</h1>
       {results.length ? (
-        <ul>
-          {results.map((h) => {
-            const change = JSON.parse(h.change_json);
-            const fields = change.changes ? Object.keys(change.changes).join(", ") : "";
-            return (
-              <li>
-                {String(h.at).slice(0, 16).replace("T", " ")}: {change.action}
-                {fields && ` (${fields.replace("core", "measurement details")})`}
-                {h.display_name && ` by ${h.display_name}`}
-              </li>
-            );
-          })}
-        </ul>
+        <div class="table-scroll history">
+          <table>
+            <thead>
+              <tr><th>Date</th><th>Change</th><th>By</th></tr>
+            </thead>
+            <tbody>
+              {results.map((h) => {
+                const change = JSON.parse(h.change_json);
+                const fields = change.changes ? Object.keys(change.changes).map((k) => FIELD_NAMES[k] ?? k).join(", ") : "";
+                return (
+                  <tr>
+                    <td class="when">{String(h.at).slice(0, 16).replace("T", " ")}</td>
+                    <td class="change">{change.action}{fields && ` (${fields})`}</td>
+                    <td>{h.display_name ?? <span class="muted">–</span>}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       ) : (
         <p class="muted">No changes since it was published.</p>
       )}

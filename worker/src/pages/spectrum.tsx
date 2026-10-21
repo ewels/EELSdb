@@ -48,8 +48,33 @@ function MetaList(props: { items: [string, unknown][] }) {
   );
 }
 
-/** "Fe L2,3" style labels for the stored edges. */
-const edgeLabels = (b: SpectrumBundle) => b.edges.map((e) => `${e.element} ${e.edge}`);
+function CopyButton(props: { target: string; what: string }) {
+  return (
+    <button class="copy" type="button" data-copy={props.target} aria-label={`Copy ${props.what}`}>
+      <svg class="i-copy" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="6.5" y="6.5" width="10" height="11" rx="1.5" />
+        <path d="M13.5 6.5V4a1.5 1.5 0 0 0-1.5-1.5H5A1.5 1.5 0 0 0 3.5 4v8A1.5 1.5 0 0 0 5 13.5h1.5" />
+      </svg>
+      <svg class="i-done" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 10.5l4 4 8-9" />
+      </svg>
+      <span class="copy-label" role="status">Copy</span>
+    </button>
+  );
+}
+
+/** Stored edges typeset as "Fe L<sub>2,3</sub>". */
+function EdgeList(props: { b: SpectrumBundle }) {
+  if (!props.b.edges.length) return null;
+  return (
+    <span class="formula">
+      {props.b.edges.map((e, i) => {
+        const [, shell, sub] = String(e.edge).match(/^([A-Z])(.*)$/) ?? [, e.edge, ""];
+        return <>{i > 0 && ", "}{e.element} {shell}{sub && <sub>{sub}</sub>}</>;
+      })}
+    </span>
+  );
+}
 
 function referenceText(r: Row | null) {
   if (!r) return null;
@@ -133,6 +158,7 @@ export async function spectrumPage(c: Context<AppEnv>) {
     Number(t.deconv_maximum_entropy) && "Maximum entropy",
     t.deconv_other,
   ].filter(Boolean).join(", ");
+  const canEdit = !!user && (s.owner_id === user.id || isModerator(user));
   const authorLink = <a href={`/author/${s.author_slug}/`}>{s.author_display}</a>;
 
   return c.html(
@@ -142,7 +168,7 @@ export async function spectrumPage(c: Context<AppEnv>) {
       description={`${s.title}${s.formula ? ` (${s.formula})` : ""}: ${s.type} spectrum in the EELS Data Base.`}
       head={<link rel="stylesheet" href="/vendor/uPlot.min.css" />}
     >
-      <p class="small" style="margin-top:1.25rem">
+      <p class="small back-link">
         <a href="/spectra/">← All spectra</a>
       </p>
       {b.spectrum.status !== "published" && (
@@ -156,14 +182,19 @@ export async function spectrumPage(c: Context<AppEnv>) {
             {s.completeness === "full" && (
               <> · <span class="badge-complete" title="Beam energy, convergence and collection angles are all recorded">Beam energy and angles known</span></>
             )}
-            {user && (s.owner_id === user.id || isModerator(user)) && (
-              <> · <a href={`/spectra/${encodeURIComponent(s.slug)}/edit/`}>Edit</a></>
-            )}
             {" · "}
             <a href={`/spectra/${encodeURIComponent(s.slug)}/history/`}>History</a>
           </p>
         </div>
         <div class="head-actions">
+        {canEdit && (
+          <a class="button secondary" href={`/spectra/${encodeURIComponent(s.slug)}/edit/`}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 20h4L19 9l-4-4L4 16z" />
+            </svg>
+            Edit
+          </a>
+        )}
         {user ? (
           <form method="post" action={`/favourites/${s.id}/`}>
             <button class="button secondary" type="submit" aria-pressed={favourite ? "true" : "false"}>
@@ -201,7 +232,7 @@ export async function spectrumPage(c: Context<AppEnv>) {
         <div class="plot-tools">
           <label><input type="checkbox" id="show-edges" checked /> Edge onsets (exSpy)</label>
           <label><input type="checkbox" id="show-minor" /> Minor edges</label>
-          <span>Drag to zoom, double-click to reset.</span>
+          <span class="plot-hint">Drag to zoom, double-click to reset</span>
         </div>
       </div>
 
@@ -225,7 +256,7 @@ s.plot(plot_edges=True)`}</pre>
             items={[
               ["Formula", s.formula && <Formula formula={s.formula} />],
               ["Elements", b.elements.join(", ")],
-              ["Edges", edgeLabels(b).join(", ")],
+              ["Edges", b.edges.length ? <EdgeList b={b} /> : null],
               ["Source and purity", s.source_purity],
               ["Energy range", s.min_energy_ev !== null && s.max_energy_ev !== null ? `${Number(s.min_energy_ev.toFixed(2))} – ${Number(s.max_energy_ev.toFixed(2))} eV` : null],
               ["Step", fmt(s.step_ev, "eV", 4)],
@@ -315,7 +346,7 @@ s.plot(plot_edges=True)`}</pre>
           {b.links.length > 0 && (
             <>
               <h2>Associated spectra</h2>
-              <ul>
+              <ul class="plain-list">
                 {b.links.map((l) => (
                   <li>
                     <a href={`/spectra/${encodeURIComponent(l.slug)}/`}>{l.title}</a> <TypeBadge type={l.type} />
@@ -327,7 +358,7 @@ s.plot(plot_edges=True)`}</pre>
           {b.otherUrls.length > 0 && (
             <>
               <h2>Other links</h2>
-              <ul>
+              <ul class="plain-list">
                 {b.otherUrls.map((u) => (
                   <li><a href={u.url}>{u.title || u.url}</a></li>
                 ))}
@@ -339,24 +370,29 @@ s.plot(plot_edges=True)`}</pre>
 
       {fileUrl && (
         <dialog id="download-dialog" aria-labelledby="download-title">
-          <h2 id="download-title">Please cite this spectrum</h2>
+          <h2 id="download-title">Cite this spectrum</h2>
           <p class="muted small">
             If you use this spectrum, cite the contributor{r ? "'s paper" : ""} and the EELS Data Base.
           </p>
           <div class="cite-block">
-            <pre id="cite-text">{cite.text}</pre>
-            <button class="button secondary copy" type="button" data-copy="cite-text">Copy</button>
+            <div id="cite-text" class="cite-text">{cite.text}</div>
+            <CopyButton target="cite-text" what="citation" />
           </div>
-          <details>
+          <details class="cite-bib">
             <summary>BibTeX</summary>
             <div class="cite-block">
               <pre id="cite-bib">{cite.bib}</pre>
-              <button class="button secondary copy" type="button" data-copy="cite-bib">Copy</button>
+              <CopyButton target="cite-bib" what="BibTeX" />
             </div>
           </details>
           <div class="dialog-actions">
             <button class="button secondary" type="button" data-close>Close</button>
-            <a class="button" href={fileUrl} download={fileName}>Download {fileName}</a>
+            <a class="button" href={fileUrl} download={fileName} autofocus>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                <path d="M12 4v11M7 10.5l5 5 5-5M5 20h14" />
+              </svg>
+              <span class="dl-name">Download {fileName}</span>
+            </a>
           </div>
         </dialog>
       )}

@@ -1,4 +1,4 @@
-// Settings page: shrinks a chosen picture before upload, and previews a theme as soon as it is picked.
+// Settings page: shrinks a chosen picture before upload.
 
 const SIZE = 256;
 
@@ -17,18 +17,11 @@ avatar?.addEventListener("change", async () => {
     const dt = new DataTransfer();
     dt.items.add(new File([blob], "avatar.webp", { type: "image/webp" }));
     avatar.files = dt.files;
-    const preview = document.querySelector(".avatar-large");
+    const preview = document.querySelector(".av-large");
     let img = preview.querySelector("img");
-    if (!img) preview.append((img = Object.assign(document.createElement("img"), { alt: "", width: 80, height: 80 })));
+    if (!img) preview.append((img = Object.assign(document.createElement("img"), { alt: "" })));
     img.src = URL.createObjectURL(blob);
   } catch {
     // The browser could not decode it; the server checks the original instead.
   }
 });
-
-for (const radio of document.querySelectorAll('#theme-form input[name="theme"]')) {
-  radio.addEventListener("change", () => {
-    if (radio.value === "system") delete document.documentElement.dataset.theme;
-    else document.documentElement.dataset.theme = radio.value;
-  });
-}

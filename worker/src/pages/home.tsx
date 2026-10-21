@@ -3,7 +3,7 @@ import { raw } from "hono/html";
 import { avatarUrl, type AppEnv } from "../auth";
 import NAMES from "../element-names.json";
 import BINDING from "../../public/eels_binding_energies.json";
-import { Formula, Layout, TYPE_NAMES } from "./layout";
+import { Avatar as SharedAvatar, Formula, Layout, TYPE_NAMES } from "./layout";
 import { HERO_LOGO_SVG } from "./logo";
 
 const ELEMENT_NAMES: Record<string, string> = NAMES;
@@ -154,22 +154,9 @@ const MiniPlotFigure = (props: { plot: MiniPlot }) => (
   </div>
 );
 
-const AV_HUES = ["av-a", "av-b", "av-c", "av-d", "av-e"];
-
-const initials = (name: string) => {
-  const parts = name.replace(/\([^)]*\)/g, "").split(/[\s-]+/).filter(Boolean);
-  if (!parts.length) return "?";
-  return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : parts[0].slice(1, 2))).toUpperCase();
-};
-
 type Person = { slug: string; name: string; avatar: string | null };
 
-const Avatar = (props: { person: Person }) => (
-  <span class={`av ${AV_HUES[[...props.person.slug].reduce((s, ch) => s + ch.charCodeAt(0), 0) % AV_HUES.length]}`} aria-hidden="true">
-    {initials(props.person.name)}
-    {props.person.avatar && <img src={props.person.avatar} alt="" loading="lazy" referrerpolicy="no-referrer" />}
-  </span>
-);
+const Avatar = (props: { person: Person }) => <SharedAvatar name={props.person.name} seed={props.person.slug} src={props.person.avatar} />;
 
 const ARROW = (
   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

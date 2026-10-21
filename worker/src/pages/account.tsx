@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { PROVIDERS, createSession, finishSignIn, requireUser, safeNext, sha256, signOut, startSignIn, type AppEnv } from "../auth";
 import { sendEmail } from "../email";
 import { pbkdf2Hash, verifyLegacyPassword } from "../legacy-password";
-import { Formula, Layout, TypeBadge } from "./layout";
+import { Avatar, Formula, Layout, TypeBadge } from "./layout";
 
 export const account = new Hono<AppEnv>();
 
@@ -23,10 +23,10 @@ account.get("/login/", (c) => {
   const error = ERRORS[c.req.query("error") ?? ""];
   return c.html(
     <Layout title="Sign in" path="/login/" user={null}>
-      <div class="prose">
+      <div class="prose sign-in">
         <h1>Sign in</h1>
-        {error && <p class="notice" role="alert">{error}</p>}
-        <p>Sign in to save favourite spectra and, soon, to submit your own. EELSdb never sees your password.</p>
+        {error && <p class="notice error-summary" role="alert">{error}</p>}
+        <p class="lede">Sign in to share spectra and keep favourites.</p>
         {providers.length ? (
           <div class="sign-in-buttons">
             {providers.map(([key, p]) => (
@@ -40,12 +40,16 @@ account.get("/login/", (c) => {
         )}
         {c.env.LEGACY_PASSWORD_LOGIN === "1" && (
           <form method="post" action="/login/password/" class="password-login">
-            <h2>Sign in with your old EELSdb password</h2>
+            <h2>Old EELSdb password</h2>
             {next && <input type="hidden" name="next" value={next} />}
-            <label for="login">Username or email</label>
-            <input id="login" name="login" type="text" autocomplete="username" required />
-            <label for="password">Password</label>
-            <input id="password" name="password" type="password" autocomplete="current-password" required />
+            <div class="field">
+              <label for="login">Username or email</label>
+              <input id="login" name="login" type="text" autocomplete="username" required />
+            </div>
+            <div class="field">
+              <label for="password">Password</label>
+              <input id="password" name="password" type="password" autocomplete="current-password" required />
+            </div>
             <button class="button" type="submit">Sign in</button>
           </form>
         )}
@@ -119,23 +123,33 @@ account.get("/account/", requireUser, async (c) => {
   const notice = c.req.query("claim");
   return c.html(
     <Layout title="Your account" path="/account/" user={user}>
-      <h1>{user.display_name}</h1>
-      <p class="muted">
-        Signed in with {identities.map((i: any) => PROVIDERS[i.provider]?.label ?? i.provider).join(", ") || "an old-site account"}
-        {user.orcid && <> · ORCID <a href={`https://orcid.org/${user.orcid}`}>{user.orcid}</a></>}
-        {owned[0].n > 0 && user.slug && <> · <a href={`/author/${user.slug}/`}>{owned[0].n} contributed spectra</a></>}
-      </p>
+      <div class="profile-head">
+        <Avatar name={user.display_name} seed={user.slug ?? user.display_name} src={user.avatar} class="av-large" />
+        <div>
+          <h1>{user.display_name}</h1>
+          <p class="muted profile-facts">
+            Signed in with {identities.map((i: any) => PROVIDERS[i.provider]?.label ?? i.provider).join(", ") || "an old-site password"}
+            {user.orcid && <> · ORCID <a href={`https://orcid.org/${user.orcid}`}>{user.orcid}</a></>}
+            {owned[0].n > 0 && user.slug && <> · <a href={`/author/${user.slug}/`}>{owned[0].n} contributed {owned[0].n === 1 ? "spectrum" : "spectra"}</a></>}
+          </p>
+        </div>
+      </div>
       {notice === "sent" && (
         <p class="notice" role="status">If an old account uses that address, we have emailed it a link. The link works for {CLAIM_HOURS} hours.</p>
       )}
       {notice === "limit" && <p class="notice" role="status">You have asked for {MAX_CLAIMS_PER_DAY} links today. Please try again tomorrow.</p>}
       {notice === "done" && <p class="notice" role="status">Your old account is now linked. Its favourites and spectra are below.</p>}
 
-      <p>
-        <a class="button" href="/submit-data/">Submit a spectrum</a> <a class="button secondary" href="/account/submissions/">Your submissions</a>{" "}
-        <a class="button secondary" href="/account/tokens/">API tokens</a> <a class="button secondary" href="/account/settings/">Settings</a>
-        {(user.role === "moderator" || user.role === "admin") && <> <a class="button secondary" href="/admin/">Moderation</a></>}
-      </p>
+      <div class="account-actions">
+        <a class="button" href="/submit-data/">Submit a spectrum</a>
+        <a class="button secondary" href="/account/submissions/">Your submissions</a>
+        <a class="button secondary" href="/account/settings/">Settings</a>
+        <a class="button secondary" href="/account/tokens/">API tokens</a>
+        {(user.role === "moderator" || user.role === "admin") && <a class="button secondary" href="/admin/">Moderation</a>}
+        <form method="post" action="/logout/">
+          <button class="button secondary" type="submit">Sign out</button>
+        </form>
+      </div>
 
       <h2>Favourite spectra</h2>
       {favourites.length ? (
@@ -145,7 +159,7 @@ account.get("/account/", requireUser, async (c) => {
               {favourites.map((s: any) => (
                 <tr>
                   <td><TypeBadge type={s.type} /></td>
-                  <td><a href={`/spectra/${encodeURIComponent(s.slug)}/`}>{s.title}</a></td>
+                  <td class="title"><a href={`/spectra/${encodeURIComponent(s.slug)}/`}>{s.title}</a></td>
                   <td><Formula formula={s.formula} /></td>
                 </tr>
               ))}
@@ -153,19 +167,15 @@ account.get("/account/", requireUser, async (c) => {
           </table>
         </div>
       ) : (
-        <p class="muted">No favourites yet. Use the star on a spectrum's page to keep it here.</p>
+        <p class="muted">None yet. Use the star on a spectrum's page to keep it here.</p>
       )}
 
       <div class="prose">
         <h2>Claim your account from the old site</h2>
         <p>Enter the email address of your old EELSdb account. We will send a link to that address; open it while signed in here.</p>
         <form method="post" action="/account/claim/" class="inline-form">
-          <input type="email" name="email" required aria-label="Email address of your old account" autocomplete="email" />
+          <input type="email" name="email" required aria-label="Email address of your old account" autocomplete="email" placeholder="name@example.org" />
           <button class="button secondary" type="submit">Send link</button>
-        </form>
-        <h2>Sign out</h2>
-        <form method="post" action="/logout/">
-          <button class="button secondary" type="submit">Sign out</button>
         </form>
       </div>
     </Layout>,

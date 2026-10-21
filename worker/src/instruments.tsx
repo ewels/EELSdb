@@ -173,7 +173,7 @@ instruments.get("/instruments/", async (c) => {
             <tbody>
               {results.map((i) => (
                 <tr>
-                  <td><a href={`/instruments/${i.id}/`}>{i.name}</a></td>
+                  <td class="title"><a href={`/instruments/${i.id}/`}>{i.name}</a></td>
                   <td>{i.facility}</td>
                   <td>{i.spectrometer}</td>
                   <td>{i.status === "approved" ? (i.pending ? "Approved, edit waiting" : "Approved") : "Waiting for a moderator"}</td>
@@ -243,7 +243,7 @@ instruments.get("/instruments/:id/", async (c) => {
   const STATUS: Record<string, string> = { approved: "approved", pending: "waiting for a moderator", rejected: "not approved" };
   return c.html(
     <Layout title={shown.name} path="/instruments/" user={user}>
-      <p class="small" style="margin-top:1.25rem"><a href="/instruments/">← Instrument profiles</a></p>
+      <p class="small back-link"><a href="/instruments/">← Instrument profiles</a></p>
       <h1>{shown.name}</h1>
       <p class="muted">
         {[shown.facility, shown.manufacturer, shown.spectrometer].filter(Boolean).join(" · ")}

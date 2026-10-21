@@ -54,9 +54,13 @@ export async function browsePage(c: Context<AppEnv>) {
   const complete = params.get("complete") === "1";
   for (const key of [...params.keys()]) if (!KNOWN_ARGS.includes(key)) params.delete(key);
   params.set("per_page", String(PER_PAGE));
+  const types = new Set([params.get("type") ?? []].flat().filter(Boolean));
 
-  const q = buildSpectraQuery(params, { exact: true, complete });
-  const [{ results: rows }, { results: elementRows }, { results: edgeRows }] = await c.env.DB.batch<any>([
+  // The shared query builder takes one `type` (API v1 contract), so repeated `type[]` is filtered here.
+  const queryParams: Params = new Map(params);
+  if (Array.isArray(params.get("type"))) queryParams.delete("type");
+  const q = buildSpectraQuery(queryParams, { exact: true, complete });
+  let [{ results: rows }, { results: elementRows }, { results: edgeRows }] = await c.env.DB.batch<any>([
     c.env.DB.prepare(q.sql).bind(...q.binds),
     c.env.DB.prepare(
       "SELECT DISTINCT e.element FROM spectrum_elements e JOIN spectra s ON s.id = e.spectrum_id WHERE s.status = 'published'",
@@ -66,6 +70,7 @@ export async function browsePage(c: Context<AppEnv>) {
        FROM spectrum_edges g JOIN spectra s ON s.id = g.spectrum_id WHERE s.status = 'published' GROUP BY g.spectrum_id`,
     ),
   ]);
+  if (Array.isArray(params.get("type"))) rows = rows.filter((r: any) => types.has(r.type));
   const total = rows.length;
   const page = sortAndPage(rows, q);
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
@@ -92,34 +97,35 @@ export async function browsePage(c: Context<AppEnv>) {
             <label for="f-title">Title or description</label>
             <input type="search" id="f-title" name="title" value={val(params, "title")} placeholder="e.g. graphite" />
           </div>
-          <div>
-            <label for="f-type">Type</label>
-            <select id="f-type" name="type">
-              <option value="">Any type</option>
-              {Object.entries(TYPE_NAMES).map(([code, name]) => (
-                <option value={code} selected={val(params, "type") === code}>{name}</option>
-              ))}
-            </select>
-          </div>
+          <fieldset class="types">
+            <legend>Type</legend>
+            {Object.entries(TYPE_NAMES).map(([code, name]) => (
+              <label class="check">
+                <input type="checkbox" name="type[]" value={code} checked={types.has(code)} />
+                <span class={`type type-${code}`}>{name}</span>
+              </label>
+            ))}
+          </fieldset>
           <div>
             <label for="f-formula">Formula contains</label>
             <input type="text" id="f-formula" name="formula" value={val(params, "formula")} placeholder="e.g. TiO2" />
           </div>
-          <details class="periodic" open={selected.size > 0}>
+          <details class="periodic" open>
             <summary>Elements{selected.size ? ` (${[...selected].join(", ")})` : ""}</summary>
             <div class="ptable" role="group" aria-label="Elements: spectra must contain all selected">
-              {PERIODIC_ROWS.flatMap((row) =>
-                row.map((el) =>
+              {PERIODIC_ROWS.flatMap((row, i) => [
+                i === 7 && <span class="f-gap" aria-hidden="true" />,
+                ...row.map((el) =>
                   el === "." ? (
                     <span class="gap" aria-hidden="true" />
                   ) : (
-                    <label class={present.has(el) ? "has" : undefined} title={present.has(el) ? el : `${el} (no spectra)`}>
+                    <label class={present.has(el) ? "has" : undefined} title={present.has(el) ? undefined : `${el}: no spectra`}>
                       <input type="checkbox" name="element[]" value={el} checked={selected.has(el)} />
                       <span>{el}</span>
                     </label>
                   ),
                 ),
-              )}
+              ])}
             </div>
           </details>
           <div>
@@ -173,7 +179,7 @@ export async function browsePage(c: Context<AppEnv>) {
             <p class="muted" role="status">
               {total === 1 ? "1 spectrum" : `${total} spectra`}
               {pages > 1 && ` · page ${q.page} of ${pages}`}
-              <a class="jump-filters" href="#filters"> · Filters</a>
+              <span class="jump-filters"> · <a href="#filters">Filters</a></span>
             </p>
             {activeChips.length > 0 && (
               <div class="chips">
@@ -187,7 +193,15 @@ export async function browsePage(c: Context<AppEnv>) {
           </div>
           {page.length === 0 ? (
             <p class="empty notice">
-              No spectra match these filters. <a href="/spectra/">Clear all filters</a> or remove one above.
+              {total > 0 ? (
+                <>
+                  There is no page {q.page}. <a href={urlWith(params, { page: null })}>Go to the first page</a>.
+                </>
+              ) : (
+                <>
+                  No spectra match these filters. <a href="/spectra/">Clear all filters</a> or remove one above.
+                </>
+              )}
             </p>
           ) : (
             <div class="table-scroll">

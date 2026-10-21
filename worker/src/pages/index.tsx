@@ -6,9 +6,10 @@ import openapi from "../api/openapi-v1.json";
 import openapiV2 from "../api/openapi-v2.json";
 import { serveFile } from "../files";
 import { apiDocs } from "./api-docs";
+import { brand } from "./brand";
 import { browsePage } from "./browse";
 import { EELSDB_BIBTEX, EELSDB_CITATION } from "./citation";
-import { Formula, Layout, TYPE_NAMES, TypeBadge } from "./layout";
+import { Avatar, Formula, Layout, TYPE_NAMES, TypeBadge } from "./layout";
 import { homePage } from "./home";
 import { admin } from "../admin";
 import { instruments } from "../instruments";
@@ -31,6 +32,7 @@ pages.route("/", submit);
 pages.route("/", instruments);
 pages.route("/", edit);
 pages.route("/", admin);
+pages.route("/", brand);
 
 pages.get("/", homePage);
 pages.get("/spectra/", browsePage);
@@ -64,9 +66,9 @@ pages.get("/downloads/", async (c) => {
           each acquisition value came from), and a README with the licence and how to cite.
         </p>
         {head ? (
-          <p>
-            <a class="button" href={`/${EXPORT_KEY}`}>Download eelsdb-spectra.zip</a>{" "}
-            <span class="muted">
+          <p class="download-row">
+            <a class="button" href={`/${EXPORT_KEY}`}>Download eelsdb-spectra.zip</a>
+            <span class="muted small">
               {(head.size / 1e6).toFixed(1)} MB, made {head.uploaded.toISOString().slice(0, 10)}
             </span>
           </p>
@@ -82,6 +84,15 @@ pages.get("/downloads/", async (c) => {
     </Layout>,
   );
 });
+
+const PARTNERS = [
+  ["CNRS", "https://www.cnrs.fr/", "cnrs.svg"],
+  ["IMN, Institut des Matériaux Jean Rouxel", "http://www.cnrs-imn.fr/", "imn.gif"],
+  ["CEMES", "https://www.cemes.fr/", "cemes.png"],
+  ["ESTEEM 2", "https://cordis.europa.eu/project/id/312483", "esteem2.png"],
+  ["METSA", "https://www.metsa.fr/", "metsa.png"],
+  ["SFµ, Société Française des Microscopies", "https://sfmu.fr/", "sfmu.png"],
+] as const;
 
 pages.get("/about/", (c) =>
   c.html(
@@ -117,11 +128,16 @@ pages.get("/about/", (c) =>
         <p>
           Please credit both the contributor's paper (if any) and the EELS Data Base. See <a href="/citation/">How to cite</a>.
         </p>
-        <h2>Funding</h2>
+        <h2>Support</h2>
         <p>
-          The EELS Data Base has been funded by the CEMES and IMN laboratories, the European microscopy network ESTEEM 2, the French
-          microscopy network METSA and the French microscopy society SFµ.
+          The IMN laboratory and the CNRS support the EELS Data Base. It was funded by the CEMES laboratory, the European microscopy
+          network ESTEEM 2, the French microscopy network METSA and the French microscopy society SFµ.
         </p>
+        <ul class="partners">
+          {PARTNERS.map(([name, href, src]) => (
+            <li><a href={href}><img src={`/partners/${src}`} alt={name} loading="lazy" /></a></li>
+          ))}
+        </ul>
         <h2>Contact</h2>
         <p>
           Questions, comments and ideas are welcome: see <a href="/contact/">Contact</a>.
@@ -131,20 +147,64 @@ pages.get("/about/", (c) =>
   ),
 );
 
+const DOI = "10.1017/S1431927616000179";
+
+// home.js is not loaded here; copy failures fall back to selecting the text.
+const COPY_SCRIPT = `for (const b of document.querySelectorAll("[data-copy]")) {
+  const label = b.querySelector(".copy-label");
+  const text = label.textContent;
+  b.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(b.dataset.copy);
+    } catch {
+      return getSelection().selectAllChildren(document.getElementById(b.dataset.select));
+    }
+    b.classList.add("copied");
+    label.textContent = "Copied";
+    setTimeout(() => { b.classList.remove("copied"); label.textContent = text; }, 1600);
+  });
+}`;
+
 pages.get("/citation/", (c) =>
   c.html(
     <Layout user={c.get("user")} title="How to cite" path="/citation/">
-      <div class="prose">
+      <div class="prose cite-page">
         <h1>How to cite</h1>
-        <p>
-          When you use a spectrum, cite the contributor's original paper (shown on the spectrum's page, if there is one) and the EELS Data
-          Base. Every spectrum page has a ready-made citation in its download dialog.
+        <p class="lede">
+          Cite the contributor's paper, shown on each spectrum's page, and the EELS Data Base. Each spectrum's download dialog has a
+          ready-made citation.
         </p>
         <h2>The EELS Data Base</h2>
-        <div class="cite-block"><pre>{EELSDB_CITATION}</pre></div>
-        <h3>BibTeX</h3>
-        <div class="cite-block"><pre>{EELSDB_BIBTEX}</pre></div>
+        <p class="citation" id="cite-text">
+          Philip Ewels, Thierry Sikora, Virginie Serin, Chris P. Ewels and Luc Lajaunie. A complete overhaul of the electron energy-loss
+          spectroscopy and X-ray absorption spectroscopy database: eelsdb.eu. <i>Microscopy and Microanalysis</i> 22, 717–724 (2016).
+        </p>
+        <div class="cite-actions">
+          <button type="button" class="doi" data-copy={DOI} data-select="cite-doi" aria-label={`Copy DOI ${DOI}`}>
+            <span class="doi-k">DOI</span><code id="cite-doi">{DOI}</code>
+            <svg class="i-copy" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="6.5" y="6.5" width="10" height="11" rx="1.5" />
+              <path d="M13.5 6.5V4a1.5 1.5 0 0 0-1.5-1.5H5A1.5 1.5 0 0 0 3.5 4v8A1.5 1.5 0 0 0 5 13.5h1.5" />
+            </svg>
+            <svg class="i-done" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 10.5l4 4 8-9" />
+            </svg>
+            <span class="doi-msg copy-label" role="status"></span>
+          </button>
+          <button type="button" class="button secondary" data-copy={EELSDB_CITATION} data-select="cite-text">
+            <span class="copy-label" role="status">Copy citation</span>
+          </button>
+          <a class="button secondary" href={`https://doi.org/${DOI}`}>Read the paper</a>
+        </div>
+        <h2>BibTeX</h2>
+        <pre id="cite-bib">{EELSDB_BIBTEX}</pre>
+        <div class="cite-actions">
+          <button type="button" class="button secondary" data-copy={EELSDB_BIBTEX} data-select="cite-bib">
+            <span class="copy-label" role="status">Copy BibTeX</span>
+          </button>
+        </div>
       </div>
+      <script>{raw(COPY_SCRIPT)}</script>
     </Layout>,
   ),
 );
@@ -155,11 +215,10 @@ pages.get("/contact/", (c) =>
       <div class="prose">
         <h1>Contact</h1>
         {/* TODO: contact address or form; the old site used a WordPress contact form. */}
-        <p class="notice">A contact form will be added here.</p>
         <p>
-          Until then, for questions about the database or a spectrum, or to report a problem with the website or the API, open an issue
-          on <a href="https://github.com/ewels/EELSdb/issues">GitHub</a>.
+          For questions about the database or a spectrum, or to report a problem with the website or the API, open an issue on GitHub.
         </p>
+        <p><a class="button secondary" href="https://github.com/ewels/EELSdb/issues">Open an issue</a></p>
       </div>
     </Layout>,
   ),
@@ -235,13 +294,8 @@ async function authorPage(c: C) {
   const facts = showProfile ? [person.job_title, person.affiliation].filter(Boolean).join(" · ") : "";
   return c.html(
     <Layout user={c.get("user")} title={name} path="/author/">
-      <div class={showProfile ? "profile-head" : undefined}>
-        {showProfile && (
-          <span class="avatar avatar-large" aria-hidden="true">
-            {[...name.trim()][0]?.toUpperCase() ?? "?"}
-            {avatar && <img src={avatar.replace("s=64", "s=160")} alt="" width="80" height="80" referrerpolicy="no-referrer" />}
-          </span>
-        )}
+      <div class="profile-head">
+        <Avatar name={name} seed={slug!} src={avatar?.replace("s=64", "s=160")} class="av-large" />
         <div>
           <h1>{name}</h1>
           {facts && <p class="lede profile-facts">{facts}</p>}
@@ -270,8 +324,8 @@ async function authorPage(c: C) {
                 {results.map((s) => (
                   <tr>
                     <td><TypeBadge type={s.type} /></td>
-                    <td><a href={`/spectra/${encodeURIComponent(s.slug)}/`}>{s.title}</a></td>
-                    <td><Formula formula={s.formula} /></td>
+                    <td class="title"><a href={`/spectra/${encodeURIComponent(s.slug)}/`}>{s.title}</a></td>
+                    <td class="formula-cell"><Formula formula={s.formula} /></td>
                     <td class="num">{String(s.published_at).slice(0, 10)}</td>
                   </tr>
                 ))}
@@ -295,22 +349,34 @@ pages.get("/news/", async (c) => {
   const years = results.map((p) => String(p.published_at).slice(0, 4));
   return c.html(
     <Layout user={c.get("user")} title="News" path="/news/">
-      <h1>News</h1>
-      <p class="muted">
-        Archived news from the EELS Data Base, {years.at(-1)} to {years[0]}. Each post shows its summary.
-      </p>
       <div class="prose">
-        {results.map((p) => (
-          <article>
-            <h2><a href={`/${p.slug}/`}>{p.title}</a></h2>
-            <p class="muted small">{String(p.published_at).slice(0, 10)}</p>
-            <p>{p.summary}</p>
-          </article>
-        ))}
+        <h1>News</h1>
+        <p class="lede">
+          Archived news from the EELS Data Base, {years.at(-1)} to {years[0]}.
+        </p>
+        <div class="news-list">
+          {results.map((p) => (
+            <article>
+              <h2><a href={`/${p.slug}/`}>{p.title}</a></h2>
+              <p class="muted small">{String(p.published_at).slice(0, 10)}</p>
+              <p>{decodeEntities(p.summary ?? "")}</p>
+            </article>
+          ))}
+        </div>
       </div>
     </Layout>,
   );
 });
+
+/** Legacy WordPress excerpts hold HTML entities such as &#8217; and a trailing "[&hellip;]". */
+export function decodeEntities(s: string) {
+  const named: Record<string, string> = { amp: "&", quot: '"', apos: "'", lt: "<", gt: ">", nbsp: "\u00a0", hellip: "…" };
+  return s
+    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
+    .replace(/&([a-z]+);/gi, (m, k) => named[k.toLowerCase()] ?? m)
+    .replace(/\s*\[…\]$/, "…");
+}
 
 const gone = (c: C) =>
   c.html(
@@ -336,7 +402,7 @@ pages.get("/:slug/", async (c) => {
   return c.html(
     <Layout user={c.get("user")} title={post.title} path="/news/">
       <article class="prose">
-        <p class="small" style="margin-top:1.25rem"><a href="/news/">← News</a></p>
+        <p class="small back-link"><a href="/news/">← News</a></p>
         <h1>{post.title}</h1>
         <p class="muted">
           {String(post.published_at).slice(0, 10)}

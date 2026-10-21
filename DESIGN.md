@@ -181,7 +181,7 @@ components:
 
 The site reads like the output of a well-kept spectrometer: neutral warm-grey paper, black ink, numbers in tabular figures, and exactly two strong colours, the red and ochre traces of the logo. Everything else is quiet. Links are coloured but not underlined except inside running text, tables have hairline rules instead of boxes, spectrum types are coloured dots, and the interface accent is a calm slate blue chosen so it never competes with the logo. Real data carries the page: the homepage shows real spectra, real counts and the real people who shared them.
 
-The system is light and dark from one source: every colour is a `light-dark()` pair, the OS picks the scheme, and a signed-in user can pin one in their settings (`data-theme` on the root). Dark mode is built for the darkened microscope room: warm near-black paper, warm off-white ink, and lighter, softer versions of every hue.
+The system is light and dark from one source: every colour is a `light-dark()` pair, the OS picks the scheme, and the header's light/dark toggle pins one (`data-theme` on the root): remembered in the browser, and saved to the account when signed in. Dark mode is built for the darkened microscope room: warm near-black paper, warm off-white ink, and lighter, softer versions of every hue.
 
 Density is that of a reference tool used on wide desktop monitors: a 1320px column (1920px for wide pages such as browse), a sticky header, and multi-column layouts that fold to one column on narrow screens. Motion is limited to three things: the homepage logo's scan, the header logo's fade, and the tooltip's fade. All respect reduced motion.
 
@@ -278,7 +278,7 @@ A single centred column, `min(1320px, 100% - 2rem)`, widened to `min(1920px, 100
 - Footer, 5rem below.
 
 **Other recurring grids** (inner pages):
-- **Browse:** a 15.5rem filter rail, sticky below the header, beside the results table, gap 2rem. Below 860px the results come first and the filters drop beneath them behind a "jump to filters" link.
+- **Browse:** a 17.5rem filter rail, sticky below the header, beside the results table, gap 2rem. Below 860px the results come first and the filters drop beneath them behind a "jump to filters" link.
 - **Spectrum page:** full-width plot (min 360px tall, 280px below 860px), then two equal metadata columns, gap 2rem.
 - **Forms:** a 60rem form with 2-, 3- and 4-column field grids (gap 0 1.25rem) that collapse to one (or two, for the 4-grid) below 860px.
 
@@ -357,12 +357,20 @@ A button that copies a DOI to the clipboard.
 
 ### Navigation
 - **Sticky header:** see Layout. The header's background and border transition over 0.25s. The homepage's small logo fades up into place (opacity plus a 6px rise, 0.2s, `cubic-bezier(0.16, 1, 0.3, 1)`) when the page leaves the top, and fades straight out with no movement when it returns to the very top. While hidden it is out of the tab order.
-- **Main nav:** `ink` text at weight 500 with a 2px transparent bottom border. Hover shows a `line` underline; the current page shows an `accent` underline. No backgrounds, no pills. "Sign in" is a secondary button.
+- **Main nav:** `ink` text at weight 500 with a 2px transparent bottom border. Hover shows a `line` underline; the current page shows an `accent` underline. No backgrounds, no pills. "Sign in" is a secondary button; signed in, the account avatar takes its place. Before the links: a search box (13rem, 4px, magnifier icon, searches titles in browse; hidden below 860px) and a 2rem light/dark toggle (a half-filled circle icon in `muted`, `sunken` on hover) with 0.6rem extra space before Browse. On phones the nav scrolls sideways in one row with Sign in or the avatar pinned at the right end.
+- **Back link:** "← Parent" above a page title, 0.875rem, no underline until hover (class `back-link`).
+- **Wide pages:** only `main` widens (browse uses 1920px); the header and footer keep the 1320px column on every page.
 - **Pager:** text items with 4px corners, `sunken` on hover, the current page inverted to `ink` on `bg`.
 - **Footer:** small `muted` text on a `rule` top border, links not underlined (they turn `ink` on hover), the licence line pushed right.
 
 ### Ways in (homepage)
 A list of linked rows separated by `line` rules: a title (600, 1.12rem), a muted line, and a 20px right arrow that slides 4px right and turns `accent-ink` on hover, as does the title. The search row holds a label-as-heading, an input and a primary Search button. The type row adds the four type links: dot, name, and the count in `muted`.
+
+### Logo and colours page
+`/logo/` serves the logo files (`worker/public/logo/`, made by `python/scripts/logo_files.py` with the lettering outlined): full and compact lockups for light and dark backgrounds, plus black and white, as SVG and transparent PNG, and the square mark. Previews sit on fixed paper or near-black plates whatever the page theme. Colour values copy on click with the DOI-chip treatment. Its fixed hex values are deliberate: they describe the files, not the interface.
+
+### Partner logos
+The about page's "Support" logos sit on equal light plates in both themes (white with a hairline border in light, warm off-white in dark), because the organisations' files mix dark ink, white backgrounds and white-only marks. Files live in `worker/public/partners/`.
 
 ### Data table
 - Collapsed borders, 0.92rem, a `rule` hairline under each row and a `line` under the header, no outer box and no last-row rule. Header cells are 0.75rem `muted`; sortable heads turn `ink` when active. Row hover tints with `sunken` at 70%. Numeric columns right-align. Title links are `ink` at weight 500 and turn `accent-ink` on hover.

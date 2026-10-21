@@ -8,6 +8,18 @@ const page = async (path: string) => {
 const rows = (html: string) => (html.match(/<tbody>([\s\S]*?)<\/tbody>/)?.[1].match(/<tr>/g) ?? []).length;
 
 describe("pages", () => {
+  it("logo page links to every download, and /brand/ redirects to it", async () => {
+    const { status, html } = await page("/logo/");
+    expect(status).toBe(200);
+    for (const base of ["eelsdb-logo", "eelsdb-logo-compact"])
+      for (const v of ["light-bg", "dark-bg", "black", "white"])
+        for (const ext of ["svg", "png"]) expect(html).toContain(`href="/logo/${base}-${v}.${ext}"`);
+    expect(html).toContain('href="/logo/eelsdb-mark.png"');
+    expect(html).toContain('data-copy="#a21e16"');
+    expect(html).toContain('href="/citation/"');
+    expect((await page("/brand/")).res.headers.get("location")).toBe("/logo/");
+  });
+
   it("home shows live counts", async () => {
     const { status, html } = await page("/");
     expect(status).toBe(200);
@@ -26,6 +38,18 @@ describe("pages", () => {
     const lowloss = await page("/spectra/?type=lowloss&element[]=Al");
     expect(lowloss.html).toMatch(/\d+ spectra|1 spectrum/);
     expect(lowloss.html).toContain('<input type="checkbox" name="element[]" value="Al" checked=""/>');
+
+    const count = async (q: string) => Number((await page(`/spectra/?${q}`)).html.match(/(\d+) spectr/)?.[1]);
+    const oLow = await count("element[]=O&type=lowloss");
+    const oXas = await count("element[]=O&type[]=xrayabs");
+    expect(oLow).toBeGreaterThan(0);
+    expect(oXas).toBeGreaterThan(0);
+    const both = await page("/spectra/?element[]=O&type[]=lowloss&type[]=xrayabs");
+    expect(both.html).toContain(`${oLow + oXas} spectra`);
+    expect(both.html).toContain('name="type[]" value="lowloss" checked=""');
+    expect(both.html).toContain('name="type[]" value="xrayabs" checked=""');
+    expect(both.html).not.toContain('name="type[]" value="coreloss" checked=""');
+    expect(lowloss.html).toContain('name="type[]" value="lowloss" checked=""');
 
     const sorted = await page("/spectra/?order=title&order_direction=DESC");
     expect(sorted.html).toContain('aria-sort="descending"');
@@ -61,7 +85,9 @@ describe("pages", () => {
   it("contributor, news and info pages", async () => {
     expect((await page("/author/simon/")).html).toContain("3 spectra");
     expect((await page("/author/nobody/")).status).toBe(404);
-    expect((await page("/news/")).html).toContain('href="/hyperspy/"');
+    const news = (await page("/news/")).html;
+    expect(news).toContain('href="/hyperspy/"');
+    expect(news).not.toMatch(/&amp;(#\d+|hellip);/);
     const post = await page("/hyperspy/");
     expect(post.status).toBe(200);
     expect(post.html).toContain('<a href="http://hyperspy.org/hyperspy-doc/current/api/hyperspy.misc.eels.eelsdb.html">');

@@ -136,7 +136,7 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
   return (
     <Layout
       title={props.edit ? `Edit ${props.edit.title}` : "Submit a spectrum"}
-      path="/submit-data/"
+      path={props.edit ? "/spectra/" : "/submit-data/"}
       user={c.get("user")}
       head={
         <>
@@ -147,11 +147,14 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
         </>
       }
     >
+      {props.edit && (
+        <p class="small back-link"><a href={`/spectra/${encodeURIComponent(props.edit.slug)}/`}>← {props.edit.title}</a></p>
+      )}
       <h1>{props.edit ? `Edit ${props.edit.title}` : "Submit a spectrum"}</h1>
       <p class="lede">
         {props.edit
           ? "Changes to the title, description, keywords, reference and links are published straight away. Changes to the data file, the specimen or how it was measured go to a moderator first."
-          : "Add your files, describe the specimen and how it was measured, then check and send. A moderator checks every submission before it is published."}
+          : "A moderator checks every submission before it is published."}
       </p>
       {count > 0 && (
         <div class="notice error-summary" role="alert" tabindex={-1} id="errors">
@@ -533,7 +536,10 @@ submit.get("/account/submissions/", requireUser, async (c) => {
           </table>
         </div>
       ) : (
-        <p class="muted">Nothing yet. <a href="/submit-data/">Submit a spectrum</a>.</p>
+        <>
+          <p class="muted">You have not submitted any spectra yet.</p>
+          <p><a class="button" href="/submit-data/">Submit a spectrum</a></p>
+        </>
       )}
     </Layout>,
   );

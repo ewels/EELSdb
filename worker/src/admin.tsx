@@ -149,7 +149,7 @@ admin.get("/admin/submissions/:id/", async (c) => {
   const open = ["pending", "changes_requested"].includes(d.status);
   return c.html(
     <Layout title={`Review: ${d.title}`} path="/admin/" user={c.get("user")}>
-      <p class="small" style="margin-top:1.25rem"><a href="/admin/">← Moderation</a></p>
+      <p class="small back-link"><a href="/admin/">← Moderation</a></p>
       <h1>{d.title}</h1>
       <p class="muted">
         {d.kind === "edit" ? "Edit of a published spectrum" : "New spectrum"} from {d.submitter}, {String(d.created_at).slice(0, 10)} · status:{" "}
@@ -239,7 +239,7 @@ admin.get("/admin/users/", async (c) => {
     <Layout title="Users and roles" path="/admin/" user={c.get("user")}>
       <h1>Users and roles</h1>
       <p class="muted">Signed-in users, moderators and admins.</p>
-      <div class="table-scroll">
+      <div class="table-scroll admin-users">
         <table>
           <thead><tr><th>Name</th><th class="num">Spectra</th><th>Role</th></tr></thead>
           <tbody>
@@ -248,7 +248,7 @@ admin.get("/admin/users/", async (c) => {
                 <td>{u.slug ? <a href={`/author/${u.slug}/`}>{u.display_name}</a> : u.display_name}</td>
                 <td class="num">{u.spectra}</td>
                 <td>
-                  <form method="post" action={`/admin/users/${u.id}/`} class="inline-form">
+                  <form method="post" action={`/admin/users/${u.id}/`} class="inline-form role-form">
                     <select name="role" aria-label={`Role for ${u.display_name}`}>
                       {["user", "moderator", "admin"].map((r) => <option value={r} selected={u.role === r}>{r}</option>)}
                     </select>

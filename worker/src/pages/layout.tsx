@@ -11,6 +11,11 @@ const NAV = [
   ["/about/", "About"],
 ] as const;
 
+// Runs before paint so a saved theme does not flash. A signed-in user's saved theme arrives as data-theme and wins.
+const THEME_SCRIPT = `try{var r=document.documentElement,t=localStorage.getItem("theme");if(t&&!r.dataset.theme)r.dataset.theme=t}catch(e){}`;
+// Flips light and dark, remembers it in this browser, and saves it to the account when signed in.
+const TOGGLE_SCRIPT = `document.querySelector(".theme-toggle").addEventListener("click",function(){var r=document.documentElement,d=r.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"),n=d==="dark"?"light":"dark";r.dataset.theme=n;try{localStorage.setItem("theme",n)}catch(e){}if(this.dataset.save)fetch("/account/settings/theme/",{method:"POST",body:new URLSearchParams({theme:n})})})`;
+
 export function Layout(props: {
   title?: string;
   description?: string;
@@ -39,14 +44,28 @@ export function Layout(props: {
           <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
           <link rel="preload" href="/fonts/mona-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="" />
           <link rel="stylesheet" href="/style.css" />
+          <script>{raw(THEME_SCRIPT)}</script>
           {props.head}
         </head>
         <body class={props.home ? "home" : undefined}>
           <a class="skip" href="#main">Skip to content</a>
           <header class={props.home ? "site-header" : "site-header stuck"}>
-            <div class={wrap}>
+            <div class="wrap">
               <a class="logo" href="/" aria-label="EELSdb home" tabindex={props.home ? -1 : undefined}>{raw(LOGO_SVG)}</a>
               <nav class="site-nav" aria-label="Main">
+                <form class="nav-search" action="/spectra/" method="get" role="search">
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+                    <circle cx="8.5" cy="8.5" r="5.5" />
+                    <path d="M12.6 12.6 17 17" />
+                  </svg>
+                  <input type="search" name="title" placeholder="Search spectra" aria-label="Search spectra" />
+                </form>
+                <button class="theme-toggle" type="button" aria-label="Switch between light and dark" title="Light or dark" data-save={props.user ? "1" : undefined}>
+                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                    <circle cx="10" cy="10" r="6.5" />
+                    <path d="M10 3.5a6.5 6.5 0 0 1 0 13z" fill="currentColor" stroke="none" />
+                  </svg>
+                </button>
                 {NAV.map(([href, label]) => (
                   <a href={href} aria-current={props.path.startsWith(href) ? "page" : undefined}>{label}</a>
                 ))}
@@ -58,10 +77,7 @@ export function Layout(props: {
                     title={props.user.display_name}
                     aria-current={props.path.startsWith("/account/") ? "page" : undefined}
                   >
-                    <span class="avatar" aria-hidden="true">
-                      {[...props.user.display_name.trim()][0]?.toUpperCase() ?? "?"}
-                      {props.user.avatar && <img src={props.user.avatar} alt="" width="32" height="32" loading="lazy" referrerpolicy="no-referrer" />}
-                    </span>
+                    <Avatar name={props.user.display_name} seed={props.user.slug ?? props.user.display_name} src={props.user.avatar} />
                   </a>
                 ) : (
                   <a class="button secondary" href={`/login/${props.path && props.path !== "/login/" ? `?next=${encodeURIComponent(props.path)}` : ""}`}>Sign in</a>
@@ -69,13 +85,15 @@ export function Layout(props: {
               </nav>
             </div>
           </header>
+          <script>{raw(TOGGLE_SCRIPT)}</script>
           <main id="main" class={wrap}>{props.children}</main>
           <footer class="site-footer">
-            <div class={wrap}>
+            <div class="wrap">
               <a href="/citation/">How to cite</a>
               <a href="/instruments/">Instrument profiles</a>
               <a href="/downloads/">Download everything</a>
               <a href="/news/">News</a>
+              <a href="/logo/">Logo and colours</a>
               <a href="/contact/">Contact</a>
               <a href="https://github.com/ewels/EELSdb">Source on GitHub</a>
               <span class="licence">
@@ -88,6 +106,25 @@ export function Layout(props: {
     </>
   );
 }
+
+const AV_HUES = ["av-a", "av-b", "av-c", "av-d", "av-e"];
+
+export const initials = (name: string) => {
+  const parts = name.replace(/\([^)]*\)/g, "").split(/[\s-]+/).filter(Boolean);
+  if (!parts.length) return "?";
+  return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : parts[0].slice(1, 2))).toUpperCase();
+};
+
+/** Initials on a hue picked from `seed` (the author slug, so a person has the same colour everywhere), under their picture if any. */
+export const Avatar = (props: { name: string; seed: string; src?: string | null; class?: string }) => (
+  <span
+    class={`av ${AV_HUES[[...props.seed].reduce((s, ch) => s + ch.charCodeAt(0), 0) % AV_HUES.length]}${props.class ? ` ${props.class}` : ""}`}
+    aria-hidden="true"
+  >
+    {initials(props.name)}
+    {props.src && <img src={props.src} alt="" loading="lazy" referrerpolicy="no-referrer" />}
+  </span>
+);
 
 export const TYPE_NAMES: Record<string, string> = {
   coreloss: "Core loss",

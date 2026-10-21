@@ -1,7 +1,7 @@
 import { Hono, type Context } from "hono";
 import { PROVIDERS, requireUser, sha256, syncEmails, type AppEnv } from "../auth";
 import { sendEmail } from "../email";
-import { Layout } from "./layout";
+import { Avatar, Layout } from "./layout";
 import { LINK_FIELDS, parseLink, parseLinks, parseOrcid, parseUsername } from "./profile";
 
 export const settings = new Hono<AppEnv>();
@@ -78,11 +78,10 @@ async function renderSettings(c: C, form?: { values: Profile; errors: Profile })
   const orcidLocked = identities.some((i: any) => i.provider === "orcid");
   const origin = new URL(c.req.url).origin;
   const notice = form ? null : NOTICES[c.req.query("notice") ?? ""];
-  const initial = [...user.display_name.trim()][0]?.toUpperCase() ?? "?";
   return (
     <Layout title="Settings" path="/account/" user={user}>
       <div class="settings">
-        <p class="small back-link"><a href="/account/">Your account</a></p>
+        <p class="small back-link"><a href="/account/">← Your account</a></p>
         <h1>Settings</h1>
         {notice && <p class="notice" role="status">{notice}</p>}
 
@@ -128,15 +127,12 @@ async function renderSettings(c: C, form?: { values: Profile; errors: Profile })
         <section class="settings-section" aria-labelledby="h-avatar">
           <h2 id="h-avatar">Picture</h2>
           <div class="avatar-row">
-            <span class="avatar avatar-large" aria-hidden="true">
-              {initial}
-              {user.avatar && <img src={user.avatar.replace("s=64", "s=160")} alt="" width="80" height="80" referrerpolicy="no-referrer" />}
-            </span>
+            <Avatar name={user.display_name} seed={user.slug ?? user.display_name} src={user.avatar?.replace("s=64", "s=160")} class="av-large" />
             <div class="avatar-actions">
               <p class="hint">
                 {user.avatar_key
                   ? "Your uploaded picture."
-                  : <>Taken from <a href="https://gravatar.com/">Gravatar</a> for your primary address, if you have one there. Otherwise your initial is shown. You can upload your own picture instead.</>}
+                  : <>Taken from <a href="https://gravatar.com/">Gravatar</a> for your primary address, if you have one there. Otherwise your initials are shown. You can upload your own picture instead.</>}
               </p>
               <form method="post" action="/account/settings/avatar/" enctype="multipart/form-data" class="inline-form" id="avatar-form">
                 <input type="file" name="avatar" id="f-avatar" accept="image/png,image/jpeg,image/webp" required aria-label="Picture to upload" />
@@ -181,21 +177,6 @@ async function renderSettings(c: C, form?: { values: Profile; errors: Profile })
           <form method="post" action="/account/settings/emails/" class="inline-form">
             <input type="email" name="email" required aria-label="Email address to add" autocomplete="email" placeholder="name@example.org" />
             <button class="button secondary" type="submit">Add address</button>
-          </form>
-        </section>
-
-        <section class="settings-section" aria-labelledby="h-theme">
-          <h2 id="h-theme">Appearance</h2>
-          <form method="post" action="/account/settings/theme/" class="settings-form" id="theme-form">
-            <fieldset class="field">
-              <legend>Theme</legend>
-              <div class="choice-buttons">
-                {THEMES.map(([value, label]) => (
-                  <label><input type="radio" name="theme" value={value} checked={user.theme === value} /><span>{label}</span></label>
-                ))}
-              </div>
-            </fieldset>
-            <div><button class="button secondary" type="submit">Save appearance</button></div>
           </form>
         </section>
 

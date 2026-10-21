@@ -12,7 +12,7 @@ export function apiDocs(c: Context<AppEnv>, doc: Doc, opts: { path: string; file
   const base = doc.servers[0].url;
   return c.html(
     <Layout user={c.get("user")} title={doc.info.title.replace("EELS Data Base ", "")} path={opts.path}>
-      <div class="prose">
+      <div class="prose api-docs">
         <h1>{doc.info.title}</h1>
         <p>{plain(doc.info.description)}</p>
         <p>
