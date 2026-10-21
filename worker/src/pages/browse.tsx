@@ -111,7 +111,10 @@ export async function browsePage(c: Context<AppEnv>) {
 
   return c.html(
     <Layout user={c.get("user")} title="Browse spectra" path="/spectra/" wide>
-      <h1>Browse spectra</h1>
+      <div class="page-head">
+        <h1>Browse spectra</h1>
+        <a class="button secondary" href="/downloads/">Bulk download</a>
+      </div>
       <div class="browse">
         <form class="filters" method="get" action="/spectra/" id="filters">
           <div>
