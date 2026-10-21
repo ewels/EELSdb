@@ -6,10 +6,10 @@ import openapi from "../api/openapi-v1.json";
 import openapiV2 from "../api/openapi-v2.json";
 import { serveFile } from "../files";
 import { apiDocs } from "./api-docs";
-import { brand, LogoSection } from "./brand";
+import { brand } from "./brand";
 import { browsePage } from "./browse";
 import { EELSDB_BIBTEX, EELSDB_CITATION } from "./citation";
-import { Avatar, Formula, Layout, TYPE_NAMES, TypeBadge } from "./layout";
+import { Avatar, COPY_SCRIPT, Formula, Layout, TYPE_NAMES, TypeBadge } from "./layout";
 import { homePage } from "./home";
 import { admin } from "../admin";
 import { instruments } from "../instruments";
@@ -77,7 +77,7 @@ pages.get("/downloads/", async (c) => {
         )}
         <p>
           The spectra are open data under the <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a>. Please cite the contributors'
-          papers and the EELS Data Base (<a href="/about/#cite">how to cite</a>). To fetch selected spectra instead, use the{" "}
+          papers and the EELS Data Base (<a href="/citation/">how to cite</a>). To fetch selected spectra instead, use the{" "}
           <a href="/api/v2/">API</a>.
         </p>
       </div>
@@ -96,49 +96,19 @@ const PARTNERS = [
 
 const DOI = "10.1017/S1431927616000179";
 
-// home.js is not loaded here; copy failures fall back to selecting the text.
-const COPY_SCRIPT = `for (const b of document.querySelectorAll("[data-copy]")) {
-  const label = b.querySelector(".copy-label");
-  const text = label.textContent;
-  b.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(b.dataset.copy);
-    } catch {
-      const target = b.dataset.select ? document.getElementById(b.dataset.select) : b.querySelector("code");
-      return getSelection().selectAllChildren(target);
-    }
-    b.classList.add("copied");
-    label.textContent = "Copied";
-    setTimeout(() => { b.classList.remove("copied"); label.textContent = text; }, 1600);
-  });
-}`;
-
-const ABOUT_SECTIONS = [
-  ["share", "Share your spectra"],
-  ["cite", "How to cite"],
-  ["licence", "Licence"],
-  ["support", "Support"],
-  ["logo", "Logo and colours"],
-  ["contact", "Contact"],
-] as const;
+// Old links to the sections these pages replaced.
+const ABOUT_HASHES = `var t={"#cite":"/citation/","#logo":"/logo/"}[location.hash];if(t)location.replace(t)`;
 
 pages.get("/about/", (c) =>
   c.html(
-    <Layout user={c.get("user")} title="About" path="/about/">
+    <Layout user={c.get("user")} title="About EELSdb" path="/about/" head={<script>{raw(ABOUT_HASHES)}</script>}>
       <div class="about">
         <div class="prose">
-          <h1>About the EELS Data Base</h1>
+          <h1>About EELSdb</h1>
           <p class="lede">
             An open-access repository of spectra from electron energy-loss spectroscopy (EELS) and X-ray absorption spectroscopy (XAS)
             experiments.
           </p>
-          <nav class="on-page" aria-label="On this page">
-            <ul>
-              {ABOUT_SECTIONS.map(([id, label]) => (
-                <li><a href={`#${id}`}>{label}</a></li>
-              ))}
-            </ul>
-          </nav>
           <p>
             The first version of the database was created in the late 1990s by Virginie Serin (Université Toulouse III, CEMES-CNRS) and
             Thierry Sikora. Thanks to the European microscopy network ESTEEM, they gathered a large number of spectra. Spectroscopists,
@@ -157,41 +127,6 @@ pages.get("/about/", (c) =>
             See <a href="/submit-data/">Submit data</a>.
           </p>
         </section>
-        <section class="prose cite-page" id="cite">
-          <h2>How to cite</h2>
-          <p>
-            Cite the contributor's paper, shown on each spectrum's page, and the EELS Data Base. Each spectrum's download dialog has a
-            ready-made citation. For the EELS Data Base:
-          </p>
-          <p class="citation" id="cite-text">
-            Philip Ewels, Thierry Sikora, Virginie Serin, Chris P. Ewels and Luc Lajaunie. A complete overhaul of the electron energy-loss
-            spectroscopy and X-ray absorption spectroscopy database: eelsdb.eu. <i>Microscopy and Microanalysis</i> 22, 717–724 (2016).
-          </p>
-          <div class="cite-actions">
-            <button type="button" class="doi" data-copy={DOI} data-select="cite-doi" aria-label={`Copy DOI ${DOI}`}>
-              <span class="doi-k">DOI</span><code id="cite-doi">{DOI}</code>
-              <svg class="i-copy" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="6.5" y="6.5" width="10" height="11" rx="1.5" />
-                <path d="M13.5 6.5V4a1.5 1.5 0 0 0-1.5-1.5H5A1.5 1.5 0 0 0 3.5 4v8A1.5 1.5 0 0 0 5 13.5h1.5" />
-              </svg>
-              <svg class="i-done" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M4 10.5l4 4 8-9" />
-              </svg>
-              <span class="doi-msg copy-label" role="status"></span>
-            </button>
-            <button type="button" class="button secondary" data-copy={EELSDB_CITATION} data-select="cite-text">
-              <span class="copy-label" role="status">Copy citation</span>
-            </button>
-            <a class="button secondary" href={`https://doi.org/${DOI}`}>Read the paper</a>
-          </div>
-          <h3>BibTeX</h3>
-          <pre id="cite-bib">{EELSDB_BIBTEX}</pre>
-          <div class="cite-actions">
-            <button type="button" class="button secondary" data-copy={EELSDB_BIBTEX} data-select="cite-bib">
-              <span class="copy-label" role="status">Copy BibTeX</span>
-            </button>
-          </div>
-        </section>
         <section class="prose" id="licence">
           <h2>Licence</h2>
           <p>
@@ -201,7 +136,7 @@ pages.get("/about/", (c) =>
             <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>.
           </p>
           <p>
-            Please credit both the contributor's paper (if any) and the EELS Data Base. See <a href="#cite">How to cite</a>.
+            Please credit both the contributor's paper (if any) and the EELS Data Base. See <a href="/citation/">How to cite</a>.
           </p>
         </section>
         <section class="prose" id="support">
@@ -216,7 +151,6 @@ pages.get("/about/", (c) =>
             ))}
           </ul>
         </section>
-        <LogoSection />
         <section class="prose" id="contact">
           <h2>Contact</h2>
           <p>
@@ -224,12 +158,98 @@ pages.get("/about/", (c) =>
           </p>
         </section>
       </div>
+    </Layout>,
+  ),
+);
+
+pages.get("/citation/", (c) =>
+  c.html(
+    <Layout user={c.get("user")} title="How to cite" path="/citation/">
+      <div class="prose cite-page">
+        <h1>How to cite</h1>
+        <p>
+          Cite the contributor's paper, shown on each spectrum's page, and the EELS Data Base. Each spectrum's download dialog has a
+          ready-made citation. For the EELS Data Base:
+        </p>
+        <p class="citation" id="cite-text">
+          Philip Ewels, Thierry Sikora, Virginie Serin, Chris P. Ewels and Luc Lajaunie. A complete overhaul of the electron energy-loss
+          spectroscopy and X-ray absorption spectroscopy database: eelsdb.eu. <i>Microscopy and Microanalysis</i> 22, 717–724 (2016).
+        </p>
+        <div class="cite-actions">
+          <button type="button" class="doi" data-copy={DOI} data-select="cite-doi" aria-label={`Copy DOI ${DOI}`}>
+            <span class="doi-k">DOI</span><code id="cite-doi">{DOI}</code>
+            <svg class="i-copy" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="6.5" y="6.5" width="10" height="11" rx="1.5" />
+              <path d="M13.5 6.5V4a1.5 1.5 0 0 0-1.5-1.5H5A1.5 1.5 0 0 0 3.5 4v8A1.5 1.5 0 0 0 5 13.5h1.5" />
+            </svg>
+            <svg class="i-done" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 10.5l4 4 8-9" />
+            </svg>
+            <span class="doi-msg copy-label" role="status"></span>
+          </button>
+          <button type="button" class="button secondary" data-copy={EELSDB_CITATION} data-select="cite-text">
+            <span class="copy-label" role="status">Copy citation</span>
+          </button>
+          <a class="button secondary" href={`https://doi.org/${DOI}`}>Read the paper</a>
+        </div>
+        <h2>BibTeX</h2>
+        <pre id="cite-bib">{EELSDB_BIBTEX}</pre>
+        <div class="cite-actions">
+          <button type="button" class="button secondary" data-copy={EELSDB_BIBTEX} data-select="cite-bib">
+            <span class="copy-label" role="status">Copy BibTeX</span>
+          </button>
+        </div>
+      </div>
       <script>{raw(COPY_SCRIPT)}</script>
     </Layout>,
   ),
 );
 
-pages.get("/citation/", (c) => c.redirect("/about/#cite", 301));
+const ROLE_NAMES: Record<string, string> = { admin: "Administrator", moderator: "Moderator" };
+
+pages.get("/moderators/", async (c) => {
+  const { results } = await c.env.DB.prepare(
+    `SELECT u.id, u.display_name, u.slug, u.role, u.profile_public, u.avatar_key,
+            CASE WHEN u.profile_public THEN (SELECT e.email FROM user_emails e WHERE e.user_id = u.id ORDER BY e.is_primary DESC, e.verified DESC, e.id LIMIT 1) END AS email,
+            u.slug IS NOT NULL AND (u.profile_public OR EXISTS (
+              SELECT 1 FROM spectra s WHERE s.status = 'published' AND (s.author_slug = u.slug OR s.owner_id = u.id)
+            )) AS has_page
+     FROM users u WHERE u.role IN ('moderator', 'admin') ORDER BY u.display_name`,
+  ).all<any>();
+  const people = await Promise.all(
+    results.map(async (u) => ({ ...u, avatar: u.profile_public ? await avatarUrl(u.avatar_key, u.email) : null })),
+  );
+  return c.html(
+    <Layout user={c.get("user")} title="Moderators" path="/moderators/">
+      <div class="prose">
+        <h1>Moderators</h1>
+        <p class="lede">
+          Moderators check each submitted spectrum before it is published. To reach them, see <a href="/contact/">Contact</a>.
+        </p>
+        {people.length ? (
+          <ul class="mod-list">
+            {people.map((u) => {
+              const face = (
+                <>
+                  <Avatar name={u.display_name} seed={u.slug ?? u.display_name} src={u.avatar} />
+                  <span class="by-name">{u.display_name}</span>
+                </>
+              );
+              return (
+                <li>
+                  {u.has_page ? <a class="by" href={`/author/${u.slug}/`}>{face}</a> : <span class="by">{face}</span>}
+                  <span class="muted">{ROLE_NAMES[u.role]}</span>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p class="muted">No moderators yet.</p>
+        )}
+      </div>
+    </Layout>,
+  );
+});
 
 pages.get("/contact/", (c) =>
   c.html(

@@ -1,4 +1,4 @@
-import { exports } from "cloudflare:workers";
+import { env, exports } from "cloudflare:workers";
 import { describe, expect, it } from "vitest";
 
 const page = async (path: string) => {
@@ -8,29 +8,53 @@ const page = async (path: string) => {
 const rows = (html: string) => (html.match(/<tbody>([\s\S]*?)<\/tbody>/)?.[1].match(/<tr>/g) ?? []).length;
 
 describe("pages", () => {
-  it("about page holds the citation and logo sections, and the old pages redirect to them", async () => {
+  it("about, citation and logo pages, and the old addresses", async () => {
     const { status, html } = await page("/about/");
     expect(status).toBe(200);
-    for (const id of ["share", "cite", "licence", "support", "logo", "contact"]) {
-      expect(html).toContain(`id="${id}"`);
-      expect(html).toContain(`href="#${id}"`);
-    }
-    expect(html).toContain("@article{");
+    expect(html).toContain("<title>About EELSdb · EELS Data Base</title>");
+    expect(html).toContain("<h1>About EELSdb</h1>");
+    for (const id of ["share", "licence", "support", "contact"]) expect(html).toContain(`id="${id}"`);
+    expect(html).not.toContain('id="cite"');
+    expect(html).not.toContain("@article{");
+    expect(html).toContain('"#cite":"/citation/","#logo":"/logo/"');
+
+    const cite = await page("/citation/");
+    expect(cite.status).toBe(200);
+    expect(cite.html).toContain("<h1>How to cite</h1>");
+    expect(cite.html).toContain("@article{");
+    expect(cite.html).toContain("Copy BibTeX");
+
+    const logo = await page("/logo/");
+    expect(logo.status).toBe(200);
+    expect(logo.html).toContain("<h1>Logo and colours</h1>");
     for (const base of ["eelsdb-logo", "eelsdb-logo-compact"])
       for (const v of ["light-bg", "dark-bg", "black", "white"])
-        for (const ext of ["svg", "png"]) expect(html).toContain(`href="/logo/${base}-${v}.${ext}"`);
-    expect(html).toContain('href="/logo/eelsdb-mark.png"');
-    expect(html).toContain('data-copy="#a21e16"');
-    expect(html).not.toContain('href="/citation/"');
-    expect(html).not.toContain('href="/logo/"');
-    const cite = await page("/citation/");
-    expect(cite.status).toBe(301);
-    expect(cite.res.headers.get("location")).toBe("/about/#cite");
-    for (const path of ["/logo/", "/logo", "/brand/", "/brand"]) {
+        for (const ext of ["svg", "png"]) expect(logo.html).toContain(`href="/logo/${base}-${v}.${ext}"`);
+    expect(logo.html).toContain('href="/logo/eelsdb-mark.png"');
+    expect(logo.html).toContain('data-copy="#a21e16"');
+    expect(logo.html).toContain('href="/citation/"');
+    for (const path of ["/logo", "/brand/", "/brand"]) {
       const r = await page(path);
       expect(r.status).toBe(301);
-      expect(r.res.headers.get("location")).toBe("/about/#logo");
+      expect(r.res.headers.get("location")).toBe("/logo/");
     }
+  });
+
+  it("moderators page lists moderators and admins without private details", async () => {
+    await env.DB.batch([
+      env.DB.prepare("INSERT INTO users (id, display_name, role, slug, profile_public) VALUES (6400001, 'Public Mod', 'moderator', 'public-mod', 1)"),
+      env.DB.prepare("INSERT INTO user_emails (user_id, email, verified, is_primary) VALUES (6400001, 'public-mod@example.org', 1, 1)"),
+      env.DB.prepare("INSERT INTO users (id, display_name, role, profile_public) VALUES (6400002, 'Quiet Admin', 'admin', 0)"),
+      env.DB.prepare("INSERT INTO users (id, display_name, role, slug, profile_public) VALUES (6400003, 'Plain User', 'user', 'plain-user', 1)"),
+    ]);
+    const { status, html } = await page("/moderators/");
+    expect(status).toBe(200);
+    expect(html).toContain('href="/contact/"');
+    expect(html).toMatch(/<a class="by" href="\/author\/public-mod\/">[\s\S]*?Public Mod<\/span><\/a><span class="muted">Moderator</);
+    expect(html).toMatch(/<span class="by">[\s\S]*?Quiet Admin<\/span><\/span><span class="muted">Administrator</);
+    expect(html).toContain("gravatar.com/avatar/");
+    expect(html).not.toContain("Plain User");
+    expect(html).not.toContain("example.org");
   });
 
   it("header has a burger button that controls the menu panel", async () => {
@@ -40,6 +64,20 @@ describe("pages", () => {
     const id = button.match(/aria-controls="([^"]+)"/)?.[1];
     expect(id).toBeTruthy();
     expect(html).toMatch(new RegExp(`<div class="menu" id="${id}">[\\s\\S]*?class="nav-search"[\\s\\S]*?class="theme-toggle wide"[\\s\\S]*?href="/about/"[\\s\\S]*?Sign in[\\s\\S]*?class="theme-toggle narrow"`));
+  });
+
+  it("About is a disclosure menu, marked current on each of its pages", async () => {
+    for (const path of ["/about/", "/citation/", "/moderators/", "/logo/", "/contact/"]) {
+      const { html } = await page(path);
+      const button = html.match(/<button[^>]*class="drop-toggle[^"]*"[^>]*>/)?.[0] ?? "";
+      expect(button, path).toContain("current");
+      expect(button).toContain('aria-expanded="false"');
+      const id = button.match(/aria-controls="([^"]+)"/)?.[1];
+      expect(html).toMatch(new RegExp(`<ul class="drop-panel" id="${id}">(<li><a href="[^"]+"[^>]*>[^<]+</a></li>){5}</ul>`));
+      expect(html).toContain(`<li><a href="${path}" aria-current="page">`);
+    }
+    const browse = (await page("/spectra/")).html;
+    expect(browse).toMatch(/<button[^>]*class="drop-toggle"/);
   });
 
   it("home shows live counts", async () => {

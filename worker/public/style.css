@@ -139,6 +139,25 @@ pre {
 .site-nav a:not(.button, .account-link):hover { border-bottom-color: var(--line); }
 .site-nav a[aria-current="page"] { border-bottom-color: var(--accent); }
 .site-nav .button { padding-block: 0.2rem; font-weight: 500; }
+/* About disclosure. Without JavaScript, hover or focus inside opens it on wide screens, and the group is always open in the burger panel. */
+.nav-drop { position: relative; }
+.drop-toggle { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--ink); font: inherit; font-weight: 500; cursor: pointer; }
+.drop-toggle:hover { border-bottom-color: var(--line); }
+.drop-toggle.current { border-bottom-color: var(--accent); }
+.drop-toggle svg { width: 12px; height: 12px; color: var(--muted); }
+.drop-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.drop-panel { list-style: none; margin: 0; padding: 0; }
+.drop-panel li { max-width: none; }
+.js .drop-toggle[aria-expanded="false"] + .drop-panel { display: none; }
+@media (min-width: 1000px) {
+  .drop-panel { position: absolute; z-index: 11; top: calc(100% + 0.5rem); right: -0.75rem; min-width: 11.5rem; padding: 0.3rem; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: var(--shadow); }
+  /* Bridges the gap so the no-JavaScript hover survives the move from button to panel. */
+  .drop-panel::before { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 0.6rem; }
+  html:not(.js) .nav-drop:not(:hover, :focus-within) .drop-panel { display: none; }
+  .site-nav .drop-panel a { display: block; padding: 0.4rem 0.6rem; border: 0; border-radius: 4px; white-space: nowrap; }
+  .site-nav .drop-panel a:hover { background: var(--sunken); }
+  .site-nav .drop-panel a[aria-current="page"] { text-decoration: underline 2px var(--accent); text-underline-offset: 0.35em; }
+}
 .nav-search { position: relative; display: flex; align-items: center; }
 .nav-search svg { position: absolute; left: 0.6rem; width: 15px; height: 15px; color: var(--muted); pointer-events: none; }
 .site-header .nav-search input { width: 13rem; font: inherit; font-size: 0.9rem; padding: 0.3rem 0.6rem 0.3rem 1.95rem; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: var(--ink); }
@@ -186,6 +205,12 @@ pre {
   .site-nav a[aria-current="page"]:not(.account-link) { border-bottom-color: var(--rule); text-decoration-line: underline; text-decoration-color: var(--accent); }
   .menu-foot { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 0.75rem; }
   .site-nav .button { padding: 0.45rem 1rem; }
+  .drop-toggle { width: 100%; justify-content: space-between; padding-block: 0.75rem; border-bottom: 1px solid var(--rule); text-align: left; }
+  .drop-toggle:hover, .drop-toggle.current { border-bottom-color: var(--rule); }
+  .drop-toggle:hover .drop-label { text-decoration: underline 2px var(--line); text-underline-offset: 0.4em; }
+  .drop-toggle.current .drop-label { text-decoration: underline 2px var(--accent); text-underline-offset: 0.4em; }
+  .drop-toggle svg { width: 14px; height: 14px; margin-right: 0.15rem; }
+  .site-nav .drop-panel a { display: block; padding-left: 1rem; }
   .account-link { gap: 0.75rem; min-width: 0; padding-block: 0.25rem; border-radius: 4px; color: var(--ink); text-decoration: none; font-weight: 500; }
   .account-link:focus-visible { border-radius: 4px; }
   .account-name { display: inline; }
@@ -613,7 +638,6 @@ dialog h2 { margin-top: 0; }
 /* Content pages: about, downloads, news, API docs */
 .prose > h1 + .lede { margin-top: -0.25rem; }
 .about section { scroll-margin-top: 5.5rem; }
-.on-page ul { display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; list-style: none; padding: 0; margin: 1.25rem 0 1.5rem; font-size: 0.93rem; }
 .prose blockquote { margin: 1rem 0; padding-left: 1.25rem; border-left: 1px solid var(--line); }
 .prose ul, .prose ol { padding-left: 1.25rem; }
 .download-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; margin-block: 1.5rem; }
@@ -621,6 +645,12 @@ dialog h2 { margin-top: 0; }
 /* Code samples match the homepage's: no border, one line per line, scroll sideways. */
 :is(.cite-page, .api-docs) pre { white-space: pre; word-break: normal; border: 0; padding: 0.9rem 1rem; line-height: 1.6; font-size: 0.85rem; }
 .api-docs li code { overflow-wrap: anywhere; }
+
+ul.mod-list { list-style: none; padding: 0; margin: 1.5rem 0 0; border-top: 1px solid var(--rule); }
+.mod-list li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.25rem 1rem; padding: 0.6rem 0; border-bottom: 1px solid var(--rule); max-width: none; }
+.mod-list .av { width: 2.25rem; height: 2.25rem; font-size: 0.8rem; }
+.mod-list li a.by { text-decoration: none; }
+.mod-list a.by:hover .av { box-shadow: 0 0 0 2px var(--accent); }
 
 /* Admin */
 .admin-users table { width: auto; min-width: min(40rem, 100%); }

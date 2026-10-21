@@ -8,13 +8,24 @@ const NAV = [
   ["/submit-data/", "Submit"],
   ["/news/", "News"],
   ["/api/", "API"],
-  ["/about/", "About"],
+] as const;
+
+const ABOUT_NAV = [
+  ["/about/", "About EELSdb"],
+  ["/citation/", "How to cite"],
+  ["/moderators/", "Moderators"],
+  ["/logo/", "Logo and colours"],
+  ["/contact/", "Contact"],
 ] as const;
 
 // Runs before paint so a saved theme does not flash. A signed-in user's saved theme arrives as data-theme and wins.
 const THEME_SCRIPT = `document.documentElement.classList.add("js");try{var r=document.documentElement,t=localStorage.getItem("theme");if(t&&!r.dataset.theme)r.dataset.theme=t}catch(e){}`;
 // Flips light and dark, remembers it in this browser, and saves it to the account when signed in.
 const TOGGLE_SCRIPT = `document.querySelectorAll(".theme-toggle").forEach(function(b){b.addEventListener("click",function(){var r=document.documentElement,d=r.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"),n=d==="dark"?"light":"dark";r.dataset.theme=n;try{localStorage.setItem("theme",n)}catch(e){}if(this.dataset.save)fetch("/account/settings/theme/",{method:"POST",body:new URLSearchParams({theme:n})})})})`;
+
+// The About disclosure. Registered before MENU_SCRIPT so Escape folds the About group before it closes the burger panel.
+// A focusout without relatedTarget is a click elsewhere, which the click handler covers; closing on it would hide the panel mid-click in Safari.
+const DROP_SCRIPT = `;(function(){var d=document.querySelector(".nav-drop"),b=d.querySelector(".drop-toggle");function open(){return b.getAttribute("aria-expanded")==="true"}function set(o){b.setAttribute("aria-expanded",o)}b.addEventListener("click",function(){set(!open())});addEventListener("keydown",function(e){if(e.key==="Escape"&&open()){e.stopImmediatePropagation();set(false);b.focus()}});d.addEventListener("focusout",function(e){if(e.relatedTarget&&!d.contains(e.relatedTarget))set(false)});addEventListener("click",function(e){if(!d.contains(e.target)||e.target.closest(".drop-panel a"))set(false)})})()`;
 
 // The burger menu. Keep the width in step with the 999px breakpoint in style.css.
 const MENU_SCRIPT = `;(function(){var h=document.querySelector(".site-header"),b=h.querySelector(".menu-toggle"),m=document.getElementById("site-menu"),q=matchMedia("(max-width: 999px)");function set(o){h.classList.toggle("menu-open",o);b.setAttribute("aria-expanded",o)}b.addEventListener("click",function(){set(b.getAttribute("aria-expanded")!=="true")});addEventListener("keydown",function(e){if(e.key==="Escape"&&h.classList.contains("menu-open")){set(false);b.focus()}});addEventListener("click",function(e){if(!h.contains(e.target))set(false)});m.addEventListener("click",function(e){if(e.target.closest("a"))set(false)});q.addEventListener("change",function(){if(!q.matches)set(false)})})()`;
@@ -87,6 +98,24 @@ export function Layout(props: {
                   {NAV.map(([href, label]) => (
                     <a href={href} aria-current={props.path.startsWith(href) ? "page" : undefined}>{label}</a>
                   ))}
+                  <div class="nav-drop">
+                    <button
+                      type="button"
+                      class={ABOUT_NAV.some(([href]) => props.path.startsWith(href)) ? "drop-toggle current" : "drop-toggle"}
+                      aria-expanded="false"
+                      aria-controls="about-menu"
+                    >
+                      <span class="drop-label">About</span>
+                      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="m3 4.5 3 3 3-3" />
+                      </svg>
+                    </button>
+                    <ul class="drop-panel" id="about-menu">
+                      {ABOUT_NAV.map(([href, label]) => (
+                        <li><a href={href} aria-current={props.path.startsWith(href) ? "page" : undefined}>{label}</a></li>
+                      ))}
+                    </ul>
+                  </div>
                   <div class="menu-foot">
                     {props.user ? (
                       <a
@@ -108,7 +137,7 @@ export function Layout(props: {
               </div>
             </div>
           </header>
-          <script>{raw(TOGGLE_SCRIPT + MENU_SCRIPT)}</script>
+          <script>{raw(TOGGLE_SCRIPT + DROP_SCRIPT + MENU_SCRIPT)}</script>
           <main id="main" class={wrap}>{props.children}</main>
           <footer class="site-footer">
             <div class="wrap">
@@ -125,6 +154,23 @@ export function Layout(props: {
     </>
   );
 }
+
+// Copy buttons ([data-copy]) on the citation and logo pages; copy failures fall back to selecting the text.
+export const COPY_SCRIPT = `for (const b of document.querySelectorAll("[data-copy]")) {
+  const label = b.querySelector(".copy-label");
+  const text = label.textContent;
+  b.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(b.dataset.copy);
+    } catch {
+      const target = b.dataset.select ? document.getElementById(b.dataset.select) : b.querySelector("code");
+      return getSelection().selectAllChildren(target);
+    }
+    b.classList.add("copied");
+    label.textContent = "Copied";
+    setTimeout(() => { b.classList.remove("copied"); label.textContent = text; }, 1600);
+  });
+}`;
 
 const AV_HUES = ["av-a", "av-b", "av-c", "av-d", "av-e"];
 

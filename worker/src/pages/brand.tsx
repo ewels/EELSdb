@@ -1,5 +1,7 @@
 import { Hono } from "hono";
+import { raw } from "hono/html";
 import type { AppEnv } from "../auth";
+import { COPY_SCRIPT, Layout } from "./layout";
 
 export const brand = new Hono<AppEnv>();
 
@@ -65,86 +67,88 @@ function CopyChip(props: { label: string; value: string }) {
   );
 }
 
-for (const path of ["/logo/", "/logo", "/brand/", "/brand"]) brand.get(path, (c) => c.redirect("/about/#logo", 301));
+for (const path of ["/logo", "/brand/", "/brand"]) brand.get(path, (c) => c.redirect("/logo/", 301));
 
-/** The about page's "Logo and colours" section; its copy chips rely on the about page's copy script. */
-export function LogoSection() {
-  return (
-    <section class="brand" id="logo" aria-labelledby="logo-title">
-      <h2 id="logo-title">Logo and colours</h2>
-      <p>
-        For posters, slides and papers about work that used EELSdb. The lettering is converted to outlines, so the files need no fonts
-        installed. PNG files have a transparent background.
-      </p>
-      {LOGOS.map(([base, name, width]) => (
-        <>
-          <h3>{name}</h3>
-          <ul class="brand-grid">
-            {VERSIONS.map(([version, label, bg]) => (
-              <li>
-                <div class={`brand-preview ${bg}`}>
-                  <img src={`/logo/${base}-${version}.svg`} alt={`${name}, ${label.toLowerCase()}`} loading="lazy" />
-                </div>
-                <p class="brand-name">{label}</p>
-                <Downloads file={`${base}-${version}`} width={width} />
-              </li>
-            ))}
-          </ul>
-        </>
-      ))}
-      <h3>Square mark</h3>
-      <ul class="brand-grid">
-        <li>
-          <div class="brand-preview on-light mark">
-            <img src="/logo/eelsdb-mark.svg" alt="EELSdb square mark" loading="lazy" />
-          </div>
-          <p class="brand-name">For icons and avatars, where the full logo is too small</p>
-          <Downloads file="eelsdb-mark" width={1024} />
-        </li>
-      </ul>
-
-      <h3>Using the logo</h3>
-      <ul class="brand-rules">
-        <li>Leave clear space around the logo at least as tall as the “E” on every side.</li>
-        <li>Use the full logo at 240 px (5 cm in print) wide or more. Below that, use the compact logo, down to 100 px (2.5 cm) wide.</li>
-        <li>Use the version for dark backgrounds on dark backgrounds. On photos, or when you can print only one colour, use the black or white version.</li>
-        <li>Scale the logo only in proportion. Do not recolour, stretch or redraw the traces, and do not change or retype the lettering.</li>
-        <li>When you show results from the database, also <a href="#cite">cite EELSdb</a>.</li>
-      </ul>
-
-      <h3>Colours</h3>
-      <p>Each colour has a value for light backgrounds and a value for dark backgrounds. Select a value to copy it.</p>
-      <ul class="brand-colours">
-        {COLOURS.map(([name, light, dark, use]) => (
+brand.get("/logo/", (c) =>
+  c.html(
+    <Layout user={c.get("user")} title="Logo and colours" path="/logo/">
+      <div class="brand">
+        <h1>Logo and colours</h1>
+        <p>
+          For posters, slides and papers about work that used EELSdb. The lettering is converted to outlines, so the files need no fonts
+          installed. PNG files have a transparent background.
+        </p>
+        {LOGOS.map(([base, name, width]) => (
+          <>
+            <h2>{name}</h2>
+            <ul class="brand-grid">
+              {VERSIONS.map(([version, label, bg]) => (
+                <li>
+                  <div class={`brand-preview ${bg}`}>
+                    <img src={`/logo/${base}-${version}.svg`} alt={`${name}, ${label.toLowerCase()}`} loading="lazy" />
+                  </div>
+                  <p class="brand-name">{label}</p>
+                  <Downloads file={`${base}-${version}`} width={width} />
+                </li>
+              ))}
+            </ul>
+          </>
+        ))}
+        <h2>Square mark</h2>
+        <ul class="brand-grid">
           <li>
-            <div>
-              <p class="brand-name">{name}</p>
-              <p class="muted">{use}</p>
+            <div class="brand-preview on-light mark">
+              <img src="/logo/eelsdb-mark.svg" alt="EELSdb square mark" loading="lazy" />
             </div>
-            <div class="brand-values">
-              <CopyChip label="Light" value={light} />
-              <CopyChip label="Dark" value={dark} />
-            </div>
+            <p class="brand-name">For icons and avatars, where the full logo is too small</p>
+            <Downloads file="eelsdb-mark" width={1024} />
           </li>
-        ))}
-      </ul>
+        </ul>
 
-      <h3>Typeface</h3>
-      <p>
-        The logo and the site are set in Mona Sans, by GitHub. The logo uses ExtraBold (800) for “EELS” and Regular (400) for
-        “db” and the tagline. Mona Sans is free to use under the SIL Open Font License.
-      </p>
-      <ul class="brand-weights">
-        {WEIGHTS.map(([weight, name]) => (
-          <li style={`font-weight:${weight}`}>
-            {name} <span class="muted">{weight}</span>
-          </li>
-        ))}
-      </ul>
-      <div class="brand-actions">
-        <a class="button secondary" href="https://github.com/github/mona-sans/releases">Download Mona Sans {ARROW}</a>
-        <a class="button secondary" href="/fonts/OFL.txt">Licence</a>
+        <h2>Using the logo</h2>
+        <ul class="brand-rules">
+          <li>Leave clear space around the logo at least as tall as the “E” on every side.</li>
+          <li>Use the full logo at 240 px (5 cm in print) wide or more. Below that, use the compact logo, down to 100 px (2.5 cm) wide.</li>
+          <li>Use the version for dark backgrounds on dark backgrounds. On photos, or when you can print only one colour, use the black or white version.</li>
+          <li>Scale the logo only in proportion. Do not recolour, stretch or redraw the traces, and do not change or retype the lettering.</li>
+          <li>When you show results from the database, also <a href="/citation/">cite EELSdb</a>.</li>
+        </ul>
+
+        <h2>Colours</h2>
+        <p>Each colour has a value for light backgrounds and a value for dark backgrounds. Select a value to copy it.</p>
+        <ul class="brand-colours">
+          {COLOURS.map(([name, light, dark, use]) => (
+            <li>
+              <div>
+                <p class="brand-name">{name}</p>
+                <p class="muted">{use}</p>
+              </div>
+              <div class="brand-values">
+                <CopyChip label="Light" value={light} />
+                <CopyChip label="Dark" value={dark} />
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <h2>Typeface</h2>
+        <p>
+          The logo and the site are set in Mona Sans, by GitHub. The logo uses ExtraBold (800) for “EELS” and Regular (400) for
+          “db” and the tagline. Mona Sans is free to use under the SIL Open Font License.
+        </p>
+        <ul class="brand-weights">
+          {WEIGHTS.map(([weight, name]) => (
+            <li style={`font-weight:${weight}`}>
+              {name} <span class="muted">{weight}</span>
+            </li>
+          ))}
+        </ul>
+        <div class="brand-actions">
+          <a class="button secondary" href="https://github.com/github/mona-sans/releases">Download Mona Sans {ARROW}</a>
+          <a class="button secondary" href="/fonts/OFL.txt">Licence</a>
+        </div>
       </div>
-    </section>
-  );
-}
+      <script>{raw(COPY_SCRIPT)}</script>
+    </Layout>,
+  ),
+);
