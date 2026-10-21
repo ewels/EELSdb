@@ -48,7 +48,8 @@ For each submission in the queue, `eelsdb review`:
 4. opens a review page in your browser, with the plot and the submitter's values beside the values from the file;
 5. asks for a decision: `a` approve, `c` request changes, `r` reject or `s` skip.
 
-When you approve, `eelsdb review` uploads the MSA and HyperSpy files and a processing record with the tool versions, then publishes the spectrum.
+When you approve, `eelsdb review` uploads the MSA and HyperSpy files, a JSON file with all the metadata in the original file, and a processing record with the tool versions. Then it publishes the spectrum.
+`eelsdb review` does not process the contributor's processed versions. EELSdb publishes them as they were uploaded.
 
 Options:
 

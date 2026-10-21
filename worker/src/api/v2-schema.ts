@@ -4,10 +4,10 @@ import { createRoute, z } from "@hono/zod-openapi";
 import { ELEMENTS } from "../elements";
 
 export const MAX_PER_PAGE = 500;
-export const SORTS = ["formula", "title", "published_at", "min_energy_ev", "max_energy_ev", "beam_energy_kv", "resolution_ev", "id"] as const;
+export const SORTS = ["formula", "title", "published_at", "min_energy_ev", "max_energy_ev", "beam_energy_kv", "resolution_ev", "author", "id"] as const;
 export const SOURCES = ["file", "companion", "profile", "user", "estimate", "unknown"] as const;
 
-const TYPES = ["coreloss", "lowloss", "zeroloss", "xrayabs"] as const;
+export const TYPES = ["coreloss", "lowloss", "zeroloss", "xrayabs"] as const;
 const TECHNIQUES = ["eels", "xas"] as const;
 const PHASES = ["solid", "liquid", "gas"] as const;
 const INTENSITY_UNITS = ["counts", "oscillator_strength", "mu", "optical_density", "normalised"] as const;
@@ -26,7 +26,7 @@ const number = (description: string, example?: number) => z.coerce.number().opti
 
 export const ListQuery = z
   .strictObject({
-    type: z.enum(TYPES).optional().openapi({ param: { description: "Spectrum type." } }),
+    type: repeated("Spectrum type. Repeat to include several.", "coreloss", (v) => (TYPES as readonly string[]).includes(v), `is not one of ${TYPES.join(", ")}`),
     technique: z.enum(TECHNIQUES).optional().openapi({ param: { description: "Measurement technique." } }),
     phase: z.enum(PHASES).optional().openapi({ param: { description: "Specimen phase. Gas-phase spectra are listed only when `phase=gas` is given." } }),
     element: repeated(
@@ -38,13 +38,15 @@ export const ListQuery = z
     edge: repeated("Edge, matched whole: `L2,3` (any element) or `Fe_L2,3`. Repeat to require several.", "Fe_L2,3"),
     formula: z.string().optional().openapi({ param: { description: "Text that the formula contains." }, example: "TiO2" }),
     q: z.string().optional().openapi({ param: { description: "Text in the title or description." }, example: "graphite" }),
-    author: z.string().optional().openapi({ param: { description: "Part of the contributor's name, or their profile name." } }),
+    author: repeated("Part of the contributor's name, or their profile name. Repeat to include several contributors.", "Sigle"),
+    keyword: repeated("A keyword the contributor gave, matched whole and ignoring case. Repeat to require several.", "nanotube"),
     complete: z.enum(["true"]).optional().openapi({ param: { description: "`true`: only spectra whose beam energy and both angles are known." } }),
     monochromated: z.enum(["true", "false"]).optional().openapi({ param: { description: "Monochromated or not." } }),
     min_energy_ev: number("Spectra that start at or above this energy (eV).", 400),
     max_energy_ev: number("Spectra that end at or below this energy (eV).", 900),
     covers_ev: number("Spectra whose energy range includes this energy (eV).", 708),
     beam_energy_kv: number("Beam energy (kV).", 200),
+    max_resolution_ev: number("Spectra with this energy resolution or better (eV).", 0.5),
     sort: z.enum(SORTS).default("formula").openapi({ param: { description: "Sort key. Spectra with no value for it come last." } }),
     order: z.enum(["asc", "desc"]).default("asc").openapi({ param: { description: "Sort direction." } }),
     page: z.coerce.number().int().min(1).default(1).openapi({ param: { description: "Page number, from 1." }, type: "integer", default: 1 }),
@@ -56,7 +58,7 @@ export const ListQuery = z
       .transform((n) => Math.min(n, MAX_PER_PAGE))
       .openapi({ param: { description: `Spectra per page, at most ${MAX_PER_PAGE}. Larger values give ${MAX_PER_PAGE}.` }, type: "integer", default: 50 }),
   })
-  .refine((q) => (q.element?.length ?? 0) + (q.edge?.length ?? 0) <= 20, { message: "Give at most 20 element and edge filters." });
+  .refine((q) => (q.element?.length ?? 0) + (q.edge?.length ?? 0) + (q.keyword?.length ?? 0) <= 20, { message: "Give at most 20 element, edge and keyword filters." });
 
 const text = z.string().nullable();
 const num = z.number().nullable();
@@ -165,7 +167,11 @@ export const Spectrum = z
     links: z.array(z.strictObject({ url: z.string(), title: text })),
     files: z.array(
       z.strictObject({
-        role: z.enum(["legacy", "original", "lowloss", "msa", "hspy"]),
+        role: z.enum(["legacy", "original", "lowloss", "variant", "msa", "hspy", "metadata"]).openapi({
+          description: "`variant` is a processed version from the contributor, named in `variant`; `metadata` is every tag read from the original file at review, as JSON, not checked by a person.",
+        }),
+        variant: z.enum(["os", "os_smoothed", "smoothed", "impurity_removed"]).nullable().openapi({ description: "For a `variant` file: oscillator strength, smoothed, or with an impurity (often air) removed." }),
+        intensity_units: z.enum(INTENSITY_UNITS).nullable().openapi({ description: "For a `variant` file whose units differ from the spectrum's." }),
         url: z.string(),
         filename: z.string(),
         bytes: z.number().int().nullable(),

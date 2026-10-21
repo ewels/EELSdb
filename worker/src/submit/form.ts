@@ -5,9 +5,24 @@ export const SOURCES = ["file", "companion", "profile", "user", "estimate", "unk
 export const BEAM_ENERGIES = [60, 80, 120, 200, 300];
 export const SPECTRUM_EXTENSIONS = ["dm3", "dm4", "msa", "emsa", "emd", "hspy", "txt", "csv", "xdi"];
 export const INTENSITY_UNITS = ["counts", "oscillator_strength", "mu", "optical_density", "normalised"];
+export const UNIT_LABELS: Record<string, string> = {
+  counts: "Counts",
+  oscillator_strength: "Oscillator strength",
+  mu: "Absorption coefficient (μ)",
+  optical_density: "Optical density",
+  normalised: "Normalised",
+};
 export const XAS_FIELDS = ["facility", "beamline", "source_type", "monochromator", "resolving_power", "detection_mode", "polarisation", "polarisation_angle_deg", "calibration_reference", "i0_normalisation"];
 export const COMPANION_EXTENSIONS = ["emd", "ser", "emi", "dm3", "dm4"];
 export const MAX_FILE_BYTES = 50 * 1024 * 1024;
+/** Processed versions a contributor may upload next to the spectrum, each as its own file. */
+export const VARIANTS: Record<string, string> = {
+  os: "Oscillator strength",
+  os_smoothed: "Oscillator strength, smoothed",
+  smoothed: "Smoothed",
+  impurity_removed: "Impurity removed",
+};
+export const variantUnits = (variant: string) => (variant.startsWith("os") ? "oscillator_strength" : null);
 const MAX_ASSOCIATED = 20;
 
 /** The browser's check results, kept only if they have the expected shape (moderators' pages read them). */
@@ -271,6 +286,19 @@ export function slugify(title: string) {
 }
 
 /** Cheap checks on an uploaded file; the real reading happens in the browser and at review. */
+/** The variant files in a submission (form fields `variant_<code>_file`), checked like the spectrum file. */
+export async function variantUploads(body: Record<string, unknown>, errors: Record<string, string>) {
+  const out: [string, File][] = [];
+  for (const [code, label] of Object.entries(VARIANTS)) {
+    const f = body[`variant_${code}_file`];
+    if (!(f instanceof File) || !f.size) continue;
+    const e = await checkUpload(f, SPECTRUM_EXTENSIONS, `${label} file`);
+    if (e) errors[`variant_${code}_file`] = e;
+    else out.push([code, f]);
+  }
+  return out;
+}
+
 export async function checkUpload(file: File | null, allowed: string[], label: string): Promise<string | null> {
   if (!file || !file.size) return `${label}: no file was uploaded.`;
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "";

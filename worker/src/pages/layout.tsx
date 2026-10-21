@@ -1,7 +1,7 @@
 import type { Child } from "hono/jsx";
 import { raw } from "hono/html";
 import type { User } from "../auth";
-import { ABOUT_NAV, NAV } from "../nav";
+import { ABOUT_NAV, NAV, currentAbout } from "../nav";
 import { LOGO_SVG } from "./logo";
 
 // Runs before paint so a saved theme does not flash. A signed-in user's saved theme arrives as data-theme and wins.
@@ -89,7 +89,7 @@ export function Layout(props: {
                     <circle cx="8.5" cy="8.5" r="5.5" />
                     <path d="M12.6 12.6 17 17" />
                   </svg>
-                  <input type="search" name="title" placeholder="Search spectra" aria-label="Search spectra" />
+                  <input type="search" name="q" placeholder="Search spectra" aria-label="Search spectra" />
                 </form>
                 <ThemeToggle class="wide" save={!!props.user} />
                 <nav class="site-nav" aria-label="Main">
@@ -110,7 +110,7 @@ export function Layout(props: {
                     </button>
                     <ul class="drop-panel" id="about-menu">
                       {ABOUT_NAV.map(([href, label]) => (
-                        <li><a href={href} aria-current={props.path.startsWith(href) ? "page" : undefined}>{label}</a></li>
+                        <li><a href={href} aria-current={href === currentAbout(props.path) ? "page" : undefined}>{label}</a></li>
                       ))}
                     </ul>
                   </div>

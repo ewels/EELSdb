@@ -10,15 +10,7 @@ const ELEMENT_NAMES: Record<string, string> = NAMES;
 const TYPE_ORDER = ["coreloss", "lowloss", "xrayabs", "zeroloss"];
 const DOI = "10.1017/S1431927616000179";
 
-/** Spectra shown as examples, with the short name used on their tile. */
-const EXAMPLES: [slug: string, label: string][] = [
-  ["titanium-dioxide-rutile-structure-4", "Rutile"],
-  ["graphite", "Graphite"],
-  ["diamond", "Diamond"],
-  ["boron-nitride-single-wall-nanotube", "BN nanotube"],
-  ["srtio3-111-4", "SrTiO3"],
-  ["nickel-monoxide", "NiO"],
-];
+const EXAMPLE_COUNT = 6;
 
 // The table with the lanthanides and actinides moved out of rows 6 and 7; "*" marks where they belong.
 const TABLE = [
@@ -44,7 +36,7 @@ const H = 300;
 const PAD = 8;
 
 type MiniPlot = { d: string; edges: { x: number; label: string }[] };
-// ponytail: per-isolate memo of the six example plots; move to the Cache API if the examples become dynamic.
+// Per-isolate memo of example plots, at most one per published spectrum (a few hundred small paths).
 const plotMemo = new Map<string, MiniPlot | null>();
 
 async function miniPlot(c: Context<AppEnv>, key: string, elements: string[]): Promise<MiniPlot | null> {
@@ -127,11 +119,13 @@ export async function homePage(c: Context<AppEnv>) {
       `SELECT s.id, s.slug, s.title, s.formula, s.type, s.author_slug AS slug_author, s.author_display,
               u.profile_public, u.avatar_key,
               (SELECT e.email FROM user_emails e WHERE e.user_id = u.id ORDER BY e.is_primary DESC, e.verified DESC, e.id LIMIT 1) AS email,
-              (SELECT f.r2_key FROM files f WHERE f.spectrum_id = s.id ORDER BY f.role = 'legacy' DESC, f.created_at LIMIT 1) AS file,
+              f.r2_key AS file,
               (SELECT json_group_array(e.element) FROM spectrum_elements e WHERE e.spectrum_id = s.id) AS elements
        FROM spectra s LEFT JOIN users u ON u.slug = s.author_slug
-       WHERE s.${published} AND s.slug IN (${EXAMPLES.map(() => "?").join(",")})`,
-    ).bind(...EXAMPLES.map(([slug]) => slug)),
+       JOIN files f ON f.id = (SELECT id FROM files WHERE spectrum_id = s.id AND role IN ('legacy', 'msa') AND lower(filename) GLOB '*.[mt][sx][at]' ORDER BY role = 'legacy' DESC LIMIT 1)
+       WHERE s.${published} AND s.type != 'zeroloss'
+       ORDER BY random() LIMIT ${EXAMPLE_COUNT}`,
+    ),
     db.prepare(
       `SELECT COUNT(*) AS spectra, COUNT(DISTINCT author_slug) AS contributors, MIN(substr(published_at, 1, 4)) AS since
        FROM spectra WHERE ${published}`,
@@ -145,13 +139,11 @@ export async function homePage(c: Context<AppEnv>) {
   const elTotal = (sym: string) => Object.values(elTypes[sym] ?? {}).reduce((a, b) => a + b, 0);
   const maxCount = Math.max(1, ...Object.keys(elTypes).map(elTotal));
 
-  const bySlug = new Map(examples.map((r: any) => [r.slug, r]));
   const tiles = await Promise.all(
-    EXAMPLES.filter(([slug]) => bySlug.has(slug)).map(async ([slug, label]) => {
-      const r: any = bySlug.get(slug);
+    examples.map(async (r: any) => {
       return {
         r,
-        label,
+        label: r.title,
         plot: r.file ? await miniPlot(c, r.file, JSON.parse(r.elements ?? "[]")) : null,
         author: await person({ slug: r.slug_author, name: r.author_display, profile_public: r.profile_public, avatar_key: r.avatar_key, email: r.email }),
       };
@@ -176,7 +168,7 @@ export async function homePage(c: Context<AppEnv>) {
             <li class="way-search">
               <h2><label for="q">Search by name or formula</label></h2>
               <form class="search" action="/spectra/" method="get" role="search">
-                <input id="q" name="title" type="search" placeholder="For example rutile, TiO2 or graphite" autocomplete="off" />
+                <input id="q" name="q" type="search" placeholder="For example rutile, TiO2 or graphite" autocomplete="off" />
                 <button class="button" type="submit">Search</button>
               </form>
             </li>
@@ -235,7 +227,7 @@ export async function homePage(c: Context<AppEnv>) {
               const n = elTotal(sym);
               if (!n) return <span class="el el-0" style={pos} aria-hidden="true"><b>{sym}</b></span>;
               return (
-                <a class={`el el-${shade(n, maxCount)}`} style={pos} href={`/spectra/?element[]=${sym}`} aria-label={`${ELEMENT_NAMES[sym] ?? sym}: ${plural(n)}`}>
+                <a class={`el el-${shade(n, maxCount)}`} style={pos} href={`/spectra/?element=${sym}`} aria-label={`${ELEMENT_NAMES[sym] ?? sym}: ${plural(n)}`}>
                   <b>{sym}</b><s>{n}</s>
                 </a>
               );

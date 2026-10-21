@@ -99,12 +99,19 @@ async function editable(c: C) {
   return bundle && { bundle, status: row.status as string };
 }
 
+/** The spectrum being edited, with its current data file so the form can plot it. */
+const editInfo = (b: SpectrumBundle) => ({
+  slug: b.spectrum.slug,
+  title: b.spectrum.title,
+  file: b.legacyFile ? { url: `/${b.legacyFile.split("/").map(encodeURIComponent).join("/")}`, name: b.legacyFile.split("/").pop()! } : null,
+});
+
 edit.get("/spectra/:slug/edit/", requireUser, async (c) => {
   const found = await editable(c);
   if (!found) return c.notFound();
   const s = found.bundle.spectrum;
   return c.html(
-    <SubmitPage c={c} v={valuesFromBundle(found.bundle)} errors={{}} instruments={await approvedInstruments(c.env.DB)} edit={{ slug: s.slug, title: s.title }} />,
+    <SubmitPage c={c} v={valuesFromBundle(found.bundle)} errors={{}} instruments={await approvedInstruments(c.env.DB)} edit={editInfo(found.bundle)} />,
   );
 });
 
@@ -123,12 +130,12 @@ edit.post("/spectra/:slug/edit/", requireUser, async (c) => {
     if (e) errors.file = e;
   }
   if (Object.keys(errors).length) {
-    return rejectForm(c, errors, 422, async () => <SubmitPage c={c} v={formValues(body)} errors={errors} instruments={await approvedInstruments(db)} edit={{ slug: s.slug, title: s.title }} />);
+    return rejectForm(c, errors, 422, async () => <SubmitPage c={c} v={formValues(body)} errors={errors} instruments={await approvedInstruments(db)} edit={editInfo(found.bundle)} />);
   }
 
   if (!(await instrumentOk(db, form))) {
     errors.instrument = "Choose an approved instrument profile.";
-    return rejectForm(c, errors, 422, async () => <SubmitPage c={c} v={formValues(body)} errors={errors} instruments={await approvedInstruments(db)} edit={{ slug: s.slug, title: s.title }} />);
+    return rejectForm(c, errors, 422, async () => <SubmitPage c={c} v={formValues(body)} errors={errors} instruments={await approvedInstruments(db)} edit={editInfo(found.bundle)} />);
   }
 
   const before = parseForm(valuesFromBundle(bundle)).form;
@@ -142,7 +149,7 @@ edit.post("/spectra/:slug/edit/", requireUser, async (c) => {
       .bind(s.id).first();
     if (waiting) {
       errors.file = "A change to the data or measurement of this spectrum is already waiting for review. Please wait for it before sending another.";
-      return rejectForm(c, errors, 409, async () => <SubmitPage c={c} v={formValues(body)} errors={errors} instruments={await approvedInstruments(db)} edit={{ slug: s.slug, title: s.title }} />);
+      return rejectForm(c, errors, 409, async () => <SubmitPage c={c} v={formValues(body)} errors={errors} instruments={await approvedInstruments(db)} edit={editInfo(found.bundle)} />);
     }
   }
 

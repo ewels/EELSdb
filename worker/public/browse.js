@@ -1,11 +1,6 @@
-// Keep shared browse URLs short: drop empty fields, and comparisons whose value is empty.
+// Keep shared browse URLs short: drop empty fields.
 document.getElementById("filters").addEventListener("submit", (event) => {
-  const form = event.target;
-  for (const el of form.elements) {
-    if (!el.name) continue;
-    const compareOf = el.name.endsWith("_compare") && form.elements[el.name.replace("_compare", "")];
-    if (el.value === "" || (compareOf && compareOf.value === "")) el.disabled = true;
-  }
+  for (const el of event.target.elements) if (el.name && el.value === "") el.disabled = true;
 });
 
 // Fields disabled on submit stay disabled when the page is restored from the back/forward cache.
@@ -15,7 +10,8 @@ addEventListener("pageshow", () => {
 
 // A type-to-filter combobox with removable chips, drawn over a native field that stays the submitted value.
 // items: { value, name, count, html, selected: pick order or falsy }; rank(item, query) → sort key, or -1 for no match.
-function picker({ id, after, label, placeholder, describedby, chipsLabel, listLabel, none, items, rank, limit, onChange, freeText }) {
+// exact(word) → the item a whole typed word names, so "Fe O " or a pasted "Fe, O" picks both without Enter.
+function picker({ id, after, label, placeholder, describedby, chipsLabel, listLabel, none, items, rank, limit, onChange, freeText, exact }) {
   const box = document.createElement("div");
   box.className = "picker";
   box.innerHTML = `<ul class="picker-chips" aria-label="${chipsLabel}"></ul>
@@ -103,7 +99,22 @@ function picker({ id, after, label, placeholder, describedby, chipsLabel, listLa
     close();
   };
 
+  const pickWords = () => {
+    const words = input.value.split(/[\s,;]+/);
+    if (words.length < 2) return;
+    const last = words.pop();
+    const left = [];
+    for (const w of words.filter(Boolean)) {
+      const x = exact(w);
+      if (x && !x.selected) x.selected = ++seq;
+      else if (!x) left.push(w);
+    }
+    input.value = [...left, last].join(" ");
+    changed();
+  };
+
   input.addEventListener("input", () => {
+    if (exact) pickWords();
     if (freeText) changed();
     input.value.trim() ? open() : close();
   });
@@ -114,6 +125,11 @@ function picker({ id, after, label, placeholder, describedby, chipsLabel, listLa
       e.preventDefault();
       if (!shown) return open();
       if (matches.length) setActive((active + (e.key === "ArrowDown" ? 1 : -1) + matches.length) % matches.length);
+    } else if (e.key === "Enter" && exact && /[\s,;]/.test(input.value.trim())) {
+      e.preventDefault();
+      input.value += " ";
+      pickWords();
+      input.value.trim() ? open() : close();
     } else if (e.key === "Enter" && shown && active >= 0) {
       e.preventDefault();
       add(active);
@@ -147,7 +163,7 @@ const esc = (s) => s.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
     id: "f-element",
     after: select,
     label: document.querySelector('label[for="f-element"]'),
-    placeholder: "Type a symbol or name",
+    placeholder: "Type symbols or names, for example Fe O",
     describedby: "f-element-hint",
     chipsLabel: "Selected elements",
     listLabel: "Elements",
@@ -163,8 +179,39 @@ const esc = (s) => s.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
       if (name.includes(q)) return 3;
       return -1;
     },
+    exact: (w) => items.find((x) => x.value.toLowerCase() === w.toLowerCase() || x.name.toLowerCase() === w.toLowerCase()),
     onChange: () => items.forEach((x) => (x.o.selected = !!x.selected)),
   });
+}
+
+// Keywords: like elements, a spectrum must have every picked keyword.
+{
+  const select = document.getElementById("f-keyword");
+  if (select) {
+    const items = [...select.options].map((o) => ({ o, value: o.value, name: o.value, count: Number(o.dataset.count), selected: o.selected }));
+    for (const x of items) x.html = esc(x.value);
+    select.hidden = true;
+    picker({
+      id: "f-keyword",
+      after: select,
+      label: document.querySelector('label[for="f-keyword"]'),
+      placeholder: "Type a keyword",
+      describedby: "f-keyword-hint",
+      chipsLabel: "Selected keywords",
+      listLabel: "Keywords",
+      none: "No matching keywords",
+      items,
+      limit: 8,
+      rank: (x, q) => {
+        const k = x.value.toLowerCase();
+        if (k === q) return 0;
+        if (k.startsWith(q)) return 1;
+        if (words(k).includes(" " + q)) return 2;
+        return k.includes(q) ? 3 : -1;
+      },
+      onChange: () => items.forEach((x) => (x.o.selected = !!x.selected)),
+    });
+  }
 }
 
 // Authors: the text field stays the submitted value, a comma-separated list the query matches with OR.

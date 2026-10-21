@@ -84,10 +84,13 @@ class Client:
     def me(self):
         return self.request("GET", "/me")
 
-    def submit(self, fields, file, companion=None):
+    def submit(self, fields, file, companion=None, variants=None):
+        """`variants` maps a variant code (os, os_smoothed, smoothed, impurity_removed) to a file."""
         files = {"file": file}
         if companion:
             files["companion_file"] = companion
+        for code, path in (variants or {}).items():
+            files[f"variant_{code}_file"] = path
         body, ctype = multipart(fields, files)
         return self.request("POST", "/submissions", body, ctype)
 

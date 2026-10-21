@@ -14,6 +14,8 @@ import { edit } from "../submit/edit";
 import { submit } from "../submit/index";
 import { account } from "./account";
 import { spectrumPage } from "./spectrum";
+import { downloadSpectrum } from "./download";
+import { suggestSpectra } from "./suggest";
 import { settings } from "./settings";
 import { LINK_FIELDS, linkUrl, parseLinks } from "./profile";
 import { decodeEntities } from "./entities";
@@ -44,7 +46,9 @@ pages.get("/spectra", (c) => c.redirect(`/spectra/${new URL(c.req.url).search}`,
 // Before the routes that add a missing trailing slash, which would catch "slug.md".
 pages.get("/spectra/:file{.+\\.md}", markdown(spectrumMarkdown));
 pages.get("/author/:file{.+\\.md}", markdown(authorMarkdown));
+pages.get("/search/spectra.json", suggestSpectra);
 pages.get("/spectra/:slug/", spectrumPage);
+pages.get("/spectra/:slug/download/:format{msa|csv|json}", downloadSpectrum);
 pages.get("/spectra/:slug", (c) => c.redirect(`/spectra/${encodeURIComponent(c.req.param("slug"))}/`, 301));
 pages.get("/wp-content/uploads/*", serveFile);
 pages.get("/files/*", serveFile);

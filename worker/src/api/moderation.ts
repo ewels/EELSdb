@@ -14,13 +14,13 @@ import {
   type EditChange,
   type ProcessingRecord,
 } from "../moderation";
-import { COMPANION_EXTENSIONS, SPECTRUM_EXTENSIONS, checkUpload, cleanBrowserChecks, parseForm } from "../submit/form";
-import { createSpectrum, instrumentOk } from "../submit/store";
+import { COMPANION_EXTENSIONS, SPECTRUM_EXTENSIONS, checkUpload, cleanBrowserChecks, parseForm, variantUploads } from "../submit/form";
+import { createSpectrum, instrumentOk, storeFile } from "../submit/store";
 
 export const cli = new Hono<AppEnv>();
 cli.use(tokenAuth);
 
-const PROCESSED_ROLES = ["msa", "hspy"];
+const PROCESSED_ROLES = ["msa", "hspy", "metadata"];
 
 cli.get("/me", (c) => c.json(c.get("user")));
 
@@ -37,19 +37,13 @@ cli.post("/submissions", async (c) => {
     const ce = await checkUpload(companion, COMPANION_EXTENSIONS, "Companion file");
     if (ce) errors.companion_file = ce;
   }
+  const variants = await variantUploads(body, errors);
   if (!(await instrumentOk(c.env.DB, form))) errors.instrument = "Choose an approved instrument profile.";
   if (Object.keys(errors).length) return c.json({ message: "The submission has errors.", errors }, 400);
   const { id, slug } = await createSpectrum(c.env.DB, form, user);
-  const statements = [];
-  for (const [role, f] of [["original", file!], ["companion", companion]] as const) {
-    if (!f) continue;
-    const bytes = await f.arrayBuffer();
-    const key = `submissions/${id}/${role}/${f.name.replace(/[^\w.\-]+/g, "_")}`;
-    await c.env.FILES.put(key, bytes, { httpMetadata: { contentType: mediaType(f.name) } });
-    statements.push(
-      c.env.DB.prepare("INSERT INTO files (spectrum_id, role, r2_key, filename, bytes) VALUES (?, ?, ?, ?, ?)").bind(id, role, key, f.name, f.size),
-    );
-  }
+  const statements = [await storeFile(c.env, id, "original", file!)];
+  if (companion) statements.push(await storeFile(c.env, id, "companion", companion));
+  for (const [code, f] of variants) statements.push(await storeFile(c.env, id, "variant", f, code));
   statements.push(
     c.env.DB.prepare("INSERT INTO submissions (spectrum_id, submitted_by, status, kind, browser_checks_json) VALUES (?, ?, 'pending', 'new', ?)")
       .bind(id, user.id, cleanBrowserChecks(body.checks)),

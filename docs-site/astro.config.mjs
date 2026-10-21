@@ -17,7 +17,8 @@ mkdirSync('.astro', { recursive: true });
 writeFileSync(OPENAPI_V2, JSON.stringify(openapiV2(), null, 1));
 
 // The Worker (worker/) serves the build from its static assets at /docs/.
-// Fonts, tokens.css and the favicon come from the Worker too, so `astro dev` proxies them to `wrangler dev`.
+// Fonts and tokens.css come from the Worker too, so `astro dev` proxies them to `wrangler dev`. The favicon is a
+// symlink in public/, because Starlight puts it under the /docs base.
 const WORKER = 'http://localhost:8787';
 
 // The agent skills live in ../skills/ (where `npx skills add` finds them) and are also served at /docs/skills/.
@@ -34,7 +35,7 @@ export default defineConfig({
   vite: {
     // src/content/docs links to ../docs/; resolve pages from the link so their imports and node_modules work.
     resolve: { preserveSymlinks: true },
-    server: { proxy: Object.fromEntries(['/tokens.css', '/fonts', '/favicon.svg', '/logo', '/partners', '/account/me.json'].map((p) => [p, WORKER])) },
+    server: { proxy: Object.fromEntries(['/tokens.css', '/fonts', '/logo', '/partners', '/account/me.json'].map((p) => [p, WORKER])) },
   },
   integrations: [
     skills,
@@ -62,7 +63,7 @@ export default defineConfig({
         { label: 'Overview', link: '/' },
         {
           label: 'Use the data',
-          items: ['use/find', 'use/download', 'use/python', 'use/api', 'use/agents'],
+          items: ['use/find', 'use/view', 'use/download', 'use/python', 'use/api', 'use/agents'],
         },
         {
           label: 'Share spectra',

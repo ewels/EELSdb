@@ -46,3 +46,34 @@ def test_xdi_in_kev_and_checks(tmp_path):
     np.testing.assert_allclose(sp.energy, [8779, 8789, 8799, 8809])
     assert sp.header["xas"]["intensity_column"] == "mu"
     assert [f.code for f in checks.check_axis(sp.energy, sp.intensity)] == ["too_short"]
+
+
+# Shape of a 2016 gas-phase file from eelsdatabase.net: XY data with blank OFFSET/XPERCHAN.
+MSA_BLANK_AXIS = """#FORMAT      : EMSA/MAS Spectral Data File
+#VERSION     : 1.0
+#TITLE       : air-NO-relative-gas
+#NPOINTS     : 3
+#NCOLUMNS    : 1
+#XUNITS      : eV
+#DATATYPE    : XY
+#XPERCHAN    :
+#OFFSET      :
+#SIGNALTYPE  : ELS
+#PHASE       : gas
+#REFERENCE   : (unpublished)
+#SPECTRUM    : Spectral Data Starts Here
+217.813,0.1281591
+218.531,0.1269954
+219.25,0.1273
+#ENDOFDATA   : End Of Data and File
+"""
+
+
+def test_read_msa_blank_axis_header_with_phase_and_reference(tmp_path):
+    path = tmp_path / "gas.msa"
+    path.write_text(MSA_BLANK_AXIS)
+    sp = read_any(path)
+    np.testing.assert_allclose(sp.energy, [217.813, 218.531, 219.25])
+    assert sp.header_axis is None
+    assert (sp.header["phase"], sp.header["reference"]) == ("gas", "(unpublished)")
+    assert not [f for f in checks.check_axis(sp.energy, sp.intensity, sp.header_axis) if f.severity == "error"]

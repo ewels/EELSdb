@@ -3,8 +3,9 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import type { Context } from "hono";
 import type { AppEnv } from "../auth";
+import { variantUnits } from "../submit/form";
 import { API_HOST, SITE, loadMany, type SpectrumBundle } from "./format";
-import { DOCUMENT, listRoute, oneRoute, type Spectrum } from "./v2-schema";
+import { DOCUMENT, ListQuery, listRoute, oneRoute, type Spectrum } from "./v2-schema";
 import type { z } from "@hono/zod-openapi";
 
 type C = Context<AppEnv>;
@@ -36,8 +37,62 @@ const SORT_SQL: Record<string, string> = {
   max_energy_ev: "s.max_energy_ev",
   beam_energy_kv: "a.beam_energy_kv",
   resolution_ev: "a.resolution_ev",
+  author: "s.author_display COLLATE NOCASE",
   id: "s.id",
 };
+
+/** The FROM/WHERE clause and ORDER BY for a list query; the browse page shares it, so it filters as the API does. */
+export function spectraFilter(q: z.infer<typeof ListQuery>) {
+  const where = ["s.status = 'published'"];
+  const binds: unknown[] = [];
+  const add = (sql: string, ...values: unknown[]) => {
+    where.push(sql);
+    binds.push(...values);
+  };
+
+  // Gas-phase spectra are only listed when asked for, as in v1.
+  add(q.phase ? "s.phase = ?" : "s.phase != 'gas'", ...(q.phase ? [q.phase] : []));
+  if (q.type?.length) add(`s.type IN (${q.type.map(() => "?").join(",")})`, ...q.type);
+  if (q.technique) add("s.technique = ?", q.technique);
+  for (const el of q.element ?? []) add("EXISTS (SELECT 1 FROM spectrum_elements e WHERE e.spectrum_id = s.id AND e.element = ?)", el);
+  for (const edge of q.edge ?? []) {
+    const [element, name] = edge.includes("_") ? edge.split("_", 2) : [null, edge];
+    add(
+      `EXISTS (SELECT 1 FROM spectrum_edges g WHERE g.spectrum_id = s.id AND g.edge = ?${element ? " AND g.element = ?" : ""})`,
+      ...(element ? [name, element] : [name]),
+    );
+  }
+  for (const k of q.keyword ?? []) add("EXISTS (SELECT 1 FROM spectrum_keywords k WHERE k.spectrum_id = s.id AND k.keyword = ? COLLATE NOCASE)", k.trim());
+  if (q.formula) add("s.formula LIKE ? ESCAPE '\\'", like(q.formula));
+  if (q.q) add("(s.title LIKE ? ESCAPE '\\' OR s.description LIKE ? ESCAPE '\\')", like(q.q), like(q.q));
+  if (q.author?.length) {
+    add(`(${q.author.map(() => "s.author_display LIKE ? ESCAPE '\\' OR s.author_slug = ?").join(" OR ")})`, ...q.author.flatMap((a) => [like(a.trim()), a.trim()]));
+  }
+  if (q.complete) add("s.completeness = 'full'");
+  if (q.monochromated) add("a.monochromated = ?", q.monochromated === "true" ? 1 : 0);
+  if (q.min_energy_ev !== undefined) add("s.min_energy_ev >= ?", q.min_energy_ev);
+  if (q.max_energy_ev !== undefined) add("s.max_energy_ev <= ?", q.max_energy_ev);
+  if (q.covers_ev !== undefined) add("s.min_energy_ev <= ? AND s.max_energy_ev >= ?", q.covers_ev, q.covers_ev);
+  if (q.beam_energy_kv !== undefined) add("a.beam_energy_kv = ?", q.beam_energy_kv);
+  if (q.max_resolution_ev !== undefined) add("a.resolution_ev <= ?", q.max_resolution_ev);
+
+  const sort = SORT_SQL[q.sort];
+  return {
+    from: "FROM spectra s LEFT JOIN eels_acquisition a ON a.spectrum_id = s.id WHERE " + where.join(" AND "),
+    binds,
+    orderBy: `${sort} IS NULL, ${sort} ${q.order === "desc" ? "DESC" : "ASC"}, s.id`,
+  };
+}
+
+/** The total and one page of ids for a list query. */
+export async function listSpectra(db: D1Database, q: z.infer<typeof ListQuery>) {
+  const { from, binds, orderBy } = spectraFilter(q);
+  const [count, ids] = await db.batch<Row>([
+    db.prepare(`SELECT COUNT(*) AS n ${from}`).bind(...binds),
+    db.prepare(`SELECT s.id ${from} ORDER BY ${orderBy} LIMIT ? OFFSET ?`).bind(...binds, q.per_page, (q.page - 1) * q.per_page),
+  ]);
+  return { total: count.results[0].n as number, ids: ids.results.map((r) => r.id as number) };
+}
 const num = (v: unknown) => (v === null || v === undefined || v === "" ? null : Number(v));
 const bool = (v: unknown) => (v === null || v === undefined ? null : Boolean(Number(v)));
 const like = (s: string) => "%" + s.replace(/[\\%_]/g, (ch) => "\\" + ch) + "%";
@@ -142,7 +197,16 @@ export function formatV2(b: SpectrumBundle): z.infer<typeof Spectrum> {
     links: b.otherUrls,
     files: b.files
       .filter((f) => f.role !== "companion")
-      .map((f) => ({ role: f.role, url: fileUrl(f.r2_key), filename: f.filename, bytes: f.bytes, sha256: f.sha256, media_type: f.media_type })),
+      .map((f) => ({
+        role: f.role,
+        variant: f.variant,
+        intensity_units: f.variant ? variantUnits(f.variant) : null,
+        url: fileUrl(f.r2_key),
+        filename: f.filename,
+        bytes: f.bytes,
+        sha256: f.sha256,
+        media_type: f.media_type,
+      })),
     download_url: b.legacyFile ? fileUrl(b.legacyFile) : null,
     processing: b.processing as z.infer<typeof Spectrum>["processing"],
   };
@@ -150,52 +214,15 @@ export function formatV2(b: SpectrumBundle): z.infer<typeof Spectrum> {
 
 v2.openapi(listRoute, async (c) => {
   const q = c.req.valid("query");
-  const where = ["s.status = 'published'"];
-  const binds: unknown[] = [];
-  const add = (sql: string, ...values: unknown[]) => {
-    where.push(sql);
-    binds.push(...values);
-  };
-
-  // Gas-phase spectra are only listed when asked for, as in v1.
-  add(q.phase ? "s.phase = ?" : "s.phase != 'gas'", ...(q.phase ? [q.phase] : []));
-  if (q.type) add("s.type = ?", q.type);
-  if (q.technique) add("s.technique = ?", q.technique);
-  for (const el of q.element ?? []) add("EXISTS (SELECT 1 FROM spectrum_elements e WHERE e.spectrum_id = s.id AND e.element = ?)", el);
-  for (const edge of q.edge ?? []) {
-    const [element, name] = edge.includes("_") ? edge.split("_", 2) : [null, edge];
-    add(
-      `EXISTS (SELECT 1 FROM spectrum_edges g WHERE g.spectrum_id = s.id AND g.edge = ?${element ? " AND g.element = ?" : ""})`,
-      ...(element ? [name, element] : [name]),
-    );
-  }
-  if (q.formula) add("s.formula LIKE ? ESCAPE '\\'", like(q.formula));
-  if (q.q) add("(s.title LIKE ? ESCAPE '\\' OR s.description LIKE ? ESCAPE '\\')", like(q.q), like(q.q));
-  if (q.author) add("(s.author_display LIKE ? ESCAPE '\\' OR s.author_slug = ?)", like(q.author), q.author);
-  if (q.complete) add("s.completeness = 'full'");
-  if (q.monochromated) add("a.monochromated = ?", q.monochromated === "true" ? 1 : 0);
-  if (q.min_energy_ev !== undefined) add("s.min_energy_ev >= ?", q.min_energy_ev);
-  if (q.max_energy_ev !== undefined) add("s.max_energy_ev <= ?", q.max_energy_ev);
-  if (q.covers_ev !== undefined) add("s.min_energy_ev <= ? AND s.max_energy_ev >= ?", q.covers_ev, q.covers_ev);
-  if (q.beam_energy_kv !== undefined) add("a.beam_energy_kv = ?", q.beam_energy_kv);
-
-  const sort = SORT_SQL[q.sort];
-  const dir = q.order === "desc" ? "DESC" : "ASC";
   const { page, per_page: perPage } = q;
-  const from = "FROM spectra s LEFT JOIN eels_acquisition a ON a.spectrum_id = s.id WHERE " + where.join(" AND ");
-  const [count, ids] = await c.env.DB.batch<Row>([
-    c.env.DB.prepare(`SELECT COUNT(*) AS n ${from}`).bind(...binds),
-    c.env.DB.prepare(`SELECT s.id ${from} ORDER BY ${sort} IS NULL, ${sort} ${dir}, s.id LIMIT ? OFFSET ?`)
-      .bind(...binds, perPage, (page - 1) * perPage),
-  ]);
-  const total = count.results[0].n as number;
+  const { total, ids } = await listSpectra(c.env.DB, q);
   const link = (n: number) => {
     const next = new URL(`${API_HOST}/v2/spectra`);
     for (const [k, v] of new URL(c.req.url).searchParams) if (k !== "page") next.searchParams.append(k, v);
     next.searchParams.set("page", String(n));
     return next.toString();
   };
-  const bundles = await loadMany(c.env.DB, ids.results.map((r) => r.id));
+  const bundles = await loadMany(c.env.DB, ids);
   return c.json(
     {
       total,

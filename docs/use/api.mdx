@@ -45,21 +45,23 @@ Give filters as query parameters. A spectrum must match all of them.
 
 - `element=Fe&element=O`: Spectra that contain every given element.
 - `edge=Fe_L2,3` or `edge=K`: The whole edge name, of one element or of any element. Repeat to require several.
-- `type=coreloss`: One of `coreloss`, `lowloss`, `zeroloss` or `xrayabs`.
+- `type=coreloss`: One of `coreloss`, `lowloss`, `zeroloss` or `xrayabs`. Repeat to include several types.
 - `technique=xas`: `eels` or `xas`.
 - `phase=gas`: `solid`, `liquid` or `gas`. The list leaves out gas-phase spectra unless you ask for `phase=gas`.
 - `formula=TiO2`: Text in the formula.
 - `q=graphite`: Text in the title or description.
-- `author=Feldhoff`: Part of the contributor's name, or their profile name.
+- `author=Feldhoff`: Part of the contributor's name, or their profile name. Repeat to include several contributors.
+- `keyword=nanotube`: A keyword the contributor gave, matched whole and ignoring case. Repeat to require several.
 - `complete=true`: Spectra whose beam energy and both angles are known.
 - `monochromated=true`: Monochromated (`true`) or not (`false`).
 - `min_energy_ev=400`: Spectra that start at or above this energy, in eV.
 - `max_energy_ev=900`: Spectra that end at or below this energy, in eV.
 - `covers_ev=708`: Spectra whose energy range includes this energy, in eV.
 - `beam_energy_kv=200`: Spectra recorded at this beam energy.
+- `max_resolution_ev=0.5`: Spectra with this energy resolution or better, in eV.
 
 Sort with `sort` and `order`.
-`sort` is one of `formula` (the default), `title`, `published_at`, `min_energy_ev`, `max_energy_ev`, `beam_energy_kv`, `resolution_ev` or `id`.
+`sort` is one of `formula` (the default), `title`, `published_at`, `min_energy_ev`, `max_energy_ev`, `beam_energy_kv`, `resolution_ev`, `author` or `id`.
 `order` is `asc` (the default) or `desc`.
 Spectra with no value for the sort field come last.
 
@@ -202,7 +204,7 @@ Change the address from `https://api.eelsdb.eu/spectra/` to `https://api.eelsdb.
 - `edge=L2,3`: `edge=L2,3` for any element, or `edge=Fe_L2,3` for one element.
 - `title=graphite`: `q=graphite`, which also searches the description.
 - `min_energy=400&min_energy_compare=gt`: `min_energy_ev=400` (at or above). `max_energy_ev` is at or below. v1 rounded these values to whole eV; v2 compares them as given.
-- `resolution` and `resolution_compare`: v2 has no resolution filter. Sort with `sort=resolution_ev`, or filter on `acquisition.resolution_ev` in your code.
+- `resolution=0.5&resolution_compare=lt`: `max_resolution_ev=0.5` (this resolution or better).
 - `monochromated` (a flag): `monochromated=true` or `monochromated=false`.
 - `per_page=-1` (everything): `per_page=500`, then follow `next` until it is `null`.
 - `order=...&order_direction=DESC`: `sort=...&order=desc`. See [Filter and sort](#filter-and-sort) for the sort keys.

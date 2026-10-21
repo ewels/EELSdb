@@ -11,12 +11,18 @@ The spectra are open data under the [Open Database Licence (ODbL)](https://opend
 1. Open the spectrum page.
 2. Click **Download**. The dialog shows a citation for the spectrum.
 3. Copy the citation, or open **BibTeX** and copy the BibTeX entry.
-4. Click **Download** followed by the file name.
+4. Choose a format, then click **Download** followed by the file name.
 
-The file is the main data file of the spectrum.
-For spectra from the old site, it is the file the contributor uploaded.
-For new spectra, it is the MSA file that the moderator made at review, or the uploaded file if there is no MSA file yet.
-The API lists every file of a spectrum, with its role, size and SHA-256 checksum (see [Use the API](/docs/use/api/#files)).
+The formats are:
+
+- **MSA**: EMSA/MAS text with the beam energy and the angles in the header. It opens in HyperSpy, DigitalMicrograph and most EELS software.
+- **CSV**: two columns, the energy in eV and the intensity.
+- **JSON**: the data and all the metadata on the spectrum page, in the [API v2](/docs/use/api/) format.
+- **HyperSpy**: the `.hspy` file that the moderator made at review, for new spectra.
+- **Original file**: the file as the contributor uploaded it.
+
+EELSdb makes the MSA, CSV and JSON files from the stored data when you download them, so every spectrum has them, whatever format it was uploaded in.
+Their addresses do not change, so you can use them in scripts: for example `https://eelsdb.eu/spectra/graphite/download/csv`.
 
 ## Download everything
 

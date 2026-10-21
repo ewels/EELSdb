@@ -127,10 +127,8 @@ export type SpectraQuery = {
   page: number;
 };
 
-/** `exact` compares energies and resolution as stored (the website); v1 keeps WordPress's whole-eV casts. */
-export function buildSpectraQuery(params: Params, opts: { exact?: boolean; complete?: boolean } = {}): SpectraQuery {
+export function buildSpectraQuery(params: Params): SpectraQuery {
   const where = ["s.status = 'published'"];
-  if (opts.complete) where.push("s.completeness = 'full'");
   const binds: unknown[] = [];
 
   // Spectra of new kinds (gas phase) are only listed when asked for, so old queries return what they did.
@@ -186,13 +184,11 @@ export function buildSpectraQuery(params: Params, opts: { exact?: boolean; compl
 
   // WordPress compared the stored strings after CAST(... AS DECIMAL), which rounds energies to whole eV,
   // and CAST(... AS SIGNED), which truncates resolutions to whole eV.
-  const ranges: [string, string][] = opts.exact
-    ? [["min_energy", "s.min_energy_ev"], ["max_energy", "s.max_energy_ev"], ["resolution", "a.resolution_ev"]]
-    : [
-        ["min_energy", "ROUND(COALESCE(s.min_energy_ev, 0))"],
-        ["max_energy", "ROUND(COALESCE(s.max_energy_ev, 0))"],
-        ["resolution", "CAST(COALESCE(a.resolution_ev, 0) AS INTEGER)"],
-      ];
+  const ranges: [string, string][] = [
+    ["min_energy", "ROUND(COALESCE(s.min_energy_ev, 0))"],
+    ["max_energy", "ROUND(COALESCE(s.max_energy_ev, 0))"],
+    ["resolution", "CAST(COALESCE(a.resolution_ev, 0) AS INTEGER)"],
+  ];
   for (const [key, expr] of ranges) {
     const v = str(params, key);
     if (v === undefined) continue;

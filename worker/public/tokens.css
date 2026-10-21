@@ -50,6 +50,11 @@
   --accent-soft: light-dark(oklch(0.95 0.02 248), oklch(0.30 0.035 248));
   --plot: light-dark(oklch(0.45 0.08 250), oklch(0.80 0.08 248));
   --edge: light-dark(oklch(0.60 0.11 65), oklch(0.78 0.10 72));
+  /* Compared spectra on the spectrum page, in order; distinct from --plot and --edge. */
+  --compare-1: light-dark(oklch(0.52 0.16 340), oklch(0.76 0.13 340));
+  --compare-2: light-dark(oklch(0.52 0.13 150), oklch(0.78 0.13 150));
+  --compare-3: light-dark(oklch(0.50 0.15 295), oklch(0.76 0.12 295));
+  --compare-4: light-dark(oklch(0.55 0.17 25), oklch(0.74 0.14 25));
 
   /* Meaning, the same in every palette. */
   --danger: light-dark(oklch(0.50 0.15 28), oklch(0.76 0.12 28));

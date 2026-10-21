@@ -18,6 +18,8 @@ class Spectrum:
     header: dict = field(default_factory=dict)
     layout: str | None = None
     header_axis: np.ndarray | None = None  # OFFSET + i * XPERCHAN, for MSA files
+    navigation_shape: tuple[int, ...] | None = None  # the grid of a spectrum image, which the checks reject
+    original_metadata: dict = field(default_factory=dict)  # every tag in the file, as the reader gives it
 
 
 def msa_x_column(path):
@@ -41,10 +43,18 @@ def read_msa(path):
         sig = file_reader(str(path))[0]
     header = dict(sig["original_metadata"])
     ax = sig["axes"][0]
-    header_axis = ax["offset"] + ax["scale"] * np.arange(ax["size"])
+    # XY files may leave OFFSET/XPERCHAN blank; RosettaSciIO then gives "" or a default 0, 1, 2… axis.
+    try:
+        float(header.get("OFFSET")), float(header.get("XPERCHAN"))
+        header_axis = float(ax["offset"]) + float(ax["scale"]) * np.arange(ax["size"])
+    except (TypeError, ValueError):
+        header_axis = None
     datatype = str(header.get("DATATYPE", "")).strip()
     energy = msa_x_column(path) if datatype == "XY" else header_axis
-    return Spectrum(energy, np.asarray(sig["data"], dtype=float), "msa", header, header_axis=header_axis)
+    if energy is None:
+        raise ValueError("MSA file has no energy axis: DATATYPE is Y but OFFSET or XPERCHAN is missing")
+    return Spectrum(energy, np.asarray(sig["data"], dtype=float), "msa", header, header_axis=header_axis,
+                    original_metadata=dict(header))
 
 
 def read_txt(path):
@@ -95,7 +105,7 @@ def read_xdi(path):
         energy = energy * 1000
     meta = {ours: header[k] for k, ours in XDI_FIELDS.items() if k in header}
     meta["intensity_column"] = names[y_col] or None
-    return Spectrum(energy, data[:, y_col], "xdi", {**header, "xas": meta})
+    return Spectrum(energy, data[:, y_col], "xdi", {**header, "xas": meta}, original_metadata=dict(header))
 
 
 def read_spectrum(path):
@@ -117,7 +127,7 @@ READERS = {".dm3": "digitalmicrograph", ".dm4": "digitalmicrograph", ".emd": "em
 def read_any(path):
     """Any supported file as a Spectrum; `header` holds acquisition values found in it (kV, mrad, s).
 
-    Spectrum images are summed to one spectrum. Files without an energy-loss axis (for example a
+    Spectrum images are summed to one spectrum, so they can be plotted, and keep their grid in navigation_shape. Files without an energy-loss axis (for example a
     companion image) return energy=None with their acquisition values.
     """
     import importlib
@@ -129,7 +139,8 @@ def read_any(path):
         # Keywords may carry units, padded: "BEAMKV   -kV".
         base = {k.split("-")[0].strip(): v for k, v in sp.header.items()}
         sp.header = {**sp.header, "beam_energy_kv": base.get("BEAMKV"), "convergence_mrad": base.get("CONVANGLE"),
-                     "collection_mrad": base.get("COLLANGLE")}
+                     "collection_mrad": base.get("COLLANGLE"), "phase": str(base.get("PHASE") or "").strip().lower() or None,
+                     "reference": str(base.get("REFERENCE") or "").strip() or None}
         return sp
     if ext in (".txt", ".csv"):
         return read_txt(path)
@@ -151,12 +162,15 @@ def read_any(path):
         "exposure_s": _get(tem, "Detector.EELS.exposure"),
         "frames": _get(tem, "Detector.EELS.frame_number"),
     }
+    original = sig.get("original_metadata") or {}
     if not is_eels(sig):
-        return Spectrum(None, None, ext.lstrip("."), header)
+        return Spectrum(None, None, ext.lstrip("."), header, original_metadata=original)
     data = np.asarray(sig["data"], dtype=float)
+    navigation_shape = tuple(int(n) for n in data.shape[:-1]) or None
     while data.ndim > 1:
         data = data.sum(axis=0)
     ax = sig["axes"][-1]
     factor = 1000.0 if ax.get("units") == "keV" else 1.0
     energy = (ax.get("offset", 0) + ax.get("scale", 1) * np.arange(data.size)) * factor
-    return Spectrum(energy, data, ext.lstrip("."), header, header_axis=energy)
+    return Spectrum(energy, data, ext.lstrip("."), header, header_axis=energy, navigation_shape=navigation_shape,
+                    original_metadata=original)

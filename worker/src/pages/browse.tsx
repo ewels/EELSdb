@@ -1,22 +1,117 @@
 import type { Context } from "hono";
 import type { AppEnv } from "../auth";
-import { KNOWN_ARGS, buildSpectraQuery, parseParams, sortAndPage, type Params, type SpectrumRow } from "../api/query";
+import { listSpectra } from "../api/v2";
+import { ListQuery } from "../api/v2-schema";
 import { majorEdges, previews, type Preview } from "../preview";
 import NAMES from "../element-names.json";
 import { EdgeName, Formula, Layout, TYPE_NAMES, TypeBadge, fmt } from "./layout";
 
 const PER_PAGE = 50;
 const ELEMENT_NAMES: Record<string, string> = NAMES;
-
 const EDGES = ["K", "L1", "L2,3", "M2,3", "M4,5", "N2,3", "N4,5", "O2,3", "O4,5"];
-const COMPARES = [
-  ["gt", "≥"],
-  ["lt", "≤"],
-  ["eq", "="],
-] as const;
+// Filters that may be given more than once; the others take one value.
+const REPEATED = new Set(["type", "element", "edge", "author", "keyword"]);
 
-type Extra = { id: number; preview: string | null; preview_key: string | null; file: string | null; elements: string; journal: string | null; year: string | null };
-type Shown = SpectrumRow & { edges: string[]; elements: string[]; preview?: Preview; journal: string | null; year: string | null };
+/** Browse filters as API v2 query parameters, one list of values per name. */
+type Filters = Map<string, string[]>;
+
+type Shown = {
+  id: number;
+  slug: string;
+  title: string;
+  type: string;
+  formula: string | null;
+  min_energy_ev: number | null;
+  max_energy_ev: number | null;
+  author_display: string;
+  author_slug: string;
+  published_at: string | null;
+  beam_energy_kv: number | null;
+  resolution_ev: number | null;
+  monochromated: number | null;
+  edges: string[];
+  elements: string[];
+  preview?: Preview;
+  journal: string | null;
+  year: string | null;
+};
+
+/**
+ * The query string as filters: "element[]" and "title" (older links) are read as "element" and "q", empty values are dropped, and
+ * "Sigle, Colliex" in the author box becomes two authors. complete=1 and monochromated=1 (older links) mean true.
+ */
+function readFilters(search: string): Filters {
+  const out: Filters = new Map();
+  for (const [rawKey, rawValue] of new URLSearchParams(search)) {
+    const key = rawKey === "title" ? "q" : rawKey.replace(/\[\]$/, "");
+    const values = key === "author" ? rawValue.split(",") : [(key === "complete" || key === "monochromated") && rawValue === "1" ? "true" : rawValue];
+    for (const v of values.map((x) => x.trim()).filter(Boolean)) out.set(key, [...(out.get(key) ?? []), v]);
+  }
+  return out;
+}
+
+const queryInput = (f: Filters) => Object.fromEntries([...f].map(([k, v]) => [k, REPEATED.has(k) ? v : v[0]]));
+
+function urlWith(f: Filters, changes: Record<string, string | null>) {
+  const out = new URLSearchParams();
+  for (const [k, values] of f) if (!(k in changes)) for (const v of values) out.append(k, v);
+  for (const [k, v] of Object.entries(changes)) if (v !== null) out.set(k, v);
+  const q = out.toString();
+  return `/spectra/${q ? `?${q}` : ""}`;
+}
+
+function withoutFilter(f: Filters, key: string, value: string) {
+  const copy: Filters = new Map(f);
+  const rest = (copy.get(key) ?? []).filter((x) => x !== value);
+  if (rest.length) copy.set(key, rest);
+  else copy.delete(key);
+  return urlWith(copy, { page: null });
+}
+
+const one = (f: Filters, key: string) => f.get(key)?.[0] ?? "";
+
+function chipLabel(key: string, v: string) {
+  const labels: Record<string, string> = {
+    q: `text: ${v}`,
+    formula: `formula: ${v}`,
+    edge: `edge: ${v}`,
+    keyword: `keyword: ${v}`,
+    author: `author: ${v}`,
+    phase: `phase: ${v}`,
+    min_energy_ev: `starts ≥ ${v} eV`,
+    max_energy_ev: `ends ≤ ${v} eV`,
+    covers_ev: `includes ${v} eV`,
+    max_resolution_ev: `resolution ≤ ${v} eV`,
+    beam_energy_kv: `${v} kV`,
+    monochromated: v === "true" ? "monochromated" : "not monochromated",
+    complete: "angles known",
+    type: TYPE_NAMES[v] ?? v,
+  };
+  return labels[key] ?? v;
+}
+
+/** A number filter with its unit drawn inside the field. */
+function EnergyInput(props: { f: Filters; name: string; label: string }) {
+  return (
+    <div class="bound">
+      <label for={`f-${props.name}`}>{props.label}</label>
+      <span class="bound-field">
+        <input type="number" step="any" inputmode="decimal" id={`f-${props.name}`} name={props.name} value={one(props.f, props.name)} />
+        <span class="unit" aria-hidden="true">eV</span>
+      </span>
+    </div>
+  );
+}
+
+function Sort({ f, by, label, sort, desc }: { f: Filters; by: string; label: string; sort: string; desc: boolean }) {
+  const active = sort === by;
+  return (
+    <a href={urlWith(f, { sort: by, order: active && !desc ? "desc" : null, page: null })} aria-sort={active ? (desc ? "descending" : "ascending") : undefined}>
+      {label}
+      {active ? (desc ? " ↓" : " ↑") : ""}
+    </a>
+  );
+}
 
 /** Position on the shared 1 eV – 10 keV log scale, in percent. */
 const logPos = (ev: number) => Math.min(100, Math.max(0, (Math.log10(Math.max(ev, 1)) / 4) * 100));
@@ -87,119 +182,63 @@ function Row({ s, picked }: { s: Shown; picked: Set<string> }) {
   );
 }
 
-function urlWith(params: Params, changes: Record<string, string | null>) {
-  const out = new URLSearchParams();
-  for (const [k, v] of params) {
-    if (k in changes) continue;
-    for (const one of Array.isArray(v) ? v : [v]) if (one !== "") out.append(Array.isArray(v) ? `${k}[]` : k, one);
-  }
-  for (const [k, v] of Object.entries(changes)) if (v !== null) out.set(k, v);
-  const q = out.toString();
-  return `/spectra/${q ? `?${q}` : ""}`;
-}
-
-function withoutFilter(params: Params, key: string, value: string) {
-  const copy: Params = new Map(params);
-  const v = copy.get(key);
-  if (Array.isArray(v) && v.length > 1) copy.set(key, v.filter((x) => x !== value));
-  else copy.delete(key);
-  return urlWith(copy, { [`${key}_compare`]: null, page: null });
-}
-
-const val = (params: Params, key: string) => {
-  const v = params.get(key);
-  return typeof v === "string" ? v : "";
-};
-
-/** A number filter with its comparator, drawn as one control with the unit inside. */
-function Bound({ params, name, label, placeholder }: { params: Params; name: string; label: string; placeholder?: string }) {
-  const compare = val(params, `${name}_compare`) || (name === "min_energy" ? "gt" : "lt");
-  return (
-    <div class="bound">
-      <select name={`${name}_compare`} aria-label={`${label} comparison`}>
-        {COMPARES.map(([v, sym]) => (
-          <option value={v} selected={compare === v}>{sym}</option>
-        ))}
-      </select>
-      <input type="number" step="any" inputmode="decimal" name={name} value={val(params, name)} aria-label={`${label} (eV)`} placeholder={placeholder} />
-      <span class="unit" aria-hidden="true">eV</span>
-    </div>
-  );
-}
-
-function Sort({ params, by, label, orderKey, desc }: { params: Params; by: string; label: string; orderKey: string; desc: boolean }) {
-  const active = orderKey === by;
-  return (
-    <a href={urlWith(params, { order: by, order_direction: active && !desc ? "DESC" : "ASC", page: null })} aria-sort={active ? (desc ? "descending" : "ascending") : undefined}>
-      {label}
-      {active ? (desc ? " ↓" : " ↑") : ""}
-    </a>
-  );
-}
 
 export async function browsePage(c: Context<AppEnv>) {
-  const params = parseParams(new URL(c.req.url).search);
-  const complete = params.get("complete") === "1";
-  for (const key of [...params.keys()]) if (!KNOWN_ARGS.includes(key)) params.delete(key);
-  params.set("per_page", String(PER_PAGE));
-  const types = new Set([params.get("type") ?? []].flat().filter(Boolean));
+  const db = c.env.DB;
+  const f = readFilters(new URL(c.req.url).search);
+  for (const key of [...f.keys()]) if (!(key in ListQuery.shape) || key === "per_page") f.delete(key);
+  // A filter the API would reject (an unknown element, a word for a number) is dropped and named, not an error page.
+  let parsed = ListQuery.safeParse({ ...queryInput(f), per_page: PER_PAGE });
+  const ignored: string[] = [];
+  if (!parsed.success) {
+    for (const issue of parsed.error.issues) {
+      const key = String(issue.path[0] ?? "");
+      if (key && f.delete(key)) ignored.push(key);
+    }
+    parsed = ListQuery.safeParse({ ...queryInput(f), per_page: PER_PAGE });
+  }
+  const q = parsed.success ? parsed.data : ListQuery.parse({ per_page: PER_PAGE });
+  const { total, ids } = await listSpectra(db, q);
+  const pages = Math.max(1, Math.ceil(total / PER_PAGE));
 
-  // The shared query builder takes one `type` (API v1 contract), so repeated `type[]` is filtered here.
-  const queryParams: Params = new Map(params);
-  if (Array.isArray(params.get("type"))) queryParams.delete("type");
-  const q = buildSpectraQuery(queryParams, { exact: true, complete });
-  let [{ results: rows }, { results: elementRows }, { results: edgeRows }, { results: authorRows }] = await c.env.DB.batch<any>([
-    c.env.DB.prepare(q.sql).bind(...q.binds),
-    c.env.DB.prepare(
+  const [{ results: rows }, { results: elementRows }, { results: authorRows }, { results: keywordRows }] = await db.batch<any>([
+    db.prepare(
+      `SELECT s.id, s.slug, s.title, s.type, s.formula, s.min_energy_ev, s.max_energy_ev, s.author_display, s.author_slug, s.published_at,
+              s.preview, s.preview_key, a.beam_energy_kv, a.resolution_ev, a.monochromated, r.journal, r.year,
+              (SELECT f.r2_key FROM files f WHERE f.spectrum_id = s.id ORDER BY f.role = 'legacy' DESC, f.created_at LIMIT 1) AS file,
+              (SELECT json_group_array(e.element) FROM spectrum_elements e WHERE e.spectrum_id = s.id) AS elements,
+              (SELECT group_concat(g.element || ' ' || g.edge, ', ') FROM spectrum_edges g WHERE g.spectrum_id = s.id) AS edges
+       FROM spectra s LEFT JOIN eels_acquisition a ON a.spectrum_id = s.id LEFT JOIN reference r ON r.spectrum_id = s.id
+       WHERE s.id IN (SELECT value FROM json_each(?))`,
+    ).bind(JSON.stringify(ids)),
+    db.prepare(
       "SELECT e.element, COUNT(*) AS n FROM spectrum_elements e JOIN spectra s ON s.id = e.spectrum_id WHERE s.status = 'published' GROUP BY e.element ORDER BY e.element",
     ),
-    c.env.DB.prepare(
-      `SELECT g.spectrum_id, group_concat(g.element || ' ' || g.edge, ', ') AS edges
-       FROM spectrum_edges g JOIN spectra s ON s.id = g.spectrum_id WHERE s.status = 'published' GROUP BY g.spectrum_id`,
-    ),
-    c.env.DB.prepare(
-      "SELECT MIN(author_display) AS name, COUNT(*) AS n FROM spectra WHERE status = 'published' GROUP BY author_slug ORDER BY n DESC, name",
+    db.prepare("SELECT MIN(author_display) AS name, COUNT(*) AS n FROM spectra WHERE status = 'published' GROUP BY author_slug ORDER BY n DESC, name"),
+    db.prepare(
+      `SELECT MIN(k.keyword) AS keyword, COUNT(*) AS n FROM spectrum_keywords k JOIN spectra s ON s.id = k.spectrum_id
+       WHERE s.status = 'published' GROUP BY k.keyword COLLATE NOCASE ORDER BY n DESC, keyword`,
     ),
   ]);
-  if (Array.isArray(params.get("type"))) rows = rows.filter((r: any) => types.has(r.type));
-  const total = rows.length;
-  const page = sortAndPage(rows, q);
-  const pages = Math.max(1, Math.ceil(total / PER_PAGE));
-  const edgesById = new Map<number, string>(edgeRows.map((r: any) => [r.spectrum_id, r.edges]));
-  const { results: extras } = await c.env.DB.prepare(
-    `SELECT s.id, s.preview, s.preview_key, r.journal, r.year,
-            (SELECT f.r2_key FROM files f WHERE f.spectrum_id = s.id ORDER BY f.role = 'legacy' DESC, f.created_at LIMIT 1) AS file,
-            (SELECT json_group_array(e.element) FROM spectrum_elements e WHERE e.spectrum_id = s.id) AS elements
-     FROM spectra s LEFT JOIN reference r ON r.spectrum_id = s.id WHERE s.id IN (SELECT value FROM json_each(?))`,
-  )
-    .bind(JSON.stringify(page.map((r) => r.id)))
-    .all<Extra>();
-  const extraById = new Map(extras.map((x) => [x.id, x]));
-  const thumbs = await previews(c.env, c.executionCtx, extras);
-  const shown: Shown[] = page.map((r) => {
-    const x = extraById.get(r.id);
-    return {
-      ...r,
-      edges: edgesById.get(r.id)?.split(", ") ?? [],
-      elements: JSON.parse(x?.elements ?? "[]"),
-      preview: thumbs.get(r.id),
-      journal: x?.journal ?? null,
-      year: x?.year ?? null,
-    };
-  });
-  const selected = new Set([params.get("element") ?? []].flat());
+  const byId = new Map(rows.map((r: any) => [r.id, r]));
+  const thumbs = await previews(c.env, c.executionCtx, rows);
+  const shown: Shown[] = ids
+    .map((id) => byId.get(id))
+    .filter(Boolean)
+    .map((r: any) => ({ ...r, edges: r.edges?.split(", ") ?? [], elements: JSON.parse(r.elements ?? "[]"), preview: thumbs.get(r.id) }));
+
+  const selected = new Set(f.get("element") ?? []);
   const elementCounts = new Map<string, number>(elementRows.map((r: any) => [r.element, r.n]));
   for (const el of selected) if (!elementCounts.has(el)) elementCounts.set(el, 0);
-  const orderKey = val(params, "order") || "spectrumFormula";
-  const desc = val(params, "order_direction") === "DESC";
-  params.delete("per_page");
-  if (complete) params.set("complete", "1");
-
-  const activeChips: [string, string][] = [];
-  for (const [k, v] of params) {
-    if (["page", "order", "order_direction"].includes(k) || k.endsWith("_compare")) continue;
-    for (const one of [v].flat()) if (one) activeChips.push([k, one]);
-  }
+  const pickedKeywords = new Set((f.get("keyword") ?? []).map((k) => k.toLowerCase()));
+  const keywordCounts: [string, number][] = keywordRows.map((r: any) => [r.keyword, r.n]);
+  for (const k of f.get("keyword") ?? []) if (!keywordCounts.some(([x]) => x.toLowerCase() === k.toLowerCase())) keywordCounts.push([k, 0]);
+  const types = new Set(f.get("type") ?? []);
+  const sort = q.sort;
+  const desc = q.order === "desc";
+  const activeChips: [string, string][] = [...f]
+    .filter(([k]) => !["page", "sort", "order"].includes(k))
+    .flatMap(([k, values]) => values.map((v) => [k, v] as [string, string]));
 
   return c.html(
     <Layout user={c.get("user")} title="Browse spectra" path="/spectra/" wide>
@@ -210,25 +249,32 @@ export async function browsePage(c: Context<AppEnv>) {
       <div class="browse">
         <form class="filters" method="get" action="/spectra/" id="filters">
           <div>
-            <label for="f-title">Title or description</label>
-            <input type="search" id="f-title" name="title" value={val(params, "title")} placeholder="e.g. graphite" />
+            <label for="f-q">Title or description</label>
+            <input type="search" id="f-q" name="q" value={one(f, "q")} placeholder="e.g. graphite" />
           </div>
           <fieldset class="types">
             <legend>Type</legend>
             {Object.entries(TYPE_NAMES).map(([code, name]) => (
               <label class="check">
-                <input type="checkbox" name="type[]" value={code} checked={types.has(code)} />
+                <input type="checkbox" name="type" value={code} checked={types.has(code)} />
                 <span class={`type type-${code}`}>{name}</span>
               </label>
             ))}
           </fieldset>
           <div>
+            <label for="f-phase">Phase</label>
+            <select id="f-phase" name="phase">
+              <option value="">Solid and liquid</option>
+              {["solid", "liquid", "gas"].map((ph) => <option value={ph} selected={one(f, "phase") === ph}>{ph[0].toUpperCase() + ph.slice(1)} only</option>)}
+            </select>
+          </div>
+          <div>
             <label for="f-formula">Formula contains</label>
-            <input type="text" id="f-formula" name="formula" value={val(params, "formula")} placeholder="e.g. TiO2" />
+            <input type="text" id="f-formula" name="formula" value={one(f, "formula")} placeholder="e.g. TiO2" />
           </div>
           <div class="element-filter">
             <label for="f-element">Elements</label>
-            <select id="f-element" name="element[]" multiple size={8} aria-describedby="f-element-hint">
+            <select id="f-element" name="element" multiple size={8} aria-describedby="f-element-hint">
               {[...elementCounts].map(([el, n]) => (
                 <option value={el} selected={selected.has(el)} data-name={ELEMENT_NAMES[el] ?? el} data-count={n}>
                   {el} · {ELEMENT_NAMES[el] ?? el} ({n})
@@ -242,24 +288,33 @@ export async function browsePage(c: Context<AppEnv>) {
             <select id="f-edge" name="edge">
               <option value="">Any edge</option>
               {EDGES.map((e) => (
-                <option value={e} selected={val(params, "edge") === e}>{e}</option>
+                <option value={e} selected={one(f, "edge") === e}>{e}</option>
               ))}
             </select>
           </div>
+          {keywordCounts.length > 0 && (
+            <div class="keyword-filter">
+              <label for="f-keyword">Keywords</label>
+              <select id="f-keyword" name="keyword" multiple size={6} aria-describedby="f-keyword-hint">
+                {keywordCounts.map(([k, n]) => (
+                  <option value={k} selected={pickedKeywords.has(k.toLowerCase())} data-count={n}>{k} ({n})</option>
+                ))}
+              </select>
+              <p class="hint" id="f-keyword-hint">Spectra must have all selected keywords.</p>
+            </div>
+          )}
           <fieldset>
             <legend>Energy range</legend>
             <div class="energy-range">
-              <Bound params={params} name="min_energy" label="Start energy" placeholder="from" />
-              <Bound params={params} name="max_energy" label="End energy" placeholder="to" />
+              <EnergyInput f={f} name="min_energy_ev" label="Starts at or above" />
+              <EnergyInput f={f} name="max_energy_ev" label="Ends at or below" />
+              <EnergyInput f={f} name="covers_ev" label="Includes" />
             </div>
           </fieldset>
-          <fieldset>
-            <legend>Resolution</legend>
-            <Bound params={params} name="resolution" label="Resolution" />
-          </fieldset>
+          <EnergyInput f={f} name="max_resolution_ev" label="Resolution at or better than" />
           <div class="author-filter">
             <label for="f-author">Author</label>
-            <input type="text" id="f-author" name="author" value={val(params, "author")} list="f-author-list" autocomplete="off" aria-describedby="f-author-hint" />
+            <input type="text" id="f-author" name="author" value={(f.get("author") ?? []).join(", ")} list="f-author-list" autocomplete="off" aria-describedby="f-author-hint" />
             <datalist id="f-author-list">
               {authorRows.map((a: any) => (
                 <option value={a.name} data-count={a.n} label={a.n === 1 ? "1 spectrum" : `${a.n} spectra`} />
@@ -268,13 +323,13 @@ export async function browsePage(c: Context<AppEnv>) {
             <p class="hint" id="f-author-hint">Separate several names with commas.</p>
           </div>
           <label class="check">
-            <input type="checkbox" name="monochromated" value="1" checked={val(params, "monochromated") === "1"} /> Monochromated only
+            <input type="checkbox" name="monochromated" value="true" checked={one(f, "monochromated") === "true"} /> Monochromated only
           </label>
           <label class="check">
-            <input type="checkbox" name="complete" value="1" checked={complete} /> Beam energy and angles known
+            <input type="checkbox" name="complete" value="true" checked={one(f, "complete") === "true"} /> Beam energy and angles known
           </label>
-          {params.has("order") && <input type="hidden" name="order" value={orderKey} />}
-          {desc && <input type="hidden" name="order_direction" value="DESC" />}
+          {f.has("sort") && <input type="hidden" name="sort" value={sort} />}
+          {desc && <input type="hidden" name="order" value="desc" />}
           <div class="filter-actions">
             <button class="button" type="submit">Apply filters</button>
             <a class="button secondary" href="/spectra/">Clear</a>
@@ -291,18 +346,19 @@ export async function browsePage(c: Context<AppEnv>) {
             {activeChips.length > 0 && (
               <div class="chips">
                 {activeChips.map(([k, v]) => (
-                  <a class="chip" href={withoutFilter(params, k, v)} title="Remove filter">
-                    {k === "element" ? v : k === "complete" ? "angles known" : `${k.replace("_", " ")}: ${TYPE_NAMES[v] ?? v}`} ×
-                  </a>
+                  <a class="chip" href={withoutFilter(f, k, v)} title="Remove filter">{chipLabel(k, v)} ×</a>
                 ))}
               </div>
             )}
           </div>
-          {page.length === 0 ? (
+          {ignored.length > 0 && (
+            <p class="notice" role="status">Some filters could not be read and were left out: {ignored.join(", ")}.</p>
+          )}
+          {shown.length === 0 ? (
             <p class="empty notice">
               {total > 0 ? (
                 <>
-                  There is no page {q.page}. <a href={urlWith(params, { page: null })}>Go to the first page</a>.
+                  There is no page {q.page}. <a href={urlWith(f, { page: null })}>Go to the first page</a>.
                 </>
               ) : (
                 <>
@@ -317,21 +373,21 @@ export async function browsePage(c: Context<AppEnv>) {
                   <tr>
                     <th class="thumb">Spectrum</th>
                     <th>
-                      <Sort params={params} by="title" label="Title" orderKey={orderKey} desc={desc} />
+                      <Sort f={f} by="title" label="Title" sort={sort} desc={desc} />
                       {" · "}
-                      <Sort params={params} by="spectrumFormula" label="formula" orderKey={orderKey} desc={desc} />
+                      <Sort f={f} by="formula" label="formula" sort={sort} desc={desc} />
                     </th>
                     <th class="hide-sm">Edges</th>
                     <th class="hide-sm">
-                      <Sort params={params} by="spectrumMin" label="Energy range" orderKey={orderKey} desc={desc} />
+                      <Sort f={f} by="min_energy_ev" label="Energy range" sort={sort} desc={desc} />
                       <span class="scale" aria-hidden="true"><span>1 eV</span><span>100 eV</span><span>10 keV</span></span>
                     </th>
                     <th class="num hide-sm">
-                      <Sort params={params} by="resolution" label="Resolution" orderKey={orderKey} desc={desc} />
+                      <Sort f={f} by="resolution_ev" label="Resolution" sort={sort} desc={desc} />
                       {" · "}
-                      <Sort params={params} by="beamenergy" label="beam" orderKey={orderKey} desc={desc} />
+                      <Sort f={f} by="beam_energy_kv" label="beam" sort={sort} desc={desc} />
                     </th>
-                    <th class="hide-sm"><Sort params={params} by="author" label="Source" orderKey={orderKey} desc={desc} /></th>
+                    <th class="hide-sm"><Sort f={f} by="author" label="Source" sort={sort} desc={desc} /></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -344,11 +400,11 @@ export async function browsePage(c: Context<AppEnv>) {
           )}
           {pages > 1 && (
             <nav class="pager" aria-label="Pages">
-              {q.page > 1 && <a href={urlWith(params, { page: String(q.page - 1) })} rel="prev">Previous</a>}
+              {q.page > 1 && <a href={urlWith(f, { page: String(q.page - 1) })} rel="prev">Previous</a>}
               {Array.from({ length: pages }, (_, i) => i + 1).map((n) =>
-                n === q.page ? <span aria-current="page">{n}</span> : <a href={urlWith(params, { page: n === 1 ? null : String(n) })}>{n}</a>,
+                n === q.page ? <span aria-current="page">{n}</span> : <a href={urlWith(f, { page: n === 1 ? null : String(n) })}>{n}</a>,
               )}
-              {q.page < pages && <a href={urlWith(params, { page: String(q.page + 1) })} rel="next">Next</a>}
+              {q.page < pages && <a href={urlWith(f, { page: String(q.page + 1) })} rel="next">Next</a>}
             </nav>
           )}
         </section>

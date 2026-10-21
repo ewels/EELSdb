@@ -83,6 +83,41 @@ describe("review", () => {
     expect(await (await page(`/files/${spectrumId}/s${sub.id}/cli-carbon.msa`)).text()).toBe(MSA);
   });
 
+  it("keeps processed versions and the file's metadata", async () => {
+    const submitter = await tokenFor(await sessionFor({ id: 6300020, display_name: "Variant Submitter" }));
+    const mod = await tokenFor(await sessionFor({ id: 6300021, display_name: "Variant Mod", role: "moderator" }));
+    const bad = submission("Bad variant");
+    bad.append("variant_os_file", new File(["<html>"], "os.msa"));
+    expect(await (await api("/cli/submissions", submitter, { method: "POST", body: bad })).json()).toMatchObject({ errors: { variant_os_file: expect.any(String) } });
+
+    const fd = submission("Gas NO");
+    fd.append("variant_os_file", new File([MSA], "no-os.msa"));
+    fd.append("variant_smoothed_file", new File([MSA], "no-smoothed.msa"));
+    const { id: spectrumId, slug } = await (await api("/cli/submissions", submitter, { method: "POST", body: fd })).json<any>();
+    const sub = (await (await api("/cli/queue", mod)).json<any[]>()).find((q) => q.spectrum_id === spectrumId);
+    const metadata = JSON.stringify({ ImageList: { Voltage: 200000 } });
+    expect((await api(`/cli/queue/${sub.id}/files/metadata?filename=gas-no.metadata.json`, mod, { method: "PUT", body: metadata })).status).toBe(201);
+    await api(`/cli/queue/${sub.id}/processing`, mod, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tools: [{ tool: "rosettasciio", version: "0.15.0" }] }),
+    });
+    await api(`/cli/queue/${sub.id}/approve`, mod, { method: "POST" });
+
+    const v2 = await (await exports.default.fetch(`${API}/v2/spectra/${spectrumId}`)).json<any>();
+    expect(v2.files.filter((f: any) => f.role !== "original").map((f: any) => [f.role, f.variant, f.intensity_units])).toEqual([
+      ["variant", "os", "oscillator_strength"],
+      ["variant", "smoothed", null],
+      ["metadata", null, null],
+    ]);
+    const html = await (await page(`/spectra/${slug}/`)).text();
+    expect(html).toMatch(/<select id="plot-version">.*Oscillator strength.*Smoothed/s);
+    expect(html).toContain("Processed versions");
+    expect(html).toContain("Metadata from the file");
+    const os = v2.files.find((f: any) => f.variant === "os");
+    expect(await (await exports.default.fetch(os.url)).text()).toBe(MSA);
+  });
+
   it("uses the admin pages to request changes, reject and apply edits", async () => {
     const owner = await sessionFor({ id: 6300004, display_name: "Page Submitter" });
     const mod = await sessionFor({ id: 6300005, display_name: "Page Mod", role: "moderator" });

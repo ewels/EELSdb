@@ -2,11 +2,10 @@ import { Hono, type Context } from "hono";
 import { raw } from "hono/html";
 import type { Child } from "hono/jsx";
 import { requireUser, type AppEnv } from "../auth";
-import { mediaType } from "../files";
 import { ELEMENTS } from "../elements";
 import { Layout, TYPE_NAMES } from "../pages/layout";
-import { BEAM_ENERGIES, COMPANION_EXTENSIONS, MAX_FILE_BYTES, SPECTRUM_EXTENSIONS, checkUpload, cleanBrowserChecks, parseForm } from "./form";
-import { createSpectrum, instrumentOk } from "./store";
+import { BEAM_ENERGIES, COMPANION_EXTENSIONS, MAX_FILE_BYTES, SPECTRUM_EXTENSIONS, UNIT_LABELS, VARIANTS, checkUpload, cleanBrowserChecks, parseForm, variantUploads } from "./form";
+import { createSpectrum, instrumentOk, storeFile } from "./store";
 
 export const submit = new Hono<AppEnv>();
 type C = Context<AppEnv>;
@@ -14,13 +13,6 @@ type Values = Record<string, string>;
 
 const MAX_PER_DAY = 20;
 const MAX_FILE_MB = MAX_FILE_BYTES / 1024 / 1024;
-const UNIT_LABELS: Record<string, string> = {
-  counts: "Counts",
-  oscillator_strength: "Oscillator strength",
-  mu: "Absorption coefficient (μ)",
-  optical_density: "Optical density",
-  normalised: "Normalised",
-};
 const XAS_LABELS: [string, string, string?][] = [
   ["facility", "Facility", "For example: SOLEIL, Canadian Light Source"],
   ["beamline", "Beamline"],
@@ -130,7 +122,7 @@ function Step(props: { id: string; hidden?: boolean; children: Child }) {
   );
 }
 
-export function SubmitPage(props: { c: C; v: Values; errors: Record<string, string>; instruments: Instrument[]; edit?: { slug: string; title: string } }) {
+export function SubmitPage(props: { c: C; v: Values; errors: Record<string, string>; instruments: Instrument[]; edit?: { slug: string; title: string; file?: { url: string; name: string } | null } }) {
   const { c, v, errors } = props;
   const siteKey = c.env.TURNSTILE_SITE_KEY;
   const choice = v.beam_energy_choice ?? "";
@@ -186,7 +178,8 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
             ))}
           </ol>
         </nav>
-        <form method="post" enctype="multipart/form-data" class="submit-form" id="submit-form" novalidate data-edit={props.edit ? "1" : undefined}>
+        <form method="post" enctype="multipart/form-data" class="submit-form" id="submit-form" novalidate data-edit={props.edit ? "1" : undefined}
+          data-current-file={props.edit?.file?.url} data-current-name={props.edit?.file?.name} data-slug={props.edit?.slug}>
           <p class="hint required-legend"><Req /> Required</p>
           <Step id="files">
             <div class="dropzone" id="dropzone" hidden>
@@ -222,6 +215,17 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
               <Field name="companion_file" label="Companion file from the same session (optional)" errors={errors} hint="For example a Velox .emd or TIA .ser survey: it often records the beam energy and convergence angle.">
                 <input id="f-companion_file" name="companion_file" type="file" accept={COMPANION_EXTENSIONS.map((e) => `.${e}`).join(",")} />
               </Field>
+              {!props.edit && (
+                <details class="variant-files" open={Object.keys(VARIANTS).some((code) => errors[`variant_${code}_file`])}>
+                  <summary>Processed versions of the same spectrum (optional)</summary>
+                  <p class="hint">Each as its own file, next to the spectrum as measured.</p>
+                  {Object.entries(VARIANTS).map(([code, label]) => (
+                    <Field name={`variant_${code}_file`} label={label} errors={errors}>
+                      <input id={`f-variant_${code}_file`} name={`variant_${code}_file`} type="file" accept={accept} />
+                    </Field>
+                  ))}
+                </details>
+              )}
             </div>
             <input type="hidden" name="browser_checks" id="browser-checks" value="" />
             <StepNav next="Continue" />
@@ -399,7 +403,8 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
               </div>
             </div>
             <Field name="ref_url" label="Web link (if no DOI)" errors={errors}>{input("ref_url", v, { type: "url" })}</Field>
-            <Field name="associated" label="Associated EELSdb spectra" errors={errors} hint="Addresses of related spectra on this site, for example the low-loss of the same specimen.">
+            <Field name="ref_freetext" label="Other reference" errors={errors} hint="For example a thesis, a conference talk or “unpublished”.">{input("ref_freetext", v)}</Field>
+            <Field name="associated" label="Associated EELSdb spectra" errors={errors} hint="Related spectra on this site, for example the low-loss of the same specimen. Search by name or formula, or paste their addresses.">
               {input("associated", v)}
             </Field>
             <Field name="other_urls" label="Other links" errors={errors} hint="One per line: the address, then an optional title.">
@@ -483,6 +488,7 @@ submit.post("/submit-data/", requireUser, async (c) => {
     const e = await checkUpload(companion, COMPANION_EXTENSIONS, "Companion file");
     if (e) errors.companion_file = e;
   }
+  const variants = await variantUploads(body, errors);
   if (!(await instrumentOk(c.env.DB, form))) errors.instrument = "Choose an approved instrument profile.";
   if (!body.agreement) errors.agreement = "Please agree to the licence to publish your data.";
   if (!(await turnstileOk(c, typeof body["cf-turnstile-response"] === "string" ? body["cf-turnstile-response"] : null))) {
@@ -498,20 +504,12 @@ submit.post("/submit-data/", requireUser, async (c) => {
   }
 
   const { id, slug } = await createSpectrum(c.env.DB, form, user);
-  const files: [string, File][] = [["original", file!]];
+  const files: [string, File, string?][] = [["original", file!]];
   if (lowloss) files.push(["lowloss", lowloss]);
   if (companion) files.push(["companion", companion]);
+  for (const [code, f] of variants) files.push(["variant", f, code]);
   const fileRows = [];
-  for (const [role, f] of files) {
-    const bytes = await f.arrayBuffer();
-    const sha256 = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))].map((b) => b.toString(16).padStart(2, "0")).join("");
-    const key = `submissions/${id}/${role}/${f.name.replace(/[^\w.\-]+/g, "_")}`;
-    await c.env.FILES.put(key, bytes, { httpMetadata: { contentType: mediaType(f.name) }, sha256 });
-    fileRows.push(
-      c.env.DB.prepare("INSERT INTO files (spectrum_id, role, r2_key, filename, media_type, bytes, sha256) VALUES (?, ?, ?, ?, ?, ?, ?)")
-        .bind(id, role, key, f.name, mediaType(f.name), f.size, sha256),
-    );
-  }
+  for (const [role, f, variant] of files) fileRows.push(await storeFile(c.env, id, role, f, variant));
   const checks = cleanBrowserChecks(body.browser_checks);
   await c.env.DB.batch([
     ...fileRows,

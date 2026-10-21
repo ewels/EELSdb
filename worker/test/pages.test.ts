@@ -83,29 +83,67 @@ describe("pages", () => {
     expect(rows(all.html)).toBe(50);
     expect(all.html).toContain('href="/spectra/?page=2"');
 
-    const lowloss = await page("/spectra/?type=lowloss&element[]=Al");
+    const lowloss = await page("/spectra/?type=lowloss&element=Al");
     expect(lowloss.html).toMatch(/\d+ spectra|1 spectrum/);
-    expect(lowloss.html).toContain('<select id="f-element" name="element[]" multiple=""');
+    expect(lowloss.html).toContain('<select id="f-element" name="element" multiple=""');
     expect(lowloss.html).toMatch(/<option value="Al" selected="" data-name="Aluminium" data-count="\d+">Al · Aluminium \(\d+\)<\/option>/);
     expect(lowloss.html).toMatch(/<option value="O" data-name="Oxygen"/);
 
     const count = async (q: string) => Number((await page(`/spectra/?${q}`)).html.match(/role="status">(\d+) spectr/)?.[1]);
-    const oLow = await count("element[]=O&type=lowloss");
-    const oXas = await count("element[]=O&type[]=xrayabs");
+    const oLow = await count("element=O&type=lowloss");
+    const oXas = await count("element=O&type=xrayabs");
     expect(oLow).toBeGreaterThan(0);
     expect(oXas).toBeGreaterThan(0);
-    const both = await page("/spectra/?element[]=O&type[]=lowloss&type[]=xrayabs");
+    const both = await page("/spectra/?element=O&type=lowloss&type=xrayabs");
     expect(both.html).toContain(`${oLow + oXas} spectra`);
-    expect(both.html).toContain('name="type[]" value="lowloss" checked=""');
-    expect(both.html).toContain('name="type[]" value="xrayabs" checked=""');
-    expect(both.html).not.toContain('name="type[]" value="coreloss" checked=""');
-    expect(lowloss.html).toContain('name="type[]" value="lowloss" checked=""');
+    expect(both.html).toContain('name="type" value="lowloss" checked=""');
+    expect(both.html).toContain('name="type" value="xrayabs" checked=""');
+    expect(both.html).not.toContain('name="type" value="coreloss" checked=""');
+    // Links from before the browse page used API v2 names still work.
+    expect(await count("element[]=O&type[]=lowloss")).toBe(oLow);
 
-    const sorted = await page("/spectra/?order=title&order_direction=DESC");
+    const sorted = await page("/spectra/?sort=title&order=desc");
     expect(sorted.html).toContain('aria-sort="descending"');
 
     const none = await page("/spectra/?formula=NoSuchFormula");
     expect(none.html).toContain("No spectra match these filters");
+
+    const bad = await page("/spectra/?element=Qq&type=lowloss");
+    expect(bad.html).toContain("left out: element");
+    expect(bad.html).toContain(`${await count("type=lowloss")} spectra`);
+  });
+
+  it("browse and API v2 filter the same way", async () => {
+    const search = "element=O&type=lowloss&min_energy_ev=0&sort=title";
+    const api = await (await exports.default.fetch(`https://api.eelsdb.eu/v2/spectra?${search}&per_page=50`)).json<any>();
+    const { html } = await page(`/spectra/?${search}`);
+    expect(html).toContain(`${api.total} spectr`);
+    const slugs = [...html.matchAll(/<td class="material">\s*<a href="\/spectra\/([^/]+)\/"/g)].map((m) => m[1]);
+    expect(slugs).toEqual(api.results.map((r: any) => r.slug));
+  });
+
+  it("browse filters by keyword, ignoring case", async () => {
+    const { id } = (await env.DB.prepare("SELECT id FROM spectra WHERE slug = 'diamond'").first<{ id: number }>())!;
+    await env.DB.prepare("INSERT OR IGNORE INTO spectrum_keywords (spectrum_id, keyword, position) VALUES (?, 'Test Keyword', 9)").bind(id).run();
+    const { html } = await page("/spectra/?keyword=test%20keyword");
+    expect(html).toContain("1 spectrum");
+    expect(html).toContain('href="/spectra/diamond/"');
+    expect(html).toContain("keyword: test keyword ×");
+    expect(html).toMatch(/<option value="Test Keyword" selected="" data-count="1">/);
+    const spectrum = await page("/spectra/diamond/");
+    expect(spectrum.html).toContain('href="/spectra/?keyword=Test%20Keyword"');
+  });
+
+  it("suggests spectra for the associated-spectra type-ahead", async () => {
+    const get = async (q: string, cookie?: string) =>
+      (await exports.default.fetch(`https://eelsdb.eu/search/spectra.json?${q}`, { headers: cookie ? { Cookie: cookie } : {} })).json<any[]>();
+    expect((await get("q=graph")).map((s) => s.slug)).toContain("graphite");
+    expect((await get("slug=graphite&slug=diamond")).map((s) => s.slug).sort()).toEqual(["diamond", "graphite"]);
+    expect(await get("q=")).toEqual([]);
+    const cookie = await sessionFor({ id: 6000099, display_name: "Suggest Owner" });
+    await env.DB.prepare("INSERT INTO spectra (slug, status, title, type, owner_id) VALUES ('my-pending-zz', 'pending', 'Zzpending', 'coreloss', 6000099)").run();
+    expect((await get("q=Zzpending")).length).toBe(0);
+    expect((await get("q=Zzpending", cookie))[0]).toMatchObject({ slug: "my-pending-zz", status: "pending" });
   });
 
   it("browse rows lead with a thumbnail built from the spectrum file", async () => {
@@ -113,7 +151,7 @@ describe("pages", () => {
       "SELECT s.id, f.r2_key AS key FROM spectra s JOIN files f ON f.spectrum_id = s.id WHERE s.slug = 'graphite' LIMIT 1",
     ).first<{ id: number; key: string }>())!;
     await env.FILES.put(key, Array.from({ length: 400 }, (_, i) => `${270 + i * 0.5}\t${i < 30 ? 10 : 100 - i / 10}`).join("\n"));
-    const { html } = await page("/spectra/?title=graphite");
+    const { html } = await page("/spectra/?q=graphite");
     expect(html).toMatch(/<a href="\/spectra\/graphite\/" tabindex="-1" aria-hidden="true"><svg class="spark"[^>]*><line class="edge"/);
     expect(html).toContain('<span class="edge-chip">C\u00a0K</span>');
     expect(html).toMatch(/<span class="conditions">\d+ kV<\/span>/);
@@ -121,26 +159,47 @@ describe("pages", () => {
   });
 
   it("browse keeps the author and energy fields filled from the URL", async () => {
-    const { html } = await page("/spectra/?author=Sigle&min_energy=400&max_energy=800&max_energy_compare=gt&resolution=1&resolution_compare=eq");
+    const { html } = await page("/spectra/?author=Sigle&min_energy_ev=400&max_energy_ev=800&covers_ev=500&max_resolution_ev=1");
     expect(html).toContain('<input type="text" id="f-author" name="author" value="Sigle" list="f-author-list"');
     expect(html).toMatch(/<datalist id="f-author-list"><option value="[^"]+" data-count="\d+" label="\d+ spectra">/);
     expect(html).toMatch(/<option value="Wilfried Sigle" data-count="(\d+)"/);
-    for (const [name, value, compare] of [["min_energy", "400", "gt"], ["max_energy", "800", "gt"], ["resolution", "1", "eq"]]) {
+    for (const [name, value] of [["min_energy_ev", "400"], ["max_energy_ev", "800"], ["covers_ev", "500"], ["max_resolution_ev", "1"]]) {
       expect(html).toContain(`name="${name}" value="${value}"`);
-      expect(html).toMatch(new RegExp(`name="${name}_compare"[^>]*>(<option[^>]*>[^<]*</option>)*?<option value="${compare}" selected=""`));
     }
   });
 
-  it("browse compares energies exactly, unlike API v1", async () => {
-    const { html } = await page("/spectra/?resolution=0.5&resolution_compare=lt");
+  it("browse compares resolution exactly", async () => {
+    const { html } = await page("/spectra/?max_resolution_ev=0.5");
     expect(html).toContain(">0.3 eV<");
     expect(html).not.toContain(">0.9 eV<");
+  });
+
+  it("converts a spectrum's data to MSA, CSV and JSON", async () => {
+    await env.FILES.put("wp-content/uploads/2023/10/Y20.txt", "Energy Counts\n100.0 5\n100.5 7\n101.0 6\n");
+    const get = (f: string) => exports.default.fetch(`https://eelsdb.eu/spectra/mlc-nanotube-ylas-tas2/download/${f}`);
+    const csv = await get("csv");
+    expect(csv.headers.get("content-type")).toBe("text/csv; charset=utf-8");
+    expect(csv.headers.get("content-disposition")).toContain('filename="mlc-nanotube-ylas-tas2.csv"');
+    const rows = (await csv.text()).trim().split("\n");
+    expect(rows[0]).toMatch(/^energy_ev,/);
+    const msa = await (await get("msa")).text();
+    expect(msa).toContain("#FORMAT      : EMSA/MAS Spectral Data File");
+    expect(msa).toContain(`#NPOINTS     : ${rows.length - 1}`);
+    const json = await (await get("json")).json<any>();
+    expect(json.data.energy_ev).toHaveLength(rows.length - 1);
+    expect(json.title).toBeTruthy();
+    expect((await get("xlsx")).status).toBe(404);
+    expect((await exports.default.fetch("https://eelsdb.eu/spectra/no-such-spectrum/download/csv")).status).toBe(404);
+    const html = await (await page("/spectra/mlc-nanotube-ylas-tas2/")).html;
+    expect(html).toContain('name="download-format" value="/spectra/mlc-nanotube-ylas-tas2/download/msa"');
+    expect(html).toContain('data-save-plot="svg-dark"');
   });
 
   it("spectrum page has the plot, metadata and a citation-first download", async () => {
     const { status, html } = await page("/spectra/mlc-nanotube-ylas-tas2/");
     expect(status).toBe(200);
     expect(html).toContain('data-src="/wp-content/uploads/2023/10/Y20.txt"');
+    expect(html).toContain('<input type="file" id="compare-file" multiple');
     expect(html).toContain("Thermo Fisher Scientific Titan Low-Base");
     expect(html).toContain('<dialog id="download-dialog"');
     expect(html).toContain("10.1017/S1431927616000179");

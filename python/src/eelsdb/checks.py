@@ -355,10 +355,19 @@ def check_thickness(energy, intensity, spectrum_type, stated=None):
     return []
 
 
+def check_spectrum_image(navigation_shape):
+    if not navigation_shape:
+        return []
+    grid = " × ".join(map(str, navigation_shape))
+    return [Finding("spectrum_image", "error",
+                    f"This file is a spectrum image ({grid} spectra). EELSdb does not store spectrum images: "
+                    "extract one spectrum and upload that instead.")]
+
+
 def run_all(energy, intensity, *, spectrum_type=None, formula=None, elements=(), edges=(), edge_table=None,
-            thickness=None, header_axis=None, intensity_units="counts"):
+            thickness=None, header_axis=None, intensity_units="counts", navigation_shape=None):
     """Every check, in a stable order. Later checks are skipped when the axis is unusable."""
-    findings = check_axis(energy, intensity, header_axis)
+    findings = check_spectrum_image(navigation_shape) + check_axis(energy, intensity, header_axis)
     if any(f.severity == "error" and f.code in ("empty", "length_mismatch", "energy_not_finite") for f in findings):
         return findings
     findings += check_intensity(intensity, intensity_units)

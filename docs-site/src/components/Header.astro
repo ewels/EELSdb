@@ -40,6 +40,10 @@ import SiteNav from './SiteNav.astro';
     align-items: center;
     gap: 1.4rem;
   }
+  /* As on the main site (style.css), the toggle sits a little further from the nav links than the links from each other. */
+  .right-group :global(.theme-toggle) {
+    margin-right: 0.6rem;
+  }
 
   /* Up to 999px the site links, account and theme toggle are in a menu, as on the main site; keep in step with eelsdb.css. */
   @media (max-width: 999px) {

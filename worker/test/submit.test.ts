@@ -124,6 +124,16 @@ describe("submitting", () => {
     expect(await env.DB.prepare("SELECT slug FROM spectra WHERE id = ?").bind(second).first("slug")).toBe("test-graphite-2");
   });
 
+  it("stores processed versions next to the spectrum", async () => {
+    const cookie = await sessionFor({ id: 6000009, display_name: "Variant Web" });
+    const fd = formData(fields);
+    fd.append("variant_os_smoothed_file", new File([MSA], "os-smooth.msa"));
+    const id = Number(new URL((await postSubmit(cookie, fd)).headers.get("location")!, "https://x").searchParams.get("submitted"));
+    const { results } = await env.DB.prepare("SELECT role, variant, r2_key FROM files WHERE spectrum_id = ? ORDER BY id").bind(id).all<any>();
+    expect(results.map((f) => [f.role, f.variant])).toEqual([["original", null], ["variant", "os_smoothed"]]);
+    expect(results[1].r2_key).toBe(`submissions/${id}/variant-os_smoothed/os-smooth.msa`);
+  });
+
   it("shows errors, keeps typed values and stores nothing", async () => {
     const cookie = await sessionFor({ id: 6000002, display_name: "Err Or" });
     const res = await postSubmit(cookie, formData({ ...fields, title: "", agreement: "" }, null));

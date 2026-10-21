@@ -27,13 +27,13 @@ const activeTypes = () => typeButtons.filter((b) => b.getAttribute("aria-pressed
 
 function filterTable() {
   const on = activeTypes();
-  const query = on.length === typeButtons.length ? "" : on.map((t) => `&type[]=${t}`).join("");
+  const query = on.length === typeButtons.length ? "" : on.map((t) => `&type=${t}`).join("");
   for (const a of cells) {
     const sym = a.querySelector("b").textContent;
     const n = on.reduce((sum, t) => sum + (EL_TYPES[sym][t] || 0), 0);
     a.className = `el el-${shade(n)}${n ? "" : " el-none"}`;
     a.querySelector("s").textContent = n;
-    a.href = `/spectra/?element[]=${sym}${query}`;
+    a.href = `/spectra/?element=${sym}${query}`;
     a.setAttribute("aria-label", `${a.dataset.name}: ${n} spectr${n === 1 ? "um" : "a"}`);
     if (n) a.removeAttribute("tabindex");
     else a.tabIndex = -1;

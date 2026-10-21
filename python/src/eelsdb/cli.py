@@ -81,6 +81,7 @@ def submit(args):
     else:
         jobs = [(path, {k: getattr(args, k) for k in SUBMIT_FIELDS if getattr(args, k, None) is not None})]
 
+    variants = dict(v.split("=", 1) for v in getattr(args, "variant", None) or [])
     client = Client()
     failed = 0
     for file, fields in jobs:
@@ -93,7 +94,7 @@ def submit(args):
         try:
             sp = read_any(file)
             found = checks.run_all(sp.energy, sp.intensity, spectrum_type=fields.get("type"), formula=fields.get("formula"),
-                                   header_axis=sp.header_axis) if sp.energy is not None else []
+                                   header_axis=sp.header_axis, navigation_shape=sp.navigation_shape) if sp.energy is not None else []
             fields["checks"] = json.dumps({"cli": True, "findings": [f.as_dict() for f in found]})
             errors = [f for f in found if f.severity == "error"]
             if errors and not args.force:
@@ -105,7 +106,7 @@ def submit(args):
         except Exception as e:  # the server still accepts files this machine cannot read
             print(f"{file.name}: could not check locally ({e}); submitting anyway.", file=sys.stderr)
         try:
-            out = client.submit(fields, file)
+            out = client.submit(fields, file, variants=variants)
             print(f"{file.name}: submitted as {out['slug']} (waiting for review)")
         except ApiError as e:
             print(f"{file.name}: {e.message} {json.dumps(e.errors) if e.errors else ''}", file=sys.stderr)
@@ -193,6 +194,8 @@ def main(argv=None):
         if field != "type":
             p.add_argument(f"--{field.replace('_', '-')}", dest=field)
     p.add_argument("--force", action="store_true", help="submit even if the local checks find errors")
+    p.add_argument("--variant", action="append", metavar="CODE=FILE",
+                   help="a processed version of the same spectrum: os, os_smoothed, smoothed or impurity_removed (repeatable)")
     p.set_defaults(func=submit)
 
     p = sub.add_parser("export", help="build the zip of all public spectra and metadata")

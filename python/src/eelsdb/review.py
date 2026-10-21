@@ -53,6 +53,34 @@ def write_msa(path, energy, intensity, title, acq):
     return Path(path)
 
 
+def json_safe(value, max_items=64):
+    """File metadata as JSON: arrays longer than max_items (image thumbnails, lookup tables) are summarised."""
+    if isinstance(value, dict):
+        return {str(k): json_safe(v, max_items) for k, v in value.items()}
+    if isinstance(value, np.ndarray):
+        if value.size > max_items:
+            return f"<array {'x'.join(map(str, value.shape))} {value.dtype}>"
+        value = value.tolist()
+    if isinstance(value, (list, tuple)):
+        if len(value) > max_items:
+            return f"<list of {len(value)}>"
+        return [json_safe(v, max_items) for v in value]
+    if isinstance(value, bytes):
+        return value.decode("utf-8", "replace")
+    if isinstance(value, np.generic):
+        value = value.item()
+    if isinstance(value, float) and not np.isfinite(value):
+        return None
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    return str(value)
+
+
+def write_metadata(path, sp):
+    Path(path).write_text(json.dumps(json_safe(sp.original_metadata), indent=1, ensure_ascii=False), encoding="utf-8")
+    return Path(path)
+
+
 def write_hspy(path, energy, intensity, title, acq, reference):
     """HyperSpy file with EELS metadata (non-uniform energy axes are kept as such)."""
     with contextlib.redirect_stdout(sys.stderr):
@@ -152,10 +180,12 @@ def process(detail, original, workdir):
     else:
         findings = checks.run_all(sp.energy, sp.intensity, spectrum_type=s["type"], formula=s.get("formula"),
                                   elements=elements, edges=detail.get("edges") or [], edge_table=table,
-                                  header_axis=sp.header_axis)
+                                  header_axis=sp.header_axis, navigation_shape=sp.navigation_shape)
         slug = s["slug"]
         outputs["msa"] = write_msa(workdir / f"{slug}.msa", sp.energy, sp.intensity, s["title"], acq)
         outputs["hspy"] = write_hspy(workdir / f"{slug}.hspy", sp.energy, sp.intensity, s["title"], acq, detail.get("reference"))
+        if sp.original_metadata:
+            outputs["metadata"] = write_metadata(workdir / f"{slug}.metadata.json", sp)
         values = {"min_energy_ev": float(np.min(sp.energy)), "max_energy_ev": float(np.max(sp.energy)),
                   "step_ev": float((sp.energy[-1] - sp.energy[0]) / (sp.energy.size - 1)) if sp.energy.size > 1 else None}
     rows = compare(acq, sp.header)

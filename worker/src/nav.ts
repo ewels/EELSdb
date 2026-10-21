@@ -14,3 +14,7 @@ export const ABOUT_NAV = [
   ["/docs/about/logo/", "Logo and colours"],
   ["/docs/about/contact/", "Contact"],
 ] as const;
+
+/** The About link for this page: the longest that its path starts with, so /docs/about/logo/ is not also /docs/about/. */
+export const currentAbout = (path: string) =>
+  ABOUT_NAV.map(([href]) => href).filter((href) => path.startsWith(href)).sort((a, b) => b.length - a.length)[0];

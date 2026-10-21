@@ -73,6 +73,13 @@ Each form field has an option with the same name: `--title`, `--type`, `--formul
 If you leave out the beam energy or an angle, `eelsdb` submits it as unknown.
 The title is the file name if you leave it out.
 
+To add [processed versions](/docs/share/file-formats/#processed-versions) of the spectrum, give `--variant` once for each file. The codes are `os` (oscillator strength), `os_smoothed`, `smoothed` and `impurity_removed`:
+
+```sh
+$ eelsdb submit no-gas.msa --title "NO gas" --type coreloss --formula NO \
+    --variant os=no-gas-os.msa --variant smoothed=no-gas-smoothed.msa
+```
+
 `eelsdb submit` runs the checks first. If they find an error, it does not submit the file. Add `--force` to submit it anyway.
 
 ## Submit a folder of spectra

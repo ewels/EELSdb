@@ -6,7 +6,7 @@ description: The spectrum files that EELSdb accepts, what it reads from each one
 EELSdb accepts files of up to 50 MB in these formats, and reads these values from them:
 
 - DigitalMicrograph (`.dm3`, `.dm4`): The spectrum, the energy axis, and the beam energy, angles, exposure and number of frames when the file records them.
-- EMSA/MSA (`.msa`, `.emsa`): The spectrum, the energy axis, and the `#BEAMKV`, `#CONVANGLE` and `#COLLANGLE` header fields.
+- EMSA/MSA (`.msa`, `.emsa`): The spectrum, the energy axis, and the `#BEAMKV`, `#CONVANGLE`, `#COLLANGLE`, `#PHASE` and `#REFERENCE` header fields.
 - Velox EMD (`.emd`): The spectrum and the acquisition values in the file.
 - HyperSpy (`.hspy`): The spectrum and the acquisition values in the signal's metadata.
 - XAS Data Interchange (`.xdi`): The energy column, the absorption column, and the facility, beamline, monochromator and sample fields.
@@ -14,11 +14,27 @@ EELSdb accepts files of up to 50 MB in these formats, and reads these values fro
 
 EELSdb stores the file that you upload without a change.
 At review, the moderator adds an MSA file and a HyperSpy file made from it.
+The moderator also adds a JSON file with all the metadata in your file. The spectrum page shows this metadata, and marks it as not checked by a person.
 
 ## Spectrum images
 
-If the file holds a spectrum image or a stack of spectra, EELSdb adds them into one spectrum.
-To share one spectrum from a spectrum image, extract it before you upload.
+EELSdb does not store spectrum images (data cubes) or stacks of spectra.
+They are too large, and a spectrum from a scanned area is often not a good reference.
+Extract one spectrum, for example the sum over a uniform area, and upload that.
+The file checks give an error for a spectrum image.
+
+## Processed versions
+
+You can add processed versions of the same spectrum, each in a separate file:
+
+- oscillator strength;
+- oscillator strength, smoothed;
+- smoothed;
+- with an impurity removed, for example air.
+
+Drop the files with the spectrum, then choose the version in **Use as**.
+The spectrum page shows each version in the plot and offers it for download.
+Upload the spectrum with the least processing as the main file.
 
 ## DigitalMicrograph files often lack the beam energy
 

@@ -1,3 +1,4 @@
+import { mediaType } from "../files";
 import type { ParsedForm } from "./form";
 import { completeness, slugify } from "./form";
 
@@ -123,4 +124,14 @@ export async function createSpectrum(
     throw e;
   }
   return { id, slug };
+}
+
+/** Puts an uploaded file in R2 under the submission and returns the statement that records it. */
+export async function storeFile(env: { DB: D1Database; FILES: R2Bucket }, id: number, role: string, f: File, variant?: string) {
+  const bytes = await f.arrayBuffer();
+  const sha256 = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))].map((b) => b.toString(16).padStart(2, "0")).join("");
+  const key = `submissions/${id}/${variant ? `variant-${variant}` : role}/${f.name.replace(/[^\w.\-]+/g, "_")}`;
+  await env.FILES.put(key, bytes, { httpMetadata: { contentType: mediaType(f.name) }, sha256 });
+  return env.DB.prepare("INSERT INTO files (spectrum_id, role, r2_key, filename, media_type, bytes, sha256, variant) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+    .bind(id, role, key, f.name, mediaType(f.name), f.size, sha256, variant ?? null);
 }

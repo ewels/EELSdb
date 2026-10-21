@@ -3,6 +3,7 @@ import type { AppEnv } from "../auth";
 import { API_HOST, SITE, loadBundle, type SpectrumBundle } from "../api/format";
 import { EELSDB_BIBTEX, EELSDB_CITATION } from "./citation";
 import { isModerator } from "../instruments";
+import { UNIT_LABELS, VARIANTS, variantUnits } from "../submit/form";
 import { Formula, Layout, TypeBadge, fmt } from "./layout";
 
 type Row = Record<string, any>;
@@ -30,6 +31,10 @@ function measured(value: number | null, unit: string, source: string | null, unc
     </>
   );
 }
+
+const href = (key: string) => `/${key.split("/").map(encodeURIComponent).join("/")}`;
+// Formats spectrum.js can parse for the plot.
+const PLOTTABLE = /\.(msa|emsa|txt|csv)$/i;
 
 const yesNo = (v: unknown) => (v === null || v === undefined ? null : Number(v) ? "Yes" : "No");
 
@@ -130,13 +135,18 @@ export function spectrumCitation(b: SpectrumBundle) {
   return { text, bib };
 }
 
+/** The spectrum's id if this viewer may see it: published, or pending and theirs (or they moderate). */
+export async function visibleSpectrumId(c: Context<AppEnv>, slug: string): Promise<number | null> {
+  const user = c.get("user");
+  const row = await c.env.DB.prepare("SELECT id, status, owner_id FROM spectra WHERE slug = ?").bind(slug).first<any>();
+  const visible = row && (row.status === "published" || (row.status === "pending" && user && (row.owner_id === user.id || isModerator(user))));
+  return visible ? row.id : null;
+}
+
 export async function spectrumPage(c: Context<AppEnv>) {
   const slug = c.req.param("slug")!;
   const user = c.get("user");
-  // Submitters and moderators can see a spectrum before it is published.
-  const row = await c.env.DB.prepare("SELECT id, status, owner_id FROM spectra WHERE slug = ?").bind(slug).first<any>();
-  const visible = row && (row.status === "published" || (row.status === "pending" && user && (row.owner_id === user.id || isModerator(user))));
-  const id: number | null = visible ? row.id : null;
+  const id = await visibleSpectrumId(c, slug);
   const b = id === null ? null : await loadBundle(c.env.DB, id);
   if (!b) return c.notFound();
   const favourite = user
@@ -149,6 +159,31 @@ export async function spectrumPage(c: Context<AppEnv>) {
   const r = b.reference;
   const fileUrl = b.legacyFile ? `/${b.legacyFile.split("/").map(encodeURIComponent).join("/")}` : null;
   const fileName = b.legacyFile?.split("/").pop();
+  const base = `/spectra/${encodeURIComponent(s.slug)}/download`;
+  const original = b.files.find((f) => f.role === "original" || f.role === "legacy");
+  const hspy = b.files.find((f) => f.role === "hspy");
+  const downloads = [
+    ...(fileName && PLOTTABLE.test(fileName)
+      ? [
+          { id: "msa", label: "MSA", hint: "EMSA/MAS text with the EELS header fields. Opens in HyperSpy, DigitalMicrograph and most EELS software.", href: `${base}/msa`, name: `${s.slug}.msa` },
+          { id: "csv", label: "CSV", hint: "Two columns, energy in eV and intensity, for spreadsheets, Python or MATLAB.", href: `${base}/csv`, name: `${s.slug}.csv` },
+          { id: "json", label: "JSON", hint: "The data with all the metadata on this page, as in API v2.", href: `${base}/json`, name: `${s.slug}.json` },
+        ]
+      : []),
+    ...(hspy ? [{ id: "hspy", label: "HyperSpy", hint: "HDF5 with the EELS metadata, made at review.", href: href(hspy.r2_key), name: hspy.filename }] : []),
+    ...(original ? [{ id: "original", label: "Original file", hint: <>As the contributor uploaded it: <code>{original.filename}</code></>, href: href(original.r2_key), name: original.filename }] : []),
+  ];
+  const variants = b.files.filter((f) => f.role === "variant");
+  const metadataFile = b.files.find((f) => f.role === "metadata");
+  const axisLabel = (units: string) => (units === "counts" ? (s.type === "xrayabs" ? "Intensity" : "Counts") : UNIT_LABELS[units] ?? units);
+  const versions = fileUrl
+    ? [
+        { label: "Main spectrum", src: fileUrl, axis: axisLabel(s.intensity_units) },
+        ...variants
+          .filter((f) => PLOTTABLE.test(f.filename))
+          .map((f) => ({ label: VARIANTS[f.variant] ?? f.variant, src: href(f.r2_key), axis: axisLabel(variantUnits(f.variant) ?? s.intensity_units) })),
+      ]
+    : [];
   const cite = spectrumCitation(b);
   const deconv = [
     Number(t.deconv_fourier_log) && "Fourier-log",
@@ -218,6 +253,37 @@ export async function spectrumPage(c: Context<AppEnv>) {
           <a class="button secondary" href={`/login/?next=${encodeURIComponent(`/spectra/${s.slug}/`)}`}>Sign in to save</a>
         )}
         {fileUrl && (
+          <>
+            <button class="button secondary" type="button" popovertarget="save-plot">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="16" rx="2" />
+                <circle cx="9" cy="10" r="1.6" />
+                <path d="M21 16l-5-5-9 9" />
+              </svg>
+              Export
+            </button>
+            <div id="save-plot" class="save-plot" popover="auto" role="dialog" aria-labelledby="save-plot-title">
+              <h2 id="save-plot-title">Export the plot</h2>
+              <p class="muted small">An image of the plot as it is now, with any compared spectra.</p>
+              <div class="save-grid">
+                {(["png", "svg"] as const).map((f) => (
+                  <>
+                    <strong>{f.toUpperCase()}</strong>
+                    {(["light", "dark"] as const).map((t) => (
+                      <button type="button" class="button secondary" data-save-plot={`${f}-${t}`} aria-label={`Save as ${f.toUpperCase()}, ${t} theme`}>
+                        {t === "light" ? "Light" : "Dark"}
+                      </button>
+                    ))}
+                  </>
+                ))}
+              </div>
+              <div class="dialog-actions">
+                <button class="button secondary" type="button" popovertarget="save-plot" popovertargetaction="hide">Close</button>
+              </div>
+            </div>
+          </>
+        )}
+        {fileUrl && (
           <button class="button" type="button" data-open="download-dialog">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
               <path d="M12 4v11M7 10.5l5 5 5-5M5 20h14" />
@@ -228,6 +294,8 @@ export async function spectrumPage(c: Context<AppEnv>) {
         </div>
       </div>
 
+      {s.description && <p class="spectrum-comments">{s.description}</p>}
+
       <div class="plot-panel">
         <div
           id="plot"
@@ -236,27 +304,55 @@ export async function spectrumPage(c: Context<AppEnv>) {
           data-elements={JSON.stringify(b.elements)}
           data-edges={JSON.stringify(b.edges.map((e) => `${e.element}_${e.edge}`))}
           data-type={s.type}
+          data-versions={JSON.stringify(versions)}
         >
           <p class="plot-message">{fileUrl ? "Loading spectrum…" : "No data file for this spectrum."}</p>
         </div>
+        {fileUrl && <div class="plot-drop" id="plot-drop" hidden>Drop spectrum files to compare them with this one</div>}
         <div class="plot-tools">
+          {versions.length > 1 && (
+            <label>
+              Show{" "}
+              <select id="plot-version">
+                {versions.map((v, i) => <option value={i}>{v.label}</option>)}
+              </select>
+            </label>
+          )}
           <label><input type="checkbox" id="show-edges" checked /> Edge onsets (exSpy)</label>
           <label><input type="checkbox" id="show-minor" /> Minor edges</label>
+          {fileUrl && <label hidden><input type="checkbox" id="compare-scale" checked /> Scale to match</label>}
           <span class="plot-hint">Drag to zoom, double-click to reset</span>
+
         </div>
       </div>
 
-      {s.description && <p class="prose" style="margin-top:1.25rem">{s.description}</p>}
-
-      {fileUrl?.toLowerCase().endsWith(".msa") && (
-        <details class="snippet">
-          <summary>Use in HyperSpy</summary>
-          <pre>{`import exspy
-
-spectra = exspy.data.eelsdb(title=${JSON.stringify(s.title)}${s.formula ? `, formula=${JSON.stringify(s.formula)}` : ""})
-s = next(sp for sp in spectra if sp.original_metadata.json.id == ${s.id})
-s.plot(plot_edges=True)`}</pre>
-        </details>
+      {fileUrl && (
+        <div class="spectrum-intro">
+          <div>
+            {fileUrl && (
+              <div class="compare" id="compare" hidden>
+                <label class="button secondary compare-pick">
+                  <input type="file" id="compare-file" multiple accept=".msa,.emsa,.txt,.csv,.dm3,.dm4,.emd,.hspy,.xdi" />
+                  Compare with your spectra
+                </label>
+                <span class="hint" id="compare-status" aria-live="polite">Or drop files on the plot. Your files are read in your browser and not uploaded.</span>
+                <ul class="compare-list" id="compare-list" aria-label="Compared spectra" hidden></ul>
+              </div>
+            )}
+          </div>
+          {fileUrl?.toLowerCase().endsWith(".msa") && (
+            <section class="snippet" aria-labelledby="snippet-title">
+              <h2 id="snippet-title">Use in HyperSpy</h2>
+              <pre><code>
+                <span class="k">import</span> exspy{"\n\n"}
+                spectra = exspy.data.eelsdb(title=<span class="s">{JSON.stringify(s.title)}</span>
+                {s.formula && <>, formula=<span class="s">{JSON.stringify(s.formula)}</span></>}){"\n"}
+                s = next(sp <span class="k">for</span> sp <span class="k">in</span> spectra <span class="k">if</span> sp.original_metadata.json.id == <span class="n">{s.id}</span>){"\n"}
+                s.plot(plot_edges=<span class="k">True</span>)
+              </code></pre>
+            </section>
+          )}
+        </div>
       )}
 
       <div class="spectrum-cols">
@@ -278,7 +374,9 @@ s.plot(plot_edges=True)`}</pre>
             <>
               <h3>Keywords</h3>
               <ul class="tags">
-                {b.keywords.map((k) => <li class="chip">{k}</li>)}
+                {b.keywords.map((k) => (
+                  <li><a class="chip" href={`/spectra/?keyword=${encodeURIComponent(k)}`} title={`Spectra with the keyword "${k}"`}>{k}</a></li>
+                ))}
               </ul>
             </>
           )}
@@ -375,6 +473,18 @@ s.plot(plot_edges=True)`}</pre>
               </ul>
             </>
           )}
+          {metadataFile && (
+            <details class="file-metadata" data-src={href(metadataFile.r2_key)}>
+              <summary>Metadata from the file</summary>
+              <p class="hint">
+                Every tag in the uploaded file, read automatically when it was reviewed. Not checked by a person: some, such as the
+                beam energy in DigitalMicrograph files, are typed in by hand and may be out of date.
+              </p>
+              <input type="search" class="metadata-filter" placeholder="Filter" aria-label="Filter the metadata" hidden />
+              <div class="table-scroll"><table class="metadata-table"></table></div>
+              <p class="small"><a href={href(metadataFile.r2_key)} download={metadataFile.filename}>Download as JSON</a></p>
+            </details>
+          )}
         </section>
       </div>
 
@@ -395,13 +505,32 @@ s.plot(plot_edges=True)`}</pre>
               <CopyButton target="cite-bib" what="BibTeX" />
             </div>
           </details>
+          <fieldset class="download-formats">
+            <legend>Format</legend>
+            {downloads.map((d, i) => (
+              <label>
+                <input type="radio" name="download-format" value={d.href} data-name={d.name} checked={i === 0} />
+                <span><strong>{d.label}</strong> <span class="muted small">{d.hint}</span></span>
+              </label>
+            ))}
+          </fieldset>
+          {variants.length > 0 && (
+            <>
+              <h3>Processed versions</h3>
+              <ul class="plain-list small">
+                {variants.map((f) => (
+                  <li><a href={href(f.r2_key)} download={f.filename}>{VARIANTS[f.variant] ?? f.variant}</a> <span class="muted">({f.filename})</span></li>
+                ))}
+              </ul>
+            </>
+          )}
           <div class="dialog-actions">
             <button class="button secondary" type="button" data-close>Close</button>
-            <a class="button" href={fileUrl} download={fileName} autofocus>
+            <a class="button" id="download-link" href={downloads[0]?.href ?? fileUrl} download={downloads[0]?.name ?? fileName} autofocus>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
                 <path d="M12 4v11M7 10.5l5 5 5-5M5 20h14" />
               </svg>
-              <span class="dl-name">Download {fileName}</span>
+              <span class="dl-name">Download {downloads[0]?.name ?? fileName}</span>
             </a>
           </div>
         </dialog>

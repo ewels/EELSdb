@@ -106,7 +106,7 @@ export async function decide(env: Env, id: number, decision: Decision, notes: st
     if (change.file) {
       // The legacy file stays at its old URL; the new upload becomes the original and the download.
       statements.push(
-        db.prepare("DELETE FROM files WHERE spectrum_id = ? AND role IN ('original', 'legacy', 'msa', 'hspy')").bind(sub.spectrum_id),
+        db.prepare("DELETE FROM files WHERE spectrum_id = ? AND role IN ('original', 'legacy', 'msa', 'hspy', 'metadata')").bind(sub.spectrum_id),
         db.prepare("INSERT INTO files (spectrum_id, role, r2_key, filename, media_type, bytes) VALUES (?, 'original', ?, ?, ?, ?)")
           .bind(sub.spectrum_id, change.file.key, change.file.name, mediaType(change.file.name), change.file.bytes),
       );

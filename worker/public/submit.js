@@ -2,8 +2,8 @@
 // eelsdb.checks) and pre-fill the form; DOIs are looked up on CrossRef; instrument profiles fill angles.
 // Without this script the page is one long form that posts normally, and moderators re-check every file.
 
-const PYODIDE = "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/";
-const RSCIIO = "rosettasciio==0.15.0";
+import { RSCIIO, loadReader } from "./pyreader.js";
+
 const TIMEOUT_MS = 90_000;
 const MAX_BYTES = 50 * 1024 * 1024;
 const SPECTRUM_EXT = ["dm3", "dm4", "msa", "emsa", "emd", "hspy", "txt", "csv", "xdi"];
@@ -340,8 +340,16 @@ $(".steps").addEventListener("click", (e) => {
 
 // ---- Files ------------------------------------------------------------------------------------
 
-const ROLES = { original: "Spectrum", lowloss: "Low-loss (for thickness)", companion: "Companion file", unused: "Do not include" };
+const ROLES = { original: "Spectrum", lowloss: "Low-loss (for thickness)", companion: "Companion file" };
 const INPUTS = { original: "file", lowloss: "lowloss_file", companion: "companion_file" };
+// Processed versions (oscillator strength, smoothed…): the server renders one input each, only for new submissions.
+for (const input of $$(".variant-files input[type=file]", form)) {
+  const role = input.name.replace(/_file$/, "");
+  ROLES[role] = `Processed: ${$(`label[for="${input.id}"]`, form).textContent.toLowerCase()}`;
+  INPUTS[role] = input.name;
+}
+ROLES.unused = "Do not include";
+const isVariant = (role) => role?.startsWith("variant_");
 const files = [];
 const list = $("#file-list");
 const nextButton = $("#step-files [data-next]");
@@ -392,6 +400,7 @@ function render() {
 }
 
 function paintCard(f) {
+  if (f.current) return;
   f.card ??= buildCard(f);
   f.card.dataset.state = f.rejected ? "failed" : f.state;
   f.card.dataset.role = f.role ?? "";
@@ -430,7 +439,13 @@ function buildCard(f) {
       el("label", { className: "file-role" }, "Use as ", select),
       remove),
     el("p", { className: "file-status" }),
-    el("p", { className: "hint unused-note", textContent: "One spectrum per submission: send this one separately afterwards.", hidden: true }),
+    el("p", {
+      className: "hint unused-note",
+      textContent: editing
+        ? "One spectrum per submission: send this one separately afterwards."
+        : "One spectrum per submission. If this is a processed version of it (oscillator strength, smoothed…), choose that above; otherwise send it separately afterwards.",
+      hidden: true,
+    }),
     el("div", { className: "file-plot" }),
     el("ul", { className: "findings" }),
   );
@@ -501,14 +516,15 @@ def run(path, kind, formula, elements, edges, thickness, table_json):
     keys = ("beam_energy_kv", "convergence_mrad", "collection_mrad", "exposure_s", "frames")
     xas = sp.header.get("xas") or {}
     title = str(sp.header.get("TITLE") or xas.get("sample") or "").strip()
-    out = {"meta": {k: clean(sp.header.get(k)) for k in keys}, "xas": xas, "title": title}
+    out = {"meta": {k: clean(sp.header.get(k)) for k in keys}, "xas": xas, "title": title,
+           "phase": sp.header.get("phase"), "reference": sp.header.get("reference")}
     if sp.energy is None:
         return json.dumps(out)
     energy, intensity = sp.energy, sp.intensity
     DATA[path] = (energy, intensity)
     findings = checks.run_all(energy, intensity, spectrum_type=kind or None, formula=formula or None,
                               elements=elements, edges=edges, edge_table=json.loads(table_json), thickness=thickness,
-                              header_axis=sp.header_axis)
+                              header_axis=sp.header_axis, navigation_shape=sp.navigation_shape)
     step = max(1, energy.size // 2000)
     out.update({
         "points": int(energy.size),
@@ -538,15 +554,7 @@ let pyodidePromise;
 let edgeTable = {};
 function pyodideReady() {
   pyodidePromise ??= (async () => {
-    const { loadPyodide } = await import(`${PYODIDE}pyodide.mjs`);
-    const py = await loadPyodide({ indexURL: PYODIDE });
-    await py.loadPackage(["numpy", "micropip", "h5py"]);
-    await py.pyimport("micropip").install(RSCIIO);
-    py.FS.mkdirTree("/home/pyodide/eelsdb");
-    py.FS.writeFile("/home/pyodide/eelsdb/__init__.py", "");
-    for (const f of ["checks.py", "io.py", "_elements.py"]) {
-      py.FS.writeFile(`/home/pyodide/eelsdb/${f}`, await (await fetch(`/py/eelsdb/${f}`)).text());
-    }
+    const py = await loadReader();
     const table = await (await fetch("/eels_binding_energies.json")).json();
     edgeTable = table.elements;
     py.globals.set("TABLE_JSON", JSON.stringify(table.elements));
@@ -609,7 +617,7 @@ function guessType(f) {
 /** Pre-fill the form from what a file says, without overwriting anything typed. */
 function applyResult(f) {
   const r = f.result;
-  if (!r || !f.role || f.role === "unused") return;
+  if (!r || !f.role || f.role === "unused" || f.current || isVariant(f.role)) return;
   const source = f.role === "companion" ? "companion" : "file";
   prefill("beam_energy", r.meta.beam_energy_kv, source);
   prefill("convergence", r.meta.convergence_mrad, source);
@@ -621,6 +629,11 @@ function applyResult(f) {
     syncXas();
   }
   fillIfEmpty("title", r.title);
+  if (["liquid", "gas"].includes(r.phase) && field("phase").value === "solid") {
+    field("phase").value = r.phase;
+    markFilled("phase");
+  }
+  fillIfEmpty("ref_freetext", r.reference);
   const x = r.xas ?? {};
   for (const k of ["facility", "beamline", "source_type", "monochromator"]) fillIfEmpty(`xas_${k}`, x[k]);
   if (fillIfEmpty("formula", x.formula)) elementsFromFormula();
@@ -729,15 +742,18 @@ async function pyCall(name, ...args) {
   }
 }
 
+// A new spectrum file wins; when editing without one, the panel shows the spectrum's current file.
+const panelFile = () => files.find((x) => x.role === "original" && x.result?.x) ?? files.find((x) => x.current && x.result?.x);
+
 function updatePanel() {
-  const f = files.find((x) => x.role === "original" && x.result?.x);
+  const f = panelFile();
   if (f === shown.file) return;
   shown.plot?.destroy();
   Object.assign(shown, { file: f, plot: null, suggestions: [] });
   panel.hidden = !f;
   menu.hidePopover?.();
   if (!f) return;
-  $(".panel-name", panel).textContent = f.file.name;
+  $(".panel-name", panel).textContent = f.current ? `${f.file.name} (current file)` : f.file.name;
   shown.plot = drawPlot(panelPlot, f.result.x, f.result.y, null, {
     height: 220,
     cursor: { y: false, points: { show: false }, drag: { x: false, y: false } },
@@ -918,7 +934,7 @@ function editButton(id) {
 function review() {
   const summary = $("#summary");
   summary.replaceChildren();
-  const used = files.filter((f) => f.role && f.role !== "unused");
+  const used = files.filter((f) => f.role && f.role !== "unused" && !f.current);
   const group = (id, title, rows) => {
     const dl = el("dl", { className: "meta" });
     for (const [label, value] of rows) dl.append(el("dt", { textContent: label }), el("dd", { textContent: value }));
@@ -1031,3 +1047,141 @@ syncXas();
 syncInputs();
 const withError = $(".has-error", form)?.closest("section.step");
 go(withError?.dataset.step ?? "files", { focus: false });
+
+// Editing: read the spectrum's current file too, for the side panel only. It is never uploaded again or used to fill fields.
+if (editing && form.dataset.currentFile) {
+  (async () => {
+    try {
+      const res = await fetch(form.dataset.currentFile);
+      if (!res.ok) return;
+      const f = { file: new File([await res.blob()], form.dataset.currentName), role: "current", current: true, chosen: true, state: "current" };
+      files.push(f);
+      f.result = await runChecks(f, field("type").value);
+      render();
+    } catch {}
+  })();
+}
+
+// Associated spectra: a type-ahead over published spectra (and the user's pending ones). The text field stays the
+// submitted value, a space-separated list of addresses, so the form works the same without this script.
+{
+  const field = $("#f-associated");
+  const TYPES = { coreloss: "Core loss", lowloss: "Low loss", zeroloss: "Zero loss", xrayabs: "X-ray absorption" };
+  const attrs = (node, values) => {
+    for (const [k, v] of Object.entries(values)) node.setAttribute(k, v);
+    return node;
+  };
+  const slugOf = (s) => s.replace(/^https?:\/\/[^/]+\/spectra\//, "").replace(/\/$/, "");
+  const chosen = new Map(); // slug → spectrum, in pick order
+  const box = el("div", { className: "picker" });
+  const chips = attrs(el("ul", { className: "picker-chips" }), { "aria-label": "Associated spectra" });
+  const input = attrs(el("input", { type: "text", id: "f-associated-search", autocomplete: "off", placeholder: "Search by name or formula" }), {
+    role: "combobox",
+    "aria-autocomplete": "list",
+    "aria-expanded": "false",
+    "aria-controls": "associated-list",
+  });
+  const list = attrs(el("ul", { className: "picker-list", id: "associated-list", hidden: true }), { role: "listbox", "aria-label": "Matching spectra" });
+  box.append(chips, input, list);
+  field.after(box);
+  field.hidden = true;
+  $(`label[for="f-associated"]`).htmlFor = input.id;
+  let matches = [];
+  let active = -1;
+
+  const write = () => (field.value = [...chosen.keys()].join(" "));
+  const renderChips = () => {
+    chips.replaceChildren(
+      ...[...chosen.values()].map((s) => {
+        const b = attrs(el("button", { type: "button", className: "chip" }, el("span", { textContent: s.title }), " ", attrs(el("span", { textContent: "×" }), { "aria-hidden": "true" })), { "aria-label": `Remove ${s.title}` });
+        b.title = [s.formula, TYPES[s.type], s.author, s.status === "pending" ? "not published yet" : ""].filter(Boolean).join(" · ");
+        b.addEventListener("click", () => {
+          chosen.delete(s.slug);
+          write();
+          renderChips();
+          input.focus();
+        });
+        return el("li", {}, b);
+      }),
+    );
+    chips.hidden = !chosen.size;
+  };
+  const close = () => {
+    list.hidden = true;
+    input.setAttribute("aria-expanded", "false");
+    input.removeAttribute("aria-activedescendant");
+    active = -1;
+  };
+  const setActive = (i) => {
+    active = i;
+    [...list.children].forEach((li, j) => li.setAttribute("aria-selected", String(j === i)));
+    if (i < 0) input.removeAttribute("aria-activedescendant");
+    else input.setAttribute("aria-activedescendant", `associated-opt-${i}`);
+  };
+  const add = (s) => {
+    chosen.set(s.slug, s);
+    write();
+    renderChips();
+    input.value = "";
+    close();
+  };
+  const fetchJson = async (params) => (await fetch(`/search/spectra.json?${params}`)).json();
+
+  let seq = 0;
+  input.addEventListener("input", async () => {
+    const q = input.value.trim();
+    // A pasted address goes straight in.
+    if (/^https?:\/\/\S+\/spectra\/[^/\s]+\/?$/.test(q)) {
+      const [s] = await fetchJson(new URLSearchParams({ slug: slugOf(q) }));
+      if (s) return add(s);
+    }
+    if (q.length < 2) return close();
+    const mine = ++seq;
+    const found = await fetchJson(new URLSearchParams({ q }));
+    if (mine !== seq) return;
+    matches = found.filter((s) => !chosen.has(s.slug) && s.slug !== form.dataset.slug);
+    list.replaceChildren(
+      ...(matches.length
+        ? matches.map((s, i) => {
+            const li = attrs(el("li", { id: `associated-opt-${i}` }, el("span", { textContent: s.title }), el("span", { className: "n", textContent: [s.formula, TYPES[s.type], s.author].filter(Boolean).join(" · ") })), { role: "option" });
+            li.addEventListener("mousedown", (e) => e.preventDefault());
+            li.addEventListener("click", () => add(matches[i]));
+            return li;
+          })
+        : [el("li", { className: "none", textContent: "No matching spectra" })]),
+    );
+    list.hidden = false;
+    input.setAttribute("aria-expanded", "true");
+    setActive(matches.length ? 0 : -1);
+  });
+  input.addEventListener("blur", close);
+  input.addEventListener("keydown", (e) => {
+    const shown = !list.hidden;
+    if ((e.key === "ArrowDown" || e.key === "ArrowUp") && shown && matches.length) {
+      e.preventDefault();
+      setActive((active + (e.key === "ArrowDown" ? 1 : -1) + matches.length) % matches.length);
+    } else if (e.key === "Enter" && shown) {
+      e.preventDefault();
+      if (active >= 0) add(matches[active]);
+    } else if (e.key === "Escape" && shown) {
+      e.preventDefault();
+      close();
+    } else if (e.key === "Backspace" && input.value === "" && chosen.size) {
+      chosen.delete([...chosen.keys()].at(-1));
+      write();
+      renderChips();
+    }
+  });
+
+  // Spectra already in the field (editing, or the form came back with an error) become chips.
+  const initial = field.value.split(/[\s,]+/).filter(Boolean).map(slugOf);
+  renderChips();
+  if (initial.length) {
+    fetchJson(new URLSearchParams(initial.map((s) => ["slug", s]))).then((found) => {
+      const bySlug = new Map(found.map((s) => [s.slug, s]));
+      for (const slug of initial) chosen.set(slug, bySlug.get(slug) ?? { slug, title: slug });
+      renderChips();
+    });
+  }
+}
+

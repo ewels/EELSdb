@@ -8,7 +8,7 @@ from eelsdb.client import multipart, site_url
 from eelsdb.io import read_any
 from eelsdb.legacy.analyse_files import OUTPUT as ANALYSIS
 from eelsdb.legacy.download_files import CACHE
-from eelsdb.review import compare, process, write_hspy, write_msa
+from eelsdb.review import compare, json_safe, process, write_hspy, write_msa
 
 ACQ = {"beam_energy_kv": 200.0, "convergence_mrad": 21.5, "collection_mrad": None}
 
@@ -43,7 +43,7 @@ def test_process_real_file(tmp_path):
     detail = {"spectrum": {"title": "AlN", "slug": "aln", "type": "coreloss", "formula": "AlN"},
               "acquisition": ACQ, "kind": "new", "submitter": "Test", "browser_checks": None}
     result = process(detail, CACHE / entry["path"], tmp_path)
-    assert set(result["outputs"]) == {"msa", "hspy"}
+    assert set(result["outputs"]) == {"msa", "hspy", "metadata"}
     assert result["record"]["values"]["min_energy_ev"] == pytest.approx(1533.4, abs=0.01)
     assert {t["tool"] for t in result["record"]["tools"]} >= {"rosettasciio", "exspy"}
     assert "AlN" in result["report"].read_text()
@@ -65,3 +65,23 @@ def test_multipart_encoding(tmp_path):
 def test_site_url():
     assert site_url("https://api.eelsdb.eu") == "https://eelsdb.eu"
     assert site_url("http://api.localhost:8787") == "http://localhost:8787"
+
+
+def test_spectrum_image_is_rejected_and_metadata_kept(tmp_path):
+    import hyperspy.api as hs
+
+    cube = hs.signals.Signal1D(np.ones((2, 3, 40)))
+    cube.axes_manager[-1].units, cube.axes_manager[-1].offset, cube.axes_manager[-1].scale = "eV", 280.0, 0.5
+    cube.original_metadata.add_dictionary({"Session": {"Voltage": 200, "Thumbnail": np.zeros((64, 64))}})
+    cube.save(tmp_path / "si.hspy")
+    detail = {"spectrum": {"title": "SI", "slug": "si", "type": "coreloss", "formula": "C"},
+              "acquisition": ACQ, "kind": "new", "submitter": "Test", "browser_checks": None}
+    result = process(detail, tmp_path / "si.hspy", tmp_path / "out")
+    assert result["findings"][0].code == "spectrum_image" and result["findings"][0].severity == "error"
+    assert "2 × 3 spectra" in result["report"].read_text()
+    assert json.loads(result["outputs"]["metadata"].read_text())["Session"] == {"Voltage": 200, "Thumbnail": "<array 64x64 float64>"}
+
+
+def test_json_safe_handles_numpy_bytes_and_nan():
+    assert json_safe({"a": np.float32(1.5), "b": b"x", "c": float("nan"), "d": np.arange(3), 1: (1, 2)}) == \
+        {"a": 1.5, "b": "x", "c": None, "d": [0, 1, 2], "1": [1, 2]}
