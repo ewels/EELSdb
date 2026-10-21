@@ -16,6 +16,9 @@ import { edit } from "../submit/edit";
 import { submit } from "../submit/index";
 import { account } from "./account";
 import { spectrumPage } from "./spectrum";
+import { settings } from "./settings";
+import { LINK_FIELDS, linkUrl, parseLinks } from "./profile";
+import { avatarUrl } from "../auth";
 
 export const pages = new Hono<AppEnv>();
 type C = Context<AppEnv>;
@@ -23,6 +26,7 @@ type C = Context<AppEnv>;
 pages.use(csrf());
 pages.use(loadUser);
 pages.route("/", account);
+pages.route("/", settings);
 pages.route("/", submit);
 pages.route("/", instruments);
 pages.route("/", edit);
@@ -290,34 +294,75 @@ pages.get("/api/openapi-v1.json", (c) => c.json(openapi));
 
 async function authorPage(c: C) {
   const slug = c.req.param("slug");
-  const { results } = await c.env.DB.prepare(
-    "SELECT slug, title, type, formula, author_display, published_at FROM spectra WHERE status = 'published' AND author_slug = ? ORDER BY published_at DESC, id DESC",
-  ).bind(slug).all<any>();
-  if (!results.length) return c.notFound();
-  const name = results[0].author_display;
+  const db = c.env.DB;
+  const person = await db.prepare(
+    `SELECT u.id, u.display_name, u.job_title, u.affiliation, u.orcid, u.links_json, u.profile_public, u.avatar_key,
+            (SELECT e.email FROM user_emails e WHERE e.user_id = u.id ORDER BY e.is_primary DESC, e.verified DESC, e.id LIMIT 1) AS email
+     FROM users u WHERE u.slug = ?`,
+  ).bind(slug).first<any>();
+  if (!person) {
+    const renamed = await db.prepare("SELECT u.slug FROM user_slug_history h JOIN users u ON u.id = h.user_id WHERE h.slug = ?").bind(slug).first<string>("slug");
+    if (renamed) return c.redirect(`/author/${renamed}/`, 301);
+  }
+  const { results } = await db.prepare(
+    `SELECT slug, title, type, formula, author_display, published_at FROM spectra
+     WHERE status = 'published' AND (author_slug = ? OR owner_id = ?) ORDER BY published_at DESC, id DESC`,
+  ).bind(slug, person?.id ?? -1).all<any>();
+  const showProfile = !!person?.profile_public;
+  if (!results.length && !showProfile) return c.notFound();
+  const name = person?.display_name ?? results[0].author_display;
+  const links = showProfile ? parseLinks(person.links_json) : {};
+  const avatar = showProfile ? await avatarUrl(person.avatar_key, person.email) : null;
+  const facts = showProfile ? [person.job_title, person.affiliation].filter(Boolean).join(" · ") : "";
   return c.html(
     <Layout user={c.get("user")} title={name} path="/author/">
-      <h1>{name}</h1>
-      <p class="muted">
-        {results.length === 1 ? "1 spectrum" : `${results.length} spectra`} · <a href={`/spectra/?author=${slug}`}>Filter in browse</a>
-      </p>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr><th>Type</th><th>Title</th><th>Formula</th><th class="num">Added</th></tr>
-          </thead>
-          <tbody>
-            {results.map((s) => (
-              <tr>
-                <td><TypeBadge type={s.type} /></td>
-                <td><a href={`/spectra/${encodeURIComponent(s.slug)}/`}>{s.title}</a></td>
-                <td><Formula formula={s.formula} /></td>
-                <td class="num">{String(s.published_at).slice(0, 10)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div class={showProfile ? "profile-head" : undefined}>
+        {showProfile && (
+          <span class="avatar avatar-large" aria-hidden="true">
+            {[...name.trim()][0]?.toUpperCase() ?? "?"}
+            {avatar && <img src={avatar.replace("s=64", "s=160")} alt="" width="80" height="80" referrerpolicy="no-referrer" />}
+          </span>
+        )}
+        <div>
+          <h1>{name}</h1>
+          {facts && <p class="lede profile-facts">{facts}</p>}
+          {showProfile && (person.orcid || Object.keys(links).length > 0) && (
+            <ul class="profile-links">
+              {person.orcid && <li><a href={`https://orcid.org/${person.orcid}`} rel="me">ORCID {person.orcid}</a></li>}
+              {LINK_FIELDS.filter((f) => links[f.key]).map((f) => (
+                <li><a href={linkUrl(f.key, links[f.key])} rel="me noopener">{f.label}</a></li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
+      {results.length ? (
+        <>
+          <h2>Contributed spectra</h2>
+          <p class="muted">
+            {results.length === 1 ? "1 spectrum" : `${results.length} spectra`} · <a href={`/spectra/?author=${slug}`}>Filter in browse</a>
+          </p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr><th>Type</th><th>Title</th><th>Formula</th><th class="num">Added</th></tr>
+              </thead>
+              <tbody>
+                {results.map((s) => (
+                  <tr>
+                    <td><TypeBadge type={s.type} /></td>
+                    <td><a href={`/spectra/${encodeURIComponent(s.slug)}/`}>{s.title}</a></td>
+                    <td><Formula formula={s.formula} /></td>
+                    <td class="num">{String(s.published_at).slice(0, 10)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      ) : (
+        <p class="muted">No published spectra yet.</p>
+      )}
     </Layout>,
   );
 }

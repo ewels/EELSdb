@@ -1,7 +1,7 @@
 import type { Context, MiddlewareHandler } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 
-export type User = { id: number; display_name: string; role: string; slug: string | null; orcid: string | null };
+export type User = { id: number; display_name: string; role: string; slug: string | null; orcid: string | null; avatar: string | null; avatar_key?: string | null; theme: "system" | "light" | "dark" };
 export type AppEnv = { Bindings: Env; Variables: { user: User | null } };
 type C = Context<AppEnv>;
 
@@ -105,7 +105,39 @@ const cookieOptions = (c: C) => ({
 });
 
 /** Sessions are stored by the SHA-256 of the cookie value, so a database read does not reveal live tokens. */
+/**
+ * The user's uploaded picture, else their Gravatar. Gravatar looks pictures up by the SHA-256 of the
+ * address, so the address itself never reaches the page; `d=blank` lets the initial show through.
+ */
+export async function avatarUrl(key: string | null, email: string | null) {
+  if (key) return `/avatars/${key}`;
+  return email ? `https://gravatar.com/avatar/${await sha256(email.trim().toLowerCase())}?s=64&d=blank` : null;
+}
+
+/** Copies the addresses sign-in services and the old site know into the user's email list, and picks a primary if none. */
+export async function syncEmails(db: D1Database, userId: number) {
+  await db.batch([
+    db.prepare(
+      `INSERT OR IGNORE INTO user_emails (user_id, email, verified)
+       SELECT user_id, lower(trim(email)), MAX(email_verified) FROM identities
+       WHERE user_id = ? AND email IS NOT NULL AND trim(email) != '' GROUP BY lower(trim(email))`,
+    ).bind(userId),
+    db.prepare(
+      `UPDATE user_emails SET verified = 1 WHERE user_id = ?1 AND verified = 0
+       AND email IN (SELECT lower(trim(email)) FROM identities WHERE user_id = ?1 AND email_verified = 1)`,
+    ).bind(userId),
+    db.prepare(
+      "INSERT OR IGNORE INTO user_emails (user_id, email) SELECT id, lower(trim(legacy_email)) FROM users WHERE id = ? AND trim(legacy_email) != ''",
+    ).bind(userId),
+    db.prepare(
+      `UPDATE user_emails SET is_primary = 1 WHERE id = (SELECT id FROM user_emails WHERE user_id = ?1 ORDER BY verified DESC, id LIMIT 1)
+       AND NOT EXISTS (SELECT 1 FROM user_emails WHERE user_id = ?1 AND is_primary = 1)`,
+    ).bind(userId),
+  ]);
+}
+
 export async function createSession(c: C, userId: number) {
+  await syncEmails(c.env.DB, userId);
   const token = randomToken();
   const expires = new Date(Date.now() + SESSION_DAYS * 86400_000);
   await c.env.DB.prepare("INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)")
@@ -118,12 +150,18 @@ export const loadUser: MiddlewareHandler<AppEnv> = async (c, next) => {
   const token = getCookie(c, SESSION_COOKIE);
   let user: User | null = null;
   if (token) {
-    user = await c.env.DB.prepare(
-      `SELECT u.id, u.display_name, u.role, u.slug, u.orcid FROM sessions s JOIN users u ON u.id = s.user_id
+    const row = await c.env.DB.prepare(
+      `SELECT u.id, u.display_name, u.role, u.slug, u.orcid, u.theme, u.avatar_key,
+              (SELECT e.email FROM user_emails e WHERE e.user_id = u.id ORDER BY e.is_primary DESC, e.verified DESC, e.id LIMIT 1) AS email
+       FROM sessions s JOIN users u ON u.id = s.user_id
        WHERE s.id = ? AND s.expires_at > ?`,
     )
       .bind(await sha256(token), new Date().toISOString())
-      .first<User>();
+      .first<Omit<User, "avatar"> & { email: string | null }>();
+    if (row) {
+      const { email, ...rest } = row;
+      user = { ...rest, avatar: await avatarUrl(rest.avatar_key ?? null, email) };
+    }
   }
   c.set("user", user);
   await next();
@@ -160,8 +198,8 @@ export function safeNext(next: string | undefined) {
 }
 
 /**
- * Finds the user for an identity: an existing link, else a migrated account with the same verified email
- * that no one has claimed, else a new account.
+ * Finds the user for an identity: an existing link, else the account that verified this email, else a migrated
+ * account with the same email that no one has claimed, else a new account.
  */
 export async function userForIdentity(db: D1Database, id: Identity): Promise<number> {
   const linked = await db.prepare("SELECT user_id FROM identities WHERE provider = ? AND subject = ?").bind(id.provider, id.subject).first<number>("user_id");
@@ -169,6 +207,9 @@ export async function userForIdentity(db: D1Database, id: Identity): Promise<num
 
   let userId: number | null = null;
   if (id.email && id.emailVerified) {
+    userId = await db.prepare("SELECT user_id FROM user_emails WHERE email = ? AND verified = 1").bind(id.email.trim()).first<number>("user_id");
+  }
+  if (userId === null && id.email && id.emailVerified) {
     userId = await db
       .prepare(
         `SELECT u.id FROM users u WHERE u.legacy_email = ? COLLATE NOCASE

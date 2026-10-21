@@ -123,6 +123,22 @@ describe("submitting", () => {
     expect(await env.DB.prepare("SELECT COUNT(*) AS n FROM spectra WHERE owner_id = 6000002").first("n")).toBe(0);
   });
 
+  it("answers the stepped form's background posts with JSON", async () => {
+    const cookie = await sessionFor({ id: 6000004, display_name: "Json Sender" });
+    const post = (fd: FormData) =>
+      exports.default.fetch("https://eelsdb.eu/submit-data/", {
+        method: "POST",
+        headers: { Cookie: cookie, Origin: "https://eelsdb.eu", Accept: "application/json" },
+        body: fd,
+      });
+    const bad = await post(formData({ ...fields, title: "" }));
+    expect(bad.status).toBe(422);
+    expect((await bad.json<any>()).errors.title).toBe("Enter the specimen name.");
+    const good = await post(formData({ ...fields, title: "Json graphite" }));
+    expect(good.status).toBe(200);
+    expect((await good.json<any>()).redirect).toMatch(/^\/account\/submissions\/\?submitted=\d+$/);
+  });
+
   it("limits submissions per day", async () => {
     const cookie = await sessionFor({ id: 6000003, display_name: "Busy Bee" });
     await env.DB.batch(

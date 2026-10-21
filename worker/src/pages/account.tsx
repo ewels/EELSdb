@@ -133,7 +133,7 @@ account.get("/account/", requireUser, async (c) => {
 
       <p>
         <a class="button" href="/submit-data/">Submit a spectrum</a> <a class="button secondary" href="/account/submissions/">Your submissions</a>{" "}
-        <a class="button secondary" href="/account/tokens/">API tokens</a>
+        <a class="button secondary" href="/account/tokens/">API tokens</a> <a class="button secondary" href="/account/settings/">Settings</a>
         {(user.role === "moderator" || user.role === "admin") && <> <a class="button secondary" href="/admin/">Moderation</a></>}
       </p>
 
@@ -245,6 +245,9 @@ account.post("/account/claim/:token/", requireUser, async (c) => {
   const move = (table: string, column: string) => db.prepare(`UPDATE ${table} SET ${column} = ? WHERE ${column} = ?`).bind(to, from);
   await db.batch([
     db.prepare("UPDATE identities SET user_id = ? WHERE user_id = ?").bind(to, from),
+    // Emails move too; the old account keeps its primary, and createSession picks one if it has none.
+    db.prepare("UPDATE OR IGNORE user_emails SET user_id = ?, is_primary = 0 WHERE user_id = ?").bind(to, from),
+    db.prepare("UPDATE users SET avatar_key = COALESCE(avatar_key, (SELECT avatar_key FROM users WHERE id = ?)) WHERE id = ?").bind(from, to),
     move("api_tokens", "user_id"),
     move("submissions", "submitted_by"),
     move("submissions", "decided_by"),

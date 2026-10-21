@@ -1,5 +1,6 @@
 import { env, exports } from "cloudflare:workers";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { sha256, syncEmails } from "../src/auth";
 import { sent } from "../src/email";
 
 const SITE = "https://eelsdb.eu";
@@ -120,5 +121,20 @@ describe("claiming an old account", () => {
     const before = sent.length;
     expect((await post("/account/claim/", cookie, { email: "unknown@lab.org" })).headers.get("location")).toBe("/account/?claim=sent");
     expect(sent.length).toBe(before);
+  });
+});
+
+describe("avatar", () => {
+  it("links the sign-in email's Gravatar by hash and never shows the email", async () => {
+    await env.DB.prepare("INSERT INTO users (id, display_name) VALUES (9101, 'Ada Avatar')").run();
+    await env.DB.prepare("INSERT INTO identities (user_id, provider, subject, email, email_verified) VALUES (9101, 'github', 'ada-9101', ' Ada@Example.org ', 1)").run();
+    await syncEmails(env.DB, 9101);
+    const token = crypto.randomUUID();
+    await env.DB.prepare("INSERT INTO sessions (id, user_id, expires_at) VALUES (?, 9101, ?)")
+      .bind(await sha256(token), new Date(Date.now() + 86400_000).toISOString())
+      .run();
+    const html = await (await go("/", { headers: { Cookie: `eelsdb_session=${token}` } })).text();
+    expect(html).toContain(`https://gravatar.com/avatar/${await sha256("ada@example.org")}?s=64&amp;d=blank`);
+    expect(html.toLowerCase()).not.toContain("ada@example.org");
   });
 });

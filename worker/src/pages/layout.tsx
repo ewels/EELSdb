@@ -11,10 +11,6 @@ const NAV = [
   ["/about/", "About"],
 ] as const;
 
-// Runs before paint so a saved theme choice does not flash.
-const THEME_SCRIPT = `try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}`;
-const TOGGLE_SCRIPT = `document.querySelector(".theme-toggle").addEventListener("click",function(){var r=document.documentElement,d=r.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"),n=d==="dark"?"light":"dark";r.dataset.theme=n;try{localStorage.setItem("theme",n)}catch(e){}})`;
-
 export function Layout(props: {
   title?: string;
   description?: string;
@@ -27,7 +23,7 @@ export function Layout(props: {
   const wrap = props.wide ? "wrap wide" : "wrap";
   const title = props.title ? `${props.title} · EELS Data Base` : "EELS Data Base";
   return (
-    <html lang="en">
+    <html lang="en" data-theme={props.user && props.user.theme !== "system" ? props.user.theme : undefined}>
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -39,7 +35,6 @@ export function Layout(props: {
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="preload" href="/fonts/roboto-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="" />
         <link rel="stylesheet" href="/style.css" />
-        <script>{raw(THEME_SCRIPT)}</script>
         {props.head}
       </head>
       <body>
@@ -52,16 +47,21 @@ export function Layout(props: {
                 <a href={href} aria-current={props.path.startsWith(href) ? "page" : undefined}>{label}</a>
               ))}
               {props.user ? (
-                <a href="/account/" aria-current={props.path.startsWith("/account/") ? "page" : undefined}>{props.user.display_name}</a>
+                <a
+                  class="account-link"
+                  href="/account/"
+                  aria-label={`Your account (${props.user.display_name})`}
+                  title={props.user.display_name}
+                  aria-current={props.path.startsWith("/account/") ? "page" : undefined}
+                >
+                  <span class="avatar" aria-hidden="true">
+                    {[...props.user.display_name.trim()][0]?.toUpperCase() ?? "?"}
+                    {props.user.avatar && <img src={props.user.avatar} alt="" width="32" height="32" loading="lazy" referrerpolicy="no-referrer" />}
+                  </span>
+                </a>
               ) : (
                 <a href={`/login/${props.path && props.path !== "/login/" ? `?next=${encodeURIComponent(props.path)}` : ""}`}>Sign in</a>
               )}
-              <button class="theme-toggle" type="button" aria-label="Switch light or dark theme" title="Switch theme">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
-                  <circle cx="12" cy="12" r="4.2" />
-                  <path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" />
-                </svg>
-              </button>
             </nav>
           </div>
         </header>
@@ -79,7 +79,6 @@ export function Layout(props: {
             </span>
           </div>
         </footer>
-        <script>{raw(TOGGLE_SCRIPT)}</script>
       </body>
     </html>
   );

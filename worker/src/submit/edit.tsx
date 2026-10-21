@@ -3,7 +3,7 @@ import { loadBundle, type SpectrumBundle } from "../api/format";
 import { requireUser, type AppEnv } from "../auth";
 import { isModerator } from "../instruments";
 import { SPECTRUM_EXTENSIONS, XAS_FIELDS, checkUpload, completeness, parseForm, type ParsedForm } from "./form";
-import { SubmitPage, approvedInstruments, formValues } from "./index";
+import { SubmitPage, approvedInstruments, finishForm, formValues, rejectForm } from "./index";
 import { mediaType } from "../files";
 import { Layout } from "../pages/layout";
 import { coreStatements, instrumentOk, textColumnsStatement, textStatements } from "./store";
@@ -123,18 +123,12 @@ edit.post("/spectra/:slug/edit/", requireUser, async (c) => {
     if (e) errors.file = e;
   }
   if (Object.keys(errors).length) {
-    return c.html(
-      <SubmitPage c={c} v={formValues(body)} errors={errors} instruments={await approvedInstruments(db)} edit={{ slug: s.slug, title: s.title }} />,
-      422,
-    );
+    return rejectForm(c, errors, 422, async () => <SubmitPage c={c} v={formValues(body)} errors={errors} instruments={await approvedInstruments(db)} edit={{ slug: s.slug, title: s.title }} />);
   }
 
   if (!(await instrumentOk(db, form))) {
     errors.instrument = "Choose an approved instrument profile.";
-    return c.html(
-      <SubmitPage c={c} v={formValues(body)} errors={errors} instruments={await approvedInstruments(db)} edit={{ slug: s.slug, title: s.title }} />,
-      422,
-    );
+    return rejectForm(c, errors, 422, async () => <SubmitPage c={c} v={formValues(body)} errors={errors} instruments={await approvedInstruments(db)} edit={{ slug: s.slug, title: s.title }} />);
   }
 
   const before = parseForm(valuesFromBundle(bundle)).form;
@@ -148,10 +142,7 @@ edit.post("/spectra/:slug/edit/", requireUser, async (c) => {
       .bind(s.id).first();
     if (waiting) {
       errors.file = "A change to the data or measurement of this spectrum is already waiting for review. Please wait for it before sending another.";
-      return c.html(
-        <SubmitPage c={c} v={formValues(body)} errors={errors} instruments={await approvedInstruments(db)} edit={{ slug: s.slug, title: s.title }} />,
-        409,
-      );
+      return rejectForm(c, errors, 409, async () => <SubmitPage c={c} v={formValues(body)} errors={errors} instruments={await approvedInstruments(db)} edit={{ slug: s.slug, title: s.title }} />);
     }
   }
 
@@ -180,7 +171,7 @@ edit.post("/spectra/:slug/edit/", requireUser, async (c) => {
         .bind(s.id, user.id, JSON.stringify({ action: "edit submitted for review" })),
     );
     await db.batch(statements);
-    return c.redirect(`/account/submissions/?edited=${s.id}`);
+    return finishForm(c, `/account/submissions/?edited=${s.id}`);
   }
 
   if (coreChanged) {
@@ -202,7 +193,7 @@ edit.post("/spectra/:slug/edit/", requireUser, async (c) => {
     statements.push(db.prepare("UPDATE submissions SET status = 'pending' WHERE spectrum_id = ? AND kind = 'new' AND status = 'changes_requested'").bind(s.id));
   }
   if (statements.length) await db.batch(statements);
-  return c.redirect(status === "published" ? back : "/account/submissions/");
+  return finishForm(c, status === "published" ? back : "/account/submissions/");
 });
 
 edit.get("/spectra/:slug/history/", async (c) => {
