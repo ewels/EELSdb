@@ -9,7 +9,7 @@ import { apiDocs } from "./api-docs";
 import { browsePage } from "./browse";
 import { EELSDB_BIBTEX, EELSDB_CITATION } from "./citation";
 import { Formula, Layout, TYPE_NAMES, TypeBadge } from "./layout";
-import { HERO_LOGO_SVG } from "./logo";
+import { homePage } from "./home";
 import { admin } from "../admin";
 import { instruments } from "../instruments";
 import { edit } from "../submit/edit";
@@ -32,88 +32,7 @@ pages.route("/", instruments);
 pages.route("/", edit);
 pages.route("/", admin);
 
-pages.get("/", async (c) => {
-  const [{ results: byType }, counts, { results: latest }, { results: news }] = await c.env.DB.batch<any>([
-    c.env.DB.prepare("SELECT type, COUNT(*) AS n FROM spectra WHERE status = 'published' GROUP BY type"),
-    c.env.DB.prepare(
-      `SELECT (SELECT COUNT(DISTINCT e.element) FROM spectrum_elements e JOIN spectra s ON s.id = e.spectrum_id WHERE s.status = 'published') AS elements,
-              (SELECT COUNT(DISTINCT author_slug) FROM spectra WHERE status = 'published') AS contributors`,
-    ),
-    c.env.DB.prepare(
-      "SELECT slug, title, type, formula, author_display, author_slug, published_at FROM spectra WHERE status = 'published' ORDER BY published_at DESC, id DESC LIMIT 8",
-    ),
-    c.env.DB.prepare("SELECT slug, title, published_at FROM news ORDER BY published_at DESC LIMIT 3"),
-  ]);
-  const n = Object.fromEntries(byType.map((r: any) => [r.type, r.n]));
-  const total = byType.reduce((sum: number, r: any) => sum + r.n, 0);
-  const { elements, contributors } = counts.results[0];
-
-  return c.html(
-    <Layout user={c.get("user")} path="/">
-      <div class="hero-logo">{raw(HERO_LOGO_SVG)}</div>
-      <div class="home-intro">
-        <div>
-          <h1>Reference spectra for electron energy-loss and X-ray absorption spectroscopy</h1>
-          <p class="lede">
-            {total} spectra covering {elements} elements, shared by {contributors} contributors. Browse and plot them here, download the
-            files, or load them straight into HyperSpy with <code>exspy.data.eelsdb()</code>.
-          </p>
-          <form class="quick-search" action="/spectra/" method="get" role="search">
-            <input type="search" name="title" aria-label="Search spectra" placeholder="Search, e.g. graphite or BN" />
-            <button class="button" type="submit">Search</button>
-          </form>
-        </div>
-        <nav class="counts" aria-label="Spectra by type">
-          {Object.entries(TYPE_NAMES).map(([code, name]) => (
-            <a href={`/spectra/?type=${code}`}>
-              <strong>{n[code] ?? 0}</strong>
-              <span>{name}</span>
-            </a>
-          ))}
-          <a class="all" href="/spectra/">
-            <strong>{total}</strong>
-            <span>All spectra →</span>
-          </a>
-        </nav>
-      </div>
-      <div class="home-cols">
-        <section>
-          <h2>Recently added</h2>
-          <div class="table-scroll">
-            <table>
-              <tbody>
-                {latest.map((s: any) => (
-                  <tr>
-                    <td><TypeBadge type={s.type} /></td>
-                    <td><a href={`/spectra/${encodeURIComponent(s.slug)}/`}>{s.title}</a></td>
-                    <td class="hide-sm"><Formula formula={s.formula} /></td>
-                    <td class="num hide-sm">{String(s.published_at).slice(0, 10)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-        <section>
-          <h2>Share your spectra</h2>
-          <p>
-            Published spectra are welcome. Others can reuse your data and cite your paper. <a href="/submit-data/">How to submit</a>.
-          </p>
-          <h2>News</h2>
-          <ul>
-            {news.map((p: any) => (
-              <li>
-                <a href={`/${p.slug}/`}>{p.title}</a> <span class="muted small">{String(p.published_at).slice(0, 10)}</span>
-              </li>
-            ))}
-          </ul>
-          <p><a href="/news/">All news</a></p>
-        </section>
-      </div>
-    </Layout>,
-  );
-});
-
+pages.get("/", homePage);
 pages.get("/spectra/", browsePage);
 pages.get("/spectra", (c) => c.redirect(`/spectra/${new URL(c.req.url).search}`, 301));
 pages.get("/spectra/:slug/", spectrumPage);

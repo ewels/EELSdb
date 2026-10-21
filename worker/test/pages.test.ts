@@ -11,8 +11,10 @@ describe("pages", () => {
   it("home shows live counts", async () => {
     const { status, html } = await page("/");
     expect(status).toBe(200);
-    expect(html).toMatch(/<strong>188<\/strong><span>Core loss<\/span>/);
-    expect(html).toMatch(/<strong>290<\/strong><span>All spectra/);
+    expect(html).toMatch(/^<!doctype html>/);
+    expect(html).toContain('<span class="tl">Core loss</span><span class="tn">188</span>');
+    expect(html).toContain("290 spectra from 41 microscopists, shared since 2005.");
+    expect(html).toContain('aria-label="Oxygen: 171 spectra"');
   });
 
   it("browse filters, sorts and pages through the query string", async () => {

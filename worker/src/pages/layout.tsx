@@ -18,69 +18,74 @@ export function Layout(props: {
   user: User | null;
   head?: Child;
   wide?: boolean;
+  /** The homepage: its own large logo, so the header mark only appears once the page scrolls. */
+  home?: boolean;
   children: Child;
 }) {
   const wrap = props.wide ? "wrap wide" : "wrap";
   const title = props.title ? `${props.title} · EELS Data Base` : "EELS Data Base";
   return (
-    <html lang="en" data-theme={props.user && props.user.theme !== "system" ? props.user.theme : undefined}>
-      <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>{title}</title>
-        <meta
-          name="description"
-          content={props.description ?? "Open database of electron energy-loss (EELS) and X-ray absorption (XAS) spectra."}
-        />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="preload" href="/fonts/roboto-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="" />
-        <link rel="stylesheet" href="/style.css" />
-        {props.head}
-      </head>
-      <body>
-        <a class="skip" href="#main">Skip to content</a>
-        <header class="site-header">
-          <div class={wrap}>
-            {props.path !== "/" && <a class="logo" href="/" aria-label="EELS Data Base home">{raw(LOGO_SVG)}</a>}
-            <nav class="site-nav" aria-label="Main">
-              {NAV.map(([href, label]) => (
-                <a href={href} aria-current={props.path.startsWith(href) ? "page" : undefined}>{label}</a>
-              ))}
-              {props.user ? (
-                <a
-                  class="account-link"
-                  href="/account/"
-                  aria-label={`Your account (${props.user.display_name})`}
-                  title={props.user.display_name}
-                  aria-current={props.path.startsWith("/account/") ? "page" : undefined}
-                >
-                  <span class="avatar" aria-hidden="true">
-                    {[...props.user.display_name.trim()][0]?.toUpperCase() ?? "?"}
-                    {props.user.avatar && <img src={props.user.avatar} alt="" width="32" height="32" loading="lazy" referrerpolicy="no-referrer" />}
-                  </span>
-                </a>
-              ) : (
-                <a href={`/login/${props.path && props.path !== "/login/" ? `?next=${encodeURIComponent(props.path)}` : ""}`}>Sign in</a>
-              )}
-            </nav>
-          </div>
-        </header>
-        <main id="main" class={wrap}>{props.children}</main>
-        <footer class="site-footer">
-          <div class={wrap}>
-            <span>
-              EELS Data Base · <a href="/citation/">How to cite</a> · <a href="/instruments/">Instrument profiles</a> ·{" "}
-              <a href="/downloads/">Download everything</a> ·{" "}
+    <>
+      {raw("<!doctype html>")}
+      <html lang="en" data-theme={props.user && props.user.theme !== "system" ? props.user.theme : undefined}>
+        <head>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <title>{title}</title>
+          <meta
+            name="description"
+            content={props.description ?? "Open database of electron energy-loss (EELS) and X-ray absorption (XAS) spectra."}
+          />
+          <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+          <link rel="preload" href="/fonts/mona-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="" />
+          <link rel="stylesheet" href="/style.css" />
+          {props.head}
+        </head>
+        <body class={props.home ? "home" : undefined}>
+          <a class="skip" href="#main">Skip to content</a>
+          <header class={props.home ? "site-header" : "site-header stuck"}>
+            <div class={wrap}>
+              <a class="logo" href="/" aria-label="EELSdb home" tabindex={props.home ? -1 : undefined}>{raw(LOGO_SVG)}</a>
+              <nav class="site-nav" aria-label="Main">
+                {NAV.map(([href, label]) => (
+                  <a href={href} aria-current={props.path.startsWith(href) ? "page" : undefined}>{label}</a>
+                ))}
+                {props.user ? (
+                  <a
+                    class="account-link"
+                    href="/account/"
+                    aria-label={`Your account (${props.user.display_name})`}
+                    title={props.user.display_name}
+                    aria-current={props.path.startsWith("/account/") ? "page" : undefined}
+                  >
+                    <span class="avatar" aria-hidden="true">
+                      {[...props.user.display_name.trim()][0]?.toUpperCase() ?? "?"}
+                      {props.user.avatar && <img src={props.user.avatar} alt="" width="32" height="32" loading="lazy" referrerpolicy="no-referrer" />}
+                    </span>
+                  </a>
+                ) : (
+                  <a class="button secondary" href={`/login/${props.path && props.path !== "/login/" ? `?next=${encodeURIComponent(props.path)}` : ""}`}>Sign in</a>
+                )}
+              </nav>
+            </div>
+          </header>
+          <main id="main" class={wrap}>{props.children}</main>
+          <footer class="site-footer">
+            <div class={wrap}>
+              <a href="/citation/">How to cite</a>
+              <a href="/instruments/">Instrument profiles</a>
+              <a href="/downloads/">Download everything</a>
+              <a href="/news/">News</a>
               <a href="/contact/">Contact</a>
-            </span>
-            <span>
-              Data under the <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a> ·{" "}
-              <a href="https://github.com/ewels/EELSdb">Source code</a>
-            </span>
-          </div>
-        </footer>
-      </body>
-    </html>
+              <a href="https://github.com/ewels/EELSdb">Source on GitHub</a>
+              <span class="licence">
+                Data under the <a href="https://opendatacommons.org/licenses/odbl/">Open Database Licence (ODbL)</a>
+              </span>
+            </div>
+          </footer>
+        </body>
+      </html>
+    </>
   );
 }
 

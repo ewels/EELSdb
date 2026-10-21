@@ -1,0 +1,663 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-21T09:40:21+00:00",
+  "title": "Design System: EELS Data Base",
+  "extensions": {
+    "colorMeta": {
+      "bg": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "light-dark(#fbfaf8, #141312)",
+        "tonalRamp": [
+          "oklch(0.15 0.003 85)",
+          "oklch(0.26 0.003 85)",
+          "oklch(0.38 0.003 85)",
+          "oklch(0.49 0.003 85)",
+          "oklch(0.61 0.003 85)",
+          "oklch(0.72 0.003 85)",
+          "oklch(0.84 0.003 85)",
+          "oklch(0.95 0.003 85)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Card White",
+        "canonical": "light-dark(#ffffff, #1c1b19)",
+        "tonalRamp": [
+          "oklch(0.15 0.000 90)",
+          "oklch(0.26 0.000 90)",
+          "oklch(0.38 0.000 90)",
+          "oklch(0.49 0.000 90)",
+          "oklch(0.61 0.000 90)",
+          "oklch(0.72 0.000 90)",
+          "oklch(0.84 0.000 90)",
+          "oklch(0.95 0.000 90)"
+        ]
+      },
+      "sunken": {
+        "role": "neutral",
+        "displayName": "Bench Grey",
+        "canonical": "light-dark(#f3f1ed, #23211f)",
+        "tonalRamp": [
+          "oklch(0.15 0.006 85)",
+          "oklch(0.26 0.006 85)",
+          "oklch(0.38 0.006 85)",
+          "oklch(0.49 0.006 85)",
+          "oklch(0.61 0.006 85)",
+          "oklch(0.72 0.006 85)",
+          "oklch(0.84 0.006 85)",
+          "oklch(0.95 0.006 85)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "light-dark(#1b1a19, #ece8e2)",
+        "tonalRamp": [
+          "oklch(0.15 0.002 68)",
+          "oklch(0.26 0.002 68)",
+          "oklch(0.38 0.002 68)",
+          "oklch(0.49 0.002 68)",
+          "oklch(0.61 0.002 68)",
+          "oklch(0.72 0.002 68)",
+          "oklch(0.84 0.002 68)",
+          "oklch(0.95 0.002 68)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Graphite",
+        "canonical": "light-dark(#5d5852, #a9a29a)",
+        "tonalRamp": [
+          "oklch(0.15 0.012 73)",
+          "oklch(0.26 0.012 73)",
+          "oklch(0.38 0.012 73)",
+          "oklch(0.49 0.012 73)",
+          "oklch(0.61 0.012 73)",
+          "oklch(0.72 0.012 73)",
+          "oklch(0.84 0.012 73)",
+          "oklch(0.95 0.012 73)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "canonical": "light-dark(#e2ddd5, #36332f)",
+        "tonalRamp": [
+          "oklch(0.15 0.012 80)",
+          "oklch(0.26 0.012 80)",
+          "oklch(0.38 0.012 80)",
+          "oklch(0.49 0.012 80)",
+          "oklch(0.61 0.012 80)",
+          "oklch(0.72 0.012 80)",
+          "oklch(0.84 0.012 80)",
+          "oklch(0.95 0.012 80)"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Rule",
+        "canonical": "light-dark(#eeeae4, #262422)",
+        "tonalRamp": [
+          "oklch(0.15 0.009 78)",
+          "oklch(0.26 0.009 78)",
+          "oklch(0.38 0.009 78)",
+          "oklch(0.49 0.009 78)",
+          "oklch(0.61 0.009 78)",
+          "oklch(0.72 0.009 78)",
+          "oklch(0.84 0.009 78)",
+          "oklch(0.95 0.009 78)"
+        ]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Slate Instrument Blue",
+        "canonical": "light-dark(oklch(0.46 0.075 248), oklch(0.80 0.075 248))",
+        "tonalRamp": [
+          "oklch(0.15 0.075 248)",
+          "oklch(0.26 0.075 248)",
+          "oklch(0.38 0.075 248)",
+          "oklch(0.49 0.075 248)",
+          "oklch(0.61 0.075 248)",
+          "oklch(0.72 0.075 248)",
+          "oklch(0.84 0.075 248)",
+          "oklch(0.95 0.075 248)"
+        ]
+      },
+      "accent-ink": {
+        "role": "primary",
+        "displayName": "Slate Link Ink",
+        "canonical": "light-dark(oklch(0.43 0.085 250), oklch(0.82 0.08 248))",
+        "tonalRamp": [
+          "oklch(0.15 0.085 250)",
+          "oklch(0.26 0.085 250)",
+          "oklch(0.38 0.085 250)",
+          "oklch(0.49 0.085 250)",
+          "oklch(0.61 0.085 250)",
+          "oklch(0.72 0.085 250)",
+          "oklch(0.84 0.085 250)",
+          "oklch(0.95 0.085 250)"
+        ]
+      },
+      "on-accent": {
+        "role": "primary",
+        "displayName": "On Accent",
+        "canonical": "light-dark(#ffffff, #141312)",
+        "tonalRamp": [
+          "oklch(0.15 0.000 90)",
+          "oklch(0.26 0.000 90)",
+          "oklch(0.38 0.000 90)",
+          "oklch(0.49 0.000 90)",
+          "oklch(0.61 0.000 90)",
+          "oklch(0.72 0.000 90)",
+          "oklch(0.84 0.000 90)",
+          "oklch(0.95 0.000 90)"
+        ]
+      },
+      "accent-soft": {
+        "role": "primary",
+        "displayName": "Slate Wash",
+        "canonical": "light-dark(oklch(0.95 0.02 248), oklch(0.30 0.035 248))",
+        "tonalRamp": [
+          "oklch(0.15 0.020 248)",
+          "oklch(0.26 0.020 248)",
+          "oklch(0.38 0.020 248)",
+          "oklch(0.49 0.020 248)",
+          "oklch(0.61 0.020 248)",
+          "oklch(0.72 0.020 248)",
+          "oklch(0.84 0.020 248)",
+          "oklch(0.95 0.020 248)"
+        ]
+      },
+      "plot": {
+        "role": "primary",
+        "displayName": "Plot Trace Blue",
+        "canonical": "light-dark(oklch(0.45 0.08 250), oklch(0.80 0.08 248))",
+        "tonalRamp": [
+          "oklch(0.15 0.080 250)",
+          "oklch(0.26 0.080 250)",
+          "oklch(0.38 0.080 250)",
+          "oklch(0.49 0.080 250)",
+          "oklch(0.61 0.080 250)",
+          "oklch(0.72 0.080 250)",
+          "oklch(0.84 0.080 250)",
+          "oklch(0.95 0.080 250)"
+        ]
+      },
+      "edge": {
+        "role": "secondary",
+        "displayName": "Edge Ochre",
+        "canonical": "light-dark(oklch(0.60 0.11 65), oklch(0.78 0.10 72))",
+        "tonalRamp": [
+          "oklch(0.15 0.110 65)",
+          "oklch(0.26 0.110 65)",
+          "oklch(0.38 0.110 65)",
+          "oklch(0.49 0.110 65)",
+          "oklch(0.61 0.110 65)",
+          "oklch(0.72 0.110 65)",
+          "oklch(0.84 0.110 65)",
+          "oklch(0.95 0.110 65)"
+        ]
+      },
+      "note": {
+        "role": "secondary",
+        "displayName": "Field Note Amber",
+        "canonical": "light-dark(oklch(0.52 0.10 65), oklch(0.80 0.10 75))",
+        "tonalRamp": [
+          "oklch(0.15 0.100 65)",
+          "oklch(0.26 0.100 65)",
+          "oklch(0.38 0.100 65)",
+          "oklch(0.49 0.100 65)",
+          "oklch(0.61 0.100 65)",
+          "oklch(0.72 0.100 65)",
+          "oklch(0.84 0.100 65)",
+          "oklch(0.95 0.100 65)"
+        ]
+      },
+      "danger": {
+        "role": "neutral",
+        "displayName": "Error Red",
+        "canonical": "light-dark(oklch(0.50 0.15 28), oklch(0.76 0.12 28))",
+        "tonalRamp": [
+          "oklch(0.15 0.150 28)",
+          "oklch(0.26 0.150 28)",
+          "oklch(0.38 0.150 28)",
+          "oklch(0.49 0.150 28)",
+          "oklch(0.61 0.150 28)",
+          "oklch(0.72 0.150 28)",
+          "oklch(0.84 0.150 28)",
+          "oklch(0.95 0.150 28)"
+        ]
+      },
+      "type-coreloss": {
+        "role": "tertiary",
+        "displayName": "Core-loss Slate",
+        "canonical": "light-dark(oklch(0.47 0.07 255), oklch(0.80 0.07 250))",
+        "tonalRamp": [
+          "oklch(0.15 0.070 255)",
+          "oklch(0.26 0.070 255)",
+          "oklch(0.38 0.070 255)",
+          "oklch(0.49 0.070 255)",
+          "oklch(0.61 0.070 255)",
+          "oklch(0.72 0.070 255)",
+          "oklch(0.84 0.070 255)",
+          "oklch(0.95 0.070 255)"
+        ]
+      },
+      "type-lowloss": {
+        "role": "tertiary",
+        "displayName": "Low-loss Amber",
+        "canonical": "light-dark(oklch(0.50 0.09 70), oklch(0.82 0.09 78))",
+        "tonalRamp": [
+          "oklch(0.15 0.090 70)",
+          "oklch(0.26 0.090 70)",
+          "oklch(0.38 0.090 70)",
+          "oklch(0.49 0.090 70)",
+          "oklch(0.61 0.090 70)",
+          "oklch(0.72 0.090 70)",
+          "oklch(0.84 0.090 70)",
+          "oklch(0.95 0.090 70)"
+        ]
+      },
+      "type-xrayabs": {
+        "role": "tertiary",
+        "displayName": "X-ray Absorption Green",
+        "canonical": "light-dark(oklch(0.48 0.07 160), oklch(0.80 0.08 160))",
+        "tonalRamp": [
+          "oklch(0.15 0.070 160)",
+          "oklch(0.26 0.070 160)",
+          "oklch(0.38 0.070 160)",
+          "oklch(0.49 0.070 160)",
+          "oklch(0.61 0.070 160)",
+          "oklch(0.72 0.070 160)",
+          "oklch(0.84 0.070 160)",
+          "oklch(0.95 0.070 160)"
+        ]
+      },
+      "logo-red": {
+        "role": "brand",
+        "displayName": "Trace Red",
+        "canonical": "light-dark(#a21e16, #e86f63)",
+        "tonalRamp": [
+          "oklch(0.15 0.169 29)",
+          "oklch(0.26 0.169 29)",
+          "oklch(0.38 0.169 29)",
+          "oklch(0.49 0.169 29)",
+          "oklch(0.61 0.169 29)",
+          "oklch(0.72 0.169 29)",
+          "oklch(0.84 0.169 29)",
+          "oklch(0.95 0.169 29)"
+        ]
+      },
+      "logo-ochre": {
+        "role": "brand",
+        "displayName": "Trace Ochre",
+        "canonical": "light-dark(#b96716, #e3a35d)",
+        "tonalRamp": [
+          "oklch(0.15 0.135 58)",
+          "oklch(0.26 0.135 58)",
+          "oklch(0.38 0.135 58)",
+          "oklch(0.49 0.135 58)",
+          "oklch(0.61 0.135 58)",
+          "oklch(0.72 0.135 58)",
+          "oklch(0.84 0.135 58)",
+          "oklch(0.95 0.135 58)"
+        ]
+      },
+      "avatar-a": {
+        "role": "neutral",
+        "displayName": "Avatar Slate",
+        "canonical": "light-dark(oklch(0.90 0.035 248), oklch(0.36 0.045 248))",
+        "tonalRamp": [
+          "oklch(0.15 0.04 248)",
+          "oklch(0.26 0.04 248)",
+          "oklch(0.38 0.04 248)",
+          "oklch(0.49 0.04 248)",
+          "oklch(0.61 0.04 248)",
+          "oklch(0.72 0.04 248)",
+          "oklch(0.84 0.04 248)",
+          "oklch(0.95 0.04 248)"
+        ]
+      },
+      "avatar-b": {
+        "role": "neutral",
+        "displayName": "Avatar Amber",
+        "canonical": "light-dark(oklch(0.91 0.045 75), oklch(0.38 0.05 70))",
+        "tonalRamp": [
+          "oklch(0.15 0.04 75)",
+          "oklch(0.26 0.04 75)",
+          "oklch(0.38 0.04 75)",
+          "oklch(0.49 0.04 75)",
+          "oklch(0.61 0.04 75)",
+          "oklch(0.72 0.04 75)",
+          "oklch(0.84 0.04 75)",
+          "oklch(0.95 0.04 75)"
+        ]
+      },
+      "avatar-c": {
+        "role": "neutral",
+        "displayName": "Avatar Green",
+        "canonical": "light-dark(oklch(0.91 0.035 160), oklch(0.36 0.04 160))",
+        "tonalRamp": [
+          "oklch(0.15 0.04 160)",
+          "oklch(0.26 0.04 160)",
+          "oklch(0.38 0.04 160)",
+          "oklch(0.49 0.04 160)",
+          "oklch(0.61 0.04 160)",
+          "oklch(0.72 0.04 160)",
+          "oklch(0.84 0.04 160)",
+          "oklch(0.95 0.04 160)"
+        ]
+      },
+      "avatar-d": {
+        "role": "neutral",
+        "displayName": "Avatar Rose",
+        "canonical": "light-dark(oklch(0.91 0.03 20), oklch(0.36 0.04 20))",
+        "tonalRamp": [
+          "oklch(0.15 0.04 20)",
+          "oklch(0.26 0.04 20)",
+          "oklch(0.38 0.04 20)",
+          "oklch(0.49 0.04 20)",
+          "oklch(0.61 0.04 20)",
+          "oklch(0.72 0.04 20)",
+          "oklch(0.84 0.04 20)",
+          "oklch(0.95 0.04 20)"
+        ]
+      },
+      "avatar-e": {
+        "role": "neutral",
+        "displayName": "Avatar Violet",
+        "canonical": "light-dark(oklch(0.91 0.03 300), oklch(0.36 0.04 300))",
+        "tonalRamp": [
+          "oklch(0.15 0.04 300)",
+          "oklch(0.26 0.04 300)",
+          "oklch(0.38 0.04 300)",
+          "oklch(0.49 0.04 300)",
+          "oklch(0.61 0.04 300)",
+          "oklch(0.72 0.04 300)",
+          "oklch(0.84 0.04 300)",
+          "oklch(0.95 0.04 300)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page h1 on inner pages; 1.5rem below 560px."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Section h2; 1.12rem in the homepage's ways in."
+      },
+      "title-sm": {
+        "displayName": "Title small",
+        "purpose": "h3; 0.95rem truncated for example-tile names."
+      },
+      "lede": {
+        "displayName": "Lede",
+        "purpose": "Homepage one-sentence lede in ink at 38ch; muted inner-page intro at 62ch."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Reading text, max 72ch, tabular figures."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "Every button and button-styled link; never wraps."
+      },
+      "table": {
+        "displayName": "Table",
+        "purpose": "Data table cells."
+      },
+      "small": {
+        "displayName": "Small",
+        "purpose": "Footer, dates; tooltips and tile footers at 0.85rem."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Filter labels, legends, chips."
+      },
+      "column-head": {
+        "displayName": "Column head",
+        "purpose": "Table header cells, muted, no wrap."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Code, DOIs and other identifiers."
+      }
+    },
+    "shadows": [
+      {
+        "name": "soft-lift",
+        "value": "0 1px 2px var(--shadow-color), 0 8px 24px var(--shadow-color)",
+        "purpose": "Dialogs and tooltips only. --shadow-color is light-dark(rgb(40 30 20 / 0.08), rgb(0 0 0 / 0.4))."
+      }
+    ],
+    "motion": [
+      {
+        "name": "scan",
+        "value": "1.3s cubic-bezier(0.32, 0.06, 0.24, 1) 0.1s",
+        "purpose": "Homepage logo: clip window and scan head sweep left to right, recording the two traces. Once, reduced-motion gated."
+      },
+      {
+        "name": "rise",
+        "value": "0.45s cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Homepage logo lettering (0.375s delay) and tagline (0.575s delay) fade up 6px from a 3px blur."
+      },
+      {
+        "name": "header-logo",
+        "value": "0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Homepage header logo fades up 6px when the page leaves the top; fades straight out, without movement, back at the top."
+      },
+      {
+        "name": "tooltip",
+        "value": "0.12s cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Tooltip fade with a 4px rise; 80ms show delay, instant between targets, 60ms hide delay. No transition with reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "560px"
+      },
+      {
+        "name": "md",
+        "value": "860px"
+      },
+      {
+        "name": "home-md",
+        "value": "960px"
+      },
+      {
+        "name": "home-lg",
+        "value": "1180px"
+      },
+      {
+        "name": "lg",
+        "value": "1440px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main action in a group: Browse all spectra, Search, Share a spectrum.",
+      "html": "<a class=\"ds-btn\" href=\"#\">Browse all spectra <svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 10h12M11 5l5 5-5 5\"/></svg></a>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; gap: 0.45rem; white-space: nowrap; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); font: 600 0.95rem/1.55 var(--font); cursor: pointer; text-decoration: none; } .ds-btn svg { width: 16px; height: 16px; } .ds-btn:hover { filter: brightness(1.08); } .ds-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Filled grey companion to a primary: Share your spectra, Sign in, Read the paper.",
+      "html": "<a class=\"ds-btn ds-btn-2\" href=\"#\">Share your spectra <svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 10h12M11 5l5 5-5 5\"/></svg></a>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; gap: 0.45rem; white-space: nowrap; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); font: 600 0.95rem/1.55 var(--font); cursor: pointer; text-decoration: none; } .ds-btn svg { width: 16px; height: 16px; } .ds-btn:hover { filter: brightness(1.08); } .ds-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; } .ds-btn-2 { background: var(--sunken); color: var(--ink); border-color: color-mix(in oklab, var(--line), var(--muted) 25%); } .ds-btn-2:hover { background: var(--surface); border-color: var(--muted); filter: none; }"
+    },
+    {
+      "name": "Search Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Text input with a primary button beside it.",
+      "html": "<form class=\"ds-search\"><input type=\"search\" placeholder=\"For example rutile, TiO2 or graphite\"><button class=\"ds-btn\">Search</button></form>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; gap: 0.45rem; white-space: nowrap; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); font: 600 0.95rem/1.55 var(--font); cursor: pointer; text-decoration: none; } .ds-btn svg { width: 16px; height: 16px; } .ds-btn:hover { filter: brightness(1.08); } .ds-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; } .ds-search { display: flex; gap: 0.5rem; } .ds-search input { flex: 1; min-width: 0; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 0.5rem 0.7rem; } .ds-search input::placeholder { color: var(--muted); } .ds-search input:hover { border-color: var(--muted); } .ds-search input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }"
+    },
+    {
+      "name": "Sticky Header",
+      "kind": "nav",
+      "description": "Small logo left, nav right ending in a Sign in secondary button; bg and rule border once scrolled.",
+      "html": "<header class=\"ds-top\"><a class=\"ds-mark\" href=\"#\"><b>EELS</b>db</a><nav><a href=\"#\">Browse</a><a href=\"#\" aria-current=\"page\">Submit</a><a href=\"#\">News</a><a href=\"#\">API</a><a href=\"#\">About</a><a class=\"ds-btn ds-btn-2\" href=\"#\">Sign in</a></nav></header>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; gap: 0.45rem; white-space: nowrap; padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); font: 600 0.95rem/1.55 var(--font); cursor: pointer; text-decoration: none; } .ds-btn svg { width: 16px; height: 16px; } .ds-btn:hover { filter: brightness(1.08); } .ds-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; } .ds-btn-2 { background: var(--sunken); color: var(--ink); border-color: color-mix(in oklab, var(--line), var(--muted) 25%); } .ds-btn-2:hover { background: var(--surface); border-color: var(--muted); filter: none; } .ds-top { display: flex; align-items: center; gap: 2rem; padding: 0.8rem 1rem; background: var(--bg); border-bottom: 1px solid var(--rule); font-family: var(--font); } .ds-mark { color: var(--ink); font-size: 1.6rem; letter-spacing: -0.01em; text-decoration: none; } .ds-mark b { font-weight: 800; } .ds-top nav { margin-left: auto; display: flex; align-items: center; gap: 1.4rem; } .ds-top nav a:not(.ds-btn) { color: var(--ink); font-weight: 500; text-decoration: none; padding-block: 0.2rem; border-bottom: 2px solid transparent; } .ds-top nav a:not(.ds-btn):hover { border-bottom-color: var(--line); } .ds-top nav a[aria-current] { border-bottom-color: var(--accent); }"
+    },
+    {
+      "name": "Type Filter Badge",
+      "kind": "chip",
+      "refersTo": "type-filter-on",
+      "description": "Toggle for one spectrum type; off is dashed with a hollow dot.",
+      "html": "<div class=\"ds-tfs\"><button class=\"ds-tf\" aria-pressed=\"true\"><span class=\"ds-dot\" style=\"background:var(--type-coreloss)\"></span>Core loss</button><button class=\"ds-tf\" aria-pressed=\"false\"><span class=\"ds-dot\"></span>Low loss</button></div>",
+      "css": ".ds-tfs { display: flex; gap: 0.5rem; } .ds-tf { font: 0.9rem var(--font); display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.75rem; border-radius: 4px; border: 1px solid color-mix(in oklab, var(--line), var(--muted) 25%); background: var(--surface); color: var(--ink); cursor: pointer; transition: background-color 0.15s, color 0.15s, border-color 0.15s; } .ds-tf:hover { border-color: var(--muted); } .ds-tf:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; } .ds-tf[aria-pressed='false'] { background: transparent; color: var(--muted); border-style: dashed; } .ds-dot { width: 0.5em; height: 0.5em; border-radius: 50%; background: var(--muted); } .ds-tf[aria-pressed='false'] .ds-dot { background: transparent; box-shadow: inset 0 0 0 1.5px currentColor; }"
+    },
+    {
+      "name": "Tooltip",
+      "kind": "custom",
+      "refersTo": "tooltip",
+      "description": "Shared hover and focus tooltip for periodic-table cells and avatars.",
+      "html": "<div class=\"ds-tip\"><b>Titanium</b><ul><li><span class=\"ds-dot\" style=\"background:var(--type-coreloss)\"></span>Core loss<span>25</span></li><li><span class=\"ds-dot\" style=\"background:var(--type-lowloss)\"></span>Low loss<span>13</span></li></ul></div>",
+      "css": ".ds-tip { position: relative; display: inline-block; min-width: 11rem; margin-bottom: 8px; padding: 0.6rem 0.75rem; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 1px 2px light-dark(rgb(40 30 20 / 0.08), rgb(0 0 0 / 0.4)), 0 8px 24px light-dark(rgb(40 30 20 / 0.08), rgb(0 0 0 / 0.4)); font: 0.85rem/1.55 var(--font); } .ds-tip::before { content: ''; position: absolute; left: 50%; bottom: -5.5px; width: 9px; height: 9px; background: var(--surface); border: 1px solid var(--line); border-top: 0; border-left: 0; transform: translateX(-50%) rotate(45deg); } .ds-tip b { display: block; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.3rem; } .ds-tip ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.15rem; } .ds-tip li { display: flex; align-items: center; gap: 0.45rem; } .ds-tip li span:last-child { margin-left: auto; padding-left: 1rem; color: var(--muted); } .ds-dot { width: 0.5em; height: 0.5em; border-radius: 50%; }"
+    },
+    {
+      "name": "Example Tile",
+      "kind": "card",
+      "refersTo": "example-tile",
+      "description": "Credited small multiple of a real spectrum, with dashed edge markers.",
+      "html": "<article class=\"ds-tile\"><a class=\"ds-tile-main\" href=\"#\"><h3>Rutile</h3><p>TiO<sub>2</sub> · <span class=\"ds-dot\"></span>Core loss</p><svg viewBox=\"0 0 1000 300\" preserveAspectRatio=\"none\"><line class=\"e\" x1=\"256\" x2=\"256\" y1=\"0\" y2=\"300\"/><path class=\"l\" d=\"M0 280 L240 270 L256 120 L300 200 L420 230 L628 240 L640 150 L700 210 L1000 260\"/></svg></a><footer><span class=\"ds-av\">SS</span>Saso Sturm</footer></article>",
+      "css": ".ds-tile { width: 15rem; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; font-family: var(--font); color: var(--ink); } .ds-tile-main { display: block; padding: 0.7rem 0.8rem 0.5rem; color: var(--ink); text-decoration: none; } .ds-tile-main:hover h3 { color: var(--accent-ink); } .ds-tile h3 { margin: 0; font-size: 0.95rem; font-weight: 600; } .ds-tile p { margin: 0; font-size: 0.8rem; color: var(--muted); display: flex; align-items: center; gap: 0.4rem; } .ds-tile sub { font-size: 0.72em; line-height: 0; } .ds-tile svg { display: block; width: 100%; height: 78px; margin-top: 1.25rem; } .ds-tile .l { fill: none; stroke: var(--plot); stroke-width: 1.6; vector-effect: non-scaling-stroke; } .ds-tile .e { stroke: var(--edge); stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; } .ds-tile footer { display: flex; align-items: center; gap: 0.55rem; border-top: 1px solid var(--rule); padding: 0.45rem 0.8rem; font-size: 0.85rem; font-weight: 500; } .ds-av { display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; font-size: 0.62rem; font-weight: 600; background: light-dark(oklch(0.91 0.03 300), oklch(0.36 0.04 300)); } .ds-dot { width: 0.5em; height: 0.5em; border-radius: 50%; background: var(--type-coreloss); }"
+    },
+    {
+      "name": "DOI Copy Chip",
+      "kind": "custom",
+      "refersTo": "doi-chip",
+      "description": "Copies a DOI; clipboard icon turns to a tick with Copied.",
+      "html": "<button class=\"ds-doi\"><span class=\"k\">DOI</span><code>10.1017/S1431927616000179</code><svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"6.5\" y=\"6.5\" width=\"10\" height=\"11\" rx=\"1.5\"/><path d=\"M13.5 6.5V4a1.5 1.5 0 0 0-1.5-1.5H5A1.5 1.5 0 0 0 3.5 4v8A1.5 1.5 0 0 0 5 13.5h1.5\"/></svg></button>",
+      "css": ".ds-doi { display: inline-flex; min-height: 2.625rem; align-items: center; gap: 0.5rem; padding: 0 0.7rem; font: 0.9rem var(--font); color: var(--ink); background: var(--sunken); border: 1px solid transparent; border-radius: 4px; cursor: pointer; } .ds-doi:hover { border-color: var(--line); } .ds-doi:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; } .ds-doi .k { font-size: 0.75rem; font-weight: 600; color: var(--muted); } .ds-doi code { font-family: var(--mono); font-size: 0.85rem; } .ds-doi svg { width: 16px; height: 16px; color: var(--muted); }"
+    },
+    {
+      "name": "Avatars",
+      "kind": "custom",
+      "refersTo": "avatar",
+      "description": "Initials on five low-chroma washes until a contributor adds a picture.",
+      "html": "<div class=\"ds-faces\"><a href=\"#\" class=\"ds-av\" style=\"background:light-dark(oklch(0.90 0.035 248), oklch(0.36 0.045 248))\">MA</a><a href=\"#\" class=\"ds-av\" style=\"background:light-dark(oklch(0.91 0.045 75), oklch(0.38 0.05 70))\">LL</a><a href=\"#\" class=\"ds-av\" style=\"background:light-dark(oklch(0.91 0.035 160), oklch(0.36 0.04 160))\">KV</a><a href=\"#\" class=\"ds-av\" style=\"background:light-dark(oklch(0.91 0.03 20), oklch(0.36 0.04 20))\">AF</a><a href=\"#\" class=\"ds-av\" style=\"background:light-dark(oklch(0.91 0.03 300), oklch(0.36 0.04 300))\">GB</a></div>",
+      "css": ".ds-faces { display: flex; gap: 0.5rem; } .ds-av { display: inline-grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 50%; font: 600 0.85rem var(--font); color: var(--ink); text-decoration: none; } .ds-av:hover, .ds-av:focus-visible { box-shadow: 0 0 0 2px var(--accent); outline: none; }"
+    },
+    {
+      "name": "Type Badge",
+      "kind": "custom",
+      "description": "Spectrum type as a coloured dot and a muted label; never a boxed tag.",
+      "html": "<span class=\"ds-type\" style=\"--t: var(--type-coreloss)\">Core loss</span> <span class=\"ds-type\" style=\"--t: var(--type-lowloss)\">Low loss</span> <span class=\"ds-type\" style=\"--t: var(--type-xrayabs)\">X-ray absorption</span> <span class=\"ds-type\">Zero loss</span>",
+      "css": ".ds-type { display: inline-flex; align-items: baseline; gap: 0.45em; font: 0.85rem/1.55 var(--font); color: var(--muted); white-space: nowrap; margin-right: 1rem; } .ds-type::before { content: \"\"; width: 0.5em; height: 0.5em; border-radius: 50%; background: var(--t, var(--muted)); flex: none; align-self: center; }"
+    },
+    {
+      "name": "Formula",
+      "kind": "custom",
+      "description": "Typeset chemical formula with subscripts, superscripts and italic variable stoichiometry.",
+      "html": "<span class=\"ds-formula\">(C<sub>2</sub>H<sub>4</sub>)<sub><i>n</i></sub></span> &nbsp; <span class=\"ds-formula\">Fe<sup>3+</sup></span> &nbsp; <span class=\"ds-formula\">TiO<sub>2</sub></span>",
+      "css": ".ds-formula { font: 14px/1.55 var(--font); color: var(--ink); } .ds-formula sub, .ds-formula sup { font-size: 0.72em; line-height: 0; } .ds-formula sub i { font-style: italic; }"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Active filters and tags.",
+      "html": "<a class=\"ds-chip\" href=\"#\">Element: Ti</a>",
+      "css": ".ds-chip { font: 0.8rem/1.55 var(--font); background: var(--sunken); color: var(--ink); border-radius: 999px; padding: 0.15rem 0.7rem; text-decoration: none; } .ds-chip:hover { background: var(--accent-soft); } .ds-chip:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }"
+    },
+    {
+      "name": "Notice",
+      "kind": "card",
+      "refersTo": "notice",
+      "description": "Status or information panel.",
+      "html": "<p class=\"ds-notice\">The archive has not been made yet.</p>",
+      "css": ".ds-notice { border: 1px solid var(--line); background: var(--sunken); color: var(--ink); border-radius: 8px; padding: 1rem 1.25rem; font: 16px/1.55 var(--font); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Instrument Readout",
+    "overview": "The site reads like the output of a well-kept spectrometer: neutral warm-grey paper, black ink, numbers in tabular figures, and exactly two strong colours, the red and ochre traces of the logo. Everything else is quiet. Links are coloured but not underlined except inside running text, tables have hairline rules instead of boxes, spectrum types are coloured dots, and the interface accent is a calm slate blue chosen so it never competes with the logo. Real data carries the page: the homepage shows real spectra, real counts and the real people who shared them.\n\nThe system is light and dark from one source: every colour is a `light-dark()` pair, the OS picks the scheme, and a signed-in user can pin one in their settings (`data-theme` on the root). Dark mode is built for the darkened microscope room: warm near-black paper, warm off-white ink, and lighter, softer versions of every hue.\n\nDensity is that of a reference tool used on wide desktop monitors: a 1320px column (1920px for wide pages such as browse), a sticky header, and multi-column layouts that fold to one column on narrow screens. Motion is limited to three things: the homepage logo's scan, the header logo's fade, and the tooltip's fade. All respect reduced motion.",
+    "keyCharacteristics": [
+      "Two strong colours only, both in the logo; the interface accent is a muted slate blue.",
+      "Flat surfaces separated by 1px rules and tonal steps (bg, surface, sunken); one soft shadow, on dialogs and tooltips.",
+      "Mona Sans variable throughout, self-hosted, the same face as the logo's lettering; tabular figures site-wide.",
+      "Chemical formulas typeset with real subscripts and superscripts, variable stoichiometry in italics.",
+      "Spectrum types shown as a coloured dot plus a label.",
+      "Square-ish 4px controls; labels never wrap.",
+      "Full `light-dark()` palette."
+    ],
+    "rules": [
+      {
+        "name": "The Two Traces Rule",
+        "body": "The logo's red and ochre belong to the logo and favicon. Interface elements use the slate accent; they never borrow `logo-red` or `logo-ochre`.",
+        "section": "colors"
+      },
+      {
+        "name": "The Quiet Accent Rule",
+        "body": "The accent marks what is actionable or current (primary button, active nav, selection, focus) and the one data scale that needs it (periodic-table shading). Nothing decorative. If a screen has more than one or two blue areas outside the periodic table, something is over-using it.",
+        "section": "colors"
+      },
+      {
+        "name": "The Paired Value Rule",
+        "body": "Every colour is written once as `light-dark(light, dark)` in `:root`. Never add a colour that only exists in one scheme, and never re-theme with a separate dark-mode block.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Figures Rule",
+        "body": "`font-variant-numeric: tabular-nums` is set on the body. Counts, energies and dates line up in columns; never switch it off for a numeric cell.",
+        "section": "typography"
+      },
+      {
+        "name": "The Typeset Formula Rule",
+        "body": "Chemical formulas always render through the Formula component: stoichiometric numbers as subscripts at 0.72em, charges as superscripts, and variable stoichiometry (`n`, `m`, `x`, `y`) as italic subscripts, so `(C2H4)n` shows as (C₂H₄)<sub><i>n</i></sub>. Edge names follow suit (Ti L<sub>2,3</sub>). Never print a raw formula string.",
+        "section": "typography"
+      },
+      {
+        "name": "The Sentence Case Rule",
+        "body": "Headings, buttons and labels are sentence case. There is no uppercase or tracked-out text anywhere in the build.",
+        "section": "typography"
+      },
+      {
+        "name": "The Plain Copy Rule",
+        "body": "Copy is plain and factual: say what a thing is or does in as few words as it takes, and cut any sentence that only explains the page to itself. \"290 spectra from 41 microscopists, shared since 2005.\" is the model.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Page Rule",
+        "body": "Cards, tiles, notices, tables, buttons and inputs carry no shadow. If something needs to stand out, give it `surface` on `bg` or `sunken` on `surface`, or a `line` border. Hover rings (2px `ink` on periodic-table cells, 2px `accent` on avatars) are outlines, not shadows.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** write every new colour as a `light-dark()` pair in `:root` and reference it by role (`--ink`, `--muted`, `--accent`), never as a literal in a rule.",
+      "**Do** use `accent` only for the actionable or current thing (primary button, current nav item, selection, focus) and for the periodic-table shade scale.",
+      "**Do** pair a primary button with a `sunken`-filled secondary, not a bare outline.",
+      "**Do** keep button labels on one line and controls at 4px corners.",
+      "**Do** separate content with 1px `rule`/`line` borders and the bg/surface/sunken steps.",
+      "**Do** render every formula with the Formula component and every spectrum type with the type dot.",
+      "**Do** show real data: real plots in tiles, real counts, real contributors.",
+      "**Do** keep figures tabular and right-align numeric table columns.",
+      "**Do** use the shared tooltip, with `aria-describedby` and keyboard focus, for any hover detail; never a `title` attribute alongside it.",
+      "**Do** cap reading text at 72ch and keep copy plain, factual and in sentence case.",
+      "**Do** gate every animation behind `prefers-reduced-motion: no-preference`."
+    ],
+    "donts": [
+      "**Don't** use `logo-red` or `logo-ochre` outside the logo and favicon.",
+      "**Don't** underline links outside running text; inside paragraphs, use the faint 30% underline that firms up on hover.",
+      "**Don't** draw a spectrum type label as an outlined or filled tag; use the dot.",
+      "**Don't** add shadows to cards, tiles, buttons or notices; dialogs and tooltips are the only lifted surfaces.",
+      "**Don't** add a second typeface; Mona Sans carries the interface and the logo, with ui-monospace only for code and identifiers.",
+      "**Don't** use pill-shaped buttons.",
+      "**Don't** add animation beyond the logo scan, the header logo fade and the tooltip fade.",
+      "**Don't** add explanatory filler sentences; if a heading and a count say it, stop.",
+      "**Don't** change the logo traces or their colours, or extend the tails outside the header lockup."
+    ]
+  }
+}
