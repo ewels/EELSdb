@@ -14,10 +14,23 @@ const NAV = [
 // Runs before paint so a saved theme does not flash. A signed-in user's saved theme arrives as data-theme and wins.
 const THEME_SCRIPT = `document.documentElement.classList.add("js");try{var r=document.documentElement,t=localStorage.getItem("theme");if(t&&!r.dataset.theme)r.dataset.theme=t}catch(e){}`;
 // Flips light and dark, remembers it in this browser, and saves it to the account when signed in.
-const TOGGLE_SCRIPT = `document.querySelector(".theme-toggle").addEventListener("click",function(){var r=document.documentElement,d=r.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"),n=d==="dark"?"light":"dark";r.dataset.theme=n;try{localStorage.setItem("theme",n)}catch(e){}if(this.dataset.save)fetch("/account/settings/theme/",{method:"POST",body:new URLSearchParams({theme:n})})})`;
+const TOGGLE_SCRIPT = `document.querySelectorAll(".theme-toggle").forEach(function(b){b.addEventListener("click",function(){var r=document.documentElement,d=r.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"),n=d==="dark"?"light":"dark";r.dataset.theme=n;try{localStorage.setItem("theme",n)}catch(e){}if(this.dataset.save)fetch("/account/settings/theme/",{method:"POST",body:new URLSearchParams({theme:n})})})})`;
 
 // The burger menu. Keep the width in step with the 999px breakpoint in style.css.
 const MENU_SCRIPT = `;(function(){var h=document.querySelector(".site-header"),b=h.querySelector(".menu-toggle"),m=document.getElementById("site-menu"),q=matchMedia("(max-width: 999px)");function set(o){h.classList.toggle("menu-open",o);b.setAttribute("aria-expanded",o)}b.addEventListener("click",function(){set(b.getAttribute("aria-expanded")!=="true")});addEventListener("keydown",function(e){if(e.key==="Escape"&&h.classList.contains("menu-open")){set(false);b.focus()}});addEventListener("click",function(e){if(!h.contains(e.target))set(false)});m.addEventListener("click",function(e){if(e.target.closest("a"))set(false)});q.addEventListener("change",function(){if(!q.matches)set(false)})})()`;
+
+// Two copies so each sits in DOM (and Tab) order where it shows: in the header row on wide screens, beside the account in the burger panel on narrow ones. CSS hides one.
+function ThemeToggle(props: { class: string; save: boolean }) {
+  return (
+    <button class={`theme-toggle ${props.class}`} type="button" title="Light or dark" data-save={props.save ? "1" : undefined}>
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+        <circle cx="10" cy="10" r="6.5" />
+        <path d="M10 3.5a6.5 6.5 0 0 1 0 13z" fill="currentColor" stroke="none" />
+      </svg>
+      <span class="theme-label"><span class="to-dark">Switch to dark mode</span><span class="to-light">Switch to light mode</span></span>
+    </button>
+  );
+}
 
 export function Layout(props: {
   title?: string;
@@ -69,31 +82,28 @@ export function Layout(props: {
                   </svg>
                   <input type="search" name="title" placeholder="Search spectra" aria-label="Search spectra" />
                 </form>
-                <button class="theme-toggle" type="button" title="Light or dark" data-save={props.user ? "1" : undefined}>
-                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-                    <circle cx="10" cy="10" r="6.5" />
-                    <path d="M10 3.5a6.5 6.5 0 0 1 0 13z" fill="currentColor" stroke="none" />
-                  </svg>
-                  <span class="theme-label"><span class="to-dark">Dark mode</span><span class="to-light">Light mode</span></span>
-                </button>
+                <ThemeToggle class="wide" save={!!props.user} />
                 <nav class="site-nav" aria-label="Main">
                   {NAV.map(([href, label]) => (
                     <a href={href} aria-current={props.path.startsWith(href) ? "page" : undefined}>{label}</a>
                   ))}
-                  {props.user ? (
-                    <a
-                      class="account-link"
-                      href="/account/"
-                      aria-label={`Your account (${props.user.display_name})`}
-                      title={props.user.display_name}
-                      aria-current={props.path.startsWith("/account/") ? "page" : undefined}
-                    >
-                      <Avatar name={props.user.display_name} seed={props.user.slug ?? props.user.display_name} src={props.user.avatar} />
-                      <span class="account-name">{props.user.display_name}</span>
-                    </a>
-                  ) : (
-                    <a class="button secondary" href={`/login/${props.path && props.path !== "/login/" ? `?next=${encodeURIComponent(props.path)}` : ""}`}>Sign in</a>
-                  )}
+                  <div class="menu-foot">
+                    {props.user ? (
+                      <a
+                        class="account-link"
+                        href="/account/"
+                        aria-label={`Your account (${props.user.display_name})`}
+                        title={props.user.display_name}
+                        aria-current={props.path.startsWith("/account/") ? "page" : undefined}
+                      >
+                        <Avatar name={props.user.display_name} seed={props.user.slug ?? props.user.display_name} src={props.user.avatar} />
+                        <span class="account-name">{props.user.display_name}</span>
+                      </a>
+                    ) : (
+                      <a class="button secondary" href={`/login/${props.path && props.path !== "/login/" ? `?next=${encodeURIComponent(props.path)}` : ""}`}>Sign in</a>
+                    )}
+                    <ThemeToggle class="narrow" save={!!props.user} />
+                  </div>
                 </nav>
               </div>
             </div>
@@ -102,13 +112,9 @@ export function Layout(props: {
           <main id="main" class={wrap}>{props.children}</main>
           <footer class="site-footer">
             <div class="wrap">
-              <a href="/citation/">How to cite</a>
-              <a href="/instruments/">Instrument profiles</a>
-              <a href="/downloads/">Download everything</a>
-              <a href="/news/">News</a>
-              <a href="/logo/">Logo and colours</a>
               <a href="/contact/">Contact</a>
-              <a href="https://github.com/ewels/EELSdb">Source on GitHub</a>
+              <a href="https://github.com/ewels/EELSdb">Website source code on GitHub</a>
+              <a class="downloads" href="/downloads/">Download everything</a>
               <span class="licence">
                 Data under the <a href="https://opendatacommons.org/licenses/odbl/">Open Database Licence (ODbL)</a>
               </span>

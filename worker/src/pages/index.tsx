@@ -6,7 +6,7 @@ import openapi from "../api/openapi-v1.json";
 import openapiV2 from "../api/openapi-v2.json";
 import { serveFile } from "../files";
 import { apiDocs } from "./api-docs";
-import { brand } from "./brand";
+import { brand, LogoSection } from "./brand";
 import { browsePage } from "./browse";
 import { EELSDB_BIBTEX, EELSDB_CITATION } from "./citation";
 import { Avatar, Formula, Layout, TYPE_NAMES, TypeBadge } from "./layout";
@@ -77,7 +77,7 @@ pages.get("/downloads/", async (c) => {
         )}
         <p>
           The spectra are open data under the <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a>. Please cite the contributors'
-          papers and the EELS Data Base (<a href="/citation/">how to cite</a>). To fetch selected spectra instead, use the{" "}
+          papers and the EELS Data Base (<a href="/about/#cite">how to cite</a>). To fetch selected spectra instead, use the{" "}
           <a href="/api/v2/">API</a>.
         </p>
       </div>
@@ -94,59 +94,6 @@ const PARTNERS = [
   ["SFµ, Société Française des Microscopies", "https://sfmu.fr/", "sfmu.png"],
 ] as const;
 
-pages.get("/about/", (c) =>
-  c.html(
-    <Layout user={c.get("user")} title="About" path="/about/">
-      <div class="prose">
-        <h1>About the EELS Data Base</h1>
-        <p class="lede">
-          An open-access repository of spectra from electron energy-loss spectroscopy (EELS) and X-ray absorption spectroscopy (XAS)
-          experiments.
-        </p>
-        <p>
-          The first version of the database was created in the late 1990s by Virginie Serin (Université Toulouse III, CEMES-CNRS) and
-          Thierry Sikora. Thanks to the European microscopy network ESTEEM, they gathered a large number of spectra. Spectroscopists,
-          theoreticians, students and companies use it as a reference catalogue for fine structures and for testing data treatment.
-        </p>
-        <p>
-          In 2014 the management of the database passed to Luc Lajaunie (Université de Nantes, Institut des Matériaux Jean Rouxel), and
-          Phil Ewels rebuilt the website and the database. The work is described in{" "}
-          <a href="https://doi.org/10.1017/S1431927616000179">Ewels et al., Microscopy and Microanalysis 22 (2016)</a>.
-        </p>
-        <h2>Share your spectra</h2>
-        <p>
-          We encourage you to submit spectra from your published work. Others can then reuse your data, and cite your paper when they do.
-          See <a href="/submit-data/">Submit data</a>.
-        </p>
-        <h2>Licence</h2>
-        <p>
-          The spectra are open data under the <a href="https://opendatacommons.org/licenses/odbl/">Open Data Commons Open Database
-          Licence (ODbL)</a>. You may copy, share and adapt them if you credit the EELS Data Base and its contributors, and share any
-          adapted database under the same licence. The rest of the website is under{" "}
-          <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>.
-        </p>
-        <p>
-          Please credit both the contributor's paper (if any) and the EELS Data Base. See <a href="/citation/">How to cite</a>.
-        </p>
-        <h2>Support</h2>
-        <p>
-          The IMN laboratory and the CNRS support the EELS Data Base. It was funded by the CEMES laboratory, the European microscopy
-          network ESTEEM 2, the French microscopy network METSA and the French microscopy society SFµ.
-        </p>
-        <ul class="partners">
-          {PARTNERS.map(([name, href, src]) => (
-            <li><a href={href}><img src={`/partners/${src}`} alt={name} loading="lazy" /></a></li>
-          ))}
-        </ul>
-        <h2>Contact</h2>
-        <p>
-          Questions, comments and ideas are welcome: see <a href="/contact/">Contact</a>.
-        </p>
-      </div>
-    </Layout>,
-  ),
-);
-
 const DOI = "10.1017/S1431927616000179";
 
 // home.js is not loaded here; copy failures fall back to selecting the text.
@@ -157,7 +104,8 @@ const COPY_SCRIPT = `for (const b of document.querySelectorAll("[data-copy]")) {
     try {
       await navigator.clipboard.writeText(b.dataset.copy);
     } catch {
-      return getSelection().selectAllChildren(document.getElementById(b.dataset.select));
+      const target = b.dataset.select ? document.getElementById(b.dataset.select) : b.querySelector("code");
+      return getSelection().selectAllChildren(target);
     }
     b.classList.add("copied");
     label.textContent = "Copied";
@@ -165,49 +113,123 @@ const COPY_SCRIPT = `for (const b of document.querySelectorAll("[data-copy]")) {
   });
 }`;
 
-pages.get("/citation/", (c) =>
+const ABOUT_SECTIONS = [
+  ["share", "Share your spectra"],
+  ["cite", "How to cite"],
+  ["licence", "Licence"],
+  ["support", "Support"],
+  ["logo", "Logo and colours"],
+  ["contact", "Contact"],
+] as const;
+
+pages.get("/about/", (c) =>
   c.html(
-    <Layout user={c.get("user")} title="How to cite" path="/citation/">
-      <div class="prose cite-page">
-        <h1>How to cite</h1>
-        <p class="lede">
-          Cite the contributor's paper, shown on each spectrum's page, and the EELS Data Base. Each spectrum's download dialog has a
-          ready-made citation.
-        </p>
-        <h2>The EELS Data Base</h2>
-        <p class="citation" id="cite-text">
-          Philip Ewels, Thierry Sikora, Virginie Serin, Chris P. Ewels and Luc Lajaunie. A complete overhaul of the electron energy-loss
-          spectroscopy and X-ray absorption spectroscopy database: eelsdb.eu. <i>Microscopy and Microanalysis</i> 22, 717–724 (2016).
-        </p>
-        <div class="cite-actions">
-          <button type="button" class="doi" data-copy={DOI} data-select="cite-doi" aria-label={`Copy DOI ${DOI}`}>
-            <span class="doi-k">DOI</span><code id="cite-doi">{DOI}</code>
-            <svg class="i-copy" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="6.5" y="6.5" width="10" height="11" rx="1.5" />
-              <path d="M13.5 6.5V4a1.5 1.5 0 0 0-1.5-1.5H5A1.5 1.5 0 0 0 3.5 4v8A1.5 1.5 0 0 0 5 13.5h1.5" />
-            </svg>
-            <svg class="i-done" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M4 10.5l4 4 8-9" />
-            </svg>
-            <span class="doi-msg copy-label" role="status"></span>
-          </button>
-          <button type="button" class="button secondary" data-copy={EELSDB_CITATION} data-select="cite-text">
-            <span class="copy-label" role="status">Copy citation</span>
-          </button>
-          <a class="button secondary" href={`https://doi.org/${DOI}`}>Read the paper</a>
+    <Layout user={c.get("user")} title="About" path="/about/">
+      <div class="about">
+        <div class="prose">
+          <h1>About the EELS Data Base</h1>
+          <p class="lede">
+            An open-access repository of spectra from electron energy-loss spectroscopy (EELS) and X-ray absorption spectroscopy (XAS)
+            experiments.
+          </p>
+          <nav class="on-page" aria-label="On this page">
+            <ul>
+              {ABOUT_SECTIONS.map(([id, label]) => (
+                <li><a href={`#${id}`}>{label}</a></li>
+              ))}
+            </ul>
+          </nav>
+          <p>
+            The first version of the database was created in the late 1990s by Virginie Serin (Université Toulouse III, CEMES-CNRS) and
+            Thierry Sikora. Thanks to the European microscopy network ESTEEM, they gathered a large number of spectra. Spectroscopists,
+            theoreticians, students and companies use it as a reference catalogue for fine structures and for testing data treatment.
+          </p>
+          <p>
+            In 2014 the management of the database passed to Luc Lajaunie (Université de Nantes, Institut des Matériaux Jean Rouxel), and
+            Phil Ewels rebuilt the website and the database. The work is described in{" "}
+            <a href="https://doi.org/10.1017/S1431927616000179">Ewels et al., Microscopy and Microanalysis 22 (2016)</a>.
+          </p>
         </div>
-        <h2>BibTeX</h2>
-        <pre id="cite-bib">{EELSDB_BIBTEX}</pre>
-        <div class="cite-actions">
-          <button type="button" class="button secondary" data-copy={EELSDB_BIBTEX} data-select="cite-bib">
-            <span class="copy-label" role="status">Copy BibTeX</span>
-          </button>
-        </div>
+        <section class="prose" id="share">
+          <h2>Share your spectra</h2>
+          <p>
+            We encourage you to submit spectra from your published work. Others can then reuse your data, and cite your paper when they do.
+            See <a href="/submit-data/">Submit data</a>.
+          </p>
+        </section>
+        <section class="prose cite-page" id="cite">
+          <h2>How to cite</h2>
+          <p>
+            Cite the contributor's paper, shown on each spectrum's page, and the EELS Data Base. Each spectrum's download dialog has a
+            ready-made citation. For the EELS Data Base:
+          </p>
+          <p class="citation" id="cite-text">
+            Philip Ewels, Thierry Sikora, Virginie Serin, Chris P. Ewels and Luc Lajaunie. A complete overhaul of the electron energy-loss
+            spectroscopy and X-ray absorption spectroscopy database: eelsdb.eu. <i>Microscopy and Microanalysis</i> 22, 717–724 (2016).
+          </p>
+          <div class="cite-actions">
+            <button type="button" class="doi" data-copy={DOI} data-select="cite-doi" aria-label={`Copy DOI ${DOI}`}>
+              <span class="doi-k">DOI</span><code id="cite-doi">{DOI}</code>
+              <svg class="i-copy" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="6.5" y="6.5" width="10" height="11" rx="1.5" />
+                <path d="M13.5 6.5V4a1.5 1.5 0 0 0-1.5-1.5H5A1.5 1.5 0 0 0 3.5 4v8A1.5 1.5 0 0 0 5 13.5h1.5" />
+              </svg>
+              <svg class="i-done" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 10.5l4 4 8-9" />
+              </svg>
+              <span class="doi-msg copy-label" role="status"></span>
+            </button>
+            <button type="button" class="button secondary" data-copy={EELSDB_CITATION} data-select="cite-text">
+              <span class="copy-label" role="status">Copy citation</span>
+            </button>
+            <a class="button secondary" href={`https://doi.org/${DOI}`}>Read the paper</a>
+          </div>
+          <h3>BibTeX</h3>
+          <pre id="cite-bib">{EELSDB_BIBTEX}</pre>
+          <div class="cite-actions">
+            <button type="button" class="button secondary" data-copy={EELSDB_BIBTEX} data-select="cite-bib">
+              <span class="copy-label" role="status">Copy BibTeX</span>
+            </button>
+          </div>
+        </section>
+        <section class="prose" id="licence">
+          <h2>Licence</h2>
+          <p>
+            The spectra are open data under the <a href="https://opendatacommons.org/licenses/odbl/">Open Data Commons Open Database
+            Licence (ODbL)</a>. You may copy, share and adapt them if you credit the EELS Data Base and its contributors, and share any
+            adapted database under the same licence. The rest of the website is under{" "}
+            <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>.
+          </p>
+          <p>
+            Please credit both the contributor's paper (if any) and the EELS Data Base. See <a href="#cite">How to cite</a>.
+          </p>
+        </section>
+        <section class="prose" id="support">
+          <h2>Support</h2>
+          <p>
+            The IMN laboratory and the CNRS support the EELS Data Base. It was funded by the CEMES laboratory, the European microscopy
+            network ESTEEM 2, the French microscopy network METSA and the French microscopy society SFµ.
+          </p>
+          <ul class="partners">
+            {PARTNERS.map(([name, href, src]) => (
+              <li><a href={href}><img src={`/partners/${src}`} alt={name} loading="lazy" /></a></li>
+            ))}
+          </ul>
+        </section>
+        <LogoSection />
+        <section class="prose" id="contact">
+          <h2>Contact</h2>
+          <p>
+            Questions, comments and ideas are welcome: see <a href="/contact/">Contact</a>.
+          </p>
+        </section>
       </div>
       <script>{raw(COPY_SCRIPT)}</script>
     </Layout>,
   ),
 );
+
+pages.get("/citation/", (c) => c.redirect("/about/#cite", 301));
 
 pages.get("/contact/", (c) =>
   c.html(

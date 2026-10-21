@@ -17,9 +17,9 @@ colors:
   edge: "light-dark(oklch(0.60 0.11 65), oklch(0.78 0.10 72))"
   danger: "light-dark(oklch(0.50 0.15 28), oklch(0.76 0.12 28))"
   note: "light-dark(oklch(0.52 0.10 65), oklch(0.80 0.10 75))"
-  type-coreloss: "light-dark(oklch(0.47 0.07 255), oklch(0.80 0.07 250))"
-  type-lowloss: "light-dark(oklch(0.50 0.09 70), oklch(0.82 0.09 78))"
-  type-xrayabs: "light-dark(oklch(0.48 0.07 160), oklch(0.80 0.08 160))"
+  type-coreloss: "light-dark(oklch(0.52 0.14 255), oklch(0.80 0.07 250))"
+  type-lowloss: "light-dark(oklch(0.66 0.15 65), oklch(0.82 0.09 78))"
+  type-xrayabs: "light-dark(oklch(0.57 0.13 155), oklch(0.80 0.08 160))"
   logo-red: "light-dark(#a21e16, #e86f63)"
   logo-ochre: "light-dark(#b96716, #e3a35d)"
   avatar-a: "light-dark(oklch(0.90 0.035 248), oklch(0.36 0.045 248))"
@@ -187,7 +187,7 @@ Density is that of a reference tool used on wide desktop monitors: a 1320px colu
 
 **Key Characteristics:**
 - Two strong colours only, both in the logo; the interface accent is a muted slate blue.
-- Flat surfaces separated by 1px rules and tonal steps (bg, surface, sunken); one soft shadow, on dialogs and tooltips.
+- Flat surfaces separated by 1px rules and tonal steps (bg, surface, sunken); one soft shadow, on dialogs, tooltips and suggestion lists.
 - Mona Sans variable throughout, self-hosted, the same face as the logo's lettering; tabular figures site-wide.
 - Chemical formulas typeset with real subscripts and superscripts, variable stoichiometry in italics.
 - Spectrum types shown as a coloured dot plus a label.
@@ -199,7 +199,7 @@ Density is that of a reference tool used on wide desktop monitors: a 1320px colu
 A warm-neutral paper-and-ink palette with one restrained slate-blue interface accent, a small set of meaning colours, and the logo's red and ochre held apart from the interface.
 
 ### Primary
-- **Slate Instrument Blue** (`accent`): fill of primary buttons, the active nav underline, the periodic-table shade scale, selected filter cells, the focus ring, avatar hover rings and the scan head. Low chroma (0.075) on purpose, so the logo's red stays the strongest colour on any screen.
+- **Slate Instrument Blue** (`accent`): fill of primary buttons, the active nav underline, the periodic-table shade scale, the focus ring, avatar hover rings and the scan head. Low chroma (0.075) on purpose, so the logo's red stays the strongest colour on any screen.
 - **Slate Link Ink** (`accent-ink`): link text, hover colour of titles and arrows in linked rows and tiles, and keywords in code samples; a touch darker and more saturated than the accent so text links pass contrast on paper.
 - **Slate Wash** (`accent-soft`): text selection highlight and chip hover.
 - **Plot Trace Blue** (`plot`): the spectrum line in plots and example tiles (with a 9% wash of itself under the line in tiles), a sibling of the accent so the data reads as interface-native rather than as a third brand colour.
@@ -267,7 +267,7 @@ A warm-neutral paper-and-ink palette with one restrained slate-blue interface ac
 
 A single centred column, `min(1320px, 100% - 2rem)`, widened to `min(1920px, 100% - 3rem)` for data-heavy pages (browse).
 
-**Header.** Sticky at the top on every page. One flex row inside the column: the small logo (170px) on the left, nav pushed right, ending in a "Sign in" secondary button. Vertical padding 0.8rem. On inner pages the header has the `bg` background and `rule` bottom border and shows the small logo at all times. On the homepage it starts transparent with no logo, so the large hero logo sits level with the nav; as soon as the page scrolls at all it takes the `bg` background and `rule` border and the small logo fades in. Below 1000px (where the full row stops fitting) the row is just the logo and a burger button; the search box, light/dark toggle, links and Sign in (or the avatar with the name) move into a dropdown panel below the header. There the small logo always shows, homepage included, with no fade. Below 560px the small logo is 104px.
+**Header.** Sticky at the top on every page. One flex row inside the column: the small logo (170px) on the left, nav pushed right, ending in a "Sign in" secondary button. Vertical padding 0.8rem. On inner pages the header has the `bg` background and `rule` bottom border and shows the small logo at all times. On the homepage it starts transparent with no logo, so the large hero logo sits level with the nav; as soon as the page scrolls at all it takes the `bg` background and `rule` border and the small logo fades in. Below 1000px (where the full row stops fitting) the row is just the logo and a burger button; the search box, light/dark toggle, links and Sign in (or the avatar with the name) move into a dropdown panel below the header. There the small logo always shows and the header always has the `bg` background and `rule` border, homepage included, with no fade. Below 560px the small logo is 104px.
 
 **Homepage**, top to bottom, sections 5.5rem apart (3.5rem on phones):
 - Intro row: large logo | one-sentence lede | two stacked buttons of equal width (min 12.5rem), aligned to the bottom; columns 1fr / 1fr / auto, gap 2rem 3.5rem.
@@ -291,7 +291,7 @@ Spacing rhythm in rem: 0.35 between chips and pager items; 0.5 between buttons i
 Flat by default. Depth comes from three tonal steps (paper `bg`, raised `surface`, recessed `sunken`) and from 1px `line` and `rule` borders. One soft shadow exists, used by the two things that float over the page: the modal dialog (over a warm 45% dark backdrop) and the tooltip.
 
 ### Shadow Vocabulary
-- **Soft lift** (`box-shadow: 0 1px 2px var(--shadow-color), 0 8px 24px var(--shadow-color)`, where `--shadow-color` is `light-dark(rgb(40 30 20 / 0.08), rgb(0 0 0 / 0.4))`): dialogs and tooltips only.
+- **Soft lift** (`box-shadow: 0 1px 2px var(--shadow-color), 0 8px 24px var(--shadow-color)`, where `--shadow-color` is `light-dark(rgb(40 30 20 / 0.08), rgb(0 0 0 / 0.4))`): dialogs, tooltips and suggestion lists.
 
 ### Named Rules
 **The Flat Page Rule.** Cards, tiles, notices, tables, buttons and inputs carry no shadow. If something needs to stand out, give it `surface` on `bg` or `sunken` on `surface`, or a `line` border. Hover rings (2px `ink` on periodic-table cells, 2px `accent` on avatars) are outlines, not shadows.
@@ -354,11 +354,14 @@ A button that copies a DOI to the clipboard.
 - **Hover / Focus:** border darkens to `muted` on hover; focus uses the 2px `accent` outline.
 - **Error:** `danger` border on the field and a 0.85rem 600-weight `danger` message beneath; hints are 0.8rem `muted`.
 - **Choice buttons:** visually hidden radios drawn as outlined segments; the checked one inverts to an `ink` fill with `bg` text.
+- **Element picker (browse):** a native multi-select of the elements with spectra ("Ti · Titanium (38)"), which JavaScript turns into a combobox: a text input whose suggestion list (`surface`, `line` border, 6px corners, the soft lift, at most 8 rows, the active row on `sunken`) matches symbols first, then names; picks show as removable chips above the input.
+- **Author picker (browse):** the same combobox over the plain `author` text field (with a native datalist of contributors when JavaScript is off). Suggestions are contributors with published spectra, matched from the start of any word in the name, most spectra first; picks become chips, and the field submits them comma-separated (any of them matches), plus any unpicked typed text.
+- **Number filters (browse):** comparator, number and unit as one 4px field: a quiet `muted` comparator prefix (≥ ≤ =) split off by a `rule` line, the number, and "eV" inside on the right. Start and end energy sit side by side under "Energy range"; resolution takes the full rail width.
 
 ### Navigation
 - **Sticky header:** see Layout. The header's background and border transition over 0.25s. The homepage's small logo fades up into place (opacity plus a 6px rise, 0.2s, `cubic-bezier(0.16, 1, 0.3, 1)`) when the page leaves the top, and fades straight out with no movement when it returns to the very top. While hidden it is out of the tab order. Below 1000px it is never hidden.
 - **Main nav:** `ink` text at weight 500 with a 2px transparent bottom border. Hover shows a `line` underline; the current page shows an `accent` underline. No backgrounds, no pills. "Sign in" is a secondary button; signed in, the account avatar takes its place. Before the links: a search box (13rem, 4px, magnifier icon, searches titles in browse) and a 2rem light/dark toggle (a half-filled circle icon in `muted`, `sunken` on hover) with 0.6rem extra space before Browse.
-- **Burger menu (below 1000px):** a 2.5rem icon button (three lines, an X when open) with `aria-expanded`, on the right. The panel spans the full width under the header: `bg`, a `rule` bottom border and the soft shadow; a full-width search box, then the light/dark toggle as a row (icon plus "Dark mode" or "Light mode", naming what a click does), then the links as tap rows split by `rule` hairlines, the current one underlined in `accent`, then Sign in or the avatar and name. While open the header takes its scrolled look, homepage included. It fades and drops 6px in over 0.18s (motion allowed only), and closes on Escape (focus returns to the button), an outside click, a chosen link, or widening past 1000px. Without JavaScript the panel is simply shown, in flow.
+- **Burger menu (below 1000px):** a 2.5rem icon button (three lines, an X when open) with `aria-expanded`, on the right. The panel spans the full width under the header: `bg`, a `rule` bottom border and the soft shadow; a full-width search box, then the links as tap rows split by `rule` hairlines, the current one underlined in `accent`, then one row with Sign in or the avatar and name on the left and the icon-only light/dark toggle (2.5rem) on the right. The toggle is a second copy of the button, so each copy sits in DOM and Tab order where it shows; CSS hides the other. It fades and drops 6px in over 0.18s (motion allowed only), and closes on Escape (focus returns to the button), an outside click, a chosen link, or widening past 1000px. Without JavaScript the panel is simply shown, in flow.
 - **Back link:** "← Parent" above a page title, 0.875rem, no underline until hover (class `back-link`).
 - **Wide pages:** only `main` widens (browse uses 1920px); the header and footer keep the 1320px column on every page.
 - **Pager:** text items with 4px corners, `sunken` on hover, the current page inverted to `ink` on `bg`.
@@ -367,8 +370,8 @@ A button that copies a DOI to the clipboard.
 ### Ways in (homepage)
 A list of linked rows separated by `line` rules: a title (600, 1.12rem), a muted line, and a 20px right arrow that slides 4px right and turns `accent-ink` on hover, as does the title. The search row holds a label-as-heading, an input and a primary Search button. The type row adds the four type links: dot, name, and the count in `muted`.
 
-### Logo and colours page
-`/logo/` serves the logo files (`worker/public/logo/`, made by `python/scripts/logo_files.py` with the lettering outlined): full and compact lockups for light and dark backgrounds, plus black and white, as SVG and transparent PNG, and the square mark. Previews sit on fixed paper or near-black plates whatever the page theme. Colour values copy on click with the DOI-chip treatment. Its fixed hex values are deliberate: they describe the files, not the interface.
+### Logo and colours (about page)
+The about page's "Logo and colours" section (`/about/#logo`; `/logo/` and `/brand/` redirect there) offers the logo files (`worker/public/logo/`, made by `python/scripts/logo_files.py` with the lettering outlined): full and compact lockups for light and dark backgrounds, plus black and white, as SVG and transparent PNG, and the square mark. Previews sit on fixed paper or near-black plates whatever the page theme. Colour values copy on click with the DOI-chip treatment. Its fixed hex values are deliberate: they describe the files, not the interface.
 
 ### Partner logos
 The about page's "Support" logos sit on equal light plates in both themes (white with a hairline border in light, warm off-white in dark), because the organisations' files mix dark ink, white backgrounds and white-only marks. Files live in `worker/public/partners/`.
@@ -385,7 +388,6 @@ Inline `<span class="formula">` built by `formulaTokens()`: subscripts and super
 ### Periodic table
 - **Homepage:** an 18-column grid of cells (aspect 1 / 0.92, 3px gaps, 3px corners) with the f-block below a 0.6rem gap. No atomic numbers: the symbol sits top-left (600, sized to the cell) and the spectrum count bottom-right (500). Elements with spectra link to browse and are shaded in six steps of `accent` mixed into `surface` (12%, 22%, 36%, 52%, 70%, 100%) on a log scale up to the largest count; the two darkest steps use `on-accent` text. A key beside the heading shows the ramp from 1 to the largest count. Elements with no spectra sit greyed on a faded `sunken` and are not links. Hover adds a 2px `ink` ring; the tooltip lists the element's spectra per type, with filtered-out types muted. The type-filter badges recount and reshade the cells; elements filtered to zero grey out and leave the tab order.
 - **Phones (below 560px):** only the elements with spectra, as a flowing 6-column list, with the filter badges above it.
-- **Browse filter:** the same grid as a multi-select filter; elements with no spectra sit on `sunken` in `muted`, available ones are `surface` with an inset `line` ring, selected ones fill with `accent`.
 
 ### Spectrum plot
 uPlot on a canvas, coloured from the CSS tokens at draw time: trace in `plot` (1.5px), axes in `muted`, grid and ticks in `line`, major edge markers in `edge` and minor ones in `muted`. The plot is rebuilt when the colour scheme changes.

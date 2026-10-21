@@ -150,7 +150,14 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
       {props.edit && (
         <p class="small back-link"><a href={`/spectra/${encodeURIComponent(props.edit.slug)}/`}>← {props.edit.title}</a></p>
       )}
-      <h1>{props.edit ? `Edit ${props.edit.title}` : "Submit a spectrum"}</h1>
+      {props.edit ? (
+        <h1>Edit {props.edit.title}</h1>
+      ) : (
+        <div class="page-head">
+          <h1>Submit a spectrum</h1>
+          <a class="button secondary" href="/instruments/">Instrument profiles</a>
+        </div>
+      )}
       <p class="lede">
         {props.edit
           ? "Changes to the title, description, keywords, reference and links are published straight away. Changes to the data file, the specimen or how it was measured go to a moderator first."

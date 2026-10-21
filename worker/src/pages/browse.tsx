@@ -1,10 +1,11 @@
 import type { Context } from "hono";
 import type { AppEnv } from "../auth";
 import { KNOWN_ARGS, buildSpectraQuery, parseParams, sortAndPage, type Params } from "../api/query";
-import { PERIODIC_ROWS } from "../elements";
+import NAMES from "../element-names.json";
 import { Formula, Layout, TYPE_NAMES, TypeBadge, fmt } from "./layout";
 
 const PER_PAGE = 50;
+const ELEMENT_NAMES: Record<string, string> = NAMES;
 
 const EDGES = ["K", "L1", "L2,3", "M2,3", "M4,5", "N2,3", "N4,5", "O2,3", "O4,5"];
 const COMPARES = [
@@ -49,6 +50,22 @@ const val = (params: Params, key: string) => {
   return typeof v === "string" ? v : "";
 };
 
+/** A number filter with its comparator, drawn as one control with the unit inside. */
+function Bound({ params, name, label, placeholder }: { params: Params; name: string; label: string; placeholder?: string }) {
+  const compare = val(params, `${name}_compare`) || (name === "min_energy" ? "gt" : "lt");
+  return (
+    <div class="bound">
+      <select name={`${name}_compare`} aria-label={`${label} comparison`}>
+        {COMPARES.map(([v, sym]) => (
+          <option value={v} selected={compare === v}>{sym}</option>
+        ))}
+      </select>
+      <input type="number" step="any" inputmode="decimal" name={name} value={val(params, name)} aria-label={`${label} (eV)`} placeholder={placeholder} />
+      <span class="unit" aria-hidden="true">eV</span>
+    </div>
+  );
+}
+
 export async function browsePage(c: Context<AppEnv>) {
   const params = parseParams(new URL(c.req.url).search);
   const complete = params.get("complete") === "1";
@@ -60,23 +77,27 @@ export async function browsePage(c: Context<AppEnv>) {
   const queryParams: Params = new Map(params);
   if (Array.isArray(params.get("type"))) queryParams.delete("type");
   const q = buildSpectraQuery(queryParams, { exact: true, complete });
-  let [{ results: rows }, { results: elementRows }, { results: edgeRows }] = await c.env.DB.batch<any>([
+  let [{ results: rows }, { results: elementRows }, { results: edgeRows }, { results: authorRows }] = await c.env.DB.batch<any>([
     c.env.DB.prepare(q.sql).bind(...q.binds),
     c.env.DB.prepare(
-      "SELECT DISTINCT e.element FROM spectrum_elements e JOIN spectra s ON s.id = e.spectrum_id WHERE s.status = 'published'",
+      "SELECT e.element, COUNT(*) AS n FROM spectrum_elements e JOIN spectra s ON s.id = e.spectrum_id WHERE s.status = 'published' GROUP BY e.element ORDER BY e.element",
     ),
     c.env.DB.prepare(
       `SELECT g.spectrum_id, group_concat(g.element || ' ' || g.edge, ', ') AS edges
        FROM spectrum_edges g JOIN spectra s ON s.id = g.spectrum_id WHERE s.status = 'published' GROUP BY g.spectrum_id`,
+    ),
+    c.env.DB.prepare(
+      "SELECT MIN(author_display) AS name, COUNT(*) AS n FROM spectra WHERE status = 'published' GROUP BY author_slug ORDER BY n DESC, name",
     ),
   ]);
   if (Array.isArray(params.get("type"))) rows = rows.filter((r: any) => types.has(r.type));
   const total = rows.length;
   const page = sortAndPage(rows, q);
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
-  const present = new Set(elementRows.map((r: any) => r.element));
   const edgesById = new Map(edgeRows.map((r: any) => [r.spectrum_id, r.edges]));
   const selected = new Set([params.get("element") ?? []].flat());
+  const elementCounts = new Map<string, number>(elementRows.map((r: any) => [r.element, r.n]));
+  for (const el of selected) if (!elementCounts.has(el)) elementCounts.set(el, 0);
   const orderKey = val(params, "order") || "spectrumFormula";
   const desc = val(params, "order_direction") === "DESC";
   params.delete("per_page");
@@ -110,24 +131,17 @@ export async function browsePage(c: Context<AppEnv>) {
             <label for="f-formula">Formula contains</label>
             <input type="text" id="f-formula" name="formula" value={val(params, "formula")} placeholder="e.g. TiO2" />
           </div>
-          <details class="periodic" open>
-            <summary>Elements{selected.size ? ` (${[...selected].join(", ")})` : ""}</summary>
-            <div class="ptable" role="group" aria-label="Elements: spectra must contain all selected">
-              {PERIODIC_ROWS.flatMap((row, i) => [
-                i === 7 && <span class="f-gap" aria-hidden="true" />,
-                ...row.map((el) =>
-                  el === "." ? (
-                    <span class="gap" aria-hidden="true" />
-                  ) : (
-                    <label class={present.has(el) ? "has" : undefined} title={present.has(el) ? undefined : `${el}: no spectra`}>
-                      <input type="checkbox" name="element[]" value={el} checked={selected.has(el)} />
-                      <span>{el}</span>
-                    </label>
-                  ),
-                ),
-              ])}
-            </div>
-          </details>
+          <div class="element-filter">
+            <label for="f-element">Elements</label>
+            <select id="f-element" name="element[]" multiple size={8} aria-describedby="f-element-hint">
+              {[...elementCounts].map(([el, n]) => (
+                <option value={el} selected={selected.has(el)} data-name={ELEMENT_NAMES[el] ?? el} data-count={n}>
+                  {el} · {ELEMENT_NAMES[el] ?? el} ({n})
+                </option>
+              ))}
+            </select>
+            <p class="hint" id="f-element-hint">Spectra must contain all selected elements.</p>
+          </div>
           <div>
             <label for="f-edge">Edge</label>
             <select id="f-edge" name="edge">
@@ -137,28 +151,26 @@ export async function browsePage(c: Context<AppEnv>) {
               ))}
             </select>
           </div>
-          {(
-            [
-              ["min_energy", "Start energy (eV)"],
-              ["max_energy", "End energy (eV)"],
-              ["resolution", "Resolution (eV)"],
-            ] as const
-          ).map(([key, label]) => (
-            <fieldset>
-              <legend>{label}</legend>
-              <div class="range">
-                <select name={`${key}_compare`} aria-label={`${label} comparison`}>
-                  {COMPARES.map(([v, sym]) => (
-                    <option value={v} selected={(val(params, `${key}_compare`) || (key === "min_energy" ? "gt" : "lt")) === v}>{sym}</option>
-                  ))}
-                </select>
-                <input type="number" step="any" name={key} value={val(params, key)} aria-label={label} />
-              </div>
-            </fieldset>
-          ))}
-          <div>
+          <fieldset>
+            <legend>Energy range</legend>
+            <div class="energy-range">
+              <Bound params={params} name="min_energy" label="Start energy" placeholder="from" />
+              <Bound params={params} name="max_energy" label="End energy" placeholder="to" />
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Resolution</legend>
+            <Bound params={params} name="resolution" label="Resolution" />
+          </fieldset>
+          <div class="author-filter">
             <label for="f-author">Author</label>
-            <input type="text" id="f-author" name="author" value={val(params, "author")} />
+            <input type="text" id="f-author" name="author" value={val(params, "author")} list="f-author-list" autocomplete="off" aria-describedby="f-author-hint" />
+            <datalist id="f-author-list">
+              {authorRows.map((a: any) => (
+                <option value={a.name} data-count={a.n} label={a.n === 1 ? "1 spectrum" : `${a.n} spectra`} />
+              ))}
+            </datalist>
+            <p class="hint" id="f-author-hint">Separate several names with commas.</p>
           </div>
           <label class="check">
             <input type="checkbox" name="monochromated" value="1" checked={val(params, "monochromated") === "1"} /> Monochromated only

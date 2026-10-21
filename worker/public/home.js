@@ -40,12 +40,14 @@ function filterTable() {
   }
 }
 
-// From "all on", a click picks just that type; after that, clicks toggle.
+// From "all on", a click picks just that type; clicking the only type left brings all back; otherwise clicks toggle.
 for (const b of typeButtons) {
   b.addEventListener("click", () => {
-    const allOn = typeButtons.every((x) => x.getAttribute("aria-pressed") === "true");
-    if (allOn) for (const x of typeButtons) x.setAttribute("aria-pressed", String(x === b));
-    else b.setAttribute("aria-pressed", String(b.getAttribute("aria-pressed") !== "true"));
+    const on = activeTypes();
+    const isOn = b.getAttribute("aria-pressed") === "true";
+    if (on.length === typeButtons.length) for (const x of typeButtons) x.setAttribute("aria-pressed", String(x === b));
+    else if (isOn && on.length === 1) for (const x of typeButtons) x.setAttribute("aria-pressed", "true");
+    else b.setAttribute("aria-pressed", String(!isOn));
     filterTable();
   });
 }

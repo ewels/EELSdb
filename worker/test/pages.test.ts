@@ -8,16 +8,29 @@ const page = async (path: string) => {
 const rows = (html: string) => (html.match(/<tbody>([\s\S]*?)<\/tbody>/)?.[1].match(/<tr>/g) ?? []).length;
 
 describe("pages", () => {
-  it("logo page links to every download, and /brand/ redirects to it", async () => {
-    const { status, html } = await page("/logo/");
+  it("about page holds the citation and logo sections, and the old pages redirect to them", async () => {
+    const { status, html } = await page("/about/");
     expect(status).toBe(200);
+    for (const id of ["share", "cite", "licence", "support", "logo", "contact"]) {
+      expect(html).toContain(`id="${id}"`);
+      expect(html).toContain(`href="#${id}"`);
+    }
+    expect(html).toContain("@article{");
     for (const base of ["eelsdb-logo", "eelsdb-logo-compact"])
       for (const v of ["light-bg", "dark-bg", "black", "white"])
         for (const ext of ["svg", "png"]) expect(html).toContain(`href="/logo/${base}-${v}.${ext}"`);
     expect(html).toContain('href="/logo/eelsdb-mark.png"');
     expect(html).toContain('data-copy="#a21e16"');
-    expect(html).toContain('href="/citation/"');
-    expect((await page("/brand/")).res.headers.get("location")).toBe("/logo/");
+    expect(html).not.toContain('href="/citation/"');
+    expect(html).not.toContain('href="/logo/"');
+    const cite = await page("/citation/");
+    expect(cite.status).toBe(301);
+    expect(cite.res.headers.get("location")).toBe("/about/#cite");
+    for (const path of ["/logo/", "/logo", "/brand/", "/brand"]) {
+      const r = await page(path);
+      expect(r.status).toBe(301);
+      expect(r.res.headers.get("location")).toBe("/about/#logo");
+    }
   });
 
   it("header has a burger button that controls the menu panel", async () => {
@@ -26,7 +39,7 @@ describe("pages", () => {
     expect(button).toContain('aria-expanded="false"');
     const id = button.match(/aria-controls="([^"]+)"/)?.[1];
     expect(id).toBeTruthy();
-    expect(html).toMatch(new RegExp(`<div class="menu" id="${id}">[\\s\\S]*?class="nav-search"[\\s\\S]*?class="theme-toggle"[\\s\\S]*?href="/about/"`));
+    expect(html).toMatch(new RegExp(`<div class="menu" id="${id}">[\\s\\S]*?class="nav-search"[\\s\\S]*?class="theme-toggle wide"[\\s\\S]*?href="/about/"[\\s\\S]*?Sign in[\\s\\S]*?class="theme-toggle narrow"`));
   });
 
   it("home shows live counts", async () => {
@@ -46,9 +59,11 @@ describe("pages", () => {
 
     const lowloss = await page("/spectra/?type=lowloss&element[]=Al");
     expect(lowloss.html).toMatch(/\d+ spectra|1 spectrum/);
-    expect(lowloss.html).toContain('<input type="checkbox" name="element[]" value="Al" checked=""/>');
+    expect(lowloss.html).toContain('<select id="f-element" name="element[]" multiple=""');
+    expect(lowloss.html).toMatch(/<option value="Al" selected="" data-name="Aluminium" data-count="\d+">Al · Aluminium \(\d+\)<\/option>/);
+    expect(lowloss.html).toMatch(/<option value="O" data-name="Oxygen"/);
 
-    const count = async (q: string) => Number((await page(`/spectra/?${q}`)).html.match(/(\d+) spectr/)?.[1]);
+    const count = async (q: string) => Number((await page(`/spectra/?${q}`)).html.match(/role="status">(\d+) spectr/)?.[1]);
     const oLow = await count("element[]=O&type=lowloss");
     const oXas = await count("element[]=O&type[]=xrayabs");
     expect(oLow).toBeGreaterThan(0);
@@ -65,6 +80,17 @@ describe("pages", () => {
 
     const none = await page("/spectra/?formula=NoSuchFormula");
     expect(none.html).toContain("No spectra match these filters");
+  });
+
+  it("browse keeps the author and energy fields filled from the URL", async () => {
+    const { html } = await page("/spectra/?author=Sigle&min_energy=400&max_energy=800&max_energy_compare=gt&resolution=1&resolution_compare=eq");
+    expect(html).toContain('<input type="text" id="f-author" name="author" value="Sigle" list="f-author-list"');
+    expect(html).toMatch(/<datalist id="f-author-list"><option value="[^"]+" data-count="\d+" label="\d+ spectra">/);
+    expect(html).toMatch(/<option value="Wilfried Sigle" data-count="(\d+)"/);
+    for (const [name, value, compare] of [["min_energy", "400", "gt"], ["max_energy", "800", "gt"], ["resolution", "1", "eq"]]) {
+      expect(html).toContain(`name="${name}" value="${value}"`);
+      expect(html).toMatch(new RegExp(`name="${name}_compare"[^>]*>(<option[^>]*>[^<]*</option>)*?<option value="${compare}" selected=""`));
+    }
   });
 
   it("browse compares energies exactly, unlike API v1", async () => {
@@ -100,7 +126,7 @@ describe("pages", () => {
     const post = await page("/hyperspy/");
     expect(post.status).toBe(200);
     expect(post.html).toContain('<a href="http://hyperspy.org/hyperspy-doc/current/api/hyperspy.misc.eels.eelsdb.html">');
-    for (const path of ["/about/", "/citation/", "/contact/"]) expect((await page(path)).status).toBe(200);
+    for (const path of ["/about/", "/contact/"]) expect((await page(path)).status).toBe(200);
     expect((await page("/submit-data/")).res.headers.get("location")).toBe("/login/?next=%2Fsubmit-data%2F");
     const api = await page("/api/");
     expect(api.html).toContain("min_energy_compare");
