@@ -13,7 +13,7 @@ const lettering = (x: number, y: number, size: number) =>
  * Header mark: bigger lettering centred on the traces, with the flat tails run out to make room.
  * No tagline: it is unreadable at this size.
  */
-export const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="6.97 7.4 486.74 149.8" role="img" aria-label="EELSdb">${lettering(491.71, 114.2, 90.53)}${traces("h44.47")}</svg>`;
+export const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="6.97 7.4 519.94 149.8" role="img" aria-label="EELSdb">${lettering(524.91, 114.2, 90.53)}${traces("h77.67")}</svg>`;
 
 /** Homepage mark: lettering on the tail, the tagline beneath, and the hooks for the scan animation in style.css. */
 export const HERO_LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="6.97 7.4 442.26 173.23" role="img" aria-label="EELSdb: Inner &amp; Outer Shell Excitation Spectrum Repository"><defs><clipPath id="scan-window"><rect class="scan-window" x="6.97" y="7.4" width="442.26" height="173.23"/></clipPath></defs>${lettering(447.24, 143, 63.28)}<text class="tagline" x="8.97" y="175.56" textLength="438.26" lengthAdjust="spacing" font-size="18.36" font-weight="400" fill="currentColor" style="font-family:'Mona Sans',system-ui,sans-serif">Inner &amp; Outer Shell Excitation Spectrum Repository</text><g clip-path="url(#scan-window)">${traces()}</g><line class="scan-head" x1="8.975" y1="9.4" x2="8.975" y2="178.63"/></svg>`;

@@ -122,13 +122,13 @@ def main() -> None:
         ("ochre", ochre, True),
     ]
     compact = [
-        ("ink", lettering(bold, regular, 491.71, 114.2, 90.53), False),
-        ("red", red + "h44.47", True),
-        ("ochre", ochre + "h44.47", True),
+        ("ink", lettering(bold, regular, 524.91, 114.2, 90.53), False),
+        ("red", red + "h77.67", True),
+        ("ochre", ochre + "h77.67", True),
     ]
     for variant, c in COLOURS.items():
         write(f"eelsdb-logo-{variant}", svg("6.97 7.4 442.26 173.23", full, c))
-        write(f"eelsdb-logo-compact-{variant}", svg("6.97 7.4 486.74 149.8", compact, c))
+        write(f"eelsdb-logo-compact-{variant}", svg("6.97 7.4 519.94 149.8", compact, c))
     write("eelsdb-mark", (ROOT / "worker/public/favicon.svg").read_text(), width=1024)
 
 
