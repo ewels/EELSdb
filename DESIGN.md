@@ -183,7 +183,7 @@ The site reads like the output of a well-kept spectrometer: neutral warm-grey pa
 
 The system is light and dark from one source: every colour is a `light-dark()` pair, the OS picks the scheme, and the header's light/dark toggle pins one (`data-theme` on the root): remembered in the browser, and saved to the account when signed in. Dark mode is built for the darkened microscope room: warm near-black paper, warm off-white ink, and lighter, softer versions of every hue.
 
-Density is that of a reference tool used on wide desktop monitors: a 1320px column (1920px for wide pages such as browse), a sticky header, and multi-column layouts that fold to one column on narrow screens. Motion is limited to three things: the homepage logo's scan, the header logo's fade, and the tooltip's fade. All respect reduced motion.
+Density is that of a reference tool used on wide desktop monitors: a 1320px column (1920px for wide pages such as browse), a sticky header, and multi-column layouts that fold to one column on narrow screens. Motion is limited to four things: the homepage logo's scan, the header logo's fade, the burger menu's drop-in, and the tooltip's fade. All respect reduced motion.
 
 **Key Characteristics:**
 - Two strong colours only, both in the logo; the interface accent is a muted slate blue.
@@ -267,7 +267,7 @@ A warm-neutral paper-and-ink palette with one restrained slate-blue interface ac
 
 A single centred column, `min(1320px, 100% - 2rem)`, widened to `min(1920px, 100% - 3rem)` for data-heavy pages (browse).
 
-**Header.** Sticky at the top on every page. One flex row inside the column: the small logo (170px) on the left, nav pushed right, ending in a "Sign in" secondary button. Vertical padding 0.8rem. On inner pages the header has the `bg` background and `rule` bottom border and shows the small logo at all times. On the homepage it starts transparent with no logo, so the large hero logo sits level with the nav; as soon as the page scrolls at all it takes the `bg` background and `rule` border and the small logo fades in. Below 560px the small logo is 104px and the nav scrolls sideways on one line rather than wrapping.
+**Header.** Sticky at the top on every page. One flex row inside the column: the small logo (170px) on the left, nav pushed right, ending in a "Sign in" secondary button. Vertical padding 0.8rem. On inner pages the header has the `bg` background and `rule` bottom border and shows the small logo at all times. On the homepage it starts transparent with no logo, so the large hero logo sits level with the nav; as soon as the page scrolls at all it takes the `bg` background and `rule` border and the small logo fades in. Below 1000px (where the full row stops fitting) the row is just the logo, the light/dark toggle and a burger button; the search box, links and Sign in (or the avatar with the name) move into a dropdown panel below the header. Below 560px the small logo is 104px.
 
 **Homepage**, top to bottom, sections 5.5rem apart (3.5rem on phones):
 - Intro row: large logo | one-sentence lede | two stacked buttons of equal width (min 12.5rem), aligned to the bottom; columns 1fr / 1fr / auto, gap 2rem 3.5rem.
@@ -282,7 +282,7 @@ A single centred column, `min(1320px, 100% - 2rem)`, widened to `min(1920px, 100
 - **Spectrum page:** full-width plot (min 360px tall, 280px below 860px), then two equal metadata columns, gap 2rem.
 - **Forms:** a 60rem form with 2-, 3- and 4-column field grids (gap 0 1.25rem) that collapse to one (or two, for the 4-grid) below 860px.
 
-Breakpoints: 560px (phone: smaller header logo, periodic table becomes a list, type column shrinks to dots), 860px (inner pages to one column), 960px (homepage rows to one column, tiles to 2 columns), 1180px (homepage buttons move under the logo and lede, smaller filter badges), 1440px (`hide-md` table columns hidden below it).
+Breakpoints: 560px (phone: smaller header logo, periodic table becomes a list, type column shrinks to dots), 860px (inner pages to one column), 960px (homepage rows to one column, tiles to 2 columns), 1000px (header nav folds into the burger menu), 1180px (homepage buttons move under the logo and lede, smaller filter badges), 1440px (`hide-md` table columns hidden below it).
 
 Spacing rhythm in rem: 0.35 between chips and pager items; 0.5 between buttons in a row; 0.75 between tiles; 1 for card padding; 1.5 between blocks; 2 for gutters; 4.5 for wide column gaps; 5.5 between homepage sections.
 
@@ -357,7 +357,8 @@ A button that copies a DOI to the clipboard.
 
 ### Navigation
 - **Sticky header:** see Layout. The header's background and border transition over 0.25s. The homepage's small logo fades up into place (opacity plus a 6px rise, 0.2s, `cubic-bezier(0.16, 1, 0.3, 1)`) when the page leaves the top, and fades straight out with no movement when it returns to the very top. While hidden it is out of the tab order.
-- **Main nav:** `ink` text at weight 500 with a 2px transparent bottom border. Hover shows a `line` underline; the current page shows an `accent` underline. No backgrounds, no pills. "Sign in" is a secondary button; signed in, the account avatar takes its place. Before the links: a search box (13rem, 4px, magnifier icon, searches titles in browse; hidden below 860px) and a 2rem light/dark toggle (a half-filled circle icon in `muted`, `sunken` on hover) with 0.6rem extra space before Browse. On phones the nav scrolls sideways in one row with Sign in or the avatar pinned at the right end.
+- **Main nav:** `ink` text at weight 500 with a 2px transparent bottom border. Hover shows a `line` underline; the current page shows an `accent` underline. No backgrounds, no pills. "Sign in" is a secondary button; signed in, the account avatar takes its place. Before the links: a search box (13rem, 4px, magnifier icon, searches titles in browse) and a 2rem light/dark toggle (a half-filled circle icon in `muted`, `sunken` on hover) with 0.6rem extra space before Browse.
+- **Burger menu (below 1000px):** a 2.5rem icon button (three lines, an X when open) with `aria-expanded`, beside the toggle. The panel spans the full width under the header: `bg`, a `rule` bottom border and the soft shadow; a full-width search box, then the links as tap rows split by `rule` hairlines, the current one underlined in `accent`, then Sign in or the avatar and name. While open the header takes its scrolled look, homepage included. It fades and drops 6px in over 0.18s (motion allowed only), and closes on Escape (focus returns to the button), an outside click, a chosen link, or widening past 1000px. Without JavaScript the panel is simply shown, in flow.
 - **Back link:** "← Parent" above a page title, 0.875rem, no underline until hover (class `back-link`).
 - **Wide pages:** only `main` widens (browse uses 1920px); the header and footer keep the 1320px column on every page.
 - **Pager:** text items with 4px corners, `sunken` on hover, the current page inverted to `ink` on `bg`.
@@ -418,6 +419,6 @@ On the homepage, with motion allowed, the traces are recorded left to right like
 - **Don't** add shadows to cards, tiles, buttons or notices; dialogs and tooltips are the only lifted surfaces.
 - **Don't** add a second typeface; Mona Sans carries the interface and the logo, with ui-monospace only for code and identifiers.
 - **Don't** use pill-shaped buttons.
-- **Don't** add animation beyond the logo scan, the header logo fade and the tooltip fade.
+- **Don't** add animation beyond the logo scan, the header logo fade, the burger menu's drop-in and the tooltip fade.
 - **Don't** add explanatory filler sentences; if a heading and a count say it, stop.
 - **Don't** change the logo traces or their colours, or extend the tails outside the header lockup.

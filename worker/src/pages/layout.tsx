@@ -12,9 +12,12 @@ const NAV = [
 ] as const;
 
 // Runs before paint so a saved theme does not flash. A signed-in user's saved theme arrives as data-theme and wins.
-const THEME_SCRIPT = `try{var r=document.documentElement,t=localStorage.getItem("theme");if(t&&!r.dataset.theme)r.dataset.theme=t}catch(e){}`;
+const THEME_SCRIPT = `document.documentElement.classList.add("js");try{var r=document.documentElement,t=localStorage.getItem("theme");if(t&&!r.dataset.theme)r.dataset.theme=t}catch(e){}`;
 // Flips light and dark, remembers it in this browser, and saves it to the account when signed in.
 const TOGGLE_SCRIPT = `document.querySelector(".theme-toggle").addEventListener("click",function(){var r=document.documentElement,d=r.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"),n=d==="dark"?"light":"dark";r.dataset.theme=n;try{localStorage.setItem("theme",n)}catch(e){}if(this.dataset.save)fetch("/account/settings/theme/",{method:"POST",body:new URLSearchParams({theme:n})})})`;
+
+// The burger menu. Keep the width in step with the 999px breakpoint in style.css.
+const MENU_SCRIPT = `;(function(){var h=document.querySelector(".site-header"),b=h.querySelector(".menu-toggle"),m=document.getElementById("site-menu"),q=matchMedia("(max-width: 999px)");function set(o){h.classList.toggle("menu-open",o);b.setAttribute("aria-expanded",o)}b.addEventListener("click",function(){set(b.getAttribute("aria-expanded")!=="true")});addEventListener("keydown",function(e){if(e.key==="Escape"&&h.classList.contains("menu-open")){set(false);b.focus()}});addEventListener("click",function(e){if(!h.contains(e.target))set(false)});m.addEventListener("click",function(e){if(e.target.closest("a"))set(false)});q.addEventListener("change",function(){if(!q.matches)set(false)})})()`;
 
 export function Layout(props: {
   title?: string;
@@ -52,7 +55,19 @@ export function Layout(props: {
           <header class={props.home ? "site-header" : "site-header stuck"}>
             <div class="wrap">
               <a class="logo" href="/" aria-label="EELSdb home" tabindex={props.home ? -1 : undefined}>{raw(LOGO_SVG)}</a>
-              <nav class="site-nav" aria-label="Main">
+              <button class="theme-toggle" type="button" aria-label="Switch between light and dark" title="Light or dark" data-save={props.user ? "1" : undefined}>
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                  <circle cx="10" cy="10" r="6.5" />
+                  <path d="M10 3.5a6.5 6.5 0 0 1 0 13z" fill="currentColor" stroke="none" />
+                </svg>
+              </button>
+              <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" aria-label="Menu">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+                  <path class="burger" d="M3 5.5h14M3 10h14M3 14.5h14" />
+                  <path class="close" d="m4.5 4.5 11 11m0-11-11 11" />
+                </svg>
+              </button>
+              <div class="menu" id="site-menu">
                 <form class="nav-search" action="/spectra/" method="get" role="search">
                   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
                     <circle cx="8.5" cy="8.5" r="5.5" />
@@ -60,32 +75,29 @@ export function Layout(props: {
                   </svg>
                   <input type="search" name="title" placeholder="Search spectra" aria-label="Search spectra" />
                 </form>
-                <button class="theme-toggle" type="button" aria-label="Switch between light and dark" title="Light or dark" data-save={props.user ? "1" : undefined}>
-                  <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-                    <circle cx="10" cy="10" r="6.5" />
-                    <path d="M10 3.5a6.5 6.5 0 0 1 0 13z" fill="currentColor" stroke="none" />
-                  </svg>
-                </button>
-                {NAV.map(([href, label]) => (
-                  <a href={href} aria-current={props.path.startsWith(href) ? "page" : undefined}>{label}</a>
-                ))}
-                {props.user ? (
-                  <a
-                    class="account-link"
-                    href="/account/"
-                    aria-label={`Your account (${props.user.display_name})`}
-                    title={props.user.display_name}
-                    aria-current={props.path.startsWith("/account/") ? "page" : undefined}
-                  >
-                    <Avatar name={props.user.display_name} seed={props.user.slug ?? props.user.display_name} src={props.user.avatar} />
-                  </a>
-                ) : (
-                  <a class="button secondary" href={`/login/${props.path && props.path !== "/login/" ? `?next=${encodeURIComponent(props.path)}` : ""}`}>Sign in</a>
-                )}
-              </nav>
+                <nav class="site-nav" aria-label="Main">
+                  {NAV.map(([href, label]) => (
+                    <a href={href} aria-current={props.path.startsWith(href) ? "page" : undefined}>{label}</a>
+                  ))}
+                  {props.user ? (
+                    <a
+                      class="account-link"
+                      href="/account/"
+                      aria-label={`Your account (${props.user.display_name})`}
+                      title={props.user.display_name}
+                      aria-current={props.path.startsWith("/account/") ? "page" : undefined}
+                    >
+                      <Avatar name={props.user.display_name} seed={props.user.slug ?? props.user.display_name} src={props.user.avatar} />
+                      <span class="account-name">{props.user.display_name}</span>
+                    </a>
+                  ) : (
+                    <a class="button secondary" href={`/login/${props.path && props.path !== "/login/" ? `?next=${encodeURIComponent(props.path)}` : ""}`}>Sign in</a>
+                  )}
+                </nav>
+              </div>
             </div>
           </header>
-          <script>{raw(TOGGLE_SCRIPT)}</script>
+          <script>{raw(TOGGLE_SCRIPT + MENU_SCRIPT)}</script>
           <main id="main" class={wrap}>{props.children}</main>
           <footer class="site-footer">
             <div class="wrap">

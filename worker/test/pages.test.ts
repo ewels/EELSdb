@@ -20,6 +20,15 @@ describe("pages", () => {
     expect((await page("/brand/")).res.headers.get("location")).toBe("/logo/");
   });
 
+  it("header has a burger button that controls the menu panel", async () => {
+    const { html } = await page("/about/");
+    const button = html.match(/<button class="menu-toggle"[^>]*>/)?.[0] ?? "";
+    expect(button).toContain('aria-expanded="false"');
+    const id = button.match(/aria-controls="([^"]+)"/)?.[1];
+    expect(id).toBeTruthy();
+    expect(html).toMatch(new RegExp(`<div class="menu" id="${id}">[\\s\\S]*?class="nav-search"[\\s\\S]*?href="/about/"`));
+  });
+
   it("home shows live counts", async () => {
     const { status, html } = await page("/");
     expect(status).toBe(200);

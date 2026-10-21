@@ -119,16 +119,20 @@ pre {
 /* Header: sticky everywhere. On the homepage it stays clear until the page scrolls, then the small mark fades up. */
 .site-header { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid transparent; transition: background-color 0.25s, border-color 0.25s; }
 .site-header.stuck { background: var(--bg); border-bottom-color: var(--rule); }
-.site-header .wrap { display: flex; align-items: center; gap: 1rem 2rem; padding-block: 0.8rem; }
-.logo { display: block; width: 170px; flex: none; color: var(--ink); line-height: 0; }
+.site-header .wrap { display: flex; align-items: center; gap: 1rem 1.4rem; padding-block: 0.8rem; }
+.logo { display: block; width: 170px; flex: none; margin-right: 0.6rem; color: var(--ink); line-height: 0; }
 .logo svg { width: 100%; height: auto; }
-.home .site-header:not(.stuck) .logo { visibility: hidden; opacity: 0; }
+.home .site-header:not(.stuck, .menu-open) .logo { visibility: hidden; opacity: 0; }
 @media (prefers-reduced-motion: no-preference) {
   /* Fades up on the way in; fades straight out, then drops back to its start position unseen. */
   .home .logo { transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s; }
-  .home .site-header:not(.stuck) .logo { transform: translateY(6px); transition: opacity 0.2s, transform 0s 0.2s, visibility 0s 0.2s, width 0s 0.2s; }
+  .home .site-header:not(.stuck, .menu-open) .logo { transform: translateY(6px); transition: opacity 0.2s, transform 0s 0.2s, visibility 0s 0.2s, width 0s 0.2s; }
 }
-.site-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 1.4rem; margin-left: auto; }
+/* Wide screens: the menu's contents sit in the header row, with the theme toggle between search and links. */
+.menu { display: contents; }
+.nav-search { order: 1; margin-left: auto; }
+.theme-toggle { order: 2; }
+.site-nav { order: 3; display: flex; align-items: center; gap: 0.2rem 1.4rem; }
 .site-nav a:not(.button, .account-link) { color: var(--ink); text-decoration: none; font-weight: 500; padding-block: 0.2rem; border-bottom: 2px solid transparent; }
 .site-nav a:not(.button, .account-link):hover { border-bottom-color: var(--line); }
 .site-nav a[aria-current="page"] { border-bottom-color: var(--accent); }
@@ -138,14 +142,45 @@ pre {
 .site-header .nav-search input { width: 13rem; font: inherit; font-size: 0.9rem; padding: 0.3rem 0.6rem 0.3rem 1.95rem; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: var(--ink); }
 .nav-search input::placeholder { color: var(--muted); }
 .nav-search input:hover { border-color: var(--muted); }
-.theme-toggle { display: grid; place-items: center; width: 2rem; height: 2rem; margin-right: 0.6rem; padding: 0; border: 0; border-radius: 4px; background: none; color: var(--muted); cursor: pointer; }
-.theme-toggle:hover { color: var(--ink); background: var(--sunken); }
-.theme-toggle svg { width: 18px; height: 18px; }
-@media (max-width: 860px) { .nav-search { display: none; } }
+:is(.theme-toggle, .menu-toggle) { display: grid; place-items: center; width: 2rem; height: 2rem; padding: 0; border: 0; border-radius: 4px; background: none; color: var(--muted); cursor: pointer; }
+.theme-toggle { margin-right: 0.6rem; }
+:is(.theme-toggle, .menu-toggle):hover { color: var(--ink); background: var(--sunken); }
+:is(.theme-toggle, .menu-toggle) svg { width: 18px; height: 18px; }
+.menu-toggle { display: none; }
+.menu-toggle[aria-expanded="true"] .burger, .menu-toggle:not([aria-expanded="true"]) .close { display: none; }
 .account-link { display: inline-flex; align-items: center; border-radius: 50%; }
 .account-link:focus-visible { border-radius: 50%; }
 .account-link .av { width: 2rem; height: 2rem; }
 .account-link:hover .av, .account-link[aria-current="page"] .av { box-shadow: 0 0 0 2px var(--accent); }
+.account-name { display: none; }
+
+/* Narrow screens: theme toggle and burger on the right; the menu drops down below the header. Keep 999px in step with MENU_SCRIPT in layout.tsx. */
+@media (max-width: 999px) {
+  .site-header .wrap { flex-wrap: wrap; gap: 0.5rem; }
+  .site-header.menu-open { background: var(--bg); border-bottom-color: var(--rule); }
+  :is(.theme-toggle, .menu-toggle) { width: 2.5rem; height: 2.5rem; }
+  .theme-toggle { order: 0; margin: 0 0 0 auto; }
+  .js .menu-toggle { display: grid; color: var(--ink); }
+  /* Without JavaScript the menu stays open, in the header's flow, so the header must not stick. */
+  html:not(.js) .site-header { position: static; }
+  .menu { display: flex; flex-direction: column; gap: 0.75rem; flex-basis: 100%; padding-block: 0.25rem 0.5rem; }
+  .js .menu { position: absolute; top: 100%; left: 0; right: 0; max-height: calc(100dvh - 100%); overflow-y: auto; padding: 1rem 1rem 1.25rem; background: var(--bg); border-bottom: 1px solid var(--rule); box-shadow: var(--shadow); }
+  .js .site-header:not(.menu-open) .menu { display: none; }
+  .nav-search { margin-left: 0; }
+  .site-header .nav-search input { width: 100%; font-size: 1rem; padding: 0.55rem 0.7rem 0.55rem 2.1rem; }
+  .site-nav { flex-direction: column; align-items: stretch; gap: 0; }
+  .site-nav a:not(.button, .account-link) { padding-block: 0.75rem; border-bottom: 1px solid var(--rule); text-underline-offset: 0.4em; text-decoration-thickness: 2px; }
+  .site-nav a:not(.button, .account-link):hover { border-bottom-color: var(--rule); text-decoration-line: underline; text-decoration-color: var(--line); }
+  .site-nav a[aria-current="page"]:not(.account-link) { border-bottom-color: var(--rule); text-decoration-line: underline; text-decoration-color: var(--accent); }
+  .site-nav .button { align-self: flex-start; margin-top: 1rem; padding: 0.45rem 1rem; }
+  .account-link { gap: 0.75rem; margin-top: 0.75rem; padding-block: 0.25rem; border-radius: 4px; color: var(--ink); text-decoration: none; font-weight: 500; }
+  .account-link:focus-visible { border-radius: 4px; }
+  .account-name { display: inline; }
+}
+@media (max-width: 999px) and (prefers-reduced-motion: no-preference) {
+  .menu-open .menu { animation: menu-in 0.18s cubic-bezier(0.16, 1, 0.3, 1); }
+}
+@keyframes menu-in { from { opacity: 0; transform: translateY(-6px); } }
 
 main { flex: 1; padding-bottom: 4rem; }
 
@@ -188,6 +223,7 @@ main { flex: 1; padding-bottom: 4rem; }
 
 .home .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); gap: 3rem 4.5rem; align-items: stretch; padding-top: 2.4rem; }
 /* The ways in share the examples' height, each taking an equal slice. */
+.home .hero > div { min-width: 0; }
 .home .hero > div:first-child { display: flex; flex-direction: column; }
 .home .hero h2 { font-size: 1.12rem; }
 .ways { list-style: none; margin: 0; padding: 0; flex: 1; display: flex; flex-direction: column; }
@@ -354,12 +390,8 @@ a.el:hover { box-shadow: 0 0 0 2px var(--ink); z-index: 1; }
   .el s { font-size: 18cqi; }
   .pt .pt-gap { order: -1; width: 100%; padding: 0 0 0.5rem; justify-content: flex-start; }
   .pt .type-filter { justify-content: flex-start; }
-  /* Header on phones: one row, the nav scrolls sideways beside the mark. */
-  .site-header .wrap { gap: 0.9rem; padding-block: 0.55rem; }
+  .site-header .wrap { padding-block: 0.55rem; }
   .logo { width: 104px; }
-  .home .site-header:not(.stuck) .logo { width: 0; }
-  .site-nav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: 0.7rem; font-size: 0.92rem; white-space: nowrap; min-width: 0; }
-  .site-nav .button { padding: 0.3rem 0.7rem; }
   .site-footer .licence { margin-left: 0; }
 }
 
@@ -813,9 +845,6 @@ input[type="file"]::file-selector-button:hover { background: var(--surface); bor
 .account-actions form { margin: 0; }
 @media (max-width: 560px) {
   .av.av-large { width: 3.5rem; height: 3.5rem; font-size: 1.15rem; }
-  /* Pinned to the end of the sideways-scrolling nav so sign-in and the account stay reachable. */
-  .site-nav .account-link { position: sticky; right: 0; padding-left: 0.5rem; background: var(--bg); }
-  .site-nav > .button:last-child { position: sticky; right: 0; box-shadow: -0.5rem 0 0 var(--bg); }
 }
 
 /* Logo and colours */
