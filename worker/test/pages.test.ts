@@ -1,5 +1,7 @@
 import { env, exports } from "cloudflare:workers";
 import { describe, expect, it, vi } from "vitest";
+import { htmlToMarkdown } from "../src/pages/markdown";
+import { sessionFor } from "./helpers/session";
 
 const page = async (path: string) => {
   const res = await exports.default.fetch(`https://eelsdb.eu${path}`, { redirect: "manual" });
@@ -8,35 +10,21 @@ const page = async (path: string) => {
 const rows = (html: string) => (html.match(/<tbody>([\s\S]*?)<\/tbody>/)?.[1].match(/<tr>/g) ?? []).length;
 
 describe("pages", () => {
-  it("about, citation and logo pages, and the old addresses", async () => {
-    const { status, html } = await page("/about/");
-    expect(status).toBe(200);
-    expect(html).toContain("<title>About EELSdb · EELS Data Base</title>");
-    expect(html).toContain("<h1>About EELSdb</h1>");
-    for (const id of ["share", "licence", "support", "contact"]) expect(html).toContain(`id="${id}"`);
-    expect(html).not.toContain('id="cite"');
-    expect(html).not.toContain("@article{");
-    expect(html).toContain('"#cite":"/citation/","#logo":"/logo/"');
-
-    const cite = await page("/citation/");
-    expect(cite.status).toBe(200);
-    expect(cite.html).toContain("<h1>How to cite</h1>");
-    expect(cite.html).toContain("@article{");
-    expect(cite.html).toContain("Copy BibTeX");
-
-    const logo = await page("/logo/");
-    expect(logo.status).toBe(200);
-    expect(logo.html).toContain("<h1>Logo and colours</h1>");
-    for (const base of ["eelsdb-logo", "eelsdb-logo-compact"])
-      for (const v of ["light-bg", "dark-bg", "black", "white"])
-        for (const ext of ["svg", "png"]) expect(logo.html).toContain(`href="/logo/${base}-${v}.${ext}"`);
-    expect(logo.html).toContain('href="/logo/eelsdb-mark.png"');
-    expect(logo.html).toContain('data-copy="#a21e16"');
-    expect(logo.html).toContain('href="/citation/"');
-    for (const path of ["/logo", "/brand/", "/brand"]) {
-      const r = await page(path);
-      expect(r.status).toBe(301);
-      expect(r.res.headers.get("location")).toBe("/logo/");
+  it("old addresses of pages on the docs site redirect there", async () => {
+    const moved: Record<string, string> = {
+      "/about/": "/docs/about/",
+      "/citation/": "/docs/about/citation/",
+      "/contact/": "/docs/about/contact/",
+      "/logo/": "/docs/about/logo/",
+      "/logo": "/docs/about/logo/",
+      "/brand/": "/docs/about/logo/",
+      "/api/": "/docs/api/v1/",
+      "/api/v2/": "/docs/api/v2/",
+    };
+    for (const [from, to] of Object.entries(moved)) {
+      const r = await page(from);
+      expect(r.status, from).toBe(301);
+      expect(r.res.headers.get("location")).toBe(to);
     }
   });
 
@@ -49,7 +37,7 @@ describe("pages", () => {
     ]);
     const { status, html } = await page("/moderators/");
     expect(status).toBe(200);
-    expect(html).toContain('href="/contact/"');
+    expect(html).toContain('href="/docs/about/contact/"');
     expect(html).toMatch(/<a class="by" href="\/author\/public-mod\/">[\s\S]*?Public Mod<\/span><\/a><span class="muted">Moderator</);
     expect(html).toMatch(/<span class="by">[\s\S]*?Quiet Admin<\/span><\/span><span class="muted">Administrator</);
     expect(html).toContain("gravatar.com/avatar/");
@@ -58,16 +46,16 @@ describe("pages", () => {
   });
 
   it("header has a burger button that controls the menu panel", async () => {
-    const { html } = await page("/about/");
+    const { html } = await page("/moderators/");
     const button = html.match(/<button class="menu-toggle"[^>]*>/)?.[0] ?? "";
     expect(button).toContain('aria-expanded="false"');
     const id = button.match(/aria-controls="([^"]+)"/)?.[1];
     expect(id).toBeTruthy();
-    expect(html).toMatch(new RegExp(`<div class="menu" id="${id}">[\\s\\S]*?class="nav-search"[\\s\\S]*?class="theme-toggle wide"[\\s\\S]*?href="/about/"[\\s\\S]*?Sign in[\\s\\S]*?class="theme-toggle narrow"`));
+    expect(html).toMatch(new RegExp(`<div class="menu" id="${id}">[\\s\\S]*?class="nav-search"[\\s\\S]*?class="theme-toggle wide"[\\s\\S]*?href="/docs/about/"[\\s\\S]*?Sign in[\\s\\S]*?class="theme-toggle narrow"`));
   });
 
-  it("About is a disclosure menu, marked current on each of its pages", async () => {
-    for (const path of ["/about/", "/citation/", "/moderators/", "/logo/", "/contact/"]) {
+  it("About is a disclosure menu, marked current on the Moderators page", async () => {
+    for (const path of ["/moderators/"]) {
       const { html } = await page(path);
       const button = html.match(/<button[^>]*class="drop-toggle[^"]*"[^>]*>/)?.[0] ?? "";
       expect(button, path).toContain("current");
@@ -176,11 +164,52 @@ describe("pages", () => {
     const post = await page("/hyperspy/");
     expect(post.status).toBe(200);
     expect(post.html).toContain('<a href="http://hyperspy.org/hyperspy-doc/current/api/hyperspy.misc.eels.eelsdb.html">');
-    for (const path of ["/about/", "/contact/"]) expect((await page(path)).status).toBe(200);
     expect((await page("/submit-data/")).res.headers.get("location")).toBe("/login/?next=%2Fsubmit-data%2F");
-    const api = await page("/api/");
-    expect(api.html).toContain("min_energy_compare");
     expect((await page("/api/openapi-v1.json")).res.headers.get("content-type")).toContain("application/json");
+  });
+
+  it("spectrum, author and news pages have Markdown versions, linked from the HTML", async () => {
+    const md = await page("/spectra/mlc-nanotube-ylas-tas2.md");
+    expect(md.status).toBe(200);
+    expect(md.res.headers.get("content-type")).toBe("text/markdown; charset=utf-8");
+    expect(md.html).toMatch(/^# MLC Nanotube \(Y,La\)S-TaS2\n/);
+    expect(md.html).toContain("- Beam energy: 300 kV (typed by the contributor)");
+    expect(md.html).toContain("- API v2 record (JSON): https://api.eelsdb.eu/v2/spectra/22236");
+    expect(md.html).toContain("@article{ewels2016eelsdb,");
+    const html = (await page("/spectra/mlc-nanotube-ylas-tas2/")).html;
+    expect(html).toContain('<link rel="alternate" type="text/markdown" href="/spectra/mlc-nanotube-ylas-tas2.md"/>');
+    expect(html).toContain('<link rel="alternate" type="application/json" href="https://api.eelsdb.eu/v2/spectra/22236"/>');
+
+    const author = await page("/author/simon.md");
+    expect(author.html).toContain("## Contributed spectra (3)");
+    expect(author.html).toContain("(https://eelsdb.eu/spectra/mlc-nanotube-ys-tas2.md)");
+    expect((await page("/author/simon/")).html).toContain('href="/author/simon.md"');
+
+    const news = await page("/hyperspy.md");
+    expect(news.html).toMatch(/^# Hyperspy\n/);
+    expect(news.html).not.toContain("<p>");
+    for (const missing of ["/spectra/nope.md", "/author/nobody.md", "/nope.md"]) expect((await page(missing)).status, missing).toBe(404);
+  });
+
+  it("tells the static docs who is signed in, and every page saves it for the docs header", async () => {
+    const out = await exports.default.fetch("https://eelsdb.eu/account/me.json");
+    expect(out.headers.get("cache-control")).toBe("no-store");
+    expect(await out.json()).toEqual({ signed_in: false });
+    expect((await page("/news/")).html).toContain('localStorage.setItem("account",JSON.stringify(Object.assign({"signed_in":false}');
+
+    const cookie = await sessionFor({ id: 7300001, display_name: "Ada </script> Lovelace", slug: "ada" });
+    const me = await (await exports.default.fetch("https://eelsdb.eu/account/me.json", { headers: { cookie } })).json<any>();
+    expect(me).toMatchObject({ signed_in: true, name: "Ada </script> Lovelace", initials: "AL", theme: "system" });
+    expect(me.hue).toMatch(/^av-[a-e]$/);
+    const html = await (await exports.default.fetch("https://eelsdb.eu/news/", { headers: { cookie } })).text();
+    expect(html).toContain('"name":"Ada \\u003c/script> Lovelace"');
+    expect(html).not.toContain("Ada </script>");
+  });
+
+  it("turns the news archive's HTML into Markdown", () => {
+    expect(htmlToMarkdown('<p>See <a href="https://x.org">this</a>, <strong>now</strong>.<br>Next&#8217;s</p><blockquote><p>Quote</p></blockquote>')).toBe(
+      "See [this](https://x.org), **now**.  \nNext\u2019s\n\n> Quote",
+    );
   });
 
   it("closed sections return 410", async () => {

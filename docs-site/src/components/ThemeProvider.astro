@@ -1,0 +1,60 @@
+---
+---
+
+{/*
+  Inlined so nothing flashes. The main site saves two things in this browser: "theme" (the toggle) and "account"
+  (who is signed in, written by every page; see accountSummary in worker/src/pages/layout.tsx).
+*/}
+<script is:inline>
+  (() => {
+    const read = (key) => {
+      try {
+        return localStorage.getItem(key);
+      } catch {
+        return null;
+      }
+    };
+    let account = null;
+    try {
+      account = JSON.parse(read('account'));
+    } catch {}
+    const saved = read('theme') || (account && account.signed_in && account.theme !== 'system' ? account.theme : null);
+    document.documentElement.dataset.theme =
+      saved === 'light' || saved === 'dark' ? saved : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
+    window.eelsdbAccount = {
+      current: account,
+      /** Show `a` in an account link: the avatar and name when signed in, else "Sign in". */
+      render(link, a) {
+        if (!a || !a.signed_in) {
+          link.href = link.dataset.signIn;
+          link.removeAttribute('aria-label');
+          link.removeAttribute('title');
+          link.classList.remove('signed-in');
+          link.textContent = 'Sign in';
+          return;
+        }
+        link.href = '/account/';
+        link.setAttribute('aria-label', `Your account (${a.name})`);
+        link.title = a.name;
+        link.classList.add('signed-in');
+        const av = document.createElement('span');
+        av.className = `av ${/^av-[a-e]$/.test(a.hue) ? a.hue : 'av-a'}`;
+        av.setAttribute('aria-hidden', 'true');
+        av.textContent = a.initials;
+        if (a.avatar && /^(https:\/\/|\/)/.test(a.avatar)) {
+          const img = document.createElement('img');
+          img.alt = '';
+          img.referrerPolicy = 'no-referrer';
+          img.src = a.avatar;
+          av.append(img);
+        }
+        const name = document.createElement('span');
+        name.className = 'account-name';
+        name.textContent = a.name;
+        link.replaceChildren(av, name);
+      },
+    };
+    window.StarlightThemeProvider = { updatePickers() {} };
+  })();
+</script>

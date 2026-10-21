@@ -1,0 +1,283 @@
+/* Starlight's palette, mapped onto the site's tokens (/tokens.css from the Worker).
+   The tokens already switch with light-dark(), so one set of values serves both of Starlight's themes.
+   Starlight's grey scale runs from the text colour (white) to the page colour (black) in both themes. */
+:root,
+:root[data-theme='light'] {
+  --sl-font: var(--font);
+  --sl-font-mono: var(--mono);
+
+  --sl-color-white: var(--ink);
+  --sl-color-gray-1: color-mix(in oklab, var(--ink) 85%, var(--muted));
+  --sl-color-gray-2: color-mix(in oklab, var(--ink) 45%, var(--muted));
+  --sl-color-gray-3: var(--muted);
+  --sl-color-gray-4: color-mix(in oklab, var(--muted) 60%, var(--line));
+  --sl-color-gray-5: var(--line);
+  --sl-color-gray-6: var(--sunken);
+  --sl-color-gray-7: var(--rule);
+  --sl-color-black: var(--bg);
+
+  --sl-color-accent-low: var(--accent-soft);
+  --sl-color-accent: var(--accent);
+  --sl-color-accent-high: var(--accent-ink);
+  --sl-color-text-accent: var(--accent-ink);
+  --sl-color-text-invert: var(--on-accent);
+
+  --sl-color-bg: var(--bg);
+  --sl-color-bg-nav: var(--bg);
+  --sl-color-bg-sidebar: var(--bg);
+  --sl-color-bg-inline-code: var(--sunken);
+  --sl-color-bg-accent: var(--accent);
+  --sl-color-hairline-light: var(--rule);
+  --sl-color-hairline: var(--line);
+  --sl-color-hairline-shade: var(--line);
+  --sl-color-backdrop-overlay: color-mix(in oklab, var(--bg) 70%, transparent);
+
+  /* Also the main site's header height (.site-header .wrap in worker/public/style.css). */
+  --sl-nav-height: 4.75rem;
+  /* The main site's 1rem side gutter (.wrap), at every width. */
+  --sl-nav-pad-x: 1rem;
+
+  --sl-text-h1: 2rem;
+  --sl-text-h2: 1.3rem;
+  --sl-text-h3: 1.05rem;
+  --sl-text-h4: 1rem;
+}
+
+body {
+  font-variant-numeric: tabular-nums;
+}
+
+.sl-markdown-content :is(h1, h2, h3, h4) {
+  letter-spacing: -0.015em;
+  font-weight: 600;
+}
+
+h1#_top {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.sl-markdown-content a:not(:where(.not-content *)) {
+  text-decoration-color: color-mix(in oklab, currentColor 30%, transparent);
+  text-underline-offset: 0.2em;
+}
+
+.sl-markdown-content a:not(:where(.not-content *)):hover {
+  text-decoration-color: currentColor;
+}
+
+::selection {
+  background: var(--mark);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline-color: var(--focus);
+}
+
+/* The current sidebar page, as the main site marks the current nav item: a soft fill, not a solid accent block. */
+.docs-tree a[aria-current='page'],
+.docs-tree a[aria-current='page']:hover,
+.docs-tree a[aria-current='page']:focus {
+  background: var(--accent-soft);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.font-weights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 2rem;
+  font-size: 1.3rem;
+  letter-spacing: -0.015em;
+}
+
+/* starlight-codeblocks puts the swatch "Click to copy" hint to the right of the value, where it runs past a
+   phone screen even while hidden. Above the value and aligned to its end, it cannot cause sideways scrolling. */
+.sl-markdown-content .scb-swatch-text[role='button']::after {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+  inset-block-start: auto;
+  inset-block-end: calc(100% + 0.35rem);
+  translate: none;
+}
+
+/* Site navigation: the main site's header and burger menu (worker/public/style.css), for the docs components
+   SiteNav, NavDrop, Account and MobileMenuFooter. The header row shows from 1000px. Below 50rem the menu is in
+   Starlight's sidebar, with the docs tree under Docs; from 50rem to 999px it is the panel in SiteMenu.astro. */
+.site-nav a,
+.drop-toggle {
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 500;
+}
+.site-nav.bar {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem 1.4rem;
+}
+.site-nav.bar > a,
+.site-nav.bar .drop-toggle {
+  padding-block: 0.2rem;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.site-nav.bar > a:hover,
+.site-nav.bar .drop-toggle:hover {
+  border-bottom-color: var(--line);
+}
+.site-nav.bar > a[aria-current='page'],
+.site-nav.bar .drop-toggle.current {
+  border-bottom-color: var(--accent);
+}
+
+.nav-drop {
+  position: relative;
+}
+.drop-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding-inline: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.drop-toggle svg {
+  width: 12px;
+  height: 12px;
+  color: var(--muted);
+}
+.drop-toggle[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+.drop-panel {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.drop-toggle[aria-expanded='false'] + .drop-panel {
+  display: none;
+}
+.site-nav.bar .drop-panel {
+  position: absolute;
+  z-index: 11;
+  top: calc(100% + 0.5rem);
+  right: -0.75rem;
+  min-width: 11.5rem;
+  padding: 0.3rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+}
+.site-nav.bar .drop-panel a {
+  display: block;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.site-nav.bar .drop-panel a:hover {
+  background: var(--sunken);
+}
+.site-nav.bar .drop-panel a[aria-current='page'] {
+  text-decoration: underline 2px var(--accent);
+  text-underline-offset: 0.35em;
+}
+
+.account-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--ink);
+  font-weight: 500;
+  text-decoration: none;
+}
+.account-link:not(.signed-in) {
+  padding: 0.2rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--sunken);
+}
+.account-link:not(.signed-in):hover {
+  background: var(--surface);
+}
+.account-link .av {
+  width: 2rem;
+  height: 2rem;
+}
+.account-link:hover .av {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.site-nav.bar .account-name {
+  display: none;
+}
+
+/* The menu: site links in the main site's order, with the docs tree under Docs. */
+.site-nav.menu {
+  display: flex;
+  flex-direction: column;
+}
+.site-nav.menu > a,
+.site-nav.menu .drop-toggle {
+  width: 100%;
+  justify-content: space-between;
+  padding-block: 0.75rem;
+  border-bottom: 1px solid var(--rule);
+  font-size: 1rem;
+}
+.site-nav.menu > a[aria-current='page'],
+.site-nav.menu .drop-toggle.current .drop-label {
+  text-decoration: underline 2px var(--accent);
+  text-underline-offset: 0.4em;
+}
+.site-nav.menu .drop-toggle svg {
+  width: 14px;
+  height: 14px;
+}
+.site-nav.menu .drop-panel a {
+  display: block;
+  padding: 0.6rem 0 0.6rem 1rem;
+  border-bottom: 1px solid var(--rule);
+}
+.site-nav.menu .drop-panel a[aria-current='page'] {
+  text-decoration: underline 2px var(--accent);
+  text-underline-offset: 0.4em;
+}
+.site-nav.menu .docs-tree {
+  padding: 0.5rem 0 0.75rem 1rem;
+  border-bottom: 1px solid var(--rule);
+}
+/* The About group of the docs tree repeats the About menu below it. Keep it the last group in astro.config.mjs. */
+.site-nav.menu .docs-tree .top-level > li:last-child {
+  display: none;
+}
+.menu-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0 0.5rem;
+}
+.menu-foot .theme-toggle {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+/* From 50rem the sidebar is a column that holds only the docs tree. */
+@media (min-width: 50rem) {
+  .sidebar-content .site-nav.menu > a,
+  .sidebar-content .site-nav.menu > .nav-drop,
+  .sidebar-content .menu-foot {
+    display: none;
+  }
+  .site-nav.menu .docs-tree {
+    padding: 0;
+    border: 0;
+  }
+  .site-nav.menu .docs-tree .top-level > li:last-child {
+    display: revert;
+  }
+}

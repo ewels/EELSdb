@@ -3,7 +3,7 @@
   "info": {
     "title": "EELS Data Base API v1",
     "version": "1",
-    "description": "Read-only JSON API for the spectra in the EELS Data Base. No key is needed. Used by exSpy's `exspy.data.eelsdb()`. Responses have `Access-Control-Allow-Origin: *`. Errors return a JSON object with `message` and `documentation_url`."
+    "description": "Deprecated: use API v2 (https://eelsdb.eu/docs/api/v2/) for new work. API v1 returns exactly what the old EELS Data Base site returned, so that exSpy's `exspy.data.eelsdb()` and older scripts keep working, and it gets no new features. It is read-only and needs no key. Responses have `Access-Control-Allow-Origin: *`. Errors return a JSON object with `message` and `documentation_url`."
   },
   "servers": [
     {
@@ -250,7 +250,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated": true
       }
     },
     "/spectra/{slug}/": {
@@ -289,7 +290,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated": true
       }
     },
     "/news/": {
@@ -300,7 +302,8 @@
           "200": {
             "description": "Array of news objects."
           }
-        }
+        },
+        "deprecated": true
       }
     },
     "/{post_slug}/": {
@@ -324,7 +327,8 @@
           "404": {
             "description": "Not found."
           }
-        }
+        },
+        "deprecated": true
       }
     },
     "/registered-users/": {
@@ -345,7 +349,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated": true
       }
     },
     "/author/{user}/": {
@@ -376,7 +381,8 @@
           "404": {
             "description": "No contributor with this name."
           }
-        }
+        },
+        "deprecated": true
       }
     }
   },

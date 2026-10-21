@@ -1,16 +1,34 @@
 // API v2: numbers as numbers with units in the names, provenance for acquisition values, a structured
-// reference, total counts and paging links. Documented in openapi-v2.json.
-import { Hono, type Context } from "hono";
+// reference, total counts and paging links. The schemas in v2-schema.ts validate requests and generate the OpenAPI file.
+import { OpenAPIHono } from "@hono/zod-openapi";
+import type { Context } from "hono";
 import type { AppEnv } from "../auth";
-import { ELEMENTS } from "../elements";
 import { API_HOST, SITE, loadMany, type SpectrumBundle } from "./format";
+import { DOCUMENT, listRoute, oneRoute, type Spectrum } from "./v2-schema";
+import type { z } from "@hono/zod-openapi";
 
-export const v2 = new Hono<AppEnv>();
 type C = Context<AppEnv>;
 type Row = Record<string, any>;
 
-const MAX_PER_PAGE = 500;
-const SORTS: Record<string, string> = {
+export const API_REFERENCE = `${SITE}/docs/api/v2/`;
+
+const error = <S extends 400 | 404>(c: C, status: S, code: string, message: string) => c.json({ error: { code, message } }, status);
+
+export const v2 = new OpenAPIHono<AppEnv>({
+  defaultHook: (result, c) => {
+    if (result.success) return;
+    const issue = result.error.issues[0];
+    if (issue.code === "unrecognized_keys") {
+      return error(c, 400, "unknown_parameter", `Unknown query parameter '${issue.keys[0]}'. See ${API_REFERENCE}.`);
+    }
+    const name = issue.path.length ? `'${String(issue.path[0])}' ` : "";
+    return error(c, 400, "invalid_parameter", `${name}${issue.message}`.trim());
+  },
+});
+
+export const openapiV2 = () => v2.getOpenAPI31Document(DOCUMENT);
+
+const SORT_SQL: Record<string, string> = {
   formula: "s.formula COLLATE NOCASE",
   title: "s.title COLLATE NOCASE",
   published_at: "s.published_at",
@@ -20,24 +38,19 @@ const SORTS: Record<string, string> = {
   resolution_ev: "a.resolution_ev",
   id: "s.id",
 };
-const PARAMS = new Set([
-  "type", "technique", "phase", "element", "edge", "formula", "q", "author", "complete", "monochromated",
-  "min_energy_ev", "max_energy_ev", "covers_ev", "beam_energy_kv", "sort", "order", "page", "per_page",
-]);
-
-const error = (c: C, status: 400 | 404, code: string, message: string) => c.json({ error: { code, message } }, status);
 const num = (v: unknown) => (v === null || v === undefined || v === "" ? null : Number(v));
 const bool = (v: unknown) => (v === null || v === undefined ? null : Boolean(Number(v)));
 const like = (s: string) => "%" + s.replace(/[\\%_]/g, (ch) => "\\" + ch) + "%";
 
-function measured(value: unknown, source: unknown, uncertainty: unknown, unit: string) {
+// Typed loosely: its keys depend on `unit`. The API v2 tests check the output against the schema.
+function measured(value: unknown, source: unknown, uncertainty: unknown, unit: string): any {
   if (source === "unknown" || value === null || value === undefined) return source ? { [`value_${unit}`]: null, source: "unknown" } : null;
   return { [`value_${unit}`]: num(value), source: source ?? null, [`uncertainty_${unit}`]: num(uncertainty) };
 }
 
 const fileUrl = (key: string) => `${SITE}/${key.split("/").map(encodeURIComponent).join("/")}`;
 
-export function formatV2(b: SpectrumBundle) {
+export function formatV2(b: SpectrumBundle): z.infer<typeof Spectrum> {
   const s = b.spectrum;
   const a = b.acquisition;
   const t = b.treatment;
@@ -131,103 +144,78 @@ export function formatV2(b: SpectrumBundle) {
       .filter((f) => f.role !== "companion")
       .map((f) => ({ role: f.role, url: fileUrl(f.r2_key), filename: f.filename, bytes: f.bytes, sha256: f.sha256, media_type: f.media_type })),
     download_url: b.legacyFile ? fileUrl(b.legacyFile) : null,
-    processing: b.processing,
+    processing: b.processing as z.infer<typeof Spectrum>["processing"],
   };
 }
 
-v2.get("/spectra", async (c) => {
-  const url = new URL(c.req.url);
-  const p = url.searchParams;
-  for (const key of p.keys()) {
-    if (!PARAMS.has(key)) return error(c, 400, "unknown_parameter", `Unknown query parameter '${key}'. See ${SITE}/api/v2/.`);
-  }
+v2.openapi(listRoute, async (c) => {
+  const q = c.req.valid("query");
   const where = ["s.status = 'published'"];
   const binds: unknown[] = [];
   const add = (sql: string, ...values: unknown[]) => {
     where.push(sql);
     binds.push(...values);
   };
-  const number = (key: string) => {
-    const v = p.get(key);
-    if (v === null) return null;
-    const n = Number(v);
-    if (!Number.isFinite(n)) throw new Error(`'${key}' must be a number.`);
-    return n;
-  };
 
-  if (p.getAll("element").length + p.getAll("edge").length > 20) {
-    return error(c, 400, "invalid_parameter", "Give at most 20 element and edge filters.");
+  // Gas-phase spectra are only listed when asked for, as in v1.
+  add(q.phase ? "s.phase = ?" : "s.phase != 'gas'", ...(q.phase ? [q.phase] : []));
+  if (q.type) add("s.type = ?", q.type);
+  if (q.technique) add("s.technique = ?", q.technique);
+  for (const el of q.element ?? []) add("EXISTS (SELECT 1 FROM spectrum_elements e WHERE e.spectrum_id = s.id AND e.element = ?)", el);
+  for (const edge of q.edge ?? []) {
+    const [element, name] = edge.includes("_") ? edge.split("_", 2) : [null, edge];
+    add(
+      `EXISTS (SELECT 1 FROM spectrum_edges g WHERE g.spectrum_id = s.id AND g.edge = ?${element ? " AND g.element = ?" : ""})`,
+      ...(element ? [name, element] : [name]),
+    );
   }
-  try {
-    // Gas-phase spectra are only listed when asked for, as in v1.
-    if (p.get("phase")) add("s.phase = ?", p.get("phase"));
-    for (const [key, col] of [["type", "s.type"], ["technique", "s.technique"]] as const) if (p.get(key)) add(`${col} = ?`, p.get(key));
-    for (const el of p.getAll("element")) {
-      if (!ELEMENTS.has(el)) throw new Error(`'${el}' is not an element symbol.`);
-      add("EXISTS (SELECT 1 FROM spectrum_elements e WHERE e.spectrum_id = s.id AND e.element = ?)", el);
-    }
-    for (const edge of p.getAll("edge")) {
-      const [element, name] = edge.includes("_") ? edge.split("_", 2) : [null, edge];
-      add(
-        `EXISTS (SELECT 1 FROM spectrum_edges g WHERE g.spectrum_id = s.id AND g.edge = ?${element ? " AND g.element = ?" : ""})`,
-        ...(element ? [name, element] : [name]),
-      );
-    }
-    if (p.get("formula")) add("s.formula LIKE ? ESCAPE '\\'", like(p.get("formula")!));
-    if (p.get("q")) add("(s.title LIKE ? ESCAPE '\\' OR s.description LIKE ? ESCAPE '\\')", like(p.get("q")!), like(p.get("q")!));
-    if (p.get("author")) add("(s.author_display LIKE ? ESCAPE '\\' OR s.author_slug = ?)", like(p.get("author")!), p.get("author"));
-    if (p.get("complete") === "true") add("s.completeness = 'full'");
-    if (p.get("monochromated") !== null) add("a.monochromated = ?", p.get("monochromated") === "true" ? 1 : 0);
-    const minE = number("min_energy_ev");
-    if (minE !== null) add("s.min_energy_ev >= ?", minE);
-    const maxE = number("max_energy_ev");
-    if (maxE !== null) add("s.max_energy_ev <= ?", maxE);
-    const covers = number("covers_ev");
-    if (covers !== null) add("s.min_energy_ev <= ? AND s.max_energy_ev >= ?", covers, covers);
-    const kv = number("beam_energy_kv");
-    if (kv !== null) add("a.beam_energy_kv = ?", kv);
-  } catch (e) {
-    return error(c, 400, "invalid_parameter", (e as Error).message);
-  }
-  if (!p.get("phase")) where.push("s.phase != 'gas'");
+  if (q.formula) add("s.formula LIKE ? ESCAPE '\\'", like(q.formula));
+  if (q.q) add("(s.title LIKE ? ESCAPE '\\' OR s.description LIKE ? ESCAPE '\\')", like(q.q), like(q.q));
+  if (q.author) add("(s.author_display LIKE ? ESCAPE '\\' OR s.author_slug = ?)", like(q.author), q.author);
+  if (q.complete) add("s.completeness = 'full'");
+  if (q.monochromated) add("a.monochromated = ?", q.monochromated === "true" ? 1 : 0);
+  if (q.min_energy_ev !== undefined) add("s.min_energy_ev >= ?", q.min_energy_ev);
+  if (q.max_energy_ev !== undefined) add("s.max_energy_ev <= ?", q.max_energy_ev);
+  if (q.covers_ev !== undefined) add("s.min_energy_ev <= ? AND s.max_energy_ev >= ?", q.covers_ev, q.covers_ev);
+  if (q.beam_energy_kv !== undefined) add("a.beam_energy_kv = ?", q.beam_energy_kv);
 
-  const sortKey = p.get("sort") ?? "formula";
-  if (!SORTS[sortKey]) return error(c, 400, "invalid_parameter", `'sort' must be one of ${Object.keys(SORTS).join(", ")}.`);
-  const dir = p.get("order") === "desc" ? "DESC" : "ASC";
-  const perPage = Math.min(MAX_PER_PAGE, Math.max(1, Math.trunc(Number(p.get("per_page") ?? 50)) || 50));
-  const page = Math.max(1, Math.trunc(Number(p.get("page") ?? 1)) || 1);
-
+  const sort = SORT_SQL[q.sort];
+  const dir = q.order === "desc" ? "DESC" : "ASC";
+  const { page, per_page: perPage } = q;
   const from = "FROM spectra s LEFT JOIN eels_acquisition a ON a.spectrum_id = s.id WHERE " + where.join(" AND ");
   const [count, ids] = await c.env.DB.batch<Row>([
     c.env.DB.prepare(`SELECT COUNT(*) AS n ${from}`).bind(...binds),
-    c.env.DB.prepare(`SELECT s.id ${from} ORDER BY ${SORTS[sortKey]} IS NULL, ${SORTS[sortKey]} ${dir}, s.id LIMIT ? OFFSET ?`)
+    c.env.DB.prepare(`SELECT s.id ${from} ORDER BY ${sort} IS NULL, ${sort} ${dir}, s.id LIMIT ? OFFSET ?`)
       .bind(...binds, perPage, (page - 1) * perPage),
   ]);
   const total = count.results[0].n as number;
   const link = (n: number) => {
     const next = new URL(`${API_HOST}/v2/spectra`);
-    for (const [k, v] of p) if (k !== "page") next.searchParams.append(k, v);
+    for (const [k, v] of new URL(c.req.url).searchParams) if (k !== "page") next.searchParams.append(k, v);
     next.searchParams.set("page", String(n));
     return next.toString();
   };
   const bundles = await loadMany(c.env.DB, ids.results.map((r) => r.id));
-  return c.json({
-    total,
-    page,
-    per_page: perPage,
-    next: page * perPage < total ? link(page + 1) : null,
-    previous: page > 1 ? link(page - 1) : null,
-    results: bundles.map(formatV2),
-  });
+  return c.json(
+    {
+      total,
+      page,
+      per_page: perPage,
+      next: page * perPage < total ? link(page + 1) : null,
+      previous: page > 1 ? link(page - 1) : null,
+      results: bundles.map(formatV2),
+    },
+    200,
+  );
 });
 
-v2.get("/spectra/:id", async (c) => {
-  const key = c.req.param("id");
+v2.openapi(oneRoute, async (c) => {
+  const key = c.req.valid("param").id;
   const row = await c.env.DB.prepare(`SELECT id FROM spectra WHERE ${/^\d+$/.test(key) ? "id" : "slug"} = ? AND status = 'published'`)
     .bind(/^\d+$/.test(key) ? Number(key) : key)
     .first<number>("id");
   const [bundle] = row === null ? [] : await loadMany(c.env.DB, [row]);
-  return bundle ? c.json(formatV2(bundle)) : error(c, 404, "not_found", "No published spectrum with this id or slug.");
+  return bundle ? c.json(formatV2(bundle), 200) : error(c, 404, "not_found", "No published spectrum with this id or slug.");
 });
 
-v2.all("*", (c) => error(c, 404, "not_found", `Unknown path. See ${SITE}/api/v2/.`));
+v2.all("*", (c) => error(c, 404, "not_found", `Unknown path. See ${API_REFERENCE}.`));

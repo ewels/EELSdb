@@ -1,6 +1,6 @@
 import type { Context } from "hono";
 import type { AppEnv } from "../auth";
-import { SITE, loadBundle, type SpectrumBundle } from "../api/format";
+import { API_HOST, SITE, loadBundle, type SpectrumBundle } from "../api/format";
 import { EELSDB_BIBTEX, EELSDB_CITATION } from "./citation";
 import { isModerator } from "../instruments";
 import { Formula, Layout, TypeBadge, fmt } from "./layout";
@@ -166,7 +166,17 @@ export async function spectrumPage(c: Context<AppEnv>) {
       title={s.title}
       path="/spectra/"
       description={`${s.title}${s.formula ? ` (${s.formula})` : ""}: ${s.type} spectrum in the EELS Data Base.`}
-      head={<link rel="stylesheet" href="/vendor/uPlot.min.css" />}
+      head={
+        <>
+          <link rel="stylesheet" href="/vendor/uPlot.min.css" />
+          {b.spectrum.status === "published" && (
+            <>
+              <link rel="alternate" type="text/markdown" href={`/spectra/${encodeURIComponent(s.slug)}.md`} />
+              <link rel="alternate" type="application/json" href={`${API_HOST}/v2/spectra/${s.id}`} />
+            </>
+          )}
+        </>
+      }
     >
       <p class="small back-link">
         <a href="/spectra/">← All spectra</a>

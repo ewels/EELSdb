@@ -1,0 +1,29 @@
+# EELS Data Base (EELSdb)
+
+> Open reference spectra from electron energy-loss spectroscopy (EELS) and X-ray absorption spectroscopy (XAS). Every spectrum is free to download under the Open Database Licence (ODbL), through the website, a public JSON API with no key, or one bulk archive. Cite the contributor's paper and the EELS Data Base when you use a spectrum.
+
+Every spectrum page has a Markdown version: replace the trailing slash with `.md`, for example https://eelsdb.eu/spectra/iron-iii-oxide-hematite.md. Author pages (https://eelsdb.eu/author/{slug}.md) and news posts work the same way. Each page links to its Markdown version, and each spectrum page to its API v2 record, with `<link rel="alternate">`.
+
+## Documentation
+
+- [Documentation index for AI assistants](https://eelsdb.eu/docs/llms.txt): every documentation page, as Markdown
+- [All documentation in one file](https://eelsdb.eu/docs/llms-full.txt)
+- [Use EELSdb with AI agents](https://eelsdb.eu/docs/use/agents.md): which addresses to use, request etiquette and the EELSdb agent skills
+
+## API
+
+- [Use the API](https://eelsdb.eu/docs/use/api.md): filters, paging, provenance of acquisition values, files and errors
+- [API v2 OpenAPI file](https://eelsdb.eu/api/openapi-v2.json): every parameter and response field, generated from the code that serves the API
+- [List spectra](https://api.eelsdb.eu/v2/spectra?per_page=5): an example request
+- [Spectrum fields](https://eelsdb.eu/docs/reference/fields.md): what each field of a record means
+
+## Data
+
+- [Bulk download](https://eelsdb.eu/downloads/): one zip file with every public spectrum file and all metadata in the API v2 format
+- [How to cite](https://eelsdb.eu/docs/about/citation.md): the EELS Data Base paper, with BibTeX
+
+## Optional
+
+- [API v1 OpenAPI file](https://eelsdb.eu/api/openapi-v1.json): deprecated; the old site's API, kept only for exSpy and older scripts. Use v2.
+- [Load spectra in Python](https://eelsdb.eu/docs/use/python.md): exSpy, HyperSpy and the eelsdb package
+- [Submit a spectrum](https://eelsdb.eu/docs/share/submit.md): how contributors share spectra

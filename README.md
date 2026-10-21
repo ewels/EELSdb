@@ -26,6 +26,17 @@ npm run dev      # wrangler dev on http://localhost:8787 (pages) and http://api.
 npm test         # Vitest, in the Workers runtime
 ```
 
+The documentation pages are Markdown files in [`docs/`](docs/): edit them there. The Astro Starlight site that builds them is in `docs-site/` (its `src/content/docs` is a link to `docs/`). It builds into `worker/public/docs/`, and the Worker serves it at `/docs/`:
+
+```bash
+cd docs-site
+npm install
+npm run build    # or `npm run docs` from worker/; `npm run dev` there builds it once if it is missing
+npm run dev      # live preview on http://localhost:4321/docs/, with fonts and tokens from wrangler dev on :8787
+```
+
+The docs header uses the site's nav (`worker/src/nav.ts`), logo and colour tokens (`worker/public/tokens.css`). The About, citation, logo and contact pages are in the docs too. The API v2 reference is generated from the OpenAPI file that the Worker builds from its route schemas (`worker/src/api/v2-schema.ts`); the v1 file (`worker/src/api/openapi-v1.json`) is written by hand, as v1 is frozen. Agent skills (`eelsdb`, `eelsdb-submit`) are in `skills/`, where `npx skills add ewels/EELSdb` finds them; the docs build also serves them at `/docs/skills/`. If `wrangler dev` is running when you rebuild the docs, it can miss the new files until another file in `public/` changes.
+
 Run `npm run types` after changing `wrangler.jsonc`. OAuth, Turnstile and other keys go in `worker/.env` (gitignored); `worker/.env.example` lists them.
 
 The Python tools (import scripts, file checks) are in `python/`, managed with [uv](https://docs.astral.sh/uv/):

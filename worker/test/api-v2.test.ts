@@ -1,6 +1,7 @@
 import { env, exports } from "cloudflare:workers";
 import { describe, expect, it } from "vitest";
-import openapi from "../src/api/openapi-v2.json";
+import { openapiV2 } from "../src/api/v2";
+import { Spectrum, SpectrumPage } from "../src/api/v2-schema";
 
 const get = (path: string) => exports.default.fetch(`https://api.eelsdb.eu/v2${path}`);
 const json = async (path: string) => (await get(path)).json<any>();
@@ -52,10 +53,30 @@ describe("API v2", () => {
     expect((await get("/spectra/999999")).status).toBe(404);
   });
 
-  it("matches the documented fields", async () => {
-    const documented = Object.keys(openapi.components.schemas.Spectrum.properties).sort();
-    const page = await json("/spectra?per_page=500");
-    for (const s of page.results) expect(Object.keys(s).sort()).toEqual(documented);
+  it("matches the response schemas", async () => {
+    const page = await json("/spectra?per_page=500&phase=solid");
+    // parse() throws with the path of any field that the schema does not describe.
+    SpectrumPage.parse(page);
+    for (const id of [22236, 21751]) Spectrum.parse(await json(`/spectra/${id}`));
+  });
+
+  it("serves the OpenAPI file generated from the routes", async () => {
+    const res = await exports.default.fetch("https://eelsdb.eu/api/openapi-v2.json");
+    const doc = await res.json<any>();
+    expect(doc).toEqual(JSON.parse(JSON.stringify(openapiV2())));
+    expect(Object.keys(doc.paths)).toEqual(["/spectra", "/spectra/{id}"]);
+    const params = doc.paths["/spectra"].get.parameters.map((p: any) => p.name);
+    expect(params).toContain("covers_ev");
+    expect(doc.components.schemas.Spectrum.properties.acquisition).toBeDefined();
+  });
+
+  it("validates parameters with the schema", async () => {
+    const bad = await get("/spectra?type=nope");
+    expect(bad.status).toBe(400);
+    expect((await bad.json<any>()).error.code).toBe("invalid_parameter");
+    expect((await json("/spectra?element=Fe&per_page=2")).results).toHaveLength(2);
+    expect((await json("/spectra?per_page=9999")).per_page).toBe(500);
+    expect((await get("/spectra?element=Fe&element=O&element=Ti&element=C&element=N&element=H&element=S&element=Si&element=Al&element=Mg&element=Ca&element=Na&element=K&element=Cl&element=P&element=B&element=Li&element=Be&element=F&element=Ne&element=Ar")).status).toBe(400);
   });
 
   it("leaves gas-phase spectra out unless asked for", async () => {

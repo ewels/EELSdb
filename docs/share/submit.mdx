@@ -1,0 +1,82 @@
+---
+title: Submit a spectrum
+description: Share a spectrum with EELSdb through the submit form, step by step, and what happens at review.
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+Submit a spectrum from the [submit page](/submit-data/).
+You must [sign in](/docs/share/sign-in/) first.
+A moderator checks each submission before EELSdb publishes it.
+
+Before you start, have these ready:
+
+- the spectrum file (see [File formats](/docs/share/file-formats/));
+- the chemical formula and the name of the specimen;
+- the beam energy, the convergence semi-angle and the collection semi-angle, if you know them (see [Beam energy and angles](/docs/share/beam-energy-and-angles/));
+- the DOI of the paper that uses the spectrum, if there is one.
+
+The form has a step for each group of fields. The form marks the required fields.
+You can go back to an earlier step at any time from the list of steps.
+
+## Fill in the form
+
+<Steps>
+
+1. **Files.** Drop the spectrum file on the form, or click **choose files**.
+
+   You can also add two optional files:
+
+   - **Matching low-loss spectrum**: EELSdb uses it to estimate the specimen thickness.
+   - **Companion file from the same session**: for example a Velox `.emd` or TIA `.ser` survey. These files often record the beam energy and the convergence angle.
+
+   Your browser then reads the file. The form shows a plot of the spectrum, runs the [file checks](/docs/share/checks/), and fills in the fields that it can read from the file.
+   The plot stays beside the form for the next steps.
+   If your browser cannot read the file, you can still fill in the form and submit.
+
+2. **Specimen.** Type the specimen name and the chemical formula, for example `Fe2O3` or `(La0.7,Sr0.3)MnO3`, and choose the spectrum type.
+
+   The form fills in **Elements** from the formula. Correct the list if it is wrong.
+
+   For **Edges**, type the edges in the spectrum, separated by semicolons, for example `Fe_L2,3; O_K`.
+   The plot marks the edges that it detects as dashed lines. Click a suggestion to add it, or click the plot to list the edges near that energy.
+
+   Also fill in the phase (solid, liquid or gas), the intensity units, the source and purity of the specimen, keywords and comments.
+
+3. **X-ray absorption** (only for X-ray absorption spectra). Type the facility, the beamline, the detection mode and the other beamline settings. An XDI file fills in some of these fields.
+
+4. **Acquisition.** Choose an instrument profile if your microscope has one. A profile fills in calibrated angles.
+
+   Then give the microscope, the detector, the gun type and the acquisition mode.
+   Choose the beam energy (60, 80, 120, 200 or 300 kV, **Other** or **Unknown**), and type the convergence and collection semi-angles in mrad.
+   Mark a value **Approximate** and give an uncertainty, or mark it **Unknown**. Both are valid answers.
+
+5. **Treatment.** Tell readers how you processed the data: dark current and gain corrections, the energy calibration, the thickness in t/λ, and any deconvolution.
+
+6. **Reference.** Paste the DOI of the paper. The form looks it up on CrossRef and fills in the authors, the title and the journal.
+   If there is no DOI, give a web link or type the reference.
+   Under **Associated EELSdb spectra**, paste the addresses of related spectra on EELSdb, for example the low-loss spectrum of the same specimen.
+
+7. **Review.** Read the summary and the results of the file checks.
+   Agree to publish the data under the [Open Database Licence (ODbL)](https://opendatacommons.org/licenses/odbl/), then click **Submit for review**.
+
+</Steps>
+
+If a field has a problem, the form shows it in red after you click **Submit for review**.
+EELSdb does not keep the files after an error, so attach them again before you submit again.
+
+## After you submit
+
+Your [submissions page](/account/submissions/) lists each submission and its status:
+
+- Waiting for review: A moderator has not decided yet.
+- Changes requested: A moderator asks you to change something. The notes column and an email tell you what.
+- Published: The spectrum is public.
+- Not accepted: A moderator rejected the submission. The notes tell you why.
+
+When a moderator requests changes, edit the submission and save it. It then goes back into the review queue.
+
+At review, the moderator reads your file again with pinned versions of RosettaSciIO and exSpy and runs the checks again.
+When they approve it, EELSdb publishes the spectrum with your original file, an MSA file with the EELS header fields, and a HyperSpy (`.hspy`) file with the metadata.
+
+To submit many spectra, use the [command line](/docs/share/command-line/).

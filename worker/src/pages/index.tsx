@@ -2,14 +2,11 @@ import { Hono, type Context } from "hono";
 import { csrf } from "hono/csrf";
 import { raw } from "hono/html";
 import { loadUser, type AppEnv } from "../auth";
-import openapi from "../api/openapi-v1.json";
-import openapiV2 from "../api/openapi-v2.json";
+import openapiV1 from "../api/openapi-v1.json";
+import { openapiV2 } from "../api/v2";
 import { serveFile } from "../files";
-import { apiDocs } from "./api-docs";
-import { brand } from "./brand";
 import { browsePage } from "./browse";
-import { EELSDB_BIBTEX, EELSDB_CITATION } from "./citation";
-import { Avatar, COPY_SCRIPT, Formula, Layout, TYPE_NAMES, TypeBadge } from "./layout";
+import { Avatar, Formula, Layout, TYPE_NAMES, TypeBadge } from "./layout";
 import { homePage } from "./home";
 import { admin } from "../admin";
 import { instruments } from "../instruments";
@@ -19,6 +16,8 @@ import { account } from "./account";
 import { spectrumPage } from "./spectrum";
 import { settings } from "./settings";
 import { LINK_FIELDS, linkUrl, parseLinks } from "./profile";
+import { decodeEntities } from "./entities";
+import { authorMarkdown, markdownHeaders, newsMarkdown, spectrumMarkdown } from "./markdown";
 import { avatarUrl } from "../auth";
 
 export const pages = new Hono<AppEnv>();
@@ -32,11 +31,19 @@ pages.route("/", submit);
 pages.route("/", instruments);
 pages.route("/", edit);
 pages.route("/", admin);
-pages.route("/", brand);
+
+const markdown = (render: (db: D1Database, slug: string) => Promise<string | null>) => async (c: C) => {
+  const body = await render(c.env.DB, c.req.param("file")!.slice(0, -3));
+  return body ? c.body(body, 200, markdownHeaders) : c.notFound();
+};
+const mdLink = (path: string) => <link rel="alternate" type="text/markdown" href={path} />;
 
 pages.get("/", homePage);
 pages.get("/spectra/", browsePage);
 pages.get("/spectra", (c) => c.redirect(`/spectra/${new URL(c.req.url).search}`, 301));
+// Before the routes that add a missing trailing slash, which would catch "slug.md".
+pages.get("/spectra/:file{.+\\.md}", markdown(spectrumMarkdown));
+pages.get("/author/:file{.+\\.md}", markdown(authorMarkdown));
 pages.get("/spectra/:slug/", spectrumPage);
 pages.get("/spectra/:slug", (c) => c.redirect(`/spectra/${encodeURIComponent(c.req.param("slug"))}/`, 301));
 pages.get("/wp-content/uploads/*", serveFile);
@@ -62,7 +69,7 @@ pages.get("/downloads/", async (c) => {
       <div class="prose">
         <h1>Bulk download</h1>
         <p>
-          One zip file with every public spectrum: the data files, all metadata in the <a href="/api/v2/">API v2</a> format (including where
+          One zip file with every public spectrum: the data files, all metadata in the <a href="/docs/api/v2/">API v2</a> format (including where
           each acquisition value came from), and a README with the licence and how to cite.
         </p>
         {head ? (
@@ -77,133 +84,31 @@ pages.get("/downloads/", async (c) => {
         )}
         <p>
           The spectra are open data under the <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a>. Please cite the contributors'
-          papers and the EELS Data Base (<a href="/citation/">how to cite</a>). To fetch selected spectra instead, use the{" "}
-          <a href="/api/v2/">API</a>.
+          papers and the EELS Data Base (<a href="/docs/about/citation/">how to cite</a>). To fetch selected spectra instead, use the{" "}
+          <a href="/docs/use/api/">API</a>.
         </p>
       </div>
     </Layout>,
   );
 });
 
-const PARTNERS = [
-  ["CNRS", "https://www.cnrs.fr/", "cnrs.svg"],
-  ["IMN, Institut des Matériaux Jean Rouxel", "http://www.cnrs-imn.fr/", "imn.gif"],
-  ["CEMES", "https://www.cemes.fr/", "cemes.png"],
-  ["ESTEEM 2", "https://cordis.europa.eu/project/id/312483", "esteem2.png"],
-  ["METSA", "https://www.metsa.fr/", "metsa.png"],
-  ["SFµ, Société Française des Microscopies", "https://sfmu.fr/", "sfmu.png"],
-] as const;
+// Old addresses of pages that the docs site (docs-site/) now serves. A fragment such as /about/#cite survives
+// the redirect, and the docs About page forwards #cite and #logo to their own pages.
+const MOVED: Record<string, string> = {
+  "/about/": "/docs/about/",
+  "/citation/": "/docs/about/citation/",
+  "/contact/": "/docs/about/contact/",
+  "/logo/": "/docs/about/logo/",
+  "/logo": "/docs/about/logo/",
+  "/brand/": "/docs/about/logo/",
+  "/brand": "/docs/about/logo/",
+  "/api/": "/docs/api/v1/",
+  "/api/v2/": "/docs/api/v2/",
+};
+for (const [from, to] of Object.entries(MOVED)) pages.get(from, (c) => c.redirect(to, 301));
 
-const DOI = "10.1017/S1431927616000179";
-
-// Old links to the sections these pages replaced.
-const ABOUT_HASHES = `var t={"#cite":"/citation/","#logo":"/logo/"}[location.hash];if(t)location.replace(t)`;
-
-pages.get("/about/", (c) =>
-  c.html(
-    <Layout user={c.get("user")} title="About EELSdb" path="/about/" head={<script>{raw(ABOUT_HASHES)}</script>}>
-      <div class="about">
-        <div class="prose">
-          <h1>About EELSdb</h1>
-          <p class="lede">
-            An open-access repository of spectra from electron energy-loss spectroscopy (EELS) and X-ray absorption spectroscopy (XAS)
-            experiments.
-          </p>
-          <p>
-            The first version of the database was created in the late 1990s by Virginie Serin (Université Toulouse III, CEMES-CNRS) and
-            Thierry Sikora. Thanks to the European microscopy network ESTEEM, they gathered a large number of spectra. Spectroscopists,
-            theoreticians, students and companies use it as a reference catalogue for fine structures and for testing data treatment.
-          </p>
-          <p>
-            In 2014 the management of the database passed to Luc Lajaunie (Université de Nantes, Institut des Matériaux Jean Rouxel), and
-            Phil Ewels rebuilt the website and the database. The work is described in{" "}
-            <a href="https://doi.org/10.1017/S1431927616000179">Ewels et al., Microscopy and Microanalysis 22 (2016)</a>.
-          </p>
-        </div>
-        <section class="prose" id="share">
-          <h2>Share your spectra</h2>
-          <p>
-            We encourage you to submit spectra from your published work. Others can then reuse your data, and cite your paper when they do.
-            See <a href="/submit-data/">Submit data</a>.
-          </p>
-        </section>
-        <section class="prose" id="licence">
-          <h2>Licence</h2>
-          <p>
-            The spectra are open data under the <a href="https://opendatacommons.org/licenses/odbl/">Open Data Commons Open Database
-            Licence (ODbL)</a>. You may copy, share and adapt them if you credit the EELS Data Base and its contributors, and share any
-            adapted database under the same licence. The rest of the website is under{" "}
-            <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>.
-          </p>
-          <p>
-            Please credit both the contributor's paper (if any) and the EELS Data Base. See <a href="/citation/">How to cite</a>.
-          </p>
-        </section>
-        <section class="prose" id="support">
-          <h2>Support</h2>
-          <p>
-            The IMN laboratory and the CNRS support the EELS Data Base. It was funded by the CEMES laboratory, the European microscopy
-            network ESTEEM 2, the French microscopy network METSA and the French microscopy society SFµ.
-          </p>
-          <ul class="partners">
-            {PARTNERS.map(([name, href, src]) => (
-              <li><a href={href}><img src={`/partners/${src}`} alt={name} loading="lazy" /></a></li>
-            ))}
-          </ul>
-        </section>
-        <section class="prose" id="contact">
-          <h2>Contact</h2>
-          <p>
-            Questions, comments and ideas are welcome: see <a href="/contact/">Contact</a>.
-          </p>
-        </section>
-      </div>
-    </Layout>,
-  ),
-);
-
-pages.get("/citation/", (c) =>
-  c.html(
-    <Layout user={c.get("user")} title="How to cite" path="/citation/">
-      <div class="prose cite-page">
-        <h1>How to cite</h1>
-        <p>
-          Cite the contributor's paper, shown on each spectrum's page, and the EELS Data Base. Each spectrum's download dialog has a
-          ready-made citation. For the EELS Data Base:
-        </p>
-        <p class="citation" id="cite-text">
-          Philip Ewels, Thierry Sikora, Virginie Serin, Chris P. Ewels and Luc Lajaunie. A complete overhaul of the electron energy-loss
-          spectroscopy and X-ray absorption spectroscopy database: eelsdb.eu. <i>Microscopy and Microanalysis</i> 22, 717–724 (2016).
-        </p>
-        <div class="cite-actions">
-          <button type="button" class="doi" data-copy={DOI} data-select="cite-doi" aria-label={`Copy DOI ${DOI}`}>
-            <span class="doi-k">DOI</span><code id="cite-doi">{DOI}</code>
-            <svg class="i-copy" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="6.5" y="6.5" width="10" height="11" rx="1.5" />
-              <path d="M13.5 6.5V4a1.5 1.5 0 0 0-1.5-1.5H5A1.5 1.5 0 0 0 3.5 4v8A1.5 1.5 0 0 0 5 13.5h1.5" />
-            </svg>
-            <svg class="i-done" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M4 10.5l4 4 8-9" />
-            </svg>
-            <span class="doi-msg copy-label" role="status"></span>
-          </button>
-          <button type="button" class="button secondary" data-copy={EELSDB_CITATION} data-select="cite-text">
-            <span class="copy-label" role="status">Copy citation</span>
-          </button>
-          <a class="button secondary" href={`https://doi.org/${DOI}`}>Read the paper</a>
-        </div>
-        <h2>BibTeX</h2>
-        <pre id="cite-bib">{EELSDB_BIBTEX}</pre>
-        <div class="cite-actions">
-          <button type="button" class="button secondary" data-copy={EELSDB_BIBTEX} data-select="cite-bib">
-            <span class="copy-label" role="status">Copy BibTeX</span>
-          </button>
-        </div>
-      </div>
-      <script>{raw(COPY_SCRIPT)}</script>
-    </Layout>,
-  ),
-);
+pages.get("/api/openapi-v2.json", (c) => c.json(openapiV2()));
+pages.get("/api/openapi-v1.json", (c) => c.json(openapiV1));
 
 const ROLE_NAMES: Record<string, string> = { admin: "Administrator", moderator: "Moderator" };
 
@@ -224,7 +129,7 @@ pages.get("/moderators/", async (c) => {
       <div class="prose">
         <h1>Moderators</h1>
         <p class="lede">
-          Moderators check each submitted spectrum before it is published. To reach them, see <a href="/contact/">Contact</a>.
+          Moderators check each submitted spectrum before it is published. To reach them, see <a href="/docs/about/contact/">Contact</a>.
         </p>
         {people.length ? (
           <ul class="mod-list">
@@ -251,66 +156,6 @@ pages.get("/moderators/", async (c) => {
   );
 });
 
-pages.get("/contact/", (c) =>
-  c.html(
-    <Layout user={c.get("user")} title="Contact" path="/contact/">
-      <div class="prose">
-        <h1>Contact</h1>
-        {/* TODO: contact address or form; the old site used a WordPress contact form. */}
-        <p>
-          For questions about the database or a spectrum, or to report a problem with the website or the API, open an issue on GitHub.
-        </p>
-        <p><a class="button secondary" href="https://github.com/ewels/EELSdb/issues">Open an issue</a></p>
-      </div>
-    </Layout>,
-  ),
-);
-
-pages.get("/api/", (c) =>
-  apiDocs(c, openapi, {
-    path: "/api/",
-    file: "/api/openapi-v1.json",
-    intro: (
-      <>
-        <p class="notice">
-          New scripts should use <a href="/api/v2/">API v2</a>: typed values with units in the field names, where each acquisition value
-          came from, total counts and paging links. v1 stays as it is for exSpy and older scripts.
-        </p>
-        <h2>From Python</h2>
-        <pre>{`import exspy
-spectra = exspy.data.eelsdb(spectrum_type="coreloss", element="Fe")`}</pre>
-      </>
-    ),
-    examples: [
-      ["All core-loss spectra", "https://api.eelsdb.eu/spectra/?type=coreloss&per_page=-1"],
-      ["Spectra containing both Fe and O", "https://api.eelsdb.eu/spectra/?element[]=Fe&element[]=O"],
-      ["One spectrum", "https://api.eelsdb.eu/spectra/mlc-nanotube-ylas-tas2/"],
-    ],
-  }),
-);
-
-pages.get("/api/v2/", (c) =>
-  apiDocs(c, openapiV2, {
-    path: "/api/",
-    file: "/api/openapi-v2.json",
-    intro: (
-      <>
-        <h2>From Python</h2>
-        <pre>{`import requests
-page = requests.get("https://api.eelsdb.eu/v2/spectra", params={"element": "Fe", "covers_ev": 708}).json()
-for s in page["results"]:
-    print(s["title"], s["acquisition"]["beam_energy"], s["download_url"])`}</pre>
-      </>
-    ),
-    examples: [
-      ["Fe spectra that include 708 eV", "https://api.eelsdb.eu/v2/spectra?element=Fe&covers_ev=708"],
-      ["Spectra with beam energy and angles known, newest first", "https://api.eelsdb.eu/v2/spectra?complete=true&sort=published_at&order=desc"],
-      ["One spectrum", "https://api.eelsdb.eu/v2/spectra/21751"],
-    ],
-  }),
-);
-pages.get("/api/openapi-v2.json", (c) => c.json(openapiV2));
-pages.get("/api/openapi-v1.json", (c) => c.json(openapi));
 
 async function authorPage(c: C) {
   const slug = c.req.param("slug");
@@ -335,7 +180,7 @@ async function authorPage(c: C) {
   const avatar = showProfile ? await avatarUrl(person.avatar_key, person.email) : null;
   const facts = showProfile ? [person.job_title, person.affiliation].filter(Boolean).join(" · ") : "";
   return c.html(
-    <Layout user={c.get("user")} title={name} path="/author/">
+    <Layout user={c.get("user")} title={name} path="/author/" head={mdLink(`/author/${slug}.md`)}>
       <div class="profile-head">
         <Avatar name={name} seed={slug!} src={avatar?.replace("s=64", "s=160")} class="av-large" />
         <div>
@@ -410,15 +255,6 @@ pages.get("/news/", async (c) => {
   );
 });
 
-/** Legacy WordPress excerpts hold HTML entities such as &#8217; and a trailing "[&hellip;]". */
-export function decodeEntities(s: string) {
-  const named: Record<string, string> = { amp: "&", quot: '"', apos: "'", lt: "<", gt: ">", nbsp: "\u00a0", hellip: "…" };
-  return s
-    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
-    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
-    .replace(/&([a-z]+);/gi, (m, k) => named[k.toLowerCase()] ?? m)
-    .replace(/\s*\[…\]$/, "…");
-}
 
 const gone = (c: C) =>
   c.html(
@@ -435,6 +271,7 @@ const gone = (c: C) =>
   );
 for (const path of ["/forum", "/forum/*", "/jobs", "/jobs/*", "/registered-users", "/registered-users/"]) pages.get(path, gone);
 
+pages.get("/:file{.+\\.md}", markdown(newsMarkdown));
 pages.get("/:slug/", async (c) => {
   const post = await c.env.DB.prepare("SELECT slug, title, published_at, body_html, legacy_v1 FROM news WHERE slug = ?")
     .bind(c.req.param("slug"))
@@ -442,7 +279,7 @@ pages.get("/:slug/", async (c) => {
   if (!post) return c.notFound();
   const author = JSON.parse(post.legacy_v1).author?.name;
   return c.html(
-    <Layout user={c.get("user")} title={post.title} path="/news/">
+    <Layout user={c.get("user")} title={post.title} path="/news/" head={mdLink(`/${post.slug}.md`)}>
       <article class="prose">
         <p class="small back-link"><a href="/news/">← News</a></p>
         <h1>{post.title}</h1>

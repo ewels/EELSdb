@@ -1,0 +1,19 @@
+---
+import Default from '@astrojs/starlight/components/Head.astro';
+import { isGenerated } from './paths';
+
+const route = Astro.locals.starlightRoute;
+const base = import.meta.env.BASE_URL;
+// The favicon lives at the site root, outside the docs base that Starlight prefixes.
+for (const tag of route.head) {
+  if (tag.tag === 'link' && tag.attrs?.rel === 'icon') tag.attrs.href = '/favicon.svg';
+}
+const page = Astro.url.pathname.replace(/\/$/, '');
+const markdown = page === base.replace(/\/$/, '') ? `${base}index.md` : `${page}.md`;
+const image = new URL('/logo/eelsdb-logo-light-bg.png', Astro.site).href;
+---
+
+<Default />
+{!isGenerated(Astro.url.pathname) && <link rel="alternate" type="text/markdown" href={markdown} />}
+<meta property="og:image" content={image} />
+<meta name="twitter:image" content={image} />

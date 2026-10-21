@@ -1,0 +1,37 @@
+---
+title: EELSdb documentation
+description: Guides for finding, downloading and sharing EELS and XAS reference spectra, and for using the EELSdb API.
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+The EELS Data Base (EELSdb) is an open collection of reference spectra from electron energy-loss spectroscopy (EELS) and X-ray absorption spectroscopy (XAS).
+You can browse and download every spectrum without an account.
+To share your own spectra, sign in and submit them. A moderator checks each submission before it is published.
+
+## Use the data
+
+<CardGrid>
+  <LinkCard title="Find spectra" href="/docs/use/find/" description="Filter by element, edge, energy range and acquisition settings." />
+  <LinkCard title="Download and cite" href="/docs/use/download/" description="Single files, the bulk archive, the licence and citations." />
+  <LinkCard title="Load spectra in Python" href="/docs/use/python/" description="exSpy, HyperSpy and the API from a script or notebook." />
+  <LinkCard title="Use the API" href="/docs/use/api/" description="Query spectra as JSON, with units and data sources." />
+</CardGrid>
+
+## Share spectra
+
+<CardGrid>
+  <LinkCard title="Submit a spectrum" href="/docs/share/submit/" description="The submit form, one step at a time." />
+  <LinkCard title="File formats" href="/docs/share/file-formats/" description="The files you can upload, and what EELSdb reads from them." />
+  <LinkCard title="Beam energy and angles" href="/docs/share/beam-energy-and-angles/" description="Where the values come from, and what to do when you do not know them." />
+  <LinkCard title="Submit from the command line" href="/docs/share/command-line/" description="Check files offline and submit many spectra at once." />
+</CardGrid>
+
+## Moderate
+
+Moderators check and publish submissions. See [Review submissions](/docs/moderate/review/).
+
+## Read these pages as Markdown
+
+Each page has a Markdown version: add `.md` to the address, or use the buttons beside the page title.
+[`llms.txt`](/docs/llms.txt) lists every page for AI assistants and scripts, and [`llms-full.txt`](/docs/llms-full.txt) holds all pages in one file.

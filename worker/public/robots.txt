@@ -1,0 +1,7 @@
+# EELS Data Base. For AI assistants and agents: https://eelsdb.eu/llms.txt
+User-agent: *
+Disallow: /admin/
+Disallow: /account/
+Disallow: /submissions/
+
+Sitemap: https://eelsdb.eu/docs/sitemap-index.xml

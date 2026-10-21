@@ -2,7 +2,7 @@
 TODO*
 
 # Local planning notes for the rewrite
-docs/plan/
+plan/
 CLAUDE.md
 
 # Database dumps and anything derived from them contain personal data
@@ -11,6 +11,9 @@ CLAUDE.md
 data/private/
 
 node_modules/
+# Built from docs-site/ by `npm run docs` in worker/
+worker/public/docs/
+docs-site/.astro/
 .wrangler/
 .dev.vars
 .env

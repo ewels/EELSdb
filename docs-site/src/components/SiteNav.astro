@@ -1,0 +1,21 @@
+---
+import { NAV } from '../../../worker/src/nav';
+import Account from './Account.astro';
+import NavDrop from './NavDrop.astro';
+import { currentSection } from './paths';
+
+/** `bar` is the header row; `menu` is the stacked list in the sidebar. A slot after Docs holds the docs tree there. */
+const { variant = 'bar', id } = Astro.props;
+const section = currentSection(Astro.url.pathname);
+---
+
+<nav class:list={['site-nav', variant]} aria-label="EELSdb">
+  {NAV.map(([href, label]) => (
+    <>
+      <a href={href} aria-current={href === section ? 'page' : undefined}>{label}</a>
+      {href === '/docs/' && <slot />}
+    </>
+  ))}
+  <NavDrop id={`about-${id ?? variant}`} />
+  {variant === 'bar' && <Account />}
+</nav>

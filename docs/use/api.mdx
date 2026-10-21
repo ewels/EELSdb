@@ -1,0 +1,237 @@
+---
+title: Use the API
+description: Query EELSdb spectra as JSON with API v2, including filters, paging, provenance of acquisition values, files and errors.
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+The EELSdb API is a read-only JSON API at `https://api.eelsdb.eu/v2/`.
+It needs no key and no account, and every response allows cross-origin requests (`Access-Control-Allow-Origin: *`), so it also works from a web page.
+Numbers are numbers, units are in the field names, and each acquisition value says where it came from.
+
+This page explains how to use the API. The reference lists every parameter and field:
+
+<CardGrid>
+  <LinkCard title="List spectra" href="/docs/api/v2/operations/listspectra/" description="GET /v2/spectra: every filter, sort and paging parameter." />
+  <LinkCard title="Get one spectrum" href="/docs/api/v2/operations/getspectrum/" description="GET /v2/spectra/{id}: every field of a spectrum record." />
+</CardGrid>
+
+The reference comes from the [OpenAPI file](/api/openapi-v2.json), which the code that serves the API generates, so the two always agree.
+
+## List spectra
+
+`GET /v2/spectra` returns one page of published spectra:
+
+```sh
+$ curl "https://api.eelsdb.eu/v2/spectra?element=Fe&covers_ev=708&per_page=2"
+```
+
+The same request from JavaScript. Click **Run code** to run it in this page:
+
+```js runnable
+const url = new URL('https://api.eelsdb.eu/v2/spectra');
+url.search = new URLSearchParams({ element: 'Fe', covers_ev: 708, per_page: 5 });
+
+const page = await (await fetch(url)).json();
+console.log(`${page.total} spectra, page ${page.page}`);
+for (const s of page.results) {
+  console.log(`${s.title} (${s.energy.min_ev} to ${s.energy.max_ev} eV)`);
+}
+```
+
+## Filter and sort
+
+Give filters as query parameters. A spectrum must match all of them.
+
+- `element=Fe&element=O`: Spectra that contain every given element.
+- `edge=Fe_L2,3` or `edge=K`: The whole edge name, of one element or of any element. Repeat to require several.
+- `type=coreloss`: One of `coreloss`, `lowloss`, `zeroloss` or `xrayabs`.
+- `technique=xas`: `eels` or `xas`.
+- `phase=gas`: `solid`, `liquid` or `gas`. The list leaves out gas-phase spectra unless you ask for `phase=gas`.
+- `formula=TiO2`: Text in the formula.
+- `q=graphite`: Text in the title or description.
+- `author=Feldhoff`: Part of the contributor's name, or their profile name.
+- `complete=true`: Spectra whose beam energy and both angles are known.
+- `monochromated=true`: Monochromated (`true`) or not (`false`).
+- `min_energy_ev=400`: Spectra that start at or above this energy, in eV.
+- `max_energy_ev=900`: Spectra that end at or below this energy, in eV.
+- `covers_ev=708`: Spectra whose energy range includes this energy, in eV.
+- `beam_energy_kv=200`: Spectra recorded at this beam energy.
+
+Sort with `sort` and `order`.
+`sort` is one of `formula` (the default), `title`, `published_at`, `min_energy_ev`, `max_energy_ev`, `beam_energy_kv`, `resolution_ev` or `id`.
+`order` is `asc` (the default) or `desc`.
+Spectra with no value for the sort field come last.
+
+For example, the newest spectra with known beam energy and angles:
+
+```sh
+$ curl "https://api.eelsdb.eu/v2/spectra?complete=true&sort=published_at&order=desc"
+```
+
+## Read all the pages
+
+A list response has the total count and links to the pages before and after it:
+
+```json
+{
+  "total": 17,
+  "page": 1,
+  "per_page": 2,
+  "next": "https://api.eelsdb.eu/v2/spectra?element=Fe&covers_ev=708&per_page=2&page=2",
+  "previous": null,
+  "results": []
+}
+```
+
+`per_page` is 50 by default and 500 at most.
+To get every match, follow `next` until it is `null`:
+
+```py
+import requests
+
+url = "https://api.eelsdb.eu/v2/spectra?type=coreloss&per_page=500"
+spectra = []
+while url:
+    page = requests.get(url).json()
+    spectra += page["results"]
+    url = page["next"]
+```
+
+## Get one spectrum
+
+`GET /v2/spectra/{id}` returns one spectrum.
+The id is the number in `id`, or the slug from the spectrum's web address:
+
+```sh
+$ curl "https://api.eelsdb.eu/v2/spectra/iron-iii-oxide-hematite"
+```
+
+The list and the single spectrum return the same record.
+This is part of the record for spectrum 21751:
+
+```jsonc annotations="side"
+{
+  "id": 21751,
+  "slug": "iron-iii-oxide-hematite",
+  "title": "Iron (III) oxide, hematite",
+  "type": "coreloss",
+  "technique": "eels",
+  "elements": ["Fe", "O"],
+  "edges": [{ "element": "Fe", "edge": "L2,3" }],
+  "licence": null, // [!annotate] An SPDX identifier, such as `ODbL-1.0`. `null` for spectra from the old site.
+  "completeness": "full", // [!annotate] `full` when the beam energy and both angles are known.
+  "energy": { "min_ev": 685.2, "max_ev": 787.5, "step_ev": 0.1 },
+  "acquisition": {
+    "microscope": "JEOL JEM-2100F-UHR",
+    "beam_energy": { "value_kv": 200, "source": "user", "uncertainty_kv": null }, // [!annotate] Each value has a source. See "Where values come from" below.
+    "convergence_angle": { "value_mrad": 10, "source": "user", "uncertainty_mrad": null },
+    "collection_angle": { "value_mrad": 16, "source": "user", "uncertainty_mrad": null },
+    "integration_time_s": 20,
+    "readouts": 10
+  },
+  "download_url": "https://eelsdb.eu/wp-content/uploads/2015/09/Dspec39Hoz0_converted.msa" // [!annotate] The main data file. See "Files" below.
+}
+```
+
+The record also has `author`, `xas` (for X-ray absorption spectra), `treatment`, `reference` (with a structured `doi`), `associated`, `links`, `files` and `processing`.
+The [field reference](/docs/reference/fields/) describes each group.
+
+### Where values come from
+
+Each of `beam_energy`, `convergence_angle` and `collection_angle` has a `source`:
+
+- `file`: The uploaded spectrum file.
+- `companion`: A companion file from the same session, for example a Velox `.emd` file.
+- `profile`: An [instrument profile](/docs/share/instrument-profiles/): calibrations kept by facility staff.
+- `user`: The contributor typed it.
+- `estimate`: The contributor gave an approximate value, with an uncertainty.
+- `unknown`: Nobody knows it. The value is `null`.
+
+### Files
+
+`files` lists every file of the spectrum.
+Each file has a `role`, a `url`, a `filename`, its size in `bytes` and its `sha256` checksum.
+
+- `legacy`: The file from the old site.
+- `original`: The file as the contributor uploaded it.
+- `lowloss`: A matching low-loss spectrum that the contributor uploaded.
+- `msa`: An MSA file with EELS header fields, made by the moderator at review.
+- `hspy`: A HyperSpy file with the metadata, made by the moderator at review.
+
+`download_url` is the main file: the `legacy` file, else the `msa` file, else the `original` file.
+
+## Errors
+
+An error has an HTTP status and a JSON body with a `code` and a `message`.
+v2 rejects unknown parameters, so a typing error does not silently return every spectrum:
+
+```sh
+$ curl "https://api.eelsdb.eu/v2/spectra?colour=red"
+{"error":{"code":"unknown_parameter","message":"Unknown query parameter 'colour'. See https://eelsdb.eu/docs/api/v2/."}}
+```
+
+## API v1 (deprecated)
+
+:::caution
+API v1 (`https://api.eelsdb.eu/spectra/`) is the API of the old site. It stays only so that exSpy's `eelsdb()` and older scripts keep working, and it gets no new features. Use v2 for new work.
+:::
+
+### Why there are two versions
+
+API v1 returns exactly what the old site returned, so the scripts that read it keep working.
+That stops it from changing: its values are strings with units, such as `"200 kV"`, and a script that reads `"200 kV"` breaks if the value becomes the number `200`.
+v1 also leaves out a field when its value is unknown, so a missing value and an unknown value look the same.
+
+The new features of EELSdb need a different shape, so they are in v2:
+
+- numbers as numbers, with the unit in the field name;
+- the source of each beam energy and angle (file, companion file, instrument profile, contributor, estimate or unknown), and `null` for an unknown value;
+- the reference as fields, with a separate DOI;
+- separate EELS and X-ray absorption settings, the licence, and every file with its checksum;
+- a total count and links to the next and previous pages;
+- an OpenAPI file that the code generates.
+
+The [API v1 reference](/docs/api/v1/) lists the v1 parameters.
+
+### Move from v1 to v2
+
+Change the address from `https://api.eelsdb.eu/spectra/` to `https://api.eelsdb.eu/v2/spectra`, then change the parameters:
+
+- `element[]=Fe&element[]=O`: `element=Fe&element=O`.
+- `edge=L2,3`: `edge=L2,3` for any element, or `edge=Fe_L2,3` for one element.
+- `title=graphite`: `q=graphite`, which also searches the description.
+- `min_energy=400&min_energy_compare=gt`: `min_energy_ev=400` (at or above). `max_energy_ev` is at or below. v1 rounded these values to whole eV; v2 compares them as given.
+- `resolution` and `resolution_compare`: v2 has no resolution filter. Sort with `sort=resolution_ev`, or filter on `acquisition.resolution_ev` in your code.
+- `monochromated` (a flag): `monochromated=true` or `monochromated=false`.
+- `per_page=-1` (everything): `per_page=500`, then follow `next` until it is `null`.
+- `order=...&order_direction=DESC`: `sort=...&order=desc`. See [Filter and sort](#filter-and-sort) for the sort keys.
+
+Then read the new fields:
+
+- The list: v1 returns an array. v2 returns an object, with the array in `results`.
+- `type`: `"Core Loss"` becomes `"coreloss"`. The values are `coreloss`, `lowloss`, `zeroloss` and `xrayabs`.
+- `beamenergy`: `"200 kV"` becomes `acquisition.beam_energy.value_kv`, a number, with its `source`.
+- `convergence` and `collection`: `"10 mrad"` becomes `acquisition.convergence_angle.value_mrad` and `acquisition.collection_angle.value_mrad`.
+- `min_energy`, `max_energy` and `stepSize`: `"685.2 eV"` becomes `energy.min_ev`, `energy.max_ev` and `energy.step_ev`.
+- `integratetime`, `readouts`, `guntype` and `acquisition_mode`: `acquisition.integration_time_s`, `acquisition.readouts`, `acquisition.gun_type` and `acquisition.mode`.
+- `darkcurrent` and `gainvariation`: `"Yes"` becomes `treatment.dark_current_corrected` and `treatment.gain_variation_corrected`, `true` or `false`.
+- `download_link`: `download_url`. `files` lists every file.
+- `permalink` and `api_permalink`: `url` and `api_url`.
+- `other_links`: `links`.
+- A field that v1 leaves out is `null` in v2.
+- Errors: v1 returns `{"message", "documentation_url"}`. v2 returns `{"error": {"code", "message"}}`.
+
+For example, the same search in each version:
+
+```sh
+$ curl "https://api.eelsdb.eu/spectra/?element[]=Fe&type=coreloss&per_page=-1"
+$ curl "https://api.eelsdb.eu/v2/spectra?element=Fe&type=coreloss&per_page=500"
+```
+
+## Be kind to the server
+
+- Send a User-Agent that names your script or project, for example `my-eels-analysis/1.0 (you@example.org)`.
+- Ask for 500 spectra per page instead of many small pages.
+- Cache the results if you run the same query often. The spectra change only when someone submits or edits one.
+- For the whole database, use the [bulk download](/downloads/).

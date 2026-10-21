@@ -1,25 +1,22 @@
 import type { Child } from "hono/jsx";
 import { raw } from "hono/html";
 import type { User } from "../auth";
+import { ABOUT_NAV, NAV } from "../nav";
 import { LOGO_SVG } from "./logo";
-
-const NAV = [
-  ["/spectra/", "Browse"],
-  ["/submit-data/", "Submit"],
-  ["/news/", "News"],
-  ["/api/", "API"],
-] as const;
-
-const ABOUT_NAV = [
-  ["/about/", "About EELSdb"],
-  ["/citation/", "How to cite"],
-  ["/moderators/", "Moderators"],
-  ["/logo/", "Logo and colours"],
-  ["/contact/", "Contact"],
-] as const;
 
 // Runs before paint so a saved theme does not flash. A signed-in user's saved theme arrives as data-theme and wins.
 const THEME_SCRIPT = `document.documentElement.classList.add("js");try{var r=document.documentElement,t=localStorage.getItem("theme");if(t&&!r.dataset.theme)r.dataset.theme=t}catch(e){}`;
+/** What the docs header (docs-site/src/components/Account.astro) needs to show the account. Keep the shape in step with it. */
+export function accountSummary(user: User | null) {
+  if (!user) return { signed_in: false as const };
+  const seed = user.slug ?? user.display_name;
+  return { signed_in: true as const, name: user.display_name, initials: initials(user.display_name), hue: avatarHue(seed), avatar: user.avatar, theme: user.theme };
+}
+
+// Every page records the account in this browser, so the static docs header can show it before it paints.
+const accountScript = (user: User | null) =>
+  `try{localStorage.setItem("account",JSON.stringify(Object.assign(${JSON.stringify(accountSummary(user)).replace(/</g, "\\u003c")},{at:Date.now()})))}catch(e){}`;
+
 // Flips light and dark, remembers it in this browser, and saves it to the account when signed in.
 const TOGGLE_SCRIPT = `document.querySelectorAll(".theme-toggle").forEach(function(b){b.addEventListener("click",function(){var r=document.documentElement,d=r.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"),n=d==="dark"?"light":"dark";r.dataset.theme=n;try{localStorage.setItem("theme",n)}catch(e){}if(this.dataset.save)fetch("/account/settings/theme/",{method:"POST",body:new URLSearchParams({theme:n})})})})`;
 
@@ -70,8 +67,9 @@ export function Layout(props: {
           />
           <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
           <link rel="preload" href="/fonts/mona-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="" />
+          <link rel="stylesheet" href="/tokens.css" />
           <link rel="stylesheet" href="/style.css" />
-          <script>{raw(THEME_SCRIPT)}</script>
+          <script>{raw(THEME_SCRIPT + accountScript(props.user))}</script>
           {props.head}
         </head>
         <body class={props.home ? "home" : undefined}>
@@ -141,7 +139,7 @@ export function Layout(props: {
           <main id="main" class={wrap}>{props.children}</main>
           <footer class="site-footer">
             <div class="wrap">
-              <a href="/contact/">Contact</a>
+              <a href="/docs/about/contact/">Contact</a>
               <a href="https://github.com/ewels/EELSdb">Website source code on GitHub</a>
               <a class="downloads" href="/downloads/">Bulk download</a>
               <span class="licence">
@@ -155,24 +153,10 @@ export function Layout(props: {
   );
 }
 
-// Copy buttons ([data-copy]) on the citation and logo pages; copy failures fall back to selecting the text.
-export const COPY_SCRIPT = `for (const b of document.querySelectorAll("[data-copy]")) {
-  const label = b.querySelector(".copy-label");
-  const text = label.textContent;
-  b.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(b.dataset.copy);
-    } catch {
-      const target = b.dataset.select ? document.getElementById(b.dataset.select) : b.querySelector("code");
-      return getSelection().selectAllChildren(target);
-    }
-    b.classList.add("copied");
-    label.textContent = "Copied";
-    setTimeout(() => { b.classList.remove("copied"); label.textContent = text; }, 1600);
-  });
-}`;
-
 const AV_HUES = ["av-a", "av-b", "av-c", "av-d", "av-e"];
+
+/** The avatar hue for `seed` (the author slug, so a person has the same colour everywhere). */
+export const avatarHue = (seed: string) => AV_HUES[[...seed].reduce((s, ch) => s + ch.charCodeAt(0), 0) % AV_HUES.length];
 
 export const initials = (name: string) => {
   const parts = name.replace(/\([^)]*\)/g, "").split(/[\s-]+/).filter(Boolean);
@@ -180,10 +164,10 @@ export const initials = (name: string) => {
   return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : parts[0].slice(1, 2))).toUpperCase();
 };
 
-/** Initials on a hue picked from `seed` (the author slug, so a person has the same colour everywhere), under their picture if any. */
+/** Initials on a hue picked from `seed`, under their picture if any. */
 export const Avatar = (props: { name: string; seed: string; src?: string | null; class?: string }) => (
   <span
-    class={`av ${AV_HUES[[...props.seed].reduce((s, ch) => s + ch.charCodeAt(0), 0) % AV_HUES.length]}${props.class ? ` ${props.class}` : ""}`}
+    class={`av ${avatarHue(props.seed)}${props.class ? ` ${props.class}` : ""}`}
     aria-hidden="true"
   >
     {initials(props.name)}

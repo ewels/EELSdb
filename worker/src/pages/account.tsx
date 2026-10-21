@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { PROVIDERS, createSession, finishSignIn, requireUser, safeNext, sha256, signOut, startSignIn, type AppEnv } from "../auth";
 import { sendEmail } from "../email";
 import { pbkdf2Hash, verifyLegacyPassword } from "../legacy-password";
-import { Avatar, Formula, Layout, TypeBadge } from "./layout";
+import { Avatar, Formula, Layout, TypeBadge, accountSummary } from "./layout";
 
 export const account = new Hono<AppEnv>();
 
@@ -109,6 +109,9 @@ account.post("/favourites/:id/", requireUser, async (c) => {
   }
   return c.redirect(safeNext(c.req.header("Referer") ? new URL(c.req.header("Referer")!).pathname : `/spectra/${encodeURIComponent(spectrum)}/`));
 });
+
+// The docs site is static; its header asks here who is signed in.
+account.get("/account/me.json", (c) => c.json(accountSummary(c.get("user")), 200, { "Cache-Control": "no-store" }));
 
 account.get("/account/", requireUser, async (c) => {
   const user = c.get("user")!;

@@ -1,0 +1,25 @@
+---
+const PARTNERS = [
+  ['CNRS', 'https://www.cnrs.fr/', 'cnrs.svg'],
+  ['IMN, Institut des Matériaux Jean Rouxel', 'http://www.cnrs-imn.fr/', 'imn.gif'],
+  ['CEMES', 'https://www.cemes.fr/', 'cemes.png'],
+  ['ESTEEM 2', 'https://cordis.europa.eu/project/id/312483', 'esteem2.png'],
+  ['METSA', 'https://www.metsa.fr/', 'metsa.png'],
+  ['SFµ, Société Française des Microscopies', 'https://sfmu.fr/', 'sfmu.png'],
+];
+---
+
+<ul class="partners not-content">
+  {PARTNERS.map(([name, href, src]) => (
+    <li><a href={href}><img src={`/partners/${src}`} alt={name} loading="lazy" /></a></li>
+  ))}
+</ul>
+
+<style>
+  /* The logos are drawn for white paper, so the plate stays light in dark mode too. */
+  .partners { --plate: light-dark(#ffffff, #e9e5df); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; list-style: none; padding: 0; margin: 1.5rem 0 0; }
+  .partners a { display: grid; place-items: center; height: 5.5rem; padding: 0.75rem 1rem; background: var(--plate); border: 1px solid var(--line); border-radius: 6px; }
+  .partners a:hover { border-color: var(--muted); }
+  .partners img { max-width: 100%; max-height: 3.25rem; mix-blend-mode: multiply; }
+  @media (max-width: 35rem) { .partners { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>

@@ -1,0 +1,28 @@
+---
+const signIn = `/login/?next=${encodeURIComponent(Astro.url.pathname)}`;
+---
+
+<a class="account-link" href={signIn} data-sign-in={signIn} data-account>Sign in</a>
+{/* Runs as the link is parsed, so the saved account shows before the first paint and the header does not jump. */}
+<script is:inline>
+  window.eelsdbAccount.render(document.currentScript.previousElementSibling, window.eelsdbAccount.current);
+</script>
+
+<script>
+  // The saved account comes from the last main-site page. Check with the Worker when it is missing or old.
+  const MAX_AGE_MS = 10 * 60 * 1000;
+  const saved = window.eelsdbAccount.current;
+  if (!saved || !(Date.now() - saved.at < MAX_AGE_MS)) {
+    fetch('/account/me.json', { credentials: 'same-origin' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((account) => {
+        if (!account) return;
+        window.eelsdbAccount.current = account;
+        try {
+          localStorage.setItem('account', JSON.stringify({ ...account, at: Date.now() }));
+        } catch {}
+        for (const link of document.querySelectorAll<HTMLAnchorElement>('[data-account]')) window.eelsdbAccount.render(link, account);
+      })
+      .catch(() => {});
+  }
+</script>
