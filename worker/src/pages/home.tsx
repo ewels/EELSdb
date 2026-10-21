@@ -2,12 +2,11 @@ import type { Context } from "hono";
 import { raw } from "hono/html";
 import { avatarUrl, type AppEnv } from "../auth";
 import NAMES from "../element-names.json";
-import BINDING from "../../public/eels_binding_energies.json";
-import { Avatar as SharedAvatar, Formula, Layout, TYPE_NAMES } from "./layout";
+import { Avatar as SharedAvatar, EdgeName, Formula, Layout, TYPE_NAMES } from "./layout";
 import { HERO_LOGO_SVG } from "./logo";
+import { majorEdges, parseSpectrum } from "../preview";
 
 const ELEMENT_NAMES: Record<string, string> = NAMES;
-const ONSETS = BINDING.elements as Record<string, Record<string, { "onset_energy (eV)": number; relevance: string }>>;
 const TYPE_ORDER = ["coreloss", "lowloss", "xrayabs", "zeroloss"];
 const DOI = "10.1017/S1431927616000179";
 
@@ -39,69 +38,6 @@ const TABLE = [
 const shade = (n: number, max: number) => (n ? Math.min(6, 1 + Math.floor((Math.log(n) / Math.log(max)) * 5.999)) : 0);
 
 const plural = (n: number) => `${n} spectr${n === 1 ? "um" : "a"}`;
-
-/** Spectrum file text to [energy, counts]. Keep in step with parseSpectrum() in public/spectrum.js. */
-function parseSpectrum(text: string): [number[], number[]] {
-  const header: Record<string, string> = {};
-  const x: number[] = [];
-  const y: number[] = [];
-  let inData = false;
-  for (const line of text.split(/\r?\n/).map((l) => l.trim())) {
-    if (!line) continue;
-    if (line.startsWith("#")) {
-      const m = line.match(/^#([A-Z0-9 -]+?)\s*:\s*(.*)$/i);
-      if (m) header[m[1].trim().toUpperCase()] = m[2].trim();
-      if (/^#SPECTRUM/i.test(line)) inData = true;
-      if (/^#ENDOFDATA/i.test(line)) break;
-      continue;
-    }
-    if (!/^[-+.\d]/.test(line)) continue;
-    const nums = line.split(/[\s,;]+/).filter(Boolean).map(Number);
-    if (nums.some(Number.isNaN)) continue;
-    if (inData && (header.DATATYPE || "").toUpperCase() === "Y") y.push(...nums);
-    else if (nums.length >= 2) {
-      x.push(nums[0]);
-      y.push(nums[1]);
-    }
-  }
-  if (!x.length) {
-    const offset = parseFloat(header.OFFSET) || 0;
-    const step = parseFloat(header.XPERCHAN) || 1;
-    for (let i = 0; i < y.length; i++) x.push(offset + step * i);
-  }
-  const order = x.map((_, i) => i).sort((a, b) => x[a] - x[b]);
-  return [order.map((i) => x[i]), order.map((i) => y[i])];
-}
-
-/**
- * Major edges of the elements inside [e0, e1]. Subshells of one shell within 10 eV share a marker at the lowest onset
- * (Ti L3 and L2 become "Ti L2,3"); further apart they get their own (Ni L3, Ni L2). The spectrum page marks the same exSpy edges.
- */
-function majorEdges(elements: string[], e0: number, e1: number) {
-  const out: { energy: number; label: string }[] = [];
-  for (const element of elements) {
-    const shells = new Map<string, { energy: number; sub: string }[]>();
-    for (const [name, info] of Object.entries(ONSETS[element] ?? {})) {
-      const energy = info["onset_energy (eV)"];
-      if (info.relevance !== "Major" || !(energy > e0 && energy < e1)) continue;
-      shells.set(name[0], [...(shells.get(name[0]) ?? []), { energy, sub: name.slice(1) }]);
-    }
-    for (const [letter, subs] of shells) {
-      subs.sort((a, b) => a.energy - b.energy);
-      let group = [subs[0]];
-      const flush = () => out.push({ energy: group[0].energy, label: `${element} ${letter}${group.map((g) => g.sub).sort().join(",")}` });
-      for (const s of subs.slice(1)) {
-        if (s.energy - group[0].energy <= 10) group.push(s);
-        else {
-          flush();
-          group = [s];
-        }
-      }
-      flush();
-    }
-  }
-  return out;
-}
 
 const W = 1000;
 const H = 300;
@@ -135,16 +71,10 @@ async function miniPlot(c: Context<AppEnv>, key: string, elements: string[]): Pr
   return plot;
 }
 
-const EdgeLabel = (props: { label: string }) => {
-  const [element, edge] = props.label.split(" ");
-  const [, shell, sub] = edge.match(/^([A-Z])(.*)$/) ?? [];
-  return <>{element} {shell}{sub && <sub>{sub}</sub>}</>;
-};
-
 const MiniPlotFigure = (props: { plot: MiniPlot }) => (
   <div class="fig">
     {props.plot.edges.map((e) => (
-      <span class="edge-lab" style={`left:${((e.x / W) * 100).toFixed(2)}%`}><EdgeLabel label={e.label} /></span>
+      <span class="edge-lab" style={`left:${((e.x / W) * 100).toFixed(2)}%`}><EdgeName label={e.label} /></span>
     ))}
     <svg class="mini-plot" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
       {props.plot.edges.map((e) => <line class="edge" x1={e.x.toFixed(1)} x2={e.x.toFixed(1)} y1="0" y2={H} />)}

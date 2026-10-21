@@ -524,7 +524,6 @@ tbody tr:last-child td { border-bottom: 0; }
 tbody tr:hover { background: color-mix(in oklab, var(--sunken) 70%, transparent); }
 td.num, th.num { text-align: right; white-space: nowrap; }
 td.title { min-width: 12rem; }
-td.edges { min-width: 7rem; font-size: 0.85rem; }
 td.formula-cell { white-space: nowrap; }
 .formula sub, .formula sup { font-size: 0.72em; line-height: 0; }
 .formula sub i { font-style: italic; }
@@ -534,6 +533,31 @@ td.formula-cell { white-space: nowrap; }
 .type-lowloss { --t: var(--type-lowloss); }
 .type-zeroloss { --t: var(--type-zeroloss); }
 .type-xrayabs { --t: var(--type-xrayabs); }
+
+/* Browse results: a thumbnail of the real spectrum leads each row. */
+.results td { vertical-align: middle; }
+.results .thumb { width: 9.5rem; }
+.results .thumb a { display: block; height: 36px; }
+.spark { display: block; width: 100%; height: 100%; overflow: visible; }
+.spark .line { fill: none; stroke: var(--plot); stroke-width: 1.4; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.spark .area { fill: color-mix(in oklab, var(--plot) 9%, transparent); }
+.spark .edge { stroke: var(--edge); stroke-dasharray: 2 2; vector-effect: non-scaling-stroke; }
+.results .material { min-width: 14rem; }
+.results .material > a { display: block; font-weight: 500; }
+.results .material .sub { display: flex; flex-wrap: wrap; gap: 0 0.75rem; align-items: baseline; font-size: 0.85rem; color: var(--muted); }
+.results .material .sub .formula { color: var(--ink); }
+.results sub { font-size: 0.72em; line-height: 0; }
+.edge-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.edge-chip { font-size: 0.8rem; font-weight: 600; background: var(--sunken); border-radius: 999px; padding: 0.1rem 0.55rem; white-space: nowrap; }
+.edge-chip.picked { background: var(--accent-soft); }
+/* Energy range on one 1 eV – 10 keV log scale, so low loss and a 2 keV edge differ at a glance. */
+.coverage { display: grid; gap: 0.2rem; min-width: 10rem; font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
+.coverage .bar { position: relative; height: 6px; background: var(--rule); border-radius: 3px; }
+.coverage .bar span { position: absolute; top: 0; bottom: 0; min-width: 3px; background: var(--plot); border-radius: 3px; }
+.results th .scale { display: flex; justify-content: space-between; margin-top: 0.15rem; font-size: 0.68rem; font-weight: 400; }
+.results .res .conditions { display: block; font-size: 0.78rem; color: var(--muted); }
+.results .source { font-size: 0.85rem; min-width: 11rem; }
+.results .source .muted { display: block; font-size: 0.8rem; }
 
 .pager { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 1rem; align-items: center; }
 .pager a, .pager span { padding: 0.25rem 0.65rem; border-radius: 4px; text-decoration: none; color: var(--ink); }
@@ -684,6 +708,9 @@ ul.partners { --plate: light-dark(#ffffff, #e9e5df); display: grid; grid-templat
   h1 { font-size: 1.5rem; }
   td:has(> .type) { vertical-align: top; }
   td .type { font-size: 0; gap: 0; display: flex; padding-top: 0.4rem; }
+  .results .material { min-width: 0; }
+  .results .material .type { display: inline-flex; gap: 0.45em; padding-top: 0; font-size: 0.85rem; }
+  .results .thumb { width: 5rem; }
   td .type::before { width: 0.6rem; height: 0.6rem; }
   th, td { padding: 0.45rem 0.5rem; }
   .hide-sm { display: none; }

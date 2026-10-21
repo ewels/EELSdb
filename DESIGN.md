@@ -380,6 +380,11 @@ The about page's "Support" logos sit on equal light plates in both themes (white
 ### Data table
 - Collapsed borders, 0.92rem, a `rule` hairline under each row and a `line` under the header, no outer box and no last-row rule. Header cells are 0.75rem `muted`; sortable heads turn `ink` when active. Row hover tints with `sunken` at 70%. Numeric columns right-align. Title links are `ink` at weight 500 and turn `accent-ink` on hover.
 
+### Browse results
+- **Rows:** a 150×36 thumbnail of the real spectrum (trace in `plot` with its 9% wash, major edges as dashed `edge` lines; 5rem wide on phones), then title (500) over formula and type dot, edge chips, energy range, resolution over a muted "300 kV · monochromated" line, and source (author over journal and year, or the year added). Header cells that hold two values sort by either ("Title · formula", "Resolution · beam"). Below 560px only thumbnail and title cell remain.
+- **Edge chips:** `sunken` pills, 0.8rem 600, edges typeset (Ti L<sub>2,3</sub>); a chip whose element is in the element filter turns `accent-soft`.
+- **Energy range bar:** a 6px `rule` track on one 1 eV – 10 keV log scale (marked in the column head) with the spectrum's span in `plot`, the range in muted 0.82rem below.
+
 ### Type badge
 The marker for spectrum type: a 0.5em filled circle in the type's colour followed by the type name. Below 560px inside tables the label collapses and only a dot remains. A type label is never drawn as an outlined or filled tag; the bordered type-filter badge is a button, not a label.
 

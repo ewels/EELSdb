@@ -1,5 +1,5 @@
 import { env, exports } from "cloudflare:workers";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 const page = async (path: string) => {
   const res = await exports.default.fetch(`https://eelsdb.eu${path}`, { redirect: "manual" });
@@ -118,6 +118,18 @@ describe("pages", () => {
 
     const none = await page("/spectra/?formula=NoSuchFormula");
     expect(none.html).toContain("No spectra match these filters");
+  });
+
+  it("browse rows lead with a thumbnail built from the spectrum file", async () => {
+    const { id, key } = (await env.DB.prepare(
+      "SELECT s.id, f.r2_key AS key FROM spectra s JOIN files f ON f.spectrum_id = s.id WHERE s.slug = 'graphite' LIMIT 1",
+    ).first<{ id: number; key: string }>())!;
+    await env.FILES.put(key, Array.from({ length: 400 }, (_, i) => `${270 + i * 0.5}\t${i < 30 ? 10 : 100 - i / 10}`).join("\n"));
+    const { html } = await page("/spectra/?title=graphite");
+    expect(html).toMatch(/<a href="\/spectra\/graphite\/" tabindex="-1" aria-hidden="true"><svg class="spark"[^>]*><line class="edge"/);
+    expect(html).toContain('<span class="edge-chip">C\u00a0K</span>');
+    expect(html).toMatch(/<span class="conditions">\d+ kV<\/span>/);
+    await vi.waitFor(async () => expect(await env.DB.prepare("SELECT preview_key FROM spectra WHERE id = ?").bind(id).first("preview_key")).toBe(key));
   });
 
   it("browse keeps the author and energy fields filled from the URL", async () => {

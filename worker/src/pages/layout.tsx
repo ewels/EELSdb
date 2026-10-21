@@ -249,5 +249,12 @@ export const Formula = (props: { formula: string | null }) => {
   );
 };
 
+/** An edge as "Ti L2,3", typeset Ti L<sub>2,3</sub>. */
+export const EdgeName = (props: { label: string }) => {
+  const [element, edge = ""] = props.label.split(" ");
+  const [, shell, sub] = edge.match(/^([A-Z])(.*)$/) ?? [];
+  return <>{element}{"\u00a0"}{shell}{sub && <sub>{sub}</sub>}</>;
+};
+
 export const fmt = (v: number | null | undefined, unit: string, digits = 2) =>
   v === null || v === undefined ? "" : `${Number(v.toFixed(digits))} ${unit}`;

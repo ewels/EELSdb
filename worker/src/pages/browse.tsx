@@ -1,8 +1,9 @@
 import type { Context } from "hono";
 import type { AppEnv } from "../auth";
-import { KNOWN_ARGS, buildSpectraQuery, parseParams, sortAndPage, type Params } from "../api/query";
+import { KNOWN_ARGS, buildSpectraQuery, parseParams, sortAndPage, type Params, type SpectrumRow } from "../api/query";
+import { majorEdges, previews, type Preview } from "../preview";
 import NAMES from "../element-names.json";
-import { Formula, Layout, TYPE_NAMES, TypeBadge, fmt } from "./layout";
+import { EdgeName, Formula, Layout, TYPE_NAMES, TypeBadge, fmt } from "./layout";
 
 const PER_PAGE = 50;
 const ELEMENT_NAMES: Record<string, string> = NAMES;
@@ -14,17 +15,77 @@ const COMPARES = [
   ["eq", "="],
 ] as const;
 
-const COLUMNS: [label: string, order: string | null, cls?: string][] = [
-  ["Type", "spectrumType"],
-  ["Title", "title"],
-  ["Formula", "spectrumFormula"],
-  ["Edges", null, "hide-sm hide-md"],
-  ["Energy range", "spectrumMin", "num"],
-  ["Beam", "beamenergy", "num hide-sm"],
-  ["Resolution", "resolution", "num hide-sm"],
-  ["Author", "author", "hide-sm"],
-  ["Added", "date", "num hide-sm hide-md"],
-];
+type Extra = { id: number; preview: string | null; preview_key: string | null; file: string | null; elements: string; journal: string | null; year: string | null };
+type Shown = SpectrumRow & { edges: string[]; elements: string[]; preview?: Preview; journal: string | null; year: string | null };
+
+/** Position on the shared 1 eV – 10 keV log scale, in percent. */
+const logPos = (ev: number) => Math.min(100, Math.max(0, (Math.log10(Math.max(ev, 1)) / 4) * 100));
+
+const SPARK_W = 150;
+const SPARK_H = 36;
+
+function Spark({ p, elements }: { p: Preview; elements: string[] }) {
+  const n = p.y.length;
+  const X = (i: number) => ((i / (n - 1)) * SPARK_W).toFixed(1);
+  const Y = (v: number) => (SPARK_H - 2 - (v / 100) * (SPARK_H - 4)).toFixed(1);
+  const d = "M" + p.y.map((v, i) => `${X(i)},${Y(v)}`).join("L");
+  const [e0, e1] = p.e;
+  return (
+    <svg class="spark" viewBox={`0 0 ${SPARK_W} ${SPARK_H}`} preserveAspectRatio="none" aria-hidden="true">
+      {majorEdges(elements, e0, e1).map((e) => {
+        const x = (((e.energy - e0) / (e1 - e0)) * SPARK_W).toFixed(1);
+        return <line class="edge" x1={x} x2={x} y1="0" y2={String(SPARK_H)} />;
+      })}
+      <path class="area" d={`${d}L${SPARK_W},${SPARK_H}L0,${SPARK_H}Z`} />
+      <path class="line" d={d} />
+    </svg>
+  );
+}
+
+function Row({ s, picked }: { s: Shown; picked: Set<string> }) {
+  const href = `/spectra/${encodeURIComponent(s.slug)}/`;
+  const hasRange = s.min_energy_ev !== null && s.max_energy_ev !== null;
+  const [a, b] = hasRange ? [logPos(s.min_energy_ev!), logPos(s.max_energy_ev!)] : [0, 0];
+  return (
+    <tr>
+      <td class="thumb">
+        {s.preview && (
+          <a href={href} tabindex={-1} aria-hidden="true">
+            <Spark p={s.preview} elements={s.elements} />
+          </a>
+        )}
+      </td>
+      <td class="material">
+        <a href={href}>{s.title}</a>
+        <span class="sub">
+          <Formula formula={s.formula} />
+          <TypeBadge type={s.type} />
+        </span>
+      </td>
+      <td class="hide-sm">
+        <span class="edge-chips">
+          {s.edges.length ? s.edges.map((e) => <span class={picked.has(e.split(" ")[0]) ? "edge-chip picked" : "edge-chip"}><EdgeName label={e} /></span>) : <span class="muted">–</span>}
+        </span>
+      </td>
+      <td class="hide-sm">
+        {hasRange && (
+          <span class="coverage">
+            <span class="bar"><span style={`left:${a.toFixed(1)}%;width:${(b - a).toFixed(1)}%`}></span></span>
+            {Number(s.min_energy_ev!.toFixed(1))} – {Number(s.max_energy_ev!.toFixed(1))} eV
+          </span>
+        )}
+      </td>
+      <td class="num res hide-sm">
+        {fmt(s.resolution_ev, "eV")}
+        <span class="conditions">{[fmt(s.beam_energy_kv, "kV", 0), s.monochromated ? "monochromated" : ""].filter(Boolean).join(" · ")}</span>
+      </td>
+      <td class="hide-sm source">
+        <a href={`/author/${s.author_slug}/`}>{s.author_display}</a>
+        <span class="muted">{[s.journal, s.year].filter(Boolean).join(" ") || s.published_at?.slice(0, 4)}</span>
+      </td>
+    </tr>
+  );
+}
 
 function urlWith(params: Params, changes: Record<string, string | null>) {
   const out = new URLSearchParams();
@@ -66,6 +127,16 @@ function Bound({ params, name, label, placeholder }: { params: Params; name: str
   );
 }
 
+function Sort({ params, by, label, orderKey, desc }: { params: Params; by: string; label: string; orderKey: string; desc: boolean }) {
+  const active = orderKey === by;
+  return (
+    <a href={urlWith(params, { order: by, order_direction: active && !desc ? "DESC" : "ASC", page: null })} aria-sort={active ? (desc ? "descending" : "ascending") : undefined}>
+      {label}
+      {active ? (desc ? " ↓" : " ↑") : ""}
+    </a>
+  );
+}
+
 export async function browsePage(c: Context<AppEnv>) {
   const params = parseParams(new URL(c.req.url).search);
   const complete = params.get("complete") === "1";
@@ -94,7 +165,28 @@ export async function browsePage(c: Context<AppEnv>) {
   const total = rows.length;
   const page = sortAndPage(rows, q);
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
-  const edgesById = new Map(edgeRows.map((r: any) => [r.spectrum_id, r.edges]));
+  const edgesById = new Map<number, string>(edgeRows.map((r: any) => [r.spectrum_id, r.edges]));
+  const { results: extras } = await c.env.DB.prepare(
+    `SELECT s.id, s.preview, s.preview_key, r.journal, r.year,
+            (SELECT f.r2_key FROM files f WHERE f.spectrum_id = s.id ORDER BY f.role = 'legacy' DESC, f.created_at LIMIT 1) AS file,
+            (SELECT json_group_array(e.element) FROM spectrum_elements e WHERE e.spectrum_id = s.id) AS elements
+     FROM spectra s LEFT JOIN reference r ON r.spectrum_id = s.id WHERE s.id IN (SELECT value FROM json_each(?))`,
+  )
+    .bind(JSON.stringify(page.map((r) => r.id)))
+    .all<Extra>();
+  const extraById = new Map(extras.map((x) => [x.id, x]));
+  const thumbs = await previews(c.env, c.executionCtx, extras);
+  const shown: Shown[] = page.map((r) => {
+    const x = extraById.get(r.id);
+    return {
+      ...r,
+      edges: edgesById.get(r.id)?.split(", ") ?? [],
+      elements: JSON.parse(x?.elements ?? "[]"),
+      preview: thumbs.get(r.id),
+      journal: x?.journal ?? null,
+      year: x?.year ?? null,
+    };
+  });
   const selected = new Set([params.get("element") ?? []].flat());
   const elementCounts = new Map<string, number>(elementRows.map((r: any) => [r.element, r.n]));
   for (const el of selected) if (!elementCounts.has(el)) elementCounts.set(el, 0);
@@ -220,41 +312,31 @@ export async function browsePage(c: Context<AppEnv>) {
             </p>
           ) : (
             <div class="table-scroll">
-              <table>
+              <table class="results">
                 <thead>
                   <tr>
-                    {COLUMNS.map(([label, key, cls]) => {
-                      if (!key) return <th class={cls}>{label}</th>;
-                      const active = orderKey === key;
-                      const next = active && !desc ? "DESC" : "ASC";
-                      return (
-                        <th class={cls} aria-sort={active ? (desc ? "descending" : "ascending") : undefined}>
-                          <a href={urlWith(params, { order: key, order_direction: next, page: null })} aria-sort={active ? "true" : undefined}>
-                            {label}
-                            {active ? (desc ? " ↓" : " ↑") : ""}
-                          </a>
-                        </th>
-                      );
-                    })}
+                    <th class="thumb">Spectrum</th>
+                    <th>
+                      <Sort params={params} by="title" label="Title" orderKey={orderKey} desc={desc} />
+                      {" · "}
+                      <Sort params={params} by="spectrumFormula" label="formula" orderKey={orderKey} desc={desc} />
+                    </th>
+                    <th class="hide-sm">Edges</th>
+                    <th class="hide-sm">
+                      <Sort params={params} by="spectrumMin" label="Energy range" orderKey={orderKey} desc={desc} />
+                      <span class="scale" aria-hidden="true"><span>1 eV</span><span>100 eV</span><span>10 keV</span></span>
+                    </th>
+                    <th class="num hide-sm">
+                      <Sort params={params} by="resolution" label="Resolution" orderKey={orderKey} desc={desc} />
+                      {" · "}
+                      <Sort params={params} by="beamenergy" label="beam" orderKey={orderKey} desc={desc} />
+                    </th>
+                    <th class="hide-sm"><Sort params={params} by="author" label="Source" orderKey={orderKey} desc={desc} /></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {page.map((s) => (
-                    <tr>
-                      <td><TypeBadge type={s.type} /></td>
-                      <td class="title"><a href={`/spectra/${encodeURIComponent(s.slug)}/`}>{s.title}</a></td>
-                      <td class="formula-cell"><Formula formula={s.formula} /></td>
-                      <td class="edges hide-sm hide-md">{(edgesById.get(s.id) ?? "").replaceAll(" ", "\u00a0").replaceAll(",\u00a0", ", ")}</td>
-                      <td class="num">
-                        {s.min_energy_ev !== null && s.max_energy_ev !== null
-                          ? `${Number(s.min_energy_ev.toFixed(1))} – ${Number(s.max_energy_ev.toFixed(1))} eV`
-                          : ""}
-                      </td>
-                      <td class="num hide-sm">{fmt(s.beam_energy_kv, "kV", 0)}</td>
-                      <td class="num hide-sm">{fmt(s.resolution_ev, "eV")}</td>
-                      <td class="hide-sm"><a href={`/author/${s.author_slug}/`}>{s.author_display}</a></td>
-                      <td class="num hide-sm hide-md">{s.published_at?.slice(0, 10)}</td>
-                    </tr>
+                  {shown.map((s) => (
+                    <Row s={s} picked={selected} />
                   ))}
                 </tbody>
               </table>
