@@ -41,6 +41,22 @@ def test_hspy_opens_in_hyperspy_as_eels(tmp_path):
     assert s.metadata.Acquisition_instrument.TEM.beam_energy == 200.0
 
 
+def test_xas_hspy_is_a_plain_signal(tmp_path):
+    hs = pytest.importorskip("hyperspy.api")
+    s = hs.load(write_hspy(tmp_path / "x.hspy", 280 + 0.1 * np.arange(50), np.arange(50.0), "Test", ACQ, None, eels=False))
+    assert type(s).__name__ == "Signal1D"
+    assert s.axes_manager[0].name == "Energy"
+    assert "Acquisition_instrument" not in s.metadata
+
+
+def test_every_seeded_spectrum_has_an_hspy_file():
+    from build_seed import COREX, HSPY, API_FIXTURES, load
+
+    ids = {s["id"] for s in load(API_FIXTURES / "spectra" / "all.json")["body"] if "download_link" in s}
+    ids |= {r["id"] for r in load(COREX)}
+    assert {f["spectrum_id"] for f in load(HSPY)} == ids
+
+
 def test_compare_flags_differences():
     rows = compare({"beam_energy_kv": 200, "convergence_mrad": 20}, {"beam_energy_kv": 300, "convergence_mrad": 20})
     assert [r["differs"] for r in rows] == [True, False, False]

@@ -18,7 +18,7 @@ The formats are:
 - **MSA**: EMSA/MAS text with the beam energy and the angles in the header. It opens in HyperSpy, DigitalMicrograph and most EELS software.
 - **CSV**: two columns, the energy in eV and the intensity.
 - **JSON**: the data and all the metadata on the spectrum page, in the [API v2](/docs/use/api/) format.
-- **HyperSpy**: the `.hspy` file that the moderator made at review, for new spectra.
+- **HyperSpy**: an `.hspy` file that loads in HyperSpy with the beam energy, the angles and the DOI in its metadata.
 - **Original file**: the file as the contributor uploaded it.
 
 EELSdb makes the MSA, CSV and JSON files from the stored data when you download them, so every spectrum has them, whatever format it was uploaded in.

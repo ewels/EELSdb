@@ -87,28 +87,32 @@ def write_metadata(path, sp):
     return Path(path)
 
 
-def write_hspy(path, energy, intensity, title, acq, reference):
-    """HyperSpy file with EELS metadata, written by RosettaSciIO alone (non-uniform energy axes are kept as such)."""
+def write_hspy(path, energy, intensity, title, acq, reference, eels=True):
+    """HyperSpy file with EELS metadata, written by RosettaSciIO alone (non-uniform energy axes are kept as such).
+
+    X-ray absorption spectra are plain signals: HyperSpy and exSpy have no XAS signal type.
+    """
     from rsciio.hspy import file_writer
 
     energy = np.asarray(energy, float)
     steps = np.diff(energy)
     uniform = steps.size == 0 or np.allclose(steps, steps[0], rtol=1e-6)
-    axis = {"units": "eV", "name": "Energy loss", "navigate": False}
+    axis = {"units": "eV", "name": "Energy loss" if eels else "Energy", "navigate": False}
     axis |= {"size": energy.size, "offset": float(energy[0]), "scale": float(steps[0]) if steps.size else 1.0} if uniform else {"axis": energy}
     tem = {"beam_energy": acq.get("beam_energy_kv"), "convergence_angle": acq.get("convergence_mrad")}
     tem = {k: float(v) for k, v in tem.items() if v is not None}
     if acq.get("collection_mrad") is not None:
         tem["Detector"] = {"EELS": {"collection_angle": float(acq["collection_mrad"])}}
     general = {"title": title} | ({"doi": reference["doi"]} if reference and reference.get("doi") else {})
-    metadata = {"General": general, "Signal": {"signal_type": "EELS"}}
-    if tem:
+    metadata = {"General": general, "Signal": {"signal_type": "EELS" if eels else ""}}
+    if tem and eels:
         metadata["Acquisition_instrument"] = {"TEM": tem}
-    # The keys HyperSpy's own save passes; RosettaSciIO's writer reads every one of them.
+    # The keys HyperSpy's own save passes; RosettaSciIO's writer reads every one of them. package_info names the
+    # package with the signal class, which HyperSpy checks on load: exSpy provides EELSSpectrum.
     file_writer(str(path), {
         "data": np.asarray(intensity, float), "axes": [axis], "metadata": metadata, "original_metadata": {},
         "tmp_parameters": {}, "attributes": {"_lazy": False}, "learning_results": {}, "models": {},
-        "package_info": {"package": "rosettasciio", "package_version": version("rosettasciio")},
+        "package_info": {"package": "exspy", "package_version": ""} if eels else {"package": "hyperspy", "package_version": ""},
     })
     return Path(path)
 
@@ -145,7 +149,8 @@ def process(detail, original, workdir, edge_table):
                                   header_axis=sp.header_axis, navigation_shape=sp.navigation_shape)
         slug = s["slug"]
         outputs["msa"] = write_msa(workdir / f"{slug}.msa", sp.energy, sp.intensity, s["title"], acq)
-        outputs["hspy"] = write_hspy(workdir / f"{slug}.hspy", sp.energy, sp.intensity, s["title"], acq, detail.get("reference"))
+        outputs["hspy"] = write_hspy(workdir / f"{slug}.hspy", sp.energy, sp.intensity, s["title"], acq, detail.get("reference"),
+                                      eels=s["type"] != "xrayabs")
         if sp.original_metadata:
             outputs["metadata"] = write_metadata(workdir / f"{slug}.metadata.json", sp)
         values = {"min_energy_ev": float(np.min(sp.energy)), "max_energy_ev": float(np.max(sp.energy)),

@@ -25,7 +25,7 @@ print(s.metadata.Acquisition_instrument.TEM.beam_energy)
 s.plot()
 ```
 
-Spectra published after review also have a HyperSpy (`.hspy`) file, with the DOI of the reference in `metadata.General.doi`. Its energy axis is exact, also when the steps are not even. Find it in the record's `files`, with the role `hspy`:
+Spectra also have a HyperSpy (`.hspy`) file, which loads as an `EELSSpectrum` with the DOI of the reference in `metadata.General.doi`. Its energy axis is exact, also when the steps are not even. Find it in the record's `files`, with the role `hspy`:
 
 ```py
 import hyperspy.api as hs

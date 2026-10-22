@@ -12,8 +12,8 @@ const str = (text: string) => (
   </>
 );
 
-/** Load one MSA file in HyperSpy, highlighted token for token as the docs' Expressive Code (Night Owl) does it. */
-export function HyperSpySnippet(props: { url: string; file: string }) {
+/** Load one spectrum file in HyperSpy, highlighted token for token as the docs' Expressive Code (Night Owl) does it. */
+export function HyperSpySnippet(props: { url: string; file: string; signalType?: string }) {
   return (
     <>
       <div class="code-block">
@@ -22,7 +22,8 @@ export function HyperSpySnippet(props: { url: string; file: string }) {
           {tok("k", "from")} urllib.request {tok("k", "import")} urlretrieve{"\n\n"}
           url {tok("k", "=")} {str(props.url)}{"\n"}
           path, _ {tok("k", "=")} {tok("f", "urlretrieve")}({tok("v", "url")}{tok("p", ",")} {str(props.file)}){"\n"}
-          s {tok("k", "=")} hs.{tok("f", "load")}({tok("v", "path")}{tok("p", ",")} {tok("a", "signal_type")}{tok("k", "=")}{str("EELS")}){"\n"}
+          s {tok("k", "=")} hs.{tok("f", "load")}({tok("v", "path")}
+          {props.signalType && <>{tok("p", ",")} {tok("a", "signal_type")}{tok("k", "=")}{str(props.signalType)}</>}){"\n"}
           s.{tok("f", "plot")}()
         </code></pre>
         <div class="code-copy">

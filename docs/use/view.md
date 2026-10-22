@@ -1,6 +1,6 @@
 ---
 title: View a spectrum
-description: Read a spectrum page on EELSdb, use its plot, compare your own spectra with it and export an image of the plot.
+description: Read a spectrum page on EELSdb, use its plot, compare other spectra with it and export an image of the plot.
 ---
 
 Each spectrum has its own page, at an address such as [`/spectra/graphite/`](/spectra/graphite/).
@@ -19,22 +19,26 @@ The contributor's comments are in the box below the title.
 - **Minor edges** adds the weaker edges of the same elements.
 - **Show** switches between the main spectrum and its processed versions, for example oscillator strength, if the contributor added them.
 
-## Compare with your own spectra
+## Compare with other spectra
 
-Click **Compare with your spectra** and choose one or more files, or drag the files onto the plot or onto the button.
+To compare with another EELSdb spectrum, click the search field next to **Compare with your spectra**.
+It lists spectra whose energy range overlaps this one, with those that share an edge or an element first.
+Type a name or a formula to search, then choose a spectrum.
+
+To compare with your own files, click **Compare with your spectra** and choose one or more files, or drag the files onto the plot or onto the button.
 EELSdb reads MSA, text, DigitalMicrograph, Velox EMD, HyperSpy and XDI files.
 Your browser reads the files. EELSdb does not upload them.
 
-Each of your spectra has its own colour, and the list below the button shows them. Click **Remove** to take one away.
+Each compared spectrum has its own colour, and the list below the button shows them. Click **Remove** to take one away.
 
-With **Scale to match**, each of your spectra has its own y axis on the right, in its colour:
+With **Scale to match**, each compared spectrum has its own y axis on the right, in its colour:
 
 - Drag the top half of that axis up or down to move its maximum.
 - Drag the bottom half to move its minimum.
 - Double-click the axis to reset it.
 
-When you zoom, your spectra keep their position relative to the reference.
-Clear **Scale to match** to plot your values on the same axis as the reference.
+When you zoom, the compared spectra keep their position relative to the reference.
+Clear **Scale to match** to plot them on the same axis as the reference.
 
 ## Export an image of the plot
 
@@ -53,6 +57,6 @@ Below the plot, the metadata is in sections:
 - **Associated spectra**: related spectra, for example the low-loss spectrum of the same specimen.
 - **Metadata from the file**: every tag in the uploaded file, for spectra reviewed on the new site. A person has not checked these values.
 
-**Use in HyperSpy** shows the Python code that downloads the spectrum as an MSA file and loads it in HyperSpy (see [Load spectra in Python](/docs/use/python/)).
+**Use in HyperSpy** shows the Python code that downloads the spectrum as a HyperSpy file (or an MSA file, if there is none) and loads it in HyperSpy (see [Load spectra in Python](/docs/use/python/)).
 
 To download the data or cite the spectrum, see [Download and cite spectra](/docs/use/download/).

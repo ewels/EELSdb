@@ -20,6 +20,7 @@ DEAD_HOSTS = {"pc-web.cemes.fr"}
 
 FIXTURES = ROOT / "data" / "fixtures"
 COREX = FIXTURES / "corex.json"
+HSPY = FIXTURES / "hspy.json"
 SEED_DIR = ROOT / "data" / "seed"
 TYPE_CODES = {"Core Loss": "coreloss", "Low Loss": "lowloss", "Zero Loss": "zeroloss", "X Ray Abs": "xrayabs"}
 DECONV_COLUMNS = {
@@ -296,6 +297,9 @@ def build():
     corex = load(COREX) if COREX.exists() else []
     for r in corex:
         lines += corex_rows(r)
+    hspy = load(HSPY) if HSPY.exists() else []
+    lines += [insert("files", {"spectrum_id": f["spectrum_id"], "role": "hspy", "r2_key": f["key"], "filename": f["filename"],
+                               "media_type": "application/x-hdf5", "bytes": f["bytes"], "sha256": f["sha256"]}) for f in hspy]
     # Spectra first, so rows that reference them (including links between spectra) insert in order.
     lines.sort(key=lambda line: not line.startswith("INSERT INTO spectra "))
 
@@ -310,6 +314,7 @@ def build():
     uploads = [{"key": f["path"], "file": f"data/cache/files/{f['path']}", "sha256": f["sha256"]}
                for f in sorted(manifest.values(), key=lambda f: f["path"])]
     uploads += [{"key": f["key"], "file": f"data/cache/files/{f['key']}", "sha256": f["sha256"]} for r in corex for f in r["files"]]
+    uploads += [{"key": f["key"], "file": f"data/cache/files/{f['key']}", "sha256": f["sha256"]} for f in hspy]
     return "\n".join(lines) + "\n", uploads
 
 

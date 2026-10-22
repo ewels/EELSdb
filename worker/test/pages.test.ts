@@ -161,6 +161,19 @@ describe("pages", () => {
     expect((await get("q=Zzpending", cookie))[0]).toMatchObject({ slug: "my-pending-zz", status: "pending" });
   });
 
+  it("suggests spectra to compare: overlapping the energy range, those sharing an element first", async () => {
+    const get = async (q: string) => (await exports.default.fetch(`https://eelsdb.eu/search/spectra.json?${q}`)).json<any[]>();
+    const ref = (await env.DB.prepare("SELECT min_energy_ev AS lo, max_energy_ev AS hi FROM spectra WHERE slug = 'graphite'").first<any>())!;
+    const suggested = await get("overlaps=graphite");
+    expect(suggested.length).toBeGreaterThan(0);
+    expect(suggested.map((s) => s.slug)).not.toContain("graphite");
+    for (const s of suggested) expect(s.min_energy_ev < ref.hi && s.max_energy_ev > ref.lo).toBe(true);
+    const carbon = await env.DB.prepare("SELECT 1 FROM spectrum_elements e JOIN spectra s ON s.id = e.spectrum_id WHERE s.slug = ? AND e.element = 'C'");
+    expect(await carbon.bind(suggested[0].slug).first()).not.toBeNull();
+    expect((await get("overlaps=graphite&q=diamond")).map((s) => s.slug)).toContain("diamond");
+    expect(await get("overlaps=no-such-spectrum")).toEqual([]);
+  });
+
   it("browse rows lead with a thumbnail built from the spectrum file", async () => {
     const { id, key } = (await env.DB.prepare(
       "SELECT s.id, f.r2_key AS key FROM spectra s JOIN files f ON f.spectrum_id = s.id WHERE s.slug = 'graphite' LIMIT 1",
@@ -208,6 +221,9 @@ describe("pages", () => {
     const html = await (await page("/spectra/mlc-nanotube-ylas-tas2/")).html;
     expect(html).toContain('name="download-format" value="/spectra/mlc-nanotube-ylas-tas2/download/msa"');
     expect(html).toContain('data-save-plot="svg-dark"');
+    expect(html).toContain('value="/files/22236/mlc-nanotube-ylas-tas2.hspy"');
+    expect(html).toContain("https://eelsdb.eu/files/22236/mlc-nanotube-ylas-tas2.hspy");
+    expect(html).not.toContain('signal_type');
   });
 
   it("shows the masked address of a migrated uploader until a sign-in is linked", async () => {

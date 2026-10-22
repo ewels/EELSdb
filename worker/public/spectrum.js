@@ -362,6 +362,92 @@ async function main() {
       }
     }
   }
+  // Other EELSdb spectra, searched by name or formula; with an empty field, those overlapping this one that share an element.
+  const search = document.getElementById("compare-search");
+  if (search) {
+    const options = document.getElementById("compare-options");
+    const TYPES = { coreloss: "Core loss", lowloss: "Low loss", zeroloss: "Zero loss", xrayabs: "X-ray absorption" };
+    let matches = [];
+    let active = -1;
+    let seq = 0;
+    const close = () => {
+      options.hidden = true;
+      search.setAttribute("aria-expanded", "false");
+      search.removeAttribute("aria-activedescendant");
+      active = -1;
+    };
+    const setActive = (i) => {
+      active = i;
+      [...options.children].forEach((li, j) => li.setAttribute("aria-selected", String(j === i)));
+      if (i < 0) search.removeAttribute("aria-activedescendant");
+      else search.setAttribute("aria-activedescendant", `compare-opt-${i}`);
+    };
+    const pick = async (s) => {
+      close();
+      search.value = "";
+      // So that focusing it again opens the list for the next one.
+      search.blur();
+      if (compares.some((c) => c.slug === s.slug)) return;
+      status.textContent = `Loading ${s.title}…`;
+      try {
+        const res = await fetch(`/spectra/${encodeURIComponent(s.slug)}/download/json`);
+        if (!res.ok) throw new Error(`download failed (${res.status})`);
+        const { data: d } = await res.json();
+        compares.push({ name: s.title, slug: s.slug, x: d.energy_ev, y: d.intensity });
+        update();
+        status.textContent = NOTE;
+      } catch (e) {
+        status.textContent = `${s.title} could not be loaded: ${e.message}`;
+      }
+    };
+    const range = (s) => `${Math.round(s.min_energy_ev)}–${Math.round(s.max_energy_ev)} eV`;
+    const show = async () => {
+      const mine = ++seq;
+      const params = new URLSearchParams({ overlaps: search.dataset.slug });
+      if (search.value.trim()) params.set("q", search.value.trim());
+      const found = await (await fetch(`/search/spectra.json?${params}`)).json();
+      if (mine !== seq || document.activeElement !== search) return;
+      matches = found.filter((s) => !compares.some((c) => c.slug === s.slug));
+      options.replaceChildren(
+        ...(matches.length
+          ? matches.map((s, i) => {
+              const li = document.createElement("li");
+              li.id = `compare-opt-${i}`;
+              li.setAttribute("role", "option");
+              li.innerHTML = '<span></span><span class="n"></span>';
+              li.firstChild.textContent = s.title;
+              li.lastChild.textContent = [s.formula, TYPES[s.type], range(s)].filter(Boolean).join(" · ");
+              li.addEventListener("mousedown", (e) => e.preventDefault());
+              li.addEventListener("click", () => pick(matches[i]));
+              return li;
+            })
+          : [Object.assign(document.createElement("li"), { className: "none", textContent: `No ${search.value.trim() ? "matching " : ""}spectra overlap this energy range` })]),
+      );
+      options.hidden = false;
+      search.setAttribute("aria-expanded", "true");
+      setActive(matches.length ? 0 : -1);
+    };
+    search.addEventListener("focus", show);
+    search.addEventListener("click", () => options.hidden && show());
+    search.addEventListener("input", show);
+    search.addEventListener("blur", close);
+    search.addEventListener("keydown", (e) => {
+      const shown = !options.hidden;
+      if (e.key === "ArrowDown" && !shown) {
+        e.preventDefault();
+        show();
+      } else if ((e.key === "ArrowDown" || e.key === "ArrowUp") && shown && matches.length) {
+        e.preventDefault();
+        setActive((active + (e.key === "ArrowDown" ? 1 : -1) + matches.length) % matches.length);
+      } else if (e.key === "Enter" && shown) {
+        e.preventDefault();
+        if (active >= 0) pick(matches[active]);
+      } else if (e.key === "Escape" && shown) {
+        e.preventDefault();
+        close();
+      }
+    });
+  }
   input?.addEventListener("change", async () => {
     await addFiles([...input.files]);
     input.value = "";

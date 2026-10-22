@@ -170,7 +170,7 @@ export async function spectrumPage(c: Context<AppEnv>) {
           { id: "json", label: "JSON", hint: "The data with all the metadata on this page, as in API v2.", href: `${base}/json`, name: `${s.slug}.json` },
         ]
       : []),
-    ...(hspy ? [{ id: "hspy", label: "HyperSpy", hint: "HDF5 with the EELS metadata, made at review.", href: href(hspy.r2_key), name: hspy.filename }] : []),
+    ...(hspy ? [{ id: "hspy", label: "HyperSpy", hint: "HDF5 for HyperSpy, with the beam energy, angles and DOI in its metadata.", href: href(hspy.r2_key), name: hspy.filename }] : []),
     ...(original ? [{ id: "original", label: "Original file", hint: <>As the contributor uploaded it: <code>{original.filename}</code></>, href: href(original.r2_key), name: original.filename }] : []),
   ];
   const variants = b.files.filter((f) => f.role === "variant");
@@ -342,6 +342,11 @@ export async function spectrumPage(c: Context<AppEnv>) {
                 <input type="file" id="compare-file" multiple accept=".msa,.emsa,.txt,.csv,.dm3,.dm4,.emd,.hspy,.xdi" />
                 Compare with your spectra
               </label>
+              <div class="picker compare-search">
+                <input type="search" id="compare-search" data-slug={s.slug} autocomplete="off" placeholder="Or an EELSdb spectrum" aria-label="Compare with an EELSdb spectrum"
+                  role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="compare-options" />
+                <ul class="picker-list" id="compare-options" role="listbox" aria-label="Spectra to compare" hidden></ul>
+              </div>
               <span class="hint" id="compare-status" aria-live="polite">Or drop files on the plot. Your files are read in your browser and not uploaded.</span>
               <ul class="compare-list" id="compare-list" aria-label="Compared spectra" hidden></ul>
             </div>
@@ -350,8 +355,12 @@ export async function spectrumPage(c: Context<AppEnv>) {
         {s.status === "published" && fileName && PLOTTABLE.test(fileName) && (
           <section class="snippet" aria-labelledby="snippet-title">
             <h2 id="snippet-title">Use in HyperSpy</h2>
-            <HyperSpySnippet url={`${SITE}/spectra/${s.slug}/download/msa`} file="spectrum.msa" />
-            <p class="hint">The MSA file has the beam energy and angles. More in the <a href="/docs/use/python/">Python guide</a>.</p>
+            {hspy ? (
+              <HyperSpySnippet url={`${SITE}${href(hspy.r2_key)}`} file="spectrum.hspy" />
+            ) : (
+              <HyperSpySnippet url={`${SITE}/spectra/${s.slug}/download/msa`} file="spectrum.msa" signalType={s.technique === "eels" ? "EELS" : undefined} />
+            )}
+            <p class="hint">{hspy ? "The HyperSpy file loads with its metadata filled in." : "The MSA file has the beam energy and angles."} More in the <a href="/docs/use/python/">Python guide</a>.</p>
           </section>
         )}
       </div>
