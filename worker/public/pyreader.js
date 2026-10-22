@@ -1,4 +1,4 @@
-// Pyodide with RosettaSciIO and the eelsdb package (served from /py/), shared by the submit form and the spectrum page.
+// Pyodide with RosettaSciIO and the eelsdb modules (served from /py/), shared by the submit form, the spectrum page and review.
 
 const PYODIDE = "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/";
 export const RSCIIO = "rosettasciio==0.15.0";
@@ -12,7 +12,7 @@ export function loadReader() {
     await py.pyimport("micropip").install(RSCIIO);
     py.FS.mkdirTree("/home/pyodide/eelsdb");
     py.FS.writeFile("/home/pyodide/eelsdb/__init__.py", "");
-    for (const f of ["checks.py", "io.py", "_elements.py"]) {
+    for (const f of ["checks.py", "io.py", "_elements.py", "review.py"]) {
       py.FS.writeFile(`/home/pyodide/eelsdb/${f}`, await (await fetch(`/py/eelsdb/${f}`)).text());
     }
     return py;

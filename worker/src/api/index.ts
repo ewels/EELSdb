@@ -1,7 +1,6 @@
 import { Hono, type Context } from "hono";
 import type { AppEnv } from "../auth";
 import { API_HOST, SITE, formatV1, loadBundle, loadMany } from "./format";
-import { cli } from "./moderation";
 import { v2 } from "./v2";
 import { ORDER_META_KEYS, buildSpectraQuery, firstUnknownArg, parseParams, sortAndPage, type SpectrumRow } from "./query";
 
@@ -51,7 +50,6 @@ const INDEX = {
   spectrum: { url: `${API_HOST}/spectra/{spectrum}` },
 };
 
-api.route("/cli", cli);
 api.route("/v2", v2);
 
 api.get("/", (c) => json(c, INDEX));

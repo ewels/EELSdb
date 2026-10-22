@@ -1,4 +1,4 @@
-from eelsdb.legacy.export_accounts import classify, php_unserialize, summarise
+from export_accounts import classify, php_unserialize, summarise
 
 BASE = dict(display_name="Jane Smith", registered="2015-03-01 10:00:00", is_admin=False, owns_spectra=False,
             old_forum_posts=0, new_forum_posts=0, spam_submissions_only=False, favourites=[])

@@ -1,11 +1,11 @@
 import json
 
-from eelsdb.legacy.build_seed import SEED_DIR, build, energy_v1, sql
+from build_seed import SEED_DIR, build, energy_v1, sql
 
 
 def test_seed_is_up_to_date():
     seed, uploads = build()
-    assert seed == (SEED_DIR / "seed.sql").read_text(), "run: uv run python -m eelsdb.legacy.build_seed"
+    assert seed == (SEED_DIR / "seed.sql").read_text(), "run: uv run build_seed.py"
     assert uploads == json.loads((SEED_DIR / "r2-uploads.json").read_text())
 
 

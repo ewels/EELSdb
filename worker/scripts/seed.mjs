@@ -1,5 +1,5 @@
 // Builds the local D1 database and R2 bucket (Miniflare state in .wrangler/) from data/seed/.
-// Run `uv run python -m eelsdb.legacy.build_seed` in python/ first if the fixtures changed.
+// Run `uv run python/build_seed.py` first if the fixtures changed.
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { getPlatformProxy } from "wrangler";
@@ -19,7 +19,7 @@ for (let i = 0; i < statements.length; i += 500) {
 }
 console.log(`D1: ${statements.length} rows`);
 
-// Accounts come from the private database export (eelsdb.legacy.export_accounts), when present.
+// Accounts come from the private database export (python/export_accounts.py), when present.
 const accountsFile = new URL("data/private/accounts.sql", root);
 if (existsSync(accountsFile)) {
   const accounts = readFileSync(accountsFile, "utf8").split("\n").filter((l) => /^(INSERT|UPDATE)/.test(l));

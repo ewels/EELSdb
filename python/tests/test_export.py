@@ -1,7 +1,7 @@
 import json
 import zipfile
 
-from eelsdb.export import build
+from export import build
 
 API = "https://api.example"
 

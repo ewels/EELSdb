@@ -14,12 +14,26 @@ const form = (path: string, cookie: string, body: Record<string, string> = {}) =
     headers: { Cookie: cookie, Origin: SITE, "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams(body).toString(),
   });
-const api = (path: string, token: string, init: RequestInit = {}) =>
-  exports.default.fetch(`${API}${path}`, { ...init, headers: { Authorization: `Bearer ${token}`, ...(init.headers ?? {}) } });
+const api = (path: string) => exports.default.fetch(`${API}${path}`);
+const post = (path: string, cookie: string, body: FormData) =>
+  exports.default.fetch(`${SITE}${path}`, { method: "POST", redirect: "manual", headers: { Cookie: cookie, Origin: SITE }, body });
 
-async function tokenFor(cookie: string) {
-  const html = await (await form("/account/tokens/", cookie, { label: "test" })).text();
-  return html.match(/eelsdb_[0-9a-f]{48}/)![0];
+/** A submission from the web form; returns the spectrum's id, slug and submission id. */
+async function submit(cookie: string, fd: FormData) {
+  fd.append("agreement", "1");
+  const res = await post("/submit-data/", cookie, fd);
+  const id = Number(new URL(res.headers.get("location")!, SITE).searchParams.get("submitted"));
+  const spectrum = await env.DB.prepare("SELECT slug FROM spectra WHERE id = ?").bind(id).first<string>("slug");
+  const sub = await env.DB.prepare("SELECT id FROM submissions WHERE spectrum_id = ?").bind(id).first<number>("id");
+  return { id, slug: spectrum!, subId: sub! };
+}
+
+/** What public/review.js sends after reprocessing in the moderator's browser. */
+function processed(record: object, files: Record<string, File> = {}) {
+  const fd = new FormData();
+  fd.append("record", JSON.stringify(record));
+  for (const [role, f] of Object.entries(files)) fd.append(role, f);
+  return fd;
 }
 
 function submission(title: string) {
@@ -29,82 +43,54 @@ function submission(title: string) {
   return fd;
 }
 
-describe("API tokens", () => {
-  it("are shown once, authenticate the CLI API, and can be revoked", async () => {
-    const cookie = await sessionFor({ id: 6300001, display_name: "Token User" });
-    const token = await tokenFor(cookie);
-    expect(await (await api("/cli/me", token)).json()).toMatchObject({ id: 6300001 });
-    expect((await api("/cli/me", "eelsdb_nope")).status).toBe(401);
-    expect(await (await page("/account/tokens/", cookie)).text()).not.toContain(token);
-    const id = await env.DB.prepare("SELECT id FROM api_tokens WHERE user_id = 6300001").first<number>("id");
-    await form(`/account/tokens/${id}/revoke/`, cookie);
-    expect((await api("/cli/me", token)).status).toBe(401);
-  });
-});
-
 describe("review", () => {
-  it("runs from CLI submission to publication", async () => {
-    const submitterCookie = await sessionFor({ id: 6300002, display_name: "Cli Submitter" });
-    await env.DB.prepare("INSERT INTO identities (user_id, provider, subject, email, email_verified) VALUES (6300002, 'github', 'cli-1', 'cli@lab.org', 1)").run();
+  it("runs from submission through review in the browser to publication", async () => {
+    const submitterCookie = await sessionFor({ id: 6300002, display_name: "Web Submitter" });
+    await env.DB.prepare("INSERT INTO identities (user_id, provider, subject, email, email_verified) VALUES (6300002, 'github', 'web-1', 'web@lab.org', 1)").run();
     const modCookie = await sessionFor({ id: 6300003, display_name: "Mod Reviewer", role: "moderator" });
-    const submitter = await tokenFor(submitterCookie);
-    const mod = await tokenFor(modCookie);
-
-    const created = await api("/cli/submissions", submitter, { method: "POST", body: submission("CLI carbon") });
-    expect(created.status).toBe(201);
-    const { id: spectrumId, slug } = await created.json<any>();
+    const { id: spectrumId, slug, subId } = await submit(submitterCookie, submission("Web carbon"));
 
     // Not public yet, but the submitter can preview it.
     expect((await page(`/spectra/${slug}/`)).status).toBe(404);
     expect(await (await page(`/spectra/${slug}/`, submitterCookie)).text()).toContain("Not published yet");
 
-    expect((await api("/cli/queue", submitter)).status).toBe(403);
-    const queue = await (await api("/cli/queue", mod)).json<any[]>();
-    const sub = queue.find((q) => q.spectrum_id === spectrumId);
-    expect(sub).toBeTruthy();
-    expect(await (await api(`/cli/queue/${sub.id}/files/original`, mod)).text()).toBe(MSA);
+    const review = await (await page(`/admin/submissions/${subId}/`, modCookie)).text();
+    const input = JSON.parse(review.match(/<script type="application\/json" id="review-input">(.*?)<\/script>/s)![1]);
+    expect(input).toMatchObject({ spectrum: { slug, type: "coreloss" }, acquisition: { beam_energy_kv: 300 }, edges: ["C_K"], file: { role: "original" } });
+    expect(review).toContain(`data-file="/admin/submissions/${subId}/files/original/"`);
+    expect(await (await page(`/admin/submissions/${subId}/files/original/`, modCookie)).text()).toBe(MSA);
 
-    const put = await api(`/cli/queue/${sub.id}/files/msa?filename=cli-carbon.msa`, mod, { method: "PUT", body: MSA });
-    expect(put.status).toBe(201);
-    await api(`/cli/queue/${sub.id}/processing`, mod, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tools: [{ tool: "rosettasciio", version: "0.15.0" }, { tool: "exspy", version: "0.3.2" }], warnings: [], values: { min_energy_ev: 280, max_energy_ev: 280.2, step_ev: 0.1 } }),
-    });
+    const record = { tools: [{ tool: "rosettasciio", version: "0.15.0" }], warnings: [], values: { min_energy_ev: 280, max_energy_ev: 280.2, step_ev: 0.1 } };
+    expect((await post(`/admin/submissions/${subId}/processed/`, submitterCookie, processed(record))).status).toBe(403);
+    expect((await post(`/admin/submissions/${subId}/processed/`, modCookie, processed({}))).status).toBe(400);
+    const done = await post(`/admin/submissions/${subId}/processed/`, modCookie, processed(record, { msa: new File([MSA], "web-carbon.msa") }));
+    expect(done.status).toBe(200);
     const before = sent.length;
-    expect((await api(`/cli/queue/${sub.id}/approve`, mod, { method: "POST" })).status).toBe(200);
-    expect(sent.slice(before).map((e) => e.to)).toEqual(["cli@lab.org"]);
-    expect((await api(`/cli/queue/${sub.id}/approve`, mod, { method: "POST" })).status).toBe(409);
+    expect((await form(`/admin/submissions/${subId}/`, modCookie, { decision: "approve" })).status).toBe(302);
+    expect(sent.slice(before).map((e) => e.to)).toEqual(["web@lab.org"]);
+    expect((await form(`/admin/submissions/${subId}/`, modCookie, { decision: "approve" })).status).toBe(409);
+    expect((await post(`/admin/submissions/${subId}/processed/`, modCookie, processed(record))).status).toBe(409);
 
-    const v1 = await (await exports.default.fetch(`${API}/spectra/${slug}/`)).json<any>();
-    expect(v1.download_link).toBe(`${SITE}/files/${spectrumId}/s${sub.id}/cli-carbon.msa`);
+    const v1 = await (await api(`/spectra/${slug}/`)).json<any>();
+    expect(v1.download_link).toBe(`${SITE}/files/${spectrumId}/s${subId}/web-carbon.msa`);
     expect(v1.min_energy).toBe("280 eV");
     expect(v1.beamenergy).toBe("300 kV");
-    expect(await (await page(`/files/${spectrumId}/s${sub.id}/cli-carbon.msa`)).text()).toBe(MSA);
+    expect(await (await page(`/files/${spectrumId}/s${subId}/web-carbon.msa`)).text()).toBe(MSA);
+    expect(await env.DB.prepare("SELECT tool FROM processing WHERE spectrum_id = ?").bind(spectrumId).first("tool")).toBe("rosettasciio");
   });
 
   it("keeps processed versions and the file's metadata", async () => {
-    const submitter = await tokenFor(await sessionFor({ id: 6300020, display_name: "Variant Submitter" }));
-    const mod = await tokenFor(await sessionFor({ id: 6300021, display_name: "Variant Mod", role: "moderator" }));
-    const bad = submission("Bad variant");
-    bad.append("variant_os_file", new File(["<html>"], "os.msa"));
-    expect(await (await api("/cli/submissions", submitter, { method: "POST", body: bad })).json()).toMatchObject({ errors: { variant_os_file: expect.any(String) } });
-
+    const submitter = await sessionFor({ id: 6300020, display_name: "Variant Submitter" });
+    const mod = await sessionFor({ id: 6300021, display_name: "Variant Mod", role: "moderator" });
     const fd = submission("Gas NO");
     fd.append("variant_os_file", new File([MSA], "no-os.msa"));
     fd.append("variant_smoothed_file", new File([MSA], "no-smoothed.msa"));
-    const { id: spectrumId, slug } = await (await api("/cli/submissions", submitter, { method: "POST", body: fd })).json<any>();
-    const sub = (await (await api("/cli/queue", mod)).json<any[]>()).find((q) => q.spectrum_id === spectrumId);
-    const metadata = JSON.stringify({ ImageList: { Voltage: 200000 } });
-    expect((await api(`/cli/queue/${sub.id}/files/metadata?filename=gas-no.metadata.json`, mod, { method: "PUT", body: metadata })).status).toBe(201);
-    await api(`/cli/queue/${sub.id}/processing`, mod, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tools: [{ tool: "rosettasciio", version: "0.15.0" }] }),
-    });
-    await api(`/cli/queue/${sub.id}/approve`, mod, { method: "POST" });
+    const { id: spectrumId, slug, subId } = await submit(submitter, fd);
+    const metadata = new File([JSON.stringify({ ImageList: { Voltage: 200000 } })], "gas-no.metadata.json");
+    await post(`/admin/submissions/${subId}/processed/`, mod, processed({ tools: [{ tool: "rosettasciio", version: "0.15.0" }] }, { metadata }));
+    await form(`/admin/submissions/${subId}/`, mod, { decision: "approve" });
 
-    const v2 = await (await exports.default.fetch(`${API}/v2/spectra/${spectrumId}`)).json<any>();
+    const v2 = await (await api(`/v2/spectra/${spectrumId}`)).json<any>();
     expect(v2.files.filter((f: any) => f.role !== "original").map((f: any) => [f.role, f.variant, f.intensity_units])).toEqual([
       ["variant", "os", "oscillator_strength"],
       ["variant", "smoothed", null],
@@ -153,9 +139,7 @@ describe("review", () => {
   it("rejecting a new submission keeps it unpublished", async () => {
     const owner = await sessionFor({ id: 6300006, display_name: "Rejected Person" });
     const mod = await sessionFor({ id: 6300007, display_name: "Mod Three", role: "admin" });
-    const token = await tokenFor(owner);
-    const { id: spectrumId, slug } = await (await api("/cli/submissions", token, { method: "POST", body: submission("Spam carbon") })).json<any>();
-    const subId = await env.DB.prepare("SELECT id FROM submissions WHERE spectrum_id = ?").bind(spectrumId).first<number>("id");
+    const { id: spectrumId, slug, subId } = await submit(owner, submission("Spam carbon"));
     await form(`/admin/submissions/${subId}/`, mod, { decision: "reject", notes: "Not a spectrum." });
     expect(await env.DB.prepare("SELECT status FROM spectra WHERE id = ?").bind(spectrumId).first("status")).toBe("rejected");
     expect((await page(`/spectra/${slug}/`, owner)).status).toBe(404);
@@ -180,9 +164,17 @@ describe("bulk export", () => {
     const adminCookie = await sessionFor({ id: 6300010, display_name: "Export Admin", role: "admin" });
     const modCookie = await sessionFor({ id: 6300011, display_name: "Export Mod", role: "moderator" });
     const zip = new Uint8Array(64).fill(1);
-    expect((await api("/cli/exports/eelsdb-spectra.zip", await tokenFor(modCookie), { method: "PUT", body: zip })).status).toBe(403);
-    expect((await api("/cli/exports/other.zip", await tokenFor(adminCookie), { method: "PUT", body: zip })).status).toBe(404);
-    expect((await api("/cli/exports/eelsdb-spectra.zip", await tokenFor(adminCookie), { method: "PUT", body: zip })).status).toBe(201);
+    zip.set([0x50, 0x4b, 3, 4]);
+    const upload = (cookie: string, bytes: Uint8Array) => {
+      const fd = new FormData();
+      fd.append("file", new File([bytes], "eelsdb-spectra.zip"));
+      return post("/admin/exports/", cookie, fd);
+    };
+    expect(await (await page("/admin/", adminCookie)).text()).toContain('action="/admin/exports/"');
+    expect(await (await page("/admin/", modCookie)).text()).not.toContain('action="/admin/exports/"');
+    expect((await upload(modCookie, zip)).status).toBe(403);
+    expect((await upload(adminCookie, new Uint8Array(64))).status).toBe(400);
+    expect((await upload(adminCookie, zip)).headers.get("location")).toBe("/downloads/");
     expect(await (await page("/downloads/")).text()).toContain("Download eelsdb-spectra.zip");
     const file = await page("/exports/eelsdb-spectra.zip");
     expect(file.headers.get("content-type")).toBe("application/zip");

@@ -1,16 +1,16 @@
-import email
 import json
+from pathlib import Path
 
 import numpy as np
 import pytest
 
-from eelsdb.client import multipart, site_url
+from analyse_files import OUTPUT as ANALYSIS
+from download_files import CACHE
 from eelsdb.io import read_any
-from eelsdb.legacy.analyse_files import OUTPUT as ANALYSIS
-from eelsdb.legacy.download_files import CACHE
 from eelsdb.review import compare, json_safe, process, write_hspy, write_msa
 
 ACQ = {"beam_energy_kv": 200.0, "convergence_mrad": 21.5, "collection_mrad": None}
+BINDING = json.loads((Path(__file__).parents[2] / "worker" / "public" / "eels_binding_energies.json").read_text())["elements"]
 
 
 def test_msa_roundtrip_keeps_non_uniform_axis_and_header(tmp_path):
@@ -23,8 +23,8 @@ def test_msa_roundtrip_keeps_non_uniform_axis_and_header(tmp_path):
     assert sp.header["convergence_mrad"] == 21.5
 
 
-def test_hspy_roundtrip_through_rosettasciio(tmp_path):
-    energy = 100 + 0.5 * np.arange(50)
+@pytest.mark.parametrize("energy", [100 + 0.5 * np.arange(50), 100 + np.arange(50) ** 1.1], ids=["uniform", "non-uniform"])
+def test_hspy_roundtrip_through_rosettasciio(tmp_path, energy):
     path = write_hspy(tmp_path / "x.hspy", energy, np.arange(50.0), "Test", ACQ, {"doi": "10.1/x"})
     sp = read_any(path)
     np.testing.assert_allclose(sp.energy, energy)
@@ -32,53 +32,47 @@ def test_hspy_roundtrip_through_rosettasciio(tmp_path):
     assert sp.header["convergence_mrad"] == 21.5
 
 
+def test_hspy_opens_in_hyperspy_as_eels(tmp_path):
+    hs = pytest.importorskip("hyperspy.api")
+    pytest.importorskip("exspy")
+    s = hs.load(write_hspy(tmp_path / "x.hspy", 100 + 0.5 * np.arange(50), np.arange(50.0), "Test", ACQ, {"doi": "10.1/x"}))
+    assert s.metadata.Signal.signal_type == "EELS"
+    assert s.metadata.General.doi == "10.1/x"
+    assert s.metadata.Acquisition_instrument.TEM.beam_energy == 200.0
+
+
 def test_compare_flags_differences():
     rows = compare({"beam_energy_kv": 200, "convergence_mrad": 20}, {"beam_energy_kv": 300, "convergence_mrad": 20})
-    assert [r[3] for r in rows] == [True, False, False]
+    assert [r["differs"] for r in rows] == [True, False, False]
 
 
-@pytest.mark.skipif(not CACHE.exists(), reason="run eelsdb.legacy.download_files first")
+@pytest.mark.skipif(not CACHE.exists(), reason="run download_files.py first")
 def test_process_real_file(tmp_path):
     entry = next(a for a in json.loads(ANALYSIS.read_text()) if a["spectrum_id"] == 21529)
-    detail = {"spectrum": {"title": "AlN", "slug": "aln", "type": "coreloss", "formula": "AlN"},
-              "acquisition": ACQ, "kind": "new", "submitter": "Test", "browser_checks": None}
-    result = process(detail, CACHE / entry["path"], tmp_path)
+    detail = {"spectrum": {"title": "AlN", "slug": "aln", "type": "coreloss", "formula": "AlN"}, "acquisition": ACQ}
+    result = process(detail, CACHE / entry["path"], tmp_path, BINDING)
     assert set(result["outputs"]) == {"msa", "hspy", "metadata"}
     assert result["record"]["values"]["min_energy_ev"] == pytest.approx(1533.4, abs=0.01)
-    assert {t["tool"] for t in result["record"]["tools"]} >= {"rosettasciio", "exspy"}
-    assert "AlN" in result["report"].read_text()
+    assert {t["tool"] for t in result["record"]["tools"]} >= {"rosettasciio", "numpy", "h5py"}
+    assert result["points"] == 1020 and len(result["plot"][0]) == 1020
     assert read_any(result["outputs"]["msa"]).energy.size == 1020
 
 
-def test_multipart_encoding(tmp_path):
-    f = tmp_path / "a.msa"
-    f.write_bytes(b"1, 2\n")
-    body, ctype = multipart({"title": "Ångström", "empty": ""}, {"file": f})
-    msg = email.message_from_bytes(f"Content-Type: {ctype}\r\n\r\n".encode() + body)
-    parts = {p.get_param("name", header="content-disposition"): p for p in msg.get_payload()}
-    assert set(parts) == {"title", "file"}
-    assert parts["title"].get_payload(decode=True).decode() == "Ångström"
-    assert parts["file"].get_filename() == "a.msa"
-    assert parts["file"].get_payload(decode=True) == b"1, 2\n"
-
-
-def test_site_url():
-    assert site_url("https://api.eelsdb.eu") == "https://eelsdb.eu"
-    assert site_url("http://api.localhost:8787") == "http://localhost:8787"
-
-
 def test_spectrum_image_is_rejected_and_metadata_kept(tmp_path):
-    import hyperspy.api as hs
+    from rsciio.hspy import file_writer
 
-    cube = hs.signals.Signal1D(np.ones((2, 3, 40)))
-    cube.axes_manager[-1].units, cube.axes_manager[-1].offset, cube.axes_manager[-1].scale = "eV", 280.0, 0.5
-    cube.original_metadata.add_dictionary({"Session": {"Voltage": 200, "Thumbnail": np.zeros((64, 64))}})
-    cube.save(tmp_path / "si.hspy")
-    detail = {"spectrum": {"title": "SI", "slug": "si", "type": "coreloss", "formula": "C"},
-              "acquisition": ACQ, "kind": "new", "submitter": "Test", "browser_checks": None}
-    result = process(detail, tmp_path / "si.hspy", tmp_path / "out")
+    file_writer(str(tmp_path / "si.hspy"), {
+        "data": np.ones((2, 3, 40)),
+        "axes": [{"size": 2, "navigate": True}, {"size": 3, "navigate": True}, {"size": 40, "offset": 280.0, "scale": 0.5, "units": "eV", "navigate": False}],
+        "metadata": {"General": {"title": "SI"}, "Signal": {"signal_type": "EELS"}},
+        "original_metadata": {"Session": {"Voltage": 200, "Thumbnail": np.zeros((64, 64))}},
+        "tmp_parameters": {}, "attributes": {"_lazy": False}, "learning_results": {}, "models": {},
+        "package_info": {"package": "rosettasciio", "package_version": "0"},
+    })
+    detail = {"spectrum": {"title": "SI", "slug": "si", "type": "coreloss", "formula": "C"}, "acquisition": ACQ}
+    result = process(detail, tmp_path / "si.hspy", tmp_path / "out", BINDING)
     assert result["findings"][0].code == "spectrum_image" and result["findings"][0].severity == "error"
-    assert "2 × 3 spectra" in result["report"].read_text()
+    assert result["navigation_shape"] == [2, 3]
     assert json.loads(result["outputs"]["metadata"].read_text())["Session"] == {"Voltage": 200, "Thumbnail": "<array 64x64 float64>"}
 
 

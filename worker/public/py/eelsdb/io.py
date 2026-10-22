@@ -171,6 +171,7 @@ def read_any(path):
         data = data.sum(axis=0)
     ax = sig["axes"][-1]
     factor = 1000.0 if ax.get("units") == "keV" else 1.0
-    energy = (ax.get("offset", 0) + ax.get("scale", 1) * np.arange(data.size)) * factor
+    energy = np.asarray(ax["axis"], float) if "axis" in ax else ax.get("offset", 0) + ax.get("scale", 1) * np.arange(data.size)
+    energy = energy * factor
     return Spectrum(energy, data, ext.lstrip("."), header, header_axis=energy, navigation_shape=navigation_shape,
                     original_metadata=original)

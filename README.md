@@ -39,25 +39,22 @@ The docs header uses the site's nav (`worker/src/nav.ts`), logo and colour token
 
 Run `npm run types` after changing `wrangler.jsonc`. OAuth, Turnstile and other keys go in `worker/.env` (gitignored); `worker/.env.example` lists them.
 
-The Python tools (import scripts, file checks) are in `python/`, managed with [uv](https://docs.astral.sh/uv/):
+The Python code is in `python/`. It is not a package: there is nothing for users to install. `python/eelsdb/` holds the file reader, the checks and the review processing that the browser runs with Pyodide. `npm run py` in `worker/` copies them to `worker/public/py/`, and a test fails if the copies differ. The other files are single scripts for [uv](https://docs.astral.sh/uv/), each with its dependencies in its header:
+
+```bash
+uv run python/record_api.py       # record the live API into data/fixtures/api-v1/
+uv run python/download_files.py   # download spectrum files into data/cache/files/
+uv run python/analyse_files.py    # write data/fixtures/file-analysis.json
+uv run python/build_seed.py       # write the local D1 seed and R2 upload list
+uv run python/export.py           # build the bulk-download zip from API v2 (--api http://api.localhost:8787 for a local Worker)
+uv run python/logo_files.py       # rebuild the logo downloads
+```
+
+The tests use one environment for all of them:
 
 ```bash
 cd python
 uv run pytest
-uv run eelsdb --version
-uv run eelsdb check FILE --type coreloss --formula Fe2O3 --edges "Fe_L2,3;O_K"   # offline checks on a spectrum file
-uv run eelsdb login                         # paste an API token from /account/tokens/
-uv run eelsdb submit FILE --title … --type coreloss --formula …   # or a folder of files with .json fields
-uv run eelsdb review                        # moderators: reprocess, compare, decide
-```
-
-Point the CLI at a local Worker with `EELSDB_API=http://api.localhost:8787` (and `EELSDB_TOKEN`, or run `eelsdb login --api …`).
-
-```bash
-uv run python -m eelsdb.legacy.record_api      # record the live API into data/fixtures/api-v1/
-uv run python -m eelsdb.legacy.download_files  # download spectrum files into data/cache/files/
-uv run python -m eelsdb.legacy.analyse_files   # write data/fixtures/file-analysis.json
-uv run python -m eelsdb.legacy.build_seed      # write the local D1 seed and R2 upload list
 ```
 
 ## Citation

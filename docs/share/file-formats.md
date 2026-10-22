@@ -85,4 +85,4 @@ print("Energy increases:", bool(np.all(np.diff(energy) > 0)))
 
 Replace the text with the first lines of your own file. For a comma or semicolon separator, add `delimiter=","` or `delimiter=";"`.
 
-For a full check of a file, with the same tests as the submit form, use [`eelsdb check`](/docs/share/command-line/#check-a-file).
+For a full check of a file, add it on the [submit form](/submit-data/). The form reads the file in your browser and shows the [checks](/docs/share/checks/) before you send anything.

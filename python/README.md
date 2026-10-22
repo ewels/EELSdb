@@ -1,3 +1,3 @@
-# eelsdb
+# EELSdb Python code
 
-Python tools for the EELS Data Base: legacy import scripts, file checks and (later) the moderator CLI. See the root README for usage.
+Not a package. `eelsdb/` holds the file reader, the checks and the review processing that the website runs in the browser with Pyodide. The other files are single `uv` scripts for the data import and the bulk export. See the root README for how to run them.

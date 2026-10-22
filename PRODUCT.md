@@ -13,7 +13,7 @@ web
 - Electron microscopists: PhD students, postdocs, facility staff and professors in materials science, physics and chemistry, who use TEM/STEM instruments with EELS spectrometers. Their job is to find a reference spectrum for an element, edge or compound, compare its fine structure with their own measurement, and download it or load it in Python.
 - Contributors: experimentalists who share published spectra. Many do not use Git or a terminal, so submitting, editing and moderating happen in web pages.
 - HyperSpy users and other API clients (exSpy, pyTEMlib, hyperspyUI, NOMAD, course material), who load spectra from code through `api.eelsdb.eu`.
-- Moderators, who review submissions in `/admin/` or with the `eelsdb` command-line tool.
+- Moderators, who review submissions in `/admin/`.
 
 ## Product Purpose
 

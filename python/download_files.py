@@ -1,3 +1,7 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = []
+# ///
 """Download every spectrum file listed in the recorded API into data/cache/files/, keeping the URL path."""
 
 import hashlib
@@ -5,9 +9,7 @@ import json
 import sys
 import urllib.parse
 
-from eelsdb.legacy.http import get
-from eelsdb.legacy.record_api import OUT as API_FIXTURES
-from eelsdb.legacy.record_api import ROOT
+from record_api import OUT as API_FIXTURES, ROOT, get
 
 CACHE = ROOT / "data" / "cache" / "files"
 MANIFEST = ROOT / "data" / "fixtures" / "files.json"

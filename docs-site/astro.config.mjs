@@ -75,7 +75,6 @@ export default defineConfig({
             'share/instrument-profiles',
             'share/checks',
             'share/edit',
-            'share/command-line',
           ],
         },
         { label: 'Moderate', items: ['moderate/review'] },

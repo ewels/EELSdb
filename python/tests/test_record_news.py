@@ -1,4 +1,4 @@
-from eelsdb.legacy.record_news import extract
+from record_news import extract
 
 PAGE = """<html><body><div class="container">menu</div>
 <div class="single_post_content"><h1>Title</h1><p><span class="post_date">May 18, 2020</span> <span class="post_category">Categories: x</span></p>

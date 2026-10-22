@@ -3,19 +3,18 @@ title: File checks
 description: The checks that EELSdb runs on every spectrum file, what each finding means, and what to do about it.
 ---
 
-EELSdb runs the same checks on a spectrum file in three places:
+EELSdb runs the same checks on a spectrum file in two places:
 
 - in your browser, on the submit form, while you fill it in;
-- on your computer, with [`eelsdb check`](/docs/share/command-line/#check-a-file);
-- at review, when a moderator reads the file again.
+- at review, when the moderator's browser reads the file again.
 
-The checks do not need a network connection, and they do not change the file.
+The checks run in the browser, and they do not change the file.
 
 ## Severities
 
 Each finding has a severity:
 
-- **Error**: the file cannot be used as it is. Fix the file before you submit. `eelsdb submit` refuses a file with errors unless you add `--force`.
+- **Error**: the file cannot be used as it is. Fix the file before you submit.
 - **Warning**: something is probably wrong. Check it, and explain it in the comments if it is correct.
 - **Info**: something to know, often expected. For example, negative counts after background subtraction.
 

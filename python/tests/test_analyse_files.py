@@ -3,7 +3,7 @@ from collections import Counter
 
 import pytest
 
-from eelsdb.legacy.analyse_files import OUTPUT, txt_layout
+from analyse_files import OUTPUT, txt_layout
 
 
 def test_known_file_problems():

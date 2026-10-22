@@ -1,3 +1,7 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["numpy>=2.5.4", "rosettasciio>=0.15.0"]
+# ///
 """Read every downloaded spectrum file and record its true energy axis in data/fixtures/file-analysis.json.
 
 Flags:
@@ -14,10 +18,9 @@ import json
 
 import numpy as np
 
+from download_files import CACHE, MANIFEST
 from eelsdb.io import read_msa, read_txt
-from eelsdb.legacy.download_files import CACHE, MANIFEST
-from eelsdb.legacy.record_api import OUT as API_FIXTURES
-from eelsdb.legacy.record_api import ROOT
+from record_api import OUT as API_FIXTURES, ROOT
 
 OUTPUT = ROOT / "data" / "fixtures" / "file-analysis.json"
 

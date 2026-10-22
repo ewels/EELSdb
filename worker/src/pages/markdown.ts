@@ -121,7 +121,7 @@ export async function authorMarkdown(db: D1Database, slug: string) {
   ].filter(Boolean).join("\n\n") + "\n";
 }
 
-/** The news archive holds only p, a, br, strong, em, sup and blockquote (see eelsdb.legacy.record_news). */
+/** The news archive holds only p, a, br, strong, em, sup and blockquote (see python/record_news.py). */
 export function htmlToMarkdown(html: string) {
   return decodeEntities(
     html

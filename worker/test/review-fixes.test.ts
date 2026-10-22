@@ -68,14 +68,12 @@ describe("code review fixes", () => {
     const cookie = await sessionFor({ id: 6400004, display_name: "New Me" });
     await env.DB.prepare("INSERT INTO identities (user_id, provider, subject) VALUES (6400004, 'orcid', '0000-0000-0000-0004')").run();
     await post("/submit-data/", cookie, submission({ title: "Before claiming" }));
-    await post("/account/tokens/", cookie, { label: "x" });
     await post("/account/claim/", cookie, { email: "oldme@lab.org" });
     const { sent } = await import("../src/email");
     const path = new URL(sent.at(-1)!.text.match(/https?:\/\/\S+/)![0]).pathname;
     const done = await post(path, cookie, {});
     expect(done.headers.get("location")).toBe("/account/?claim=done");
     expect(await env.DB.prepare("SELECT submitted_by FROM submissions s JOIN spectra p ON p.id = s.spectrum_id WHERE p.title = 'Before claiming'").first("submitted_by")).toBe(7400001);
-    expect(await env.DB.prepare("SELECT COUNT(*) AS n FROM api_tokens WHERE user_id = 7400001").first("n")).toBe(1);
   });
 
   it("applies only the measurement when an edit is approved, and allows one waiting at a time", async () => {
@@ -108,16 +106,31 @@ describe("code review fixes", () => {
     expect(download.headers.get("content-disposition")).toContain("filename*=UTF-8''%CE%B1-new.txt");
     expect(await download.text()).toContain("300.1");
 
-    const html = await post("/account/tokens/", modCookie, { label: "t" });
-    const token = (await html.text()).match(/eelsdb_[0-9a-f]{48}/)![0];
-    const api = (path: string, init: RequestInit) =>
-      exports.default.fetch(`https://api.eelsdb.eu/cli${path}`, { ...init, headers: { Authorization: `Bearer ${token}`, ...(init.headers ?? {}) } });
-    expect((await api(`/queue/${editId}`, { method: "GET" }).then((r) => r.json<any>())).proposed.spectrum.title).toBe("New data");
-    await api(`/queue/${editId}/files/msa?filename=new.msa`, { method: "PUT", body: "#FORMAT : x\n" });
+    const review = await (await page(`/admin/submissions/${editId}/`, modCookie)).text();
+    const input = JSON.parse(review.match(/id="review-input">(.*?)<\/script>/s)![1]);
+    expect(input.proposed.spectrum.title).toBe("New data");
+    expect(input.file).toEqual({ role: "edit", filename: "α-new.txt" });
+    const fd = new FormData();
+    fd.append("record", JSON.stringify({ tools: [{ tool: "rosettasciio", version: "0.15.0" }], values: { min_energy_ev: 300 } }));
+    fd.append("msa", new File(["#FORMAT : x\n"], "new.msa"));
+    expect((await post(`/admin/submissions/${editId}/processed/`, modCookie, fd)).status).toBe(200);
     expect(await env.DB.prepare("SELECT COUNT(*) AS n FROM files WHERE spectrum_id = ? AND role = 'msa'").bind(id).first("n")).toBe(0);
-    await api(`/queue/${editId}/approve`, { method: "POST" });
+    expect(await env.DB.prepare("SELECT min_energy_ev FROM spectra WHERE id = ?").bind(id).first("min_energy_ev")).not.toBe(300);
+    await post(`/admin/submissions/${editId}/`, modCookie, { decision: "approve" });
+    expect(await env.DB.prepare("SELECT min_energy_ev FROM spectra WHERE id = ?").bind(id).first("min_energy_ev")).toBe(300);
     expect(await env.DB.prepare("SELECT r2_key FROM files WHERE spectrum_id = ? AND role = 'msa'").bind(id).first("r2_key")).toBe(`files/${id}/s${editId}/new.msa`);
     expect(await env.DB.prepare("SELECT filename FROM files WHERE spectrum_id = ? AND role = 'original'").bind(id).first("filename")).toBe("α-new.txt");
+  });
+
+  it("keeps a submitted title inside the review page's data", async () => {
+    const owner = await sessionFor({ id: 6400011, display_name: "Script Title" });
+    const mod = await sessionFor({ id: 6400012, display_name: "Mod Five", role: "moderator" });
+    const title = "C </script><script>alert(1)</script>";
+    const id = submittedId(await post("/submit-data/", owner, submission({ title })));
+    const subId = await env.DB.prepare("SELECT id FROM submissions WHERE spectrum_id = ?").bind(id).first<number>("id");
+    const html = await (await page(`/admin/submissions/${subId}/`, mod)).text();
+    expect(html).not.toContain("<script>alert(1)");
+    expect(JSON.parse(html.match(/id="review-input">(.*?)<\/script>/s)![1]).spectrum.title).toBe(title);
   });
 
   it("survives malformed stored browser checks on the review page", async () => {

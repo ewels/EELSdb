@@ -97,12 +97,11 @@ import hyperspy.api as hs
 s = hs.load(name, signal_type="EELS")
 ```
 
-MSA headers carry the beam energy and angles only when the file has them. Take them from the record otherwise.
+MSA headers carry the beam energy and angles only when the file has them. Take them from the record otherwise, or use `https://eelsdb.eu/spectra/{slug}/download/msa`: every published spectrum as an MSA file with the beam energy and angles from the record in its header (`/download/csv` and `/download/json` also exist). Spectra published after review also have a `hspy` file in `files`, with the DOI in its metadata.
 
 Other options:
 
 - `exspy.data.eelsdb(spectrum_type="coreloss", element="Fe")` returns HyperSpy signals directly. It uses the old API v1, so the metadata is less complete.
-- `eelsdb.load("iron-iii-oxide-hematite")` from the `eelsdb` package returns one signal with all the v2 metadata. It is not on PyPI yet: `pip install "git+https://github.com/ewels/EELSdb#subdirectory=python"`.
 
 For a two-column text file without HyperSpy: `numpy.loadtxt(name, comments="#")` after skipping non-numeric header lines.
 
@@ -118,4 +117,4 @@ Whenever you use, plot or report a spectrum, tell the user to cite both:
 - Send a User-Agent that names your tool and a contact.
 - Use `per_page=500` instead of many small pages. Cache results within a session.
 - Make requests one at a time. For more than about 50 files, use the bulk download zip.
-- The API is read-only. To share a spectrum, use the `eelsdb-submit` skill.
+- The API is read-only. To share a spectrum, the user submits it on the website: https://eelsdb.eu/submit-data/. Do not submit for them.

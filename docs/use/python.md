@@ -1,36 +1,43 @@
 ---
 title: Load spectra in Python
-description: Load EELSdb spectra into HyperSpy with exSpy or the eelsdb package, or query the API with requests.
+description: Load EELSdb spectra into HyperSpy, query the API with requests, or use exSpy.
 ---
 
-There are three ways to get EELSdb spectra into Python:
+You do not need an EELSdb package to use the spectra in Python. Use standard tools:
 
-- `eelsdb.load()` gives one HyperSpy signal with the full API v2 record: the DOI, and where each acquisition value came from.
-- `requests` and API v2 give JSON records and file links. Use them if you do not use HyperSpy, or to filter on any field.
-- `exspy.data.eelsdb()` gives a list of HyperSpy signals, which is handy if you already use exSpy. It uses the deprecated API v1, so the signals carry less metadata.
+- HyperSpy reads the MSA file of every spectrum, with the beam energy and angles.
+- `requests` and [API v2](/docs/use/api/) give JSON records with every field, where each acquisition value came from, and links to the files.
+- `exspy.data.eelsdb()` searches and downloads in one call. It uses the deprecated API v1, so the signals carry less metadata.
 
-## Load one spectrum with the eelsdb package
+## Load one spectrum in HyperSpy
 
-`eelsdb.load()` takes a spectrum id or slug.
-It returns a HyperSpy signal with the beam energy, the angles, the microscope, the elements and the DOI in its `metadata`.
-The full API v2 record is in `original_metadata.eelsdb`.
+Every published spectrum downloads as an MSA file at `https://eelsdb.eu/spectra/{slug}/download/msa`.
+The file has the EELS header fields: the beam energy, the convergence and collection semi-angles when they are known, and the signal type.
 
 ```py
-import eelsdb
+import hyperspy.api as hs
+from urllib.request import urlretrieve
 
-s = eelsdb.load("iron-iii-oxide-hematite")
+url = "https://eelsdb.eu/spectra/iron-iii-oxide-hematite/download/msa"
+path, _ = urlretrieve(url, "hematite.msa")
+s = hs.load(path, signal_type="EELS")
 print(s.metadata.Acquisition_instrument.TEM.beam_energy)
-print(s.original_metadata.eelsdb.acquisition.convergence_angle.source)
-s.plot(plot_edges=True)
+s.plot()
 ```
 
-:::note
-The `eelsdb` package is not on PyPI yet. Install it from GitHub:
+Spectra published after review also have a HyperSpy (`.hspy`) file, with the DOI of the reference in `metadata.General.doi`. Its energy axis is exact, also when the steps are not even. Find it in the record's `files`, with the role `hspy`:
 
-```sh
-$ pip install "git+https://github.com/ewels/EELSdb#subdirectory=python"
+```py
+import hyperspy.api as hs
+import requests
+from urllib.request import urlretrieve
+
+record = requests.get("https://api.eelsdb.eu/v2/spectra/iron-iii-oxide-hematite").json()
+hspy = next((f for f in record["files"] if f["role"] == "hspy"), None)
+if hspy:
+    path, _ = urlretrieve(hspy["url"], hspy["filename"])
+    s = hs.load(path)
 ```
-:::
 
 ## Query the API with requests
 
@@ -52,22 +59,22 @@ for s in page["results"]:
     print(f'{s["title"]}: {kv.get("value_kv")} kV ({kv.get("source")})')
 ```
 
-To read the data file, take `download_url` from a record and give the file to [RosettaSciIO](https://hyperspy.org/rosettasciio/) or HyperSpy:
+To load the results, download the MSA file of each one:
 
 ```py
 import hyperspy.api as hs
 import requests
+from urllib.request import urlretrieve
 
-record = requests.get("https://api.eelsdb.eu/v2/spectra/21751").json()
-url = record["download_url"]
-name = url.rsplit("/", 1)[-1]
-with open(name, "wb") as f:
-    f.write(requests.get(url).content)
-
-s = hs.load(name, signal_type="EELS")
+page = requests.get("https://api.eelsdb.eu/v2/spectra", params={"element": "Fe", "covers_ev": 708}).json()
+spectra = []
+for record in page["results"]:
+    path, _ = urlretrieve(f'https://eelsdb.eu/spectra/{record["slug"]}/download/msa', f'{record["slug"]}.msa')
+    spectra.append(hs.load(path, signal_type="EELS"))
 ```
 
-Keep the file name from the address: HyperSpy picks the file reader from the extension, and not every file is an MSA file.
+Use the record for the values that a file cannot hold, for example where each acquisition value came from (`acquisition.beam_energy.source`) and the reference.
+Make one request at a time. For the whole database, use the [bulk download](/downloads/).
 
 ## Load spectra with exSpy
 
@@ -82,4 +89,4 @@ print(len(spectra), spectra[0].metadata.General.title)
 
 The arguments match the filters on the [browse page](/docs/use/find/): `spectrum_type`, `title`, `author`, `element`, `formula`, `edge`, `min_energy`, `max_energy`, `resolution` and `monochromated`.
 `max_n` limits the number of spectra to download.
-exSpy uses the deprecated API v1, so the signals have less metadata than `eelsdb.load()` gives: no source for each value and no structured DOI.
+exSpy uses the deprecated API v1, so the signals have less metadata than the API v2 record: no source for each value and no structured DOI.

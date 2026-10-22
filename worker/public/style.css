@@ -856,6 +856,8 @@ input[type="file"]::file-selector-button:hover { background: var(--surface); bor
 .findings .error { font-weight: 600; }
 .findings .warning { color: var(--note); }
 .findings .info { color: var(--muted); }
+.review-plot { margin: 0.75rem 0; }
+.review-compare .differs td { color: var(--note); font-weight: 600; }
 
 @media (max-width: 860px) {
   .grid-2, .grid-3 { grid-template-columns: minmax(0, 1fr); }

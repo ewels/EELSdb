@@ -1,25 +1,23 @@
 ---
 title: Review submissions
-description: How EELSdb moderators check submissions and instrument profiles, on the website or with eelsdb review.
+description: How EELSdb moderators check submissions and instrument profiles on the moderation page.
 ---
 
 Moderators check each new spectrum, each edit to the data of a spectrum, and each new instrument profile version before EELSdb publishes it.
 An administrator gives the moderator role on the **Users and roles** admin page.
 The [moderators page](/moderators/) lists the current moderators.
 
-There are two ways to review:
+You review on the website. You do not need to install anything.
 
-- **On the website**, from the [moderation page](/admin/). Use it for quick decisions and for text-only problems.
-- **With `eelsdb review`** on your computer. It reads the file again with pinned versions of RosettaSciIO and exSpy, and uploads the processed MSA and HyperSpy files. Use it to publish a new spectrum with processed files.
-
-## Decide on the website
+## Review a submission
 
 1. Open the [moderation page](/admin/). It lists the submissions and the instrument profile versions that wait for a decision.
 2. Open a submission. The page shows:
    - the files;
-   - the results of the browser checks, or a note that the submitter's browser did not run them;
-   - for an edit, the proposed values beside the current values.
-3. Choose a decision, add notes for the submitter, and save.
+   - **Checks at review**: your browser reads the file again and shows the results (see below);
+   - **Checks at submission**: the results of the checks in the submitter's browser, or a note that their browser did not run them;
+   - for an edit, the proposed values.
+3. Read the results, choose a decision, add notes for the submitter, and save.
 
 What each decision does:
 
@@ -31,30 +29,26 @@ Write notes that the submitter can act on, for example "The convergence angle of
 
 For instrument profiles, open the profile version and click approve or reject.
 
-## Review with eelsdb review
+## Checks at review
 
-Install the [`eelsdb` tool](/docs/share/command-line/#install) and sign in with `eelsdb login`, using a token from your moderator account.
-Then run:
+When you open a submission, your browser reads the file with a pinned version of RosettaSciIO. It takes some seconds the first time, while the reader downloads. Then the page shows:
 
-```sh
-$ eelsdb review
-```
+- a plot of the spectrum;
+- the [file checks](/docs/share/checks/), run against the type, formula, elements and edges of the submission (for an edit, against the proposed values);
+- the beam energy and angles that the submitter gave, beside the values in the file. Values that do not agree are highlighted.
 
-For each submission in the queue, `eelsdb review`:
+The **Approve** button is available when the checks are done.
+When you approve, your browser uploads the files that it made, and then EELSdb publishes the spectrum:
 
-1. downloads the file (for an edit with a new file, that file);
-2. reads it with RosettaSciIO and runs the [file checks](/docs/share/checks/) with the exSpy edge table;
-3. makes an MSA file with the EELS header fields and a HyperSpy file with the metadata;
-4. opens a review page in your browser, with the plot and the submitter's values beside the values from the file;
-5. asks for a decision: `a` approve, `c` request changes, `r` reject or `s` skip.
+- an MSA file with the EELS header fields;
+- a HyperSpy (`.hspy`) file with the metadata;
+- a JSON file with all the metadata in the original file;
+- a processing record with the tool versions.
 
-When you approve, `eelsdb review` uploads the MSA and HyperSpy files, a JSON file with all the metadata in the original file, and a processing record with the tool versions. Then it publishes the spectrum.
-`eelsdb review` does not process the contributor's processed versions. EELSdb publishes them as they were uploaded.
+For an edit, these files replace the published ones only when you approve.
+EELSdb does not process the contributor's processed versions. It publishes them as they were uploaded.
 
-Options:
-
-- `--id N`: Review only submission N.
-- `--no-browser`: Do not open the review page. The path of the page is still printed.
+If your browser cannot read the file, the page tells you why. You can still decide. If you approve, EELSdb publishes the spectrum without the processed files.
 
 ## What to look for
 
@@ -63,3 +57,13 @@ Options:
 - The beam energy and angles are plausible for the microscope. "Unknown" is a valid answer; a guess is not.
 - The reference is the paper that the spectrum comes from.
 - The submission is not spam. Every spam submission on the old site had no data file.
+
+## Update the bulk download
+
+Administrators make the zip file for the [bulk download](/downloads/) page with a script in the EELSdb repository:
+
+```sh
+$ uv run python/export.py
+```
+
+Then they upload `eelsdb-spectra.zip` in the **Bulk download** section of the [moderation page](/admin/).

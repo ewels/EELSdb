@@ -7,7 +7,7 @@
 The lettering is converted to outlines from the self-hosted Mona Sans font, so the
 files render without the font installed. Regenerate after changing the logo:
 
-    uv run python/scripts/logo_files.py
+    uv run python/logo_files.py
 """
 
 import re
@@ -21,7 +21,7 @@ from fontTools.pens.transformPen import TransformPen
 from fontTools.ttLib import TTFont
 from fontTools.varLib.instancer import instantiateVariableFont
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[1]
 FONT = ROOT / "worker/public/fonts/mona-sans-latin-wght-normal.woff2"
 OUT = ROOT / "worker/public/logo"
 PNG_WIDTH = 2000

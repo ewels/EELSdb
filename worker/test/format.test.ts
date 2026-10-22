@@ -9,7 +9,7 @@ const same = (key: string, a: unknown, b: unknown) =>
   (UNIT_FIELDS.includes(key) && typeof a === "string" && typeof b === "string" && parseFloat(a) === parseFloat(b));
 
 // The import leaves out the old site's "imported from old site" keyword and its links to the first database, which
-// is gone (python/src/eelsdb/legacy/build_seed.py); the recorded objects still have them.
+// is gone (python/build_seed.py); the recorded objects still have them.
 function withoutDropped(v1: any) {
   const out = { ...v1 };
   if (out.keywords) out.keywords = out.keywords.filter((k: string) => k.trim().toLowerCase() !== "imported from old site");

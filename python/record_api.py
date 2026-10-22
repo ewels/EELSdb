@@ -1,16 +1,53 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = []
+# ///
 """Record responses from the live v1 API into data/fixtures/api-v1/ (read-only, public data)."""
 
 import json
 import re
 import sys
+import time
+import urllib.error
 import urllib.parse
+import urllib.request
 from pathlib import Path
 
-from eelsdb.legacy.http import get
-
 API = "https://api.eelsdb.eu"
-ROOT = Path(__file__).resolve().parents[4]
+ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "data" / "fixtures" / "api-v1"
+
+# Polite read-only HTTP for the live site: GET only, at most 1 request per second.
+USER_AGENT = "EELSdb-rewrite/0.1 (+https://github.com/ewels/EELSdb)"
+MIN_INTERVAL_S = 1.0
+
+_last_request = 0.0
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, *args, **kwargs):
+        return None
+
+
+_follow = urllib.request.build_opener()
+_no_follow = urllib.request.build_opener(_NoRedirect)
+
+
+def get(url, follow_redirects=True):
+    """Return (status, headers, body_bytes, final_url). HTTP errors are returned, not raised."""
+    global _last_request
+    wait = _last_request + MIN_INTERVAL_S - time.monotonic()
+    if wait > 0:
+        time.sleep(wait)
+    _last_request = time.monotonic()
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    opener = _follow if follow_redirects else _no_follow
+    try:
+        with opener.open(req, timeout=60) as res:
+            return res.status, res.headers, res.read(), res.url
+    except urllib.error.HTTPError as e:
+        return e.code, e.headers, e.read(), url
+
 
 # What exSpy's eelsdb() sends with its defaults, in its key order (None values dropped by requests).
 EXSPY_DEFAULTS = [

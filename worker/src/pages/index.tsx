@@ -4,7 +4,7 @@ import { raw } from "hono/html";
 import { loadUser, type AppEnv } from "../auth";
 import openapiV1 from "../api/openapi-v1.json";
 import { openapiV2 } from "../api/v2";
-import { serveFile } from "../files";
+import { EXPORT_KEY, serveFile } from "../files";
 import { browsePage } from "./browse";
 import { Avatar, Formula, Layout, TYPE_NAMES, TypeBadge } from "./layout";
 import { homePage } from "./home";
@@ -53,8 +53,6 @@ pages.get("/spectra/:slug", (c) => c.redirect(`/spectra/${encodeURIComponent(c.r
 pages.get("/wp-content/uploads/*", serveFile);
 pages.get("/files/*", serveFile);
 pages.get("/submissions/*", serveFile);
-
-const EXPORT_KEY = "exports/eelsdb-spectra.zip";
 
 pages.get(`/${EXPORT_KEY}`, async (c) => {
   const object = await c.env.FILES.get(EXPORT_KEY);
@@ -291,7 +289,7 @@ pages.get("/:slug/", async (c) => {
           {String(post.published_at).slice(0, 10)}
           {author ? ` · ${author}` : ""}
         </p>
-        {/* Recorded from the old site and reduced to simple tags by eelsdb.legacy.record_news. */}
+        {/* Recorded from the old site and reduced to simple tags by python/record_news.py. */}
         <div>{raw(post.body_html ?? "")}</div>
       </article>
     </Layout>,

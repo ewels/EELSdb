@@ -53,6 +53,6 @@ Below the plot, the metadata is in sections:
 - **Associated spectra**: related spectra, for example the low-loss spectrum of the same specimen.
 - **Metadata from the file**: every tag in the uploaded file, for spectra reviewed on the new site. A person has not checked these values.
 
-**Use in HyperSpy** shows the Python code that loads the spectrum with the eelsdb package (see [Load spectra in Python](/docs/use/python/)).
+**Use in HyperSpy** shows the Python code that downloads the spectrum as an MSA file and loads it in HyperSpy (see [Load spectra in Python](/docs/use/python/)).
 
 To download the data or cite the spectrum, see [Download and cite spectra](/docs/use/download/).

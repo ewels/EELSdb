@@ -1,11 +1,9 @@
-"""Moderator review: reprocess a submitted file with pinned tools and show it next to the submitted values."""
+"""Reprocessing at review: the MSA, HyperSpy and metadata files that EELSdb publishes for a spectrum.
 
-import base64
-import contextlib
-import html
-import io as _io
+Runs in the moderator's browser (Pyodide) on the moderation page, so it needs only RosettaSciIO, h5py and numpy.
+"""
+
 import json
-import sys
 from datetime import datetime, timezone
 from importlib.metadata import version
 from pathlib import Path
@@ -15,11 +13,19 @@ import numpy as np
 from eelsdb import checks
 from eelsdb.io import read_any
 
-TOOLS = ["rosettasciio", "exspy", "hyperspy", "numpy", "eelsdb"]
+TOOLS = ["rosettasciio", "numpy", "h5py"]
+PLOT_POINTS = 2000
 
 
 def tool_versions():
-    return [{"tool": t, "version": version(t)} for t in TOOLS]
+    tools = [{"tool": t, "version": version(t)} for t in TOOLS]
+    try:
+        import pyodide
+
+        tools.append({"tool": "pyodide", "version": pyodide.__version__})
+    except ImportError:
+        pass
+    return tools
 
 
 def write_msa(path, energy, intensity, title, acq):
@@ -49,7 +55,7 @@ def write_msa(path, energy, intensity, title, acq):
     lines.append("#SPECTRUM    : Spectral Data Starts Here")
     lines += [f"{x:.8g}, {y:.8g}" for x, y in zip(energy, intensity)]
     lines.append("#ENDOFDATA   :")
-    Path(path).write_text("\n".join(lines) + "\n", encoding="latin-1")
+    Path(path).write_text("\n".join(lines) + "\n", encoding="latin-1", errors="replace")
     return Path(path)
 
 
@@ -82,83 +88,43 @@ def write_metadata(path, sp):
 
 
 def write_hspy(path, energy, intensity, title, acq, reference):
-    """HyperSpy file with EELS metadata (non-uniform energy axes are kept as such)."""
-    with contextlib.redirect_stdout(sys.stderr):
-        import exspy  # noqa: F401  (registers the EELS signal type)
-        import hyperspy.api as hs
+    """HyperSpy file with EELS metadata, written by RosettaSciIO alone (non-uniform energy axes are kept as such)."""
+    from rsciio.hspy import file_writer
+
+    energy = np.asarray(energy, float)
     steps = np.diff(energy)
     uniform = steps.size == 0 or np.allclose(steps, steps[0], rtol=1e-6)
-    axis = (
-        {"size": energy.size, "offset": float(energy[0]), "scale": float(steps[0]) if steps.size else 1.0, "units": "eV", "name": "Energy loss"}
-        if uniform
-        else {"axis": np.asarray(energy, float), "units": "eV", "name": "Energy loss"}
-    )
-    s = hs.signals.Signal1D(np.asarray(intensity, float), axes=[axis])
-    s.set_signal_type("EELS")
-    s.metadata.General.title = title
+    axis = {"units": "eV", "name": "Energy loss", "navigate": False}
+    axis |= {"size": energy.size, "offset": float(energy[0]), "scale": float(steps[0]) if steps.size else 1.0} if uniform else {"axis": energy}
     tem = {"beam_energy": acq.get("beam_energy_kv"), "convergence_angle": acq.get("convergence_mrad")}
-    for k, v in tem.items():
-        if v is not None:
-            s.metadata.set_item(f"Acquisition_instrument.TEM.{k}", v)
+    tem = {k: float(v) for k, v in tem.items() if v is not None}
     if acq.get("collection_mrad") is not None:
-        s.metadata.set_item("Acquisition_instrument.TEM.Detector.EELS.collection_angle", acq["collection_mrad"])
-    if reference and reference.get("doi"):
-        s.metadata.set_item("General.doi", reference["doi"])
-    with contextlib.redirect_stdout(sys.stderr):
-        s.save(str(path), overwrite=True)
+        tem["Detector"] = {"EELS": {"collection_angle": float(acq["collection_mrad"])}}
+    general = {"title": title} | ({"doi": reference["doi"]} if reference and reference.get("doi") else {})
+    metadata = {"General": general, "Signal": {"signal_type": "EELS"}}
+    if tem:
+        metadata["Acquisition_instrument"] = {"TEM": tem}
+    # The keys HyperSpy's own save passes; RosettaSciIO's writer reads every one of them.
+    file_writer(str(path), {
+        "data": np.asarray(intensity, float), "axes": [axis], "metadata": metadata, "original_metadata": {},
+        "tmp_parameters": {}, "attributes": {"_lazy": False}, "learning_results": {}, "models": {},
+        "package_info": {"package": "rosettasciio", "package_version": version("rosettasciio")},
+    })
     return Path(path)
 
 
 def compare(submitted, from_file):
-    """Rows of (field, submitted value, value in the file, differs?)."""
+    """The acquisition values the submitter gave beside those in the file, flagging those that differ."""
     rows = []
     for field, label in (("beam_energy_kv", "Beam energy (kV)"), ("convergence_mrad", "Convergence (mrad)"), ("collection_mrad", "Collection (mrad)")):
         a, b = submitted.get(field), from_file.get(field)
         differs = a is not None and b is not None and abs(float(a) - float(b)) > 1e-6 * max(1.0, abs(float(a)))
-        rows.append((label, a, b, differs))
+        rows.append({"label": label, "submitted": a, "file": b, "differs": differs})
     return rows
 
 
-def plot_png(energy, intensity, title):
-    import matplotlib
-
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-
-    fig, ax = plt.subplots(figsize=(9, 3.6), dpi=110)
-    ax.plot(energy, intensity, color="#a21e16", lw=1)
-    ax.set_xlabel("Energy loss (eV)")
-    ax.set_title(title, fontsize=10)
-    fig.tight_layout()
-    buf = _io.BytesIO()
-    fig.savefig(buf, format="png")
-    plt.close(fig)
-    return base64.b64encode(buf.getvalue()).decode()
-
-
-def report_html(detail, sp, findings, rows):
-    esc = lambda v: html.escape("" if v is None else str(v))  # noqa: E731
-    s = detail["spectrum"]
-    finding_items = "".join(f'<li class="{esc(f.severity)}">{esc(f.message)}</li>' for f in findings) or "<li>No problems found.</li>"
-    table = "".join(
-        f'<tr class="{"differs" if d else ""}"><th>{esc(label)}</th><td>{esc(a)}</td><td>{esc(b)}</td></tr>' for label, a, b, d in rows
-    )
-    img = f'<img alt="Plot of the spectrum" src="data:image/png;base64,{plot_png(sp.energy, sp.intensity, s["title"])}">' if sp.energy is not None else ""
-    return f"""<!doctype html><meta charset="utf-8"><title>Review: {esc(s['title'])}</title>
-<style>body{{font:15px/1.5 system-ui,sans-serif;max-width:1000px;margin:2rem auto;padding:0 1rem;color:#1b1a19}}
-img{{max-width:100%}}table{{border-collapse:collapse}}td,th{{border-bottom:1px solid #ddd;padding:.3rem .8rem;text-align:left}}
-.differs td{{background:#fbe3c4}}.error{{color:#a21e16;font-weight:600}}.warning{{color:#b96716}}.info{{color:#5d5852}}</style>
-<h1>{esc(s['title'])}</h1>
-<p>{esc(s.get('formula'))} · {esc(s['type'])} · submitted by {esc(detail.get('submitter'))} · {esc(detail['kind'])}</p>
-{img}
-<h2>Checks (this machine)</h2><ul>{finding_items}</ul>
-<h2>Submitted values and values in the file</h2>
-<table><tr><th></th><th>Submitted</th><th>In the file</th></tr>{table}</table>
-<h2>Browser checks at submission</h2><pre>{esc(json.dumps(detail.get('browser_checks'), indent=1)[:4000])}</pre>"""
-
-
-def process(detail, original, workdir):
-    """Reprocess one submission. Returns the outputs and the processing record to upload."""
+def process(detail, original, workdir, edge_table):
+    """Reprocess one submission: the checks, the files to publish and the processing record."""
     workdir = Path(workdir)
     workdir.mkdir(parents=True, exist_ok=True)
     s, acq = detail["spectrum"], detail.get("acquisition") or {}
@@ -169,17 +135,13 @@ def process(detail, original, workdir):
         acq = proposed["acquisition"]
         detail = {**detail, "elements": proposed["elements"], "edges": [f"{e['element']}_{e['edge']}" for e in proposed["edges"]]}
     sp = read_any(original)
-    with contextlib.redirect_stdout(sys.stderr):
-        table = checks.exspy_edge_table()
     elements = detail.get("elements") or checks.formula_elements(s.get("formula"))
-    findings = []
-    outputs = {}
-    values = {}
+    outputs, values, plot = {}, {}, None
     if sp.energy is None:
-        findings.append(checks.Finding("no_spectrum", "error", "No energy-loss spectrum found in the file."))
+        findings = [checks.Finding("no_spectrum", "error", "No energy-loss spectrum found in the file.")]
     else:
         findings = checks.run_all(sp.energy, sp.intensity, spectrum_type=s["type"], formula=s.get("formula"),
-                                  elements=elements, edges=detail.get("edges") or [], edge_table=table,
+                                  elements=elements, edges=detail.get("edges") or [], edge_table=edge_table,
                                   header_axis=sp.header_axis, navigation_shape=sp.navigation_shape)
         slug = s["slug"]
         outputs["msa"] = write_msa(workdir / f"{slug}.msa", sp.energy, sp.intensity, s["title"], acq)
@@ -188,8 +150,14 @@ def process(detail, original, workdir):
             outputs["metadata"] = write_metadata(workdir / f"{slug}.metadata.json", sp)
         values = {"min_energy_ev": float(np.min(sp.energy)), "max_energy_ev": float(np.max(sp.energy)),
                   "step_ev": float((sp.energy[-1] - sp.energy[0]) / (sp.energy.size - 1)) if sp.energy.size > 1 else None}
-    rows = compare(acq, sp.header)
-    report = workdir / "review.html"
-    report.write_text(report_html(detail, sp, findings, rows))
-    record = {"tools": tool_versions(), "warnings": [f.as_dict() for f in findings], "values": values}
-    return {"outputs": outputs, "report": report, "findings": findings, "record": record}
+        step = max(1, sp.energy.size // PLOT_POINTS)
+        plot = [sp.energy[::step].tolist(), np.nan_to_num(sp.intensity[::step]).tolist()]
+    return {
+        "outputs": outputs,
+        "findings": findings,
+        "compare": compare(acq, sp.header),
+        "plot": plot,
+        "points": None if sp.energy is None else int(sp.energy.size),
+        "navigation_shape": list(sp.navigation_shape) if sp.navigation_shape else None,
+        "record": {"tools": tool_versions(), "warnings": [f.as_dict() for f in findings], "values": values},
+    }

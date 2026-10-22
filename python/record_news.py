@@ -1,3 +1,7 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = []
+# ///
 """Record the full text of the news posts from eelsdb.eu into data/fixtures/news/{slug}.html (read-only).
 
 Only the post body is kept, and only simple tags (paragraphs, links, lists, emphasis, headings) with
@@ -9,9 +13,7 @@ import json
 import re
 from html.parser import HTMLParser
 
-from eelsdb.legacy.http import get
-from eelsdb.legacy.record_api import OUT as API_FIXTURES
-from eelsdb.legacy.record_api import ROOT
+from record_api import OUT as API_FIXTURES, ROOT, get
 
 OUT = ROOT / "data" / "fixtures" / "news"
 ALLOWED = {"p", "a", "ul", "ol", "li", "strong", "em", "b", "i", "br", "h2", "h3", "h4", "blockquote", "sub", "sup", "code", "pre"}

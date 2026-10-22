@@ -378,19 +378,3 @@ def run_all(energy, intensity, *, spectrum_type=None, formula=None, elements=(),
     findings += check_thickness(energy, intensity, spectrum_type, thickness)
     return findings
 
-
-def exspy_edge_table():
-    """The installed exSpy's edge table, in the same shape as its eels_binding_energies.json."""
-    import contextlib
-    import sys
-
-    # HyperSpy logs import-time warnings to stdout, which would corrupt JSON output.
-    with contextlib.redirect_stdout(sys.stderr):
-        from exspy.material import elements
-
-    table = {}
-    for symbol, el in elements.as_dictionary().items():
-        energies = el.get("Atomic_properties", {}).get("Binding_energies") if isinstance(el, dict) else None
-        if energies:
-            table[symbol] = energies
-    return table

@@ -1,6 +1,6 @@
 import json
 
-from eelsdb.legacy.record_api import OUT, find_key, unpublished
+from record_api import OUT, find_key, unpublished
 
 
 def fixtures():

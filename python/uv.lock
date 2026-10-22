@@ -282,31 +282,35 @@ array = [
 ]
 
 [[package]]
-name = "eelsdb"
-version = "0.1.0"
-source = { editable = "." }
+name = "eelsdb-tools"
+version = "0"
+source = { virtual = "." }
 dependencies = [
-    { name = "exspy" },
-    { name = "hyperspy" },
+    { name = "h5py" },
     { name = "numpy" },
     { name = "rosettasciio" },
 ]
 
 [package.dev-dependencies]
 dev = [
+    { name = "exspy" },
+    { name = "hyperspy" },
     { name = "pytest" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "exspy", specifier = ">=0.3.2" },
-    { name = "hyperspy", specifier = ">=2.5.0" },
+    { name = "h5py", specifier = ">=3.16.0" },
     { name = "numpy", specifier = ">=2.5.4" },
     { name = "rosettasciio", specifier = ">=0.15.0" },
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "pytest", specifier = ">=9.1.1" }]
+dev = [
+    { name = "exspy", specifier = ">=0.3.2" },
+    { name = "hyperspy", specifier = ">=2.5.0" },
+    { name = "pytest", specifier = ">=9.1.1" },
+]
 
 [[package]]
 name = "exspy"

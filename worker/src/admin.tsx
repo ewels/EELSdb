@@ -1,78 +1,15 @@
-import { Hono, type Context } from "hono";
-import { requireUser, sha256, type AppEnv } from "./auth";
-import { fileHeaders } from "./files";
+import { Hono } from "hono";
+import { raw } from "hono/html";
+import { requireUser, type AppEnv } from "./auth";
+import { EXPORT_KEY, fileHeaders } from "./files";
 import { isModerator } from "./instruments";
-import { DECISIONS, QUEUE_SQL, decide, submissionDetail, type Decision } from "./moderation";
+import { DECISIONS, PROCESSED_ROLES, QUEUE_SQL, decide, reviewInput, storeProcessed, submissionDetail, type Decision, type ProcessingRecord } from "./moderation";
 import { Layout, TypeBadge } from "./pages/layout";
+import { MAX_FILE_BYTES } from "./submit/form";
 
 export const admin = new Hono<AppEnv>();
-type C = Context<AppEnv>;
 
 const DECISION_LABELS: Record<Decision, string> = { approve: "Approve", request_changes: "Request changes", reject: "Reject" };
-
-// ---- API tokens (any signed-in user) -------------------------------------------------------
-
-admin.get("/account/tokens/", requireUser, async (c) => tokensPage(c, null));
-
-async function tokensPage(c: C, created: string | null) {
-  const user = c.get("user")!;
-  const { results } = await c.env.DB.prepare("SELECT id, label, created_at, last_used_at FROM api_tokens WHERE user_id = ? ORDER BY id DESC")
-    .bind(user.id).all<any>();
-  return c.html(
-    <Layout title="API tokens" path="/account/" user={user}>
-      <h1>API tokens</h1>
-      <p class="prose">
-        Tokens let the <code>eelsdb</code> command-line tool act as you: submit spectra and, for moderators, review them. Treat a token like a
-        password. Run <code>eelsdb login</code> and paste it when asked.
-      </p>
-      {created && (
-        <div class="notice" role="status">
-          <p><strong>Your new token.</strong> Copy it now: it is not shown again.</p>
-          <pre id="new-token">{created}</pre>
-        </div>
-      )}
-      <form method="post" action="/account/tokens/" class="inline-form" style="max-width:32rem">
-        <input type="text" name="label" placeholder="What is it for? e.g. laptop" aria-label="Token label" maxlength={80} />
-        <button class="button" type="submit">Create a token</button>
-      </form>
-      {results.length > 0 && (
-        <div class="table-scroll" style="margin-top:1.5rem">
-          <table>
-            <thead><tr><th>Label</th><th>Created</th><th>Last used</th><th></th></tr></thead>
-            <tbody>
-              {results.map((t) => (
-                <tr>
-                  <td>{t.label || <span class="muted">No label</span>}</td>
-                  <td>{String(t.created_at).slice(0, 10)}</td>
-                  <td>{t.last_used_at ? String(t.last_used_at).slice(0, 10) : "Never"}</td>
-                  <td>
-                    <form method="post" action={`/account/tokens/${t.id}/revoke/`}>
-                      <button class="button secondary" type="submit">Revoke</button>
-                    </form>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </Layout>,
-  );
-}
-
-admin.post("/account/tokens/", requireUser, async (c) => {
-  const user = c.get("user")!;
-  const label = String((await c.req.parseBody()).label ?? "").trim().slice(0, 80) || null;
-  const bytes = crypto.getRandomValues(new Uint8Array(24));
-  const token = "eelsdb_" + [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
-  await c.env.DB.prepare("INSERT INTO api_tokens (user_id, hash, label) VALUES (?, ?, ?)").bind(user.id, await sha256(token), label).run();
-  return tokensPage(c, token);
-});
-
-admin.post("/account/tokens/:id/revoke/", requireUser, async (c) => {
-  await c.env.DB.prepare("DELETE FROM api_tokens WHERE id = ? AND user_id = ?").bind(Number(c.req.param("id")), c.get("user")!.id).run();
-  return c.redirect("/account/tokens/");
-});
 
 // ---- Moderation (moderators and admins) ----------------------------------------------------
 
@@ -94,7 +31,6 @@ admin.get("/admin/", async (c) => {
   return c.html(
     <Layout title="Moderation" path="/admin/" user={user}>
       <h1>Moderation</h1>
-      <p class="muted">Decide here, or with <code>eelsdb review</code> to reprocess files with pinned RosettaSciIO and exSpy versions.</p>
       {user.role === "admin" && <p><a href="/admin/users/">Users and roles</a></p>}
       <h2>Submissions waiting ({queue.length})</h2>
       {queue.length ? (
@@ -127,6 +63,16 @@ admin.get("/admin/", async (c) => {
       ) : (
         <p class="muted">Nothing to review.</p>
       )}
+      {user.role === "admin" && (
+        <>
+          <h2>Bulk download</h2>
+          <form method="post" action="/admin/exports/" enctype="multipart/form-data" class="inline-form">
+            <input type="file" name="file" accept=".zip" aria-label="Archive made by python/export.py" required />
+            <button class="button secondary" type="submit">Upload</button>
+          </form>
+          <p class="hint">The zip made by <code>uv run python/export.py</code>. It replaces the one on the <a href="/downloads/">bulk download</a> page.</p>
+        </>
+      )}
       {recent.length > 0 && (
         <>
           <h2>Recent decisions</h2>
@@ -147,8 +93,9 @@ admin.get("/admin/submissions/:id/", async (c) => {
   const findings: any[] = Array.isArray(d.browser_checks?.findings) ? d.browser_checks.findings : [];
   const n = (x: unknown) => (typeof x === "number" ? x.toFixed(2) : "?");
   const open = ["pending", "changes_requested"].includes(d.status);
+  const input = open ? await reviewInput(c.env.DB, d) : null;
   return c.html(
-    <Layout title={`Review: ${d.title}`} path="/admin/" user={c.get("user")}>
+    <Layout title={`Review: ${d.title}`} path="/admin/" user={c.get("user")} head={input?.file && <link rel="stylesheet" href="/vendor/uPlot.min.css" />}>
       <p class="small back-link"><a href="/admin/">← Moderation</a></p>
       <h1>{d.title}</h1>
       <p class="muted">
@@ -166,7 +113,25 @@ admin.get("/admin/submissions/:id/", async (c) => {
             ))}
             {d.change?.file && <li>New file in this edit: {d.change.file.name}</li>}
           </ul>
-          <h2>Browser checks</h2>
+          {input && (
+            <section id="review" data-id={d.id} data-file={input.file ? `/admin/submissions/${d.id}/files/${input.file.role}/` : ""}>
+              <h2>Checks at review</h2>
+              <p class="checks-status muted" aria-live="polite">
+                {input.file ? "This page reads the file in your browser when JavaScript is on." : "No file to check."}
+              </p>
+              <div class="review-plot"></div>
+              <ul class="findings" hidden></ul>
+              <div class="table-scroll" hidden>
+                <table class="review-compare">
+                  <thead><tr><th></th><th>Submitted</th><th>In the file</th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              {/* Escaped so a title with "</script>" cannot end the element. */}
+              <script type="application/json" id="review-input">{raw(JSON.stringify(input).replace(/</g, "\\u003c"))}</script>
+            </section>
+          )}
+          <h2>Checks at submission</h2>
           {d.browser_checks === null ? (
             <p class="muted">None: the submitter's browser did not run them.</p>
           ) : d.browser_checks.error ? (
@@ -191,7 +156,7 @@ admin.get("/admin/submissions/:id/", async (c) => {
           )}
           <h2>Decision</h2>
           {open ? (
-            <form method="post" action={`/admin/submissions/${d.id}/`} class="field">
+            <form method="post" action={`/admin/submissions/${d.id}/`} class="field" id="decision">
               <label for="notes">Notes for the submitter (needed to request changes or reject)</label>
               <textarea id="notes" name="notes" rows={4}>{d.moderator_notes ?? ""}</textarea>
               <div class="filter-actions">
@@ -205,6 +170,12 @@ admin.get("/admin/submissions/:id/", async (c) => {
           )}
         </section>
       </div>
+      {input?.file && (
+        <>
+          <script src="/vendor/uPlot.iife.min.js" defer></script>
+          <script src="/review.js" type="module"></script>
+        </>
+      )}
     </Layout>,
   );
 });
@@ -219,6 +190,35 @@ admin.post("/admin/submissions/:id/", async (c) => {
   const error = await decide(c.env, id, decision, notes, c.get("user")!);
   if (error) return c.text(error, 409);
   return c.redirect("/admin/");
+});
+
+/** The files the moderator's browser made at review (see public/review.js), with the processing record. */
+admin.post("/admin/submissions/:id/processed/", async (c) => {
+  const d = await submissionDetail(c.env.DB, Number(c.req.param("id")));
+  if (!d) return c.json({ message: "No such submission." }, 404);
+  if (!["pending", "changes_requested"].includes(d.status)) return c.json({ message: "This submission was already decided." }, 409);
+  const body = await c.req.parseBody();
+  let record: ProcessingRecord | null = null;
+  try {
+    record = JSON.parse(String(body.record));
+  } catch {}
+  if (!record || !Array.isArray(record.tools)) return c.json({ message: "Expected a record: {tools: [{tool, version}], warnings, values}." }, 400);
+  const files = PROCESSED_ROLES.flatMap((role) => (body[role] instanceof File && body[role].size ? [[role, body[role]] as [string, File]] : []));
+  if (files.some(([, f]) => f.size > MAX_FILE_BYTES)) return c.json({ message: "A processed file is too large." }, 400);
+  await storeProcessed(c.env, d, files, record);
+  return c.json({ ok: true });
+});
+
+admin.post("/admin/exports/", async (c) => {
+  if (c.get("user")!.role !== "admin") return c.text("Only admins can upload the bulk download.", 403);
+  const file = (await c.req.parseBody()).file;
+  const bytes = file instanceof File ? new Uint8Array(await file.arrayBuffer()) : null;
+  if (!bytes || bytes[0] !== 0x50 || bytes[1] !== 0x4b) return c.text("Please choose the zip file made by python/export.py.", 400);
+  await c.env.FILES.put(EXPORT_KEY, bytes, {
+    httpMetadata: { contentType: "application/zip", contentDisposition: 'attachment; filename="eelsdb-spectra.zip"' },
+    customMetadata: { uploaded_by: String(c.get("user")!.id) },
+  });
+  return c.redirect("/downloads/");
 });
 
 admin.get("/admin/submissions/:id/files/:role/", async (c) => {

@@ -1,3 +1,7 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = []
+# ///
 """Build the D1 seed (SQL) and the R2 upload list from the recorded API, file manifest and file analysis.
 
 Migrated spectra keep their WordPress IDs, slugs and file paths. `legacy_v1` holds the recorded v1
@@ -7,8 +11,7 @@ object, with the energy range replaced for files whose recorded range was wrong.
 import json
 import urllib.parse
 
-from eelsdb.legacy.record_api import OUT as API_FIXTURES
-from eelsdb.legacy.record_api import ROOT
+from record_api import OUT as API_FIXTURES, ROOT
 
 # The old site tagged every spectrum it migrated from the first database, and linked each to its page there, which
 # is gone. Both are left out of the typed rows; the recorded v1 objects keep them, so API v1 replays unchanged.

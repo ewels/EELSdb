@@ -10,7 +10,7 @@
     "seed": "node scripts/seed.mjs",
     "types": "wrangler types",
     "vendor": "cp node_modules/uplot/dist/uPlot.iife.min.js node_modules/uplot/dist/uPlot.min.css public/vendor/",
-    "py": "mkdir -p public/py/eelsdb && cp ../python/src/eelsdb/checks.py ../python/src/eelsdb/io.py ../python/src/eelsdb/_elements.py public/py/eelsdb/",
+    "py": "mkdir -p public/py/eelsdb && cp ../python/eelsdb/*.py public/py/eelsdb/",
     "docs": "npm --prefix ../docs-site run build"
   },
   "dependencies": {

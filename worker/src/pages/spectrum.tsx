@@ -344,11 +344,14 @@ export async function spectrumPage(c: Context<AppEnv>) {
             <section class="snippet" aria-labelledby="snippet-title">
               <h2 id="snippet-title">Use in HyperSpy</h2>
               <pre><code>
-                <span class="k">import</span> eelsdb{"\n\n"}
-                s = eelsdb.load(<span class="s">{JSON.stringify(s.slug)}</span>){"\n"}
-                s.plot(plot_edges=<span class="k">True</span>)
+                <span class="k">import</span> hyperspy.api <span class="k">as</span> hs{"\n"}
+                <span class="k">from</span> urllib.request <span class="k">import</span> urlretrieve{"\n\n"}
+                url = <span class="s">{JSON.stringify(`${SITE}/spectra/${s.slug}/download/msa`)}</span>{"\n"}
+                path, _ = urlretrieve(url, <span class="s">"spectrum.msa"</span>){"\n"}
+                s = hs.load(path, signal_type=<span class="s">"EELS"</span>){"\n"}
+                s.plot()
               </code></pre>
-              <p class="hint">With the <a href="/docs/use/python/">eelsdb Python package</a>: the spectrum, its acquisition metadata and its reference.</p>
+              <p class="hint">The MSA file has the beam energy and angles. More in the <a href="/docs/use/python/">Python guide</a>.</p>
             </section>
           )}
         </div>

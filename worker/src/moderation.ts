@@ -1,6 +1,5 @@
-// Moderation decisions, shared by the admin pages and the moderation API used by `eelsdb review`.
-import type { MiddlewareHandler } from "hono";
-import { sha256, type AppEnv, type User } from "./auth";
+// Moderation decisions and reprocessing at review, for the admin pages.
+import type { User } from "./auth";
 import { sendEmail } from "./email";
 import type { ParsedForm } from "./submit/form";
 import { mediaType } from "./files";
@@ -69,6 +68,63 @@ export async function submissionDetail(db: D1Database, id: number) {
   };
 }
 
+export const PROCESSED_ROLES = ["msa", "hspy", "metadata"];
+
+type Detail = NonNullable<Awaited<ReturnType<typeof submissionDetail>>>;
+
+/** What the moderator's browser reprocesses: the file, and the values the spectrum has (or would have after an edit). */
+export async function reviewInput(db: D1Database, d: Detail) {
+  const one = (sql: string) => db.prepare(sql).bind(d.spectrum_id);
+  const [spectrum, acquisition, reference, { results: elements }, { results: edges }] = await Promise.all([
+    one("SELECT slug, title, type, formula FROM spectra WHERE id = ?").first<any>(),
+    one("SELECT * FROM eels_acquisition WHERE spectrum_id = ?").first(),
+    one("SELECT doi FROM reference WHERE spectrum_id = ?").first(),
+    one("SELECT element FROM spectrum_elements WHERE spectrum_id = ? ORDER BY position").all<any>(),
+    one("SELECT element, edge FROM spectrum_edges WHERE spectrum_id = ? ORDER BY position").all<any>(),
+  ]);
+  // An edit with a new file is reviewed on that file; otherwise on the spectrum's original.
+  const file = ["edit", "original"].map((role) => d.files.find((f: any) => f.role === role)).find(Boolean);
+  return {
+    spectrum,
+    acquisition,
+    reference,
+    elements: elements.map((e) => e.element),
+    edges: edges.map((e) => `${e.element}_${e.edge}`),
+    proposed: d.change?.form ?? null,
+    file: file ? { role: file.role, filename: file.filename } : null,
+  };
+}
+
+/**
+ * Files made by reprocessing at review. For a new spectrum they attach directly (it is not public yet);
+ * for an edit they wait in the submission until approval.
+ */
+export async function storeProcessed(env: Env, d: Detail, files: [string, File][], record: ProcessingRecord) {
+  const db = env.DB;
+  const statements: D1PreparedStatement[] = [];
+  const staged: Record<string, StagedFile> = {};
+  for (const [role, file] of files) {
+    const filename = file.name.replace(/[^\w.\-]+/g, "_") || `${d.slug}.${role}`;
+    const bytes = await file.arrayBuffer();
+    const sha = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))].map((b) => b.toString(16).padStart(2, "0")).join("");
+    // Per submission, so an edit's reprocessed file never replaces the published one before approval.
+    const key = `files/${d.spectrum_id}/s${d.id}/${filename}`;
+    await env.FILES.put(key, bytes, { httpMetadata: { contentType: mediaType(filename) }, sha256: sha });
+    staged[role] = { key, filename, bytes: bytes.byteLength, sha256: sha };
+    statements.push(
+      db.prepare("DELETE FROM files WHERE spectrum_id = ? AND role = ?").bind(d.spectrum_id, role),
+      db.prepare("INSERT INTO files (spectrum_id, role, r2_key, filename, media_type, bytes, sha256) VALUES (?, ?, ?, ?, ?, ?, ?)")
+        .bind(d.spectrum_id, role, key, filename, mediaType(filename), bytes.byteLength, sha),
+    );
+  }
+  if (d.kind === "edit" && d.change) {
+    const change: EditChange = { ...d.change, processed: { ...d.change.processed, ...staged }, processing: record };
+    await db.prepare("UPDATE submissions SET change_json = ? WHERE id = ?").bind(JSON.stringify(change), d.id).run();
+  } else {
+    await db.batch([...statements, ...processingStatements(db, d.spectrum_id, record)]);
+  }
+}
+
 const MESSAGES: Record<Decision, (title: string, notes: string | null) => { subject: string; text: string }> = {
   approve: (title) => ({ subject: `Published: ${title}`, text: `Your spectrum "${title}" is now published in the EELS Data Base. Thank you!` }),
   request_changes: (title, notes) => ({
@@ -129,17 +185,3 @@ export async function decide(env: Env, id: number, decision: Decision, notes: st
   if (submitter) await sendEmail(env, { to: submitter, ...MESSAGES[decision](spectrum.title, notes) });
   return null;
 }
-
-/** Bearer-token authentication for the moderation API (tokens made on /account/tokens/). */
-export const tokenAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
-  const token = c.req.header("Authorization")?.match(/^Bearer\s+(\S+)$/)?.[1];
-  const user = token
-    ? await c.env.DB.prepare(
-        `SELECT u.id, u.display_name, u.role, u.slug, u.orcid FROM api_tokens t JOIN users u ON u.id = t.user_id WHERE t.hash = ?`,
-      ).bind(await sha256(token)).first<User>()
-    : null;
-  if (!user) return c.json({ message: "A valid API token is needed (Authorization: Bearer …)." }, 401);
-  await c.env.DB.prepare("UPDATE api_tokens SET last_used_at = datetime('now') WHERE hash = ?").bind(await sha256(token!)).run();
-  c.set("user", user);
-  await next();
-};

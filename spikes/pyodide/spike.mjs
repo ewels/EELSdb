@@ -35,7 +35,7 @@ for (const pkg of ["rosettasciio", "exspy"]) {
 
 py.FS.mkdirTree("/home/pyodide/eelsdb");
 for (const f of ["__init__.py", "checks.py", "io.py", "_elements.py"]) {
-  const src = f === "__init__.py" ? "" : readFileSync(join(root, "python/src/eelsdb", f), "utf8");
+  const src = f === "__init__.py" ? "" : readFileSync(join(root, "python/eelsdb", f), "utf8");
   py.FS.writeFile(`/home/pyodide/eelsdb/${f}`, src);
 }
 py.FS.writeFile("/home/pyodide/spectrum.msa", readFileSync(msa));

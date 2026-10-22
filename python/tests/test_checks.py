@@ -7,10 +7,9 @@ import numpy as np
 import pytest
 
 from eelsdb import checks
-from eelsdb.cli import main
 from eelsdb.io import read_spectrum
-from eelsdb.legacy.analyse_files import OUTPUT as ANALYSIS
-from eelsdb.legacy.download_files import CACHE
+from analyse_files import OUTPUT as ANALYSIS
+from download_files import CACHE
 
 codes = lambda findings: {f.code for f in findings}  # noqa: E731
 E = np.linspace(0, 100, 200)
@@ -75,7 +74,7 @@ def test_run_all_stops_on_unusable_axis():
     assert codes(checks.run_all([], [])) == {"empty"}
 
 
-needs_cache = pytest.mark.skipif(not CACHE.exists(), reason="run eelsdb.legacy.download_files first")
+needs_cache = pytest.mark.skipif(not CACHE.exists(), reason="run download_files.py first")
 
 
 def cached(spectrum_id):
@@ -101,7 +100,7 @@ def test_real_files_with_known_problems(spectrum_id, expected):
 def test_real_core_loss_file_is_clean():
     sp = read_spectrum(cached(21529))  # AlN, Al K edge
     found = checks.run_all(sp.energy, sp.intensity, spectrum_type="coreloss", formula="AlN", elements=["Al"],
-                           edges=["Al_K"], edge_table=checks.exspy_edge_table(), header_axis=sp.header_axis)
+                           edges=["Al_K"], edge_table=BINDING, header_axis=sp.header_axis)
     assert [f for f in found if f.severity != "info"] == []
 
 
@@ -118,14 +117,6 @@ def test_thickness_matches_exspy():
         warnings.simplefilter("ignore")
         expected = float(np.ravel(sig.estimate_thickness(threshold=sig.estimate_elastic_scattering_threshold()).data)[0])
     assert checks.log_ratio_thickness(sp.energy, sp.intensity) == pytest.approx(expected, abs=0.02)
-
-
-@needs_cache
-def test_cli_check(capsys):
-    assert main(["check", str(cached(21550)), "--json"]) == 1
-    findings = json.loads(capsys.readouterr().out)
-    assert "energy_not_increasing" in {f["code"] for f in findings}
-    assert main(["check", str(cached(21529)), "--type", "coreloss", "--formula", "AlN", "--edges", "Al_K"]) == 0
 
 
 BINDING = json.loads((Path(__file__).parents[2] / "worker" / "public" / "eels_binding_energies.json").read_text())["elements"]

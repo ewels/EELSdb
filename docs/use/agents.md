@@ -1,9 +1,9 @@
 ---
 title: Use EELSdb with AI agents
-description: The Markdown, JSON and llms.txt addresses that AI assistants and agents can read, the EELSdb agent skills, and how to install them.
+description: The Markdown, JSON and llms.txt addresses that AI assistants and agents can read, the EELSdb agent skill, and how to install it.
 ---
 
-AI assistants and coding agents can use EELSdb with no extra setup: every page has a Markdown version, the API is plain JSON with no key, and two agent skills describe how to search, download, cite and submit spectra.
+AI assistants and coding agents can use EELSdb with no extra setup: every page has a Markdown version, the API is plain JSON with no key, and an agent skill describes how to search, download and cite spectra.
 
 ## Give an agent these addresses
 
@@ -28,21 +28,20 @@ Each HTML page links to its Markdown version in a `<link rel="alternate" type="t
 On documentation pages, **Copy Markdown** copies the page, and **Open** sends it to ChatGPT, Claude and other assistants.
 The API reference pages have no Markdown version. The OpenAPI files describe the same information.
 
-## Install the agent skills
+## Install the agent skill
 
 A skill is a set of instructions that an agent loads when a task needs it.
-EELSdb has two, in the [Agent Skills](https://agentskills.io) format that Claude Code, Codex, Cursor and other agents read:
+EELSdb has one, in the [Agent Skills](https://agentskills.io) format that Claude Code, Codex, Cursor and other agents read:
 
 - [`eelsdb`](/docs/skills/eelsdb/SKILL.md): Find, download, load and cite spectra through API v2.
-- [`eelsdb-submit`](/docs/skills/eelsdb-submit/SKILL.md): Check spectrum files and submit them with the `eelsdb` command-line tool.
 
-Install both from GitHub with the [`skills`](https://www.npmjs.com/package/skills) tool:
+Install it from GitHub with the [`skills`](https://www.npmjs.com/package/skills) tool:
 
 ```sh
 $ npx skills add ewels/EELSdb
 ```
 
-Add `--skill eelsdb` to install only one, and `-g` to install it for all your projects.
+Add `-g` to install it for all your projects.
 
 To install a skill by hand, download its `SKILL.md` and save it in your agent's skills folder, for example `~/.claude/skills/eelsdb/SKILL.md` for Claude Code.
 
@@ -53,7 +52,6 @@ With the `eelsdb` skill installed, or after you give the agent `https://eelsdb.e
 - "Find EELSdb core-loss spectra of titanium oxides with the Ti L2,3 edge, recorded at 200 kV with known angles, and plot them together."
 - "Download the EELSdb hematite Fe L2,3 spectrum and compare its L3/L2 ratio with my file `sample.msa`."
 - "Which EELSdb spectra of carbon have a convergence angle from an instrument profile?"
-- "Check the files in `spectra/` and submit them to EELSdb. Ask me for any beam energy or angle you cannot find in the files."
 
 ## Rules for agents
 
@@ -63,4 +61,4 @@ The `eelsdb` skill tells agents to follow these rules. Check that yours does:
 - Ask for 500 spectra per page instead of many small pages, make one request at a time, and use the [bulk download](/downloads/) for the whole database.
 - Report an acquisition value with the source `unknown` as unknown. Never fill it in from another spectrum.
 - Cite the contributor's paper and the EELS Data Base for every spectrum that the work uses.
-- When submitting, never invent metadata, and never handle the user's password. The user pastes their API token at the `eelsdb login` prompt.
+- Never submit spectra for the user. The API is read-only, and contributors submit on the website.

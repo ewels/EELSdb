@@ -61,3 +61,5 @@ export async function serveFile(c: Context<AppEnv>) {
   headers.set("Access-Control-Allow-Origin", "*");
   return new Response(object.body, { headers });
 }
+
+export const EXPORT_KEY = "exports/eelsdb-spectra.zip";

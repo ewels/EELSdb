@@ -29,7 +29,7 @@ def run_eelsdb(monkeypatch, local, **query):
     import requests
     from exspy.data import eelsdb
 
-    from eelsdb.legacy.http import USER_AGENT
+    from http import USER_AGENT
 
     site = os.environ.get("EELSDB_SITE", API.replace("://api.", "://") if API else "")
     real_get = requests.get
