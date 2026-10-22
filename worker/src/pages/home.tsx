@@ -4,6 +4,7 @@ import { avatarUrl, type AppEnv } from "../auth";
 import NAMES from "../element-names.json";
 import { Avatar as SharedAvatar, EdgeName, Formula, Layout, TYPE_NAMES } from "./layout";
 import { HERO_LOGO_SVG } from "./logo";
+import { HyperSpySnippet } from "./snippet";
 import { jsonLdScript, schemaOrgCatalog } from "../api/metadata";
 import { majorEdges, parseSpectrum } from "../preview";
 
@@ -276,7 +277,7 @@ export async function homePage(c: Context<AppEnv>) {
         <div>
           <h2>Load spectra in Python</h2>
           <p>Every spectrum downloads as an MSA file that HyperSpy reads with its beam energy and angles. The API has the rest.</p>
-          <pre><code><span class="k">import</span> hyperspy.api <span class="k">as</span> hs{"\n"}<span class="k">from</span> urllib.request <span class="k">import</span> urlretrieve{"\n\n"}url = <span class="s">"https://eelsdb.eu/spectra/iron-iii-oxide-hematite/download/msa"</span>{"\n"}path, _ = urlretrieve(url, <span class="s">"hematite.msa"</span>){"\n"}s = hs.load(path, signal_type=<span class="s">"EELS"</span>){"\n"}s.plot()</code></pre>
+          <HyperSpySnippet url="https://eelsdb.eu/spectra/iron-iii-oxide-hematite/download/msa" file="hematite.msa" />
           <div class="cite-actions">
             <a class="button secondary" href="/docs/use/python/">Python guide {ARROW}</a>
             <a class="button secondary" href="/docs/use/api/">API {ARROW}</a>

@@ -316,13 +316,37 @@ a.el:hover { box-shadow: 0 0 0 2px var(--ink); z-index: 1; }
 /* Python and citation */
 .home .extras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 4.5rem; margin-top: 4rem; }
 .home .extras > div { min-width: 0; }
-.home .extras pre { background: var(--sunken); border: 0; border-radius: 6px; padding: 0.9rem 1rem; margin: 0.8rem 0 0; overflow-x: auto; white-space: pre; word-break: normal; line-height: 1.6; font-size: 0.88em; }
-.home .extras pre code { font-size: 0.88em; }
 .home .extras p { color: var(--muted); margin-top: 0.5rem; max-width: 60ch; font-size: 0.95rem; }
 .home .extras p.citation { color: var(--ink); }
-pre .k { color: var(--accent-ink); }
-pre .s { color: var(--edge); }
-pre .n { color: var(--compare-1); }
+/* Code blocks in the docs' look: Expressive Code with Night Owl. Token classes come from src/pages/snippet.tsx.
+   The background follows Starlight's code frame as the docs map it: --rule in light, --sunken in dark. */
+.code-block { --code-bg: var(--rule); position: relative; margin-top: 0.8rem; }
+:root[data-theme="dark"] .code-block { --code-bg: var(--sunken); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .code-block { --code-bg: var(--sunken); } }
+.code-block pre { margin: 0; padding: 0.75rem 1rem; overflow-x: auto; white-space: pre; word-break: normal; line-height: 1.75; font-size: 0.875rem;
+  color: light-dark(#403f53, #d6deeb); background: var(--code-bg); border: 1px solid color-mix(in srgb, var(--line), transparent 25%); border-radius: 0; }
+.code-block code { font-size: inherit; }
+.t-k { color: light-dark(#8844ae, #c792ea); }
+.t-p { color: light-dark(#111111, #d9f5dd); }
+.t-s { color: light-dark(#984e4d, #ecc48d); }
+.t-f { color: light-dark(#096e72, #b2ccd6); }
+.t-v { color: light-dark(#3b61b0, #82aaff); }
+.t-a { color: light-dark(#403f53, #d7dbe0); }
+.code-copy { position: absolute; top: calc(1px + 0.4rem); right: calc(1px + 0.5rem); display: flex; gap: 0.25rem; }
+.code-copy button { position: relative; width: 2.5rem; height: 2.5rem; padding: 0; border: 1px solid color-mix(in srgb, var(--ink) 40%, transparent); border-radius: 0.2rem;
+  background: var(--code-bg); opacity: 0.75; cursor: pointer; transition: opacity 0.2s, background 0.2s; }
+.code-copy button::after { content: ""; position: absolute; inset: 0; margin: 0.475rem; background: var(--ink);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75'%3E%3Cpath d='M3 19a2 2 0 0 1-1-2V2a2 2 0 0 1 1-1h13a2 2 0 0 1 2 1'/%3E%3Crect x='6' y='5' width='16' height='18' rx='1.5' ry='1.5'/%3E%3C/svg%3E") no-repeat; }
+.code-copy button:hover, .code-copy button:focus-visible { opacity: 1; background: color-mix(in srgb, var(--ink) 20%, var(--code-bg)); }
+.code-copied { --arrow: 0.35rem; position: relative; align-self: center; margin-right: var(--arrow); padding: 0.125rem 0.75rem; border-radius: 0.2rem;
+  font-size: 0.85rem; color: white; background: #078662; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.code-copied::after { content: ""; position: absolute; top: calc(50% - var(--arrow)); right: calc(-2 * var(--arrow) + 1px); border: var(--arrow) solid transparent; border-left-color: #078662; }
+.code-copied.show { opacity: 1; }
+@media (hover: hover) {
+  .code-copy button { opacity: 0; width: 2rem; height: 2rem; }
+  .code-block:hover .code-copy button:not(:hover), .code-block:focus-within .code-copy button:not(:hover), .code-copied.show + button:not(:hover) { opacity: 0.75; }
+}
+@media (prefers-reduced-motion: reduce) { .code-copy button, .code-copied { transition: none; } }
 .cite-actions { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.6rem; margin-top: 1rem; }
 .doi { display: flex; max-width: 100%; min-height: 2.625rem; align-items: center; gap: 0.5rem; padding: 0 0.7rem; font: inherit; font-size: 0.9rem; color: var(--ink); background: var(--sunken); border: 1px solid transparent; border-radius: 4px; cursor: pointer; }
 .doi:hover { border-color: var(--line); }
@@ -625,9 +649,7 @@ dialog h2 { margin-top: 0; }
   background: var(--sunken); font-size: 1.05rem; line-height: 1.55; overflow-wrap: anywhere; }
 .spectrum-intro .compare { margin-top: 0; }
 .snippet h2 { font-size: 0.95rem; margin: 0 0 0.5rem; }
-.snippet pre { margin: 0; white-space: pre; font-size: 0.8rem; }
 .snippet .hint { margin: 0.5rem 0 0; }
-.snippet pre { background: var(--sunken); border: 0; border-radius: 6px; padding: 0.9rem 1rem; margin: 0.6rem 0 0; white-space: pre; word-break: normal; line-height: 1.6; font-size: 0.85rem; }
 .notice { border: 1px solid var(--line); background: var(--sunken); border-radius: 8px; padding: 1rem 1.25rem; }
 
 
