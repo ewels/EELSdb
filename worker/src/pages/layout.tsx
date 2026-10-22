@@ -23,6 +23,12 @@ const LAST_METHOD_SCRIPT = `try{var m=document.cookie.match(/(?:^|; )${LAST_METH
 // Right after the banner, so a hidden banner never paints. The link returns to the exact page.
 const ORCID_BANNER_SCRIPT = `(function(){var b=document.querySelector(".orcid-banner"),k="orcid-banner-hidden";b.querySelector("a").href="/auth/orcid/link?next="+encodeURIComponent(location.pathname+location.search);if(!b.querySelector("button"))return;try{if(Number(localStorage.getItem(k))>Date.now())b.hidden=true}catch(e){}b.querySelector("button").addEventListener("click",function(){b.hidden=true;try{localStorage.setItem(k,Date.now()+30*864e5)}catch(e){}})})()`;
 
+// Right after the banner, so a hidden banner never paints. The resend form returns to the exact page.
+const EMAIL_BANNER_SCRIPT = `(function(){var b=document.querySelector(".email-banner"),k="email-banner-hidden",n=b.querySelector("input[name=next]");if(n)n.value=location.pathname+location.search;try{if(Number(localStorage.getItem(k))>Date.now())b.hidden=true}catch(e){}b.querySelector("button[type=button]").addEventListener("click",function(){b.hidden=true;try{localStorage.setItem(k,Date.now()+7*864e5)}catch(e){}});var f=b.querySelector("form");if(f)f.addEventListener("submit",function(e){e.preventDefault();var s=f.querySelector("button");s.disabled=true;fetch(f.action,{method:"POST",body:new FormData(f),headers:{Accept:"application/json"}}).then(function(r){return r.json()}).then(function(j){b.querySelector("p").textContent=j.sent?"Sent. Check your inbox, and your spam folder, for the link from EELSdb.":"No new link was sent: you have asked for several today. Please use the last one, or try again tomorrow.";f.remove()}).catch(function(){f.submit()})})})()`;
+
+// Not shown where the person is already adding or confirming an address.
+const NO_EMAIL_BANNER = /^\/(?:login|account\/welcome\/email\/|account\/settings\/emails\/)/;
+
 // Flips light and dark, remembers it in this browser, and saves it to the account when signed in.
 const TOGGLE_SCRIPT = `document.querySelectorAll(".theme-toggle").forEach(function(b){b.addEventListener("click",function(){var r=document.documentElement,d=r.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"),n=d==="dark"?"light":"dark";r.dataset.theme=n;try{localStorage.setItem("theme",n)}catch(e){}if(this.dataset.save)fetch("/account/settings/theme/",{method:"POST",body:new URLSearchParams({theme:n})})})})`;
 
@@ -57,6 +63,7 @@ export function Layout(props: {
   home?: boolean;
   children: Child;
 }) {
+  const emailBanner = props.user?.email_prompt && !props.user.setup_required && !NO_EMAIL_BANNER.test(props.path) ? props.user.email_prompt : null;
   const wrap = props.wide ? "wrap wide" : "wrap";
   const title = props.title ? `${props.title} · EELS Data Base` : "EELS Data Base";
   return (
@@ -81,7 +88,30 @@ export function Layout(props: {
         <body class={props.home ? "home" : undefined}>
           <a class="skip" href="#main">Skip to content</a>
           {/* While ORCID is required, the submit page explains it in place of the form, so the banner would repeat it. */}
-          {props.user?.orcid_prompt && !props.path.startsWith("/login") && !(props.user.orcid_prompt === "required" && props.path === "/submit-data/") && (
+          {emailBanner && (
+            <>
+              <div class="email-banner" role="region" aria-label="Confirm your email address">
+                <div class="wrap">
+                  {emailBanner.address ? (
+                    <p aria-live="polite">Confirm your email address: we sent a link to {emailBanner.address}.</p>
+                  ) : (
+                    <p>Add an email address so we can send you sign-in links and news about your submissions.</p>
+                  )}
+                  {emailBanner.address ? (
+                    <form method="post" action={`/account/settings/emails/${emailBanner.id}/send/`}>
+                      <input type="hidden" name="next" value={props.path || "/account/"} />
+                      <button class="button" type="submit">Send it again</button>
+                    </form>
+                  ) : (
+                    <a class="button" href="/account/settings/emails/">Add email address</a>
+                  )}
+                  <button class="banner-close" type="button" aria-label="Hide this message for 7 days" title="Hide for 7 days"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9" /></svg></button>
+                </div>
+              </div>
+              <script>{raw(EMAIL_BANNER_SCRIPT)}</script>
+            </>
+          )}
+          {!emailBanner && props.user?.orcid_prompt && !props.path.startsWith("/login") && !(props.user.orcid_prompt === "required" && props.path === "/submit-data/") && (
             <>
               <div class="orcid-banner" role="region" aria-label="Link your ORCID iD">
                 <div class="wrap">
@@ -91,7 +121,7 @@ export function Layout(props: {
                     <p>Link your ORCID iD so your spectra are credited to you.</p>
                   )}
                   <a class="button" href={`/auth/orcid/link?next=${encodeURIComponent(props.path || "/account/")}`}>Link ORCID</a>
-                  {!props.user.orcid_only && <button class="link-button" type="button">Hide for 30 days</button>}
+                  {!props.user.orcid_only && <button class="banner-close" type="button" aria-label="Hide this message for 30 days" title="Hide for 30 days"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9" /></svg></button>}
                 </div>
               </div>
               <script>{raw(ORCID_BANNER_SCRIPT)}</script>
@@ -173,6 +203,64 @@ export function Layout(props: {
         </body>
       </html>
     </>
+  );
+}
+
+export const ACCOUNT_PAGES = [
+  ["/account/", "Overview"],
+  ["/account/submissions/", "Submissions"],
+  ["/account/drafts/", "Drafts"],
+] as const;
+export const SETTINGS_PAGES = [
+  ["/account/settings/profile/", "Profile"],
+  ["/account/settings/emails/", "Email addresses"],
+  ["/account/settings/sign-in/", "Sign-in methods"],
+  ["/account/settings/two-step/", "Two-step and passkeys"],
+  ["/account/settings/tokens/", "API tokens"],
+] as const;
+export type AccountPage = (typeof ACCOUNT_PAGES)[number][0] | (typeof SETTINGS_PAGES)[number][0];
+
+const STAFF_PAGES: [string, string, string][] = [
+  ["/admin/", "Moderation", "moderator"],
+  ["/admin/users/", "Accounts", "admin"],
+  ["/admin/settings/", "Site settings", "admin"],
+  ["/admin/messages/", "Messages", "admin"],
+];
+
+/** Every page under /account/: the site layout with the account nav beside the content. */
+export function AccountLayout(props: { title: string; current: AccountPage; user: User; head?: Child; children: Child }) {
+  const { role } = props.user;
+  const staff = STAFF_PAGES.filter(([, , needs]) => role === "admin" || role === needs);
+  return (
+    <Layout title={props.title} path={props.current} user={props.user} head={props.head}>
+      <div class="account-layout">
+        <nav class="account-nav" aria-label="Your account">
+          <ul>
+            {ACCOUNT_PAGES.map(([href, label]) => (
+              <li><a href={href} aria-current={href === props.current ? "page" : undefined}>{label}</a></li>
+            ))}
+          </ul>
+          <div>
+            <p class="account-nav-label" id="account-settings">Settings</p>
+            <ul aria-labelledby="account-settings">
+              {SETTINGS_PAGES.map(([href, label]) => <li><a href={href} aria-current={href === props.current ? "page" : undefined}>{label}</a></li>)}
+            </ul>
+          </div>
+          {staff.length > 0 && (
+            <div>
+              <p class="account-nav-label" id="account-staff">Staff</p>
+              <ul aria-labelledby="account-staff">
+                {staff.map(([href, label]) => <li><a href={href}>{label}</a></li>)}
+              </ul>
+            </div>
+          )}
+          <form method="post" action="/logout/">
+            <button type="submit">Sign out</button>
+          </form>
+        </nav>
+        <div class="account-main">{props.children}</div>
+      </div>
+    </Layout>
   );
 }
 

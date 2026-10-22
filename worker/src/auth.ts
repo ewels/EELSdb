@@ -10,6 +10,8 @@ export type User = { id: number; display_name: string; role: string; slug: strin
   orcid_prompt?: "ask" | "required";
   /** ORCID is the only way to sign in that is on, so the banner cannot be hidden. */
   orcid_only?: boolean;
+  /** No confirmed address: `id` and `address` are the best unconfirmed one, null when the account has none. */
+  email_prompt?: { id: number | null; address: string | null };
 };
 export type AppEnv = { Bindings: Env; Variables: { user: User | null } };
 type C = Context<AppEnv>;
@@ -139,12 +141,12 @@ const cookieOptions = (c: C) => ({
 
 /** Sessions are stored by the SHA-256 of the cookie value, so a database read does not reveal live tokens. */
 /**
- * The user's uploaded picture, else their Gravatar. Gravatar looks pictures up by the SHA-256 of the
- * address, so the address itself never reaches the page; `d=blank` lets the initial show through.
+ * The user's uploaded picture, else their Gravatar if they use it, else none (initials). Gravatar looks pictures up by
+ * the SHA-256 of the address, so the address itself never reaches the page; `d=blank` lets the initial show through.
  */
-export async function avatarUrl(key: string | null, email: string | null) {
+export async function avatarUrl(key: string | null, email: string | null, useGravatar: unknown) {
   if (key) return `/avatars/${key}`;
-  return email ? `https://gravatar.com/avatar/${await sha256(email.trim().toLowerCase())}?s=64&d=blank` : null;
+  return useGravatar && email ? `https://gravatar.com/avatar/${await sha256(email.trim().toLowerCase())}?s=64&d=blank` : null;
 }
 
 /** Copies the addresses sign-in services and the old site know into the user's email list, and picks a primary if none. */
@@ -184,18 +186,21 @@ export const loadUser: MiddlewareHandler<AppEnv> = async (c, next) => {
   let user: User | null = null;
   if (token) {
     const row = await c.env.DB.prepare(
-      `SELECT u.id, u.display_name, u.role, u.slug, u.orcid, u.theme, u.avatar_key,
+      `SELECT u.id, u.display_name, u.role, u.slug, u.orcid, u.theme, u.avatar_key, u.use_gravatar,
               (SELECT e.email FROM user_emails e WHERE e.user_id = u.id ORDER BY e.is_primary DESC, e.verified DESC, e.id LIMIT 1) AS email,
               (EXISTS (SELECT 1 FROM user_totp t WHERE t.user_id = u.id AND t.enabled_at IS NOT NULL) OR EXISTS (SELECT 1 FROM passkeys p WHERE p.user_id = u.id)) AS has_2fa,
+              (SELECT e.id FROM user_emails e WHERE e.user_id = u.id ORDER BY e.is_primary DESC, e.verified DESC, e.id LIMIT 1) AS email_id,
+              EXISTS (SELECT 1 FROM user_emails e WHERE e.user_id = u.id AND e.verified = 1) AS email_confirmed,
               EXISTS (SELECT 1 FROM identities i WHERE i.user_id = u.id AND i.provider = 'orcid') AS orcid_linked
        FROM sessions s JOIN users u ON u.id = s.user_id
        WHERE s.id = ? AND s.expires_at > ?`,
     )
       .bind(await sha256(token), new Date().toISOString())
-      .first<Omit<User, "avatar"> & { email: string | null; has_2fa: number; orcid_linked: number }>();
+      .first<Omit<User, "avatar"> & { use_gravatar: number; email: string | null; has_2fa: number; orcid_linked: number; email_id: number | null; email_confirmed: number }>();
     if (row) {
-      const { email, has_2fa, orcid_linked, ...rest } = row;
-      user = { ...rest, avatar: await avatarUrl(rest.avatar_key ?? null, email) };
+      const { email, email_id, email_confirmed, has_2fa, orcid_linked, use_gravatar, ...rest } = row;
+      user = { ...rest, avatar: await avatarUrl(rest.avatar_key ?? null, email, use_gravatar) };
+      if (!email_confirmed) user.email_prompt = { id: email_id, address: email };
       const settings = await getSettings(c.env.DB);
       if (!orcid_linked && PROVIDERS.orcid.configured(c.env)) {
         const on = methodsFrom(c.env, settings);
@@ -248,7 +253,7 @@ export const methodsFrom = (env: Env, s: Settings): SwitchableMethod[] =>
 export const methodsOn = async (env: Env) => methodsFrom(env, await getSettings(env.DB));
 export const methodOn = async (env: Env, method: string) => (await methodsOn(env)).includes(method as SwitchableMethod);
 export const METHOD_OFF = "/login/?error=off";
-const LINK_OFF = "/account/settings/?notice=link-off#h-signin";
+const LINK_OFF = "/account/settings/sign-in/?notice=link-off#h-signin";
 
 /** SQL that is true when account `u` can take this first step. Shared by the lock-out guard and the admin count, so both agree. */
 export function wayInSql(method: SwitchableMethod, env: Env) {
@@ -356,9 +361,9 @@ async function addIdentity(db: D1Database, userId: number, id: Identity) {
 /** Adds the identity to this account. Returns where to go: `next`, or settings with a notice when nothing was changed. */
 export async function linkIdentity(db: D1Database, userId: number, id: Identity, next: string | undefined) {
   const owner = await db.prepare("SELECT user_id FROM identities WHERE provider = ? AND subject = ?").bind(id.provider, id.subject).first<number>("user_id");
-  if (owner !== null && owner !== userId) return "/account/settings/?notice=link-taken#h-signin";
+  if (owner !== null && owner !== userId) return "/account/settings/sign-in/?notice=link-taken#h-signin";
   const other = await db.prepare("SELECT 1 FROM identities WHERE user_id = ? AND provider = ? AND subject != ?").bind(userId, id.provider, id.subject).first();
-  if (other) return "/account/settings/?notice=link-has#h-signin";
+  if (other) return "/account/settings/sign-in/?notice=link-has#h-signin";
   if (owner === null) {
     await db.prepare("INSERT INTO identities (user_id, provider, subject, email, email_verified) VALUES (?, ?, ?, ?, ?)")
       .bind(userId, id.provider, id.subject, id.email, id.emailVerified ? 1 : 0).run();
@@ -446,7 +451,7 @@ export async function linkPendingIdentity(c: C, userId: number): Promise<string 
   const pending = await getPendingIdentity(c);
   if (!pending) return null;
   await clearPendingIdentity(c);
-  const done = `/account/settings/?notice=linked-${pending.provider}#h-signin`;
+  const done = `/account/settings/sign-in/?notice=linked-${pending.provider}#h-signin`;
   return linkIdentity(c.env.DB, userId, pending, done);
 }
 
@@ -457,16 +462,16 @@ export async function finishSignIn(c: C) {
   deleteCookie(c, STATE_COOKIE, { path: "/" });
   const code = c.req.query("code");
   if (!provider || !provider.configured(c.env) || !code || !state || state !== c.req.query("state")) {
-    return c.redirect(linking ? "/account/settings/?notice=link-failed#h-signin" : "/login/?error=state");
+    return c.redirect(linking ? "/account/settings/sign-in/?notice=link-failed#h-signin" : "/login/?error=state");
   }
   if (!(await methodOn(c.env, c.req.param("provider")!))) return c.redirect(linking ? LINK_OFF : METHOD_OFF);
   let identity: Identity;
   try {
     identity = await provider.identity(c.env, code, callbackUrl(c));
   } catch {
-    return c.redirect(linking ? "/account/settings/?notice=link-failed#h-signin" : "/login/?error=provider");
+    return c.redirect(linking ? "/account/settings/sign-in/?notice=link-failed#h-signin" : "/login/?error=provider");
   }
-  if (!identity.subject) return c.redirect(linking ? "/account/settings/?notice=link-failed#h-signin" : "/login/?error=provider");
+  if (!identity.subject) return c.redirect(linking ? "/account/settings/sign-in/?notice=link-failed#h-signin" : "/login/?error=provider");
   if (linking) {
     const user = c.get("user");
     if (!user) return c.redirect("/login/?error=state");
@@ -480,14 +485,14 @@ export async function finishSignIn(c: C) {
   return completeSignIn(c, userId, { method: c.req.param("provider") as SignInMethod, next });
 }
 
-/** What a user who must set up two-step sign-in can still reach: the settings page, its two-step and passkey parts. */
+/** What a user who must set up two-step sign-in can still reach: the two-step and passkeys settings page. */
 // Confirming an address only proves it is theirs, so it need not wait for two-step set-up.
-const SET_UP_PATHS = /^\/account\/(?:settings\/(?:$|two-step\/|passkeys\/)|emails\/verify\/)/;
+const SET_UP_PATHS = /^\/account\/(?:settings\/(?:two-step\/|passkeys\/)|emails\/verify\/|welcome\/email\/)/;
 
 export const requireUser: MiddlewareHandler<AppEnv> = async (c, next) => {
   const user = c.get("user");
   const path = new URL(c.req.url).pathname;
   if (!user) return c.redirect(`/login/?next=${encodeURIComponent(path)}`);
-  if (user.setup_required && !SET_UP_PATHS.test(path)) return c.redirect("/account/settings/?notice=two-step-required#h-two-step");
+  if (user.setup_required && !SET_UP_PATHS.test(path)) return c.redirect("/account/settings/two-step/?notice=two-step-required#h-two-step");
   await next();
 };

@@ -1,21 +1,16 @@
 import { Hono, type Context } from "hono";
-import { FRESH_SIGN_IN_MINUTES, MAX_PASSWORD_FAILURES, MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, PROVIDERS, methodsOn, requireUser, sha256, signOutOtherSessions, signedInRecently, syncEmails, type AppEnv } from "../auth";
+import { FRESH_SIGN_IN_MINUTES, MAX_PASSWORD_FAILURES, MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, PROVIDERS, methodsOn, requireUser, safeNext, sha256, signOutOtherSessions, signedInRecently, syncEmails, type AppEnv } from "../auth";
 import { sendEmail } from "../email";
 import { pbkdf2Hash, verifyLegacyPassword } from "../legacy-password";
 import { MAX_PASSKEYS, addPasskey, registrationOptions } from "../passkeys";
 import { MAX_SECOND_STEP_FAILURES, makeRecoveryCodes, matchingStep, newSecret, otpauthUri, spendCode } from "../totp";
-import { Avatar, Layout } from "./layout";
-import { EmailList, ProfileFields, VERIFY_HOURS, MAX_EMAILS_PER_DAY, addEmail, emailOf, makePrimary, removeAvatar, removeEmail, resendVerification, saveProfile, storedProfile, text, type EmailRow, type Profile } from "../account-edit";
+import { HAS_PAGE_SQL } from "./profile";
+import { AccountLayout, SETTINGS_PAGES, type AccountPage } from "./layout";
+import { DetailsFields, EmailList, LinkFields, PictureChoice, VERIFY_HOURS, MAX_EMAILS_PER_DAY, addEmail, emailOf, makePrimary, pictureState, removeEmail, resendVerification, saveProfile, storedProfile, text, type EmailRow, type Profile } from "../account-edit";
 
 export const settings = new Hono<AppEnv>();
 type C = Context<AppEnv>;
 
-const MAX_AVATAR_BYTES = 512 * 1024;
-const AVATAR_TYPES: [ext: string, type: string, magic: (b: Uint8Array) => boolean][] = [
-  ["png", "image/png", (b) => b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47],
-  ["jpg", "image/jpeg", (b) => b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff],
-  ["webp", "image/webp", (b) => String.fromCharCode(...b.slice(0, 4)) === "RIFF" && String.fromCharCode(...b.slice(8, 12)) === "WEBP"],
-];
 const THEMES = [
   ["system", "Same as your device"],
   ["light", "Light"],
@@ -25,9 +20,6 @@ const THEMES = [
 const NOTICES: Record<string, string> = {
   profile: "Profile saved.",
   theme: "Appearance saved.",
-  avatar: "Picture saved.",
-  "avatar-removed": "Picture removed. Your avatar now comes from Gravatar, if you have one there.",
-  "avatar-bad": "That picture could not be used. Use a PNG, JPEG or WebP file under 512 KB.",
   sent: `If that address can be added, we have emailed it a link. The link works for ${VERIFY_HOURS} hours.`,
   limit: `You can add up to ${MAX_EMAILS_PER_DAY} addresses a day. Please try again tomorrow.`,
   "email-bad": "That does not look like an email address.",
@@ -63,21 +55,27 @@ const NOTICES: Record<string, string> = {
   "link-off": "Sign-in with that service is switched off on this site, so it cannot be linked.",
   "password-off": "Password sign-in is switched off on this site, so a password cannot be set.",
   "link-failed": "The sign-in service did not confirm who you are, so nothing was linked. Please try again.",
+  "token-revoked": "Token revoked.",
   "keep-primary": "Make another confirmed address primary before removing this one.",
 };
 
-async function renderSettings(c: C, form?: { values: Profile; errors: Profile }, recoveryCodes?: string[]) {
+type Page = "profile" | "emails" | "sign-in" | "two-step" | "tokens";
+const pageUrl = (page: Page) => `/account/settings/${page}/` as AccountPage;
+const PAGE_TITLES = Object.fromEntries(SETTINGS_PAGES.map(([href, label]) => [href, label])) as Record<AccountPage, string>;
+
+async function renderSettings(c: C, page: Page, form?: { values: Profile; errors: Profile }, recoveryCodes?: string[], token?: { created?: string; notice?: string }) {
   const user = c.get("user")!;
   const db = c.env.DB;
-  const [{ results: emails }, { results: identities }, { results: pw }, { results: totpRows }, { results: passkeys }] = await db.batch<any>([
+  const [{ results: emails }, { results: identities }, { results: pw }, { results: totpRows }, { results: passkeys }, { results: tokens }] = await db.batch<any>([
     db.prepare("SELECT id, email, verified, is_primary FROM user_emails WHERE user_id = ? ORDER BY is_primary DESC, verified DESC, email").bind(user.id),
-    db.prepare("SELECT provider, email FROM identities WHERE user_id = ? ORDER BY provider").bind(user.id),
+    db.prepare("SELECT provider, subject, email FROM identities WHERE user_id = ? ORDER BY provider").bind(user.id),
     db.prepare("SELECT password_hash IS NOT NULL AS has, mfa_all_methods FROM users WHERE id = ?").bind(user.id),
     db.prepare(
       `SELECT t.secret, t.enabled_at, (SELECT COUNT(*) FROM recovery_codes r WHERE r.user_id = t.user_id AND r.used_at IS NULL) AS codes_left
        FROM user_totp t WHERE t.user_id = ?`,
     ).bind(user.id),
     db.prepare("SELECT credential_id, name, created_at, last_used_at FROM passkeys WHERE user_id = ? ORDER BY created_at, name").bind(user.id),
+    db.prepare("SELECT id, label, created_at, last_used_at FROM draft_tokens WHERE user_id = ? ORDER BY id DESC").bind(user.id),
   ]);
   const totp = totpRows[0] as { secret: string; enabled_at: string | null; codes_left: number } | undefined;
   const hasPassword = !!pw[0].has;
@@ -85,58 +83,55 @@ async function renderSettings(c: C, form?: { values: Profile; errors: Profile },
   const askCurrent = hasPassword && !recent;
   const v = form?.values ?? (await storedProfile(db, user.id));
   const errors = form?.errors ?? {};
-  const orcidLocked = identities.some((i: any) => i.provider === "orcid");
+  const orcidId: string | null = identities.find((i: any) => i.provider === "orcid")?.subject ?? null;
   const on: string[] = await methodsOn(c.env);
   const passwordOn = on.includes("password");
   const unlinked = Object.entries(PROVIDERS)
     .filter(([key]) => on.includes(key) && !identities.some((i: any) => i.provider === key))
     .map(([key, p]) => [key, p.label] as const);
   const origin = new URL(c.req.url).origin;
-  const notice = form ? null : NOTICES[c.req.query("notice") ?? ""];
+  const picture = page === "profile" ? await pictureState(db, user.id) : null;
+  const hasPage = page === "profile" && !!(await db.prepare(`SELECT 1 FROM users u WHERE u.id = ? AND ${HAS_PAGE_SQL}`).bind(user.id).first());
+  const notice = token?.notice ?? (form ? null : NOTICES[c.req.query("notice") ?? ""]);
   return (
-    <Layout title="Settings" path="/account/" user={user}>
+    <AccountLayout title={`${PAGE_TITLES[pageUrl(page)]} - Settings`} current={pageUrl(page)} user={user}>
       <div class="settings">
-        <p class="small back-link"><a href="/account/">← Your account</a></p>
-        <h1>Settings</h1>
+        <h1>{PAGE_TITLES[pageUrl(page)]}</h1>
         {notice && <p class="notice" role="status">{notice}</p>}
-        {(user.needs_2fa || user.setup_required) && !notice && (
+        {page === "two-step" && (user.needs_2fa || user.setup_required) && !notice && (
           <p class="notice" role="status">{NOTICES[user.setup_required ? "two-step-users" : "two-step-required"]}</p>
         )}
 
-        <section class="settings-section" aria-labelledby="h-profile">
-          <h2 id="h-profile">Profile</h2>
+        {page === "profile" && (
+<>
+        <p class="lede">How you appear on EELSdb: on your author page and beside the spectra you share.</p>
+        {hasPage ? (
+          <p><a class="button secondary" href={`/author/${user.slug}/`}>View public profile</a></p>
+        ) : (
+          <p class="hint">Your public page appears once you have a username and your first spectrum is published, or you show your details or links.</p>
+        )}
+        <form method="post" action="/account/settings/profile/" enctype="multipart/form-data" class="profile-form">
           {Object.keys(errors).length > 0 && <p class="notice error-summary" role="alert">Some fields need attention. Nothing was saved.</p>}
-          <form method="post" action="/account/settings/profile/" class="settings-form">
-            <ProfileFields v={v} errors={errors} origin={origin} orcidLocked={orcidLocked} who="your" />
+          <section class="settings-section" aria-labelledby="h-avatar">
+            <PictureChoice v={v} errors={errors} name={user.display_name} seed={user.slug ?? user.display_name} state={picture!} who="your" uploads heading="h2" />
+          </section>
+
+          <section class="settings-section settings-form" aria-labelledby="h-profile">
+            <h2 id="h-profile">Details</h2>
+            <DetailsFields v={v} errors={errors} origin={origin} who="your" />
+          </section>
+
+          <section class="settings-section settings-form" aria-labelledby="h-links">
+            <h2 id="h-links">Links</h2>
+            <LinkFields v={v} errors={errors} orcid={orcidId} linkNext={on.includes("orcid") ? pageUrl("profile") : null} orcidOff={!on.includes("orcid")} who="your" />
             <div><button class="button" type="submit">Save profile</button></div>
-          </form>
-        </section>
+          </section>
+        </form>
+</>
+        )}
 
-        <section class="settings-section" aria-labelledby="h-avatar">
-          <h2 id="h-avatar">Picture</h2>
-          <div class="avatar-row">
-            <Avatar name={user.display_name} seed={user.slug ?? user.display_name} src={user.avatar?.replace("s=64", "s=160")} class="av-large" />
-            <div class="avatar-actions">
-              <p class="hint">
-                {user.avatar_key
-                  ? "Your uploaded picture."
-                  : <>Taken from <a href="https://gravatar.com/">Gravatar</a> for your primary address, if you have one there. Otherwise your initials are shown. You can upload your own picture instead.</>}
-              </p>
-              <form method="post" action="/account/settings/avatar/" enctype="multipart/form-data" class="inline-form" id="avatar-form">
-                <input type="file" name="avatar" id="f-avatar" accept="image/png,image/jpeg,image/webp" required aria-label="Picture to upload" />
-                <button class="button secondary" type="submit">Upload</button>
-              </form>
-              {user.avatar_key && (
-                <form method="post" action="/account/settings/avatar/remove/">
-                  <button class="link-button" type="submit">Remove picture and use Gravatar</button>
-                </form>
-              )}
-            </div>
-          </div>
-        </section>
-
-        <section class="settings-section" aria-labelledby="h-emails">
-          <h2 id="h-emails">Email addresses</h2>
+        {page === "emails" && (
+        <section class="settings-section lone">
           <p class="hint">The primary address is used for your avatar and for messages about your submissions. Addresses are never shown on the site.</p>
           {emails.length > 0 && <EmailList emails={emails as EmailRow[]} base="/account/settings/emails" />}
           <form method="post" action="/account/settings/emails/" class="inline-form">
@@ -144,9 +139,12 @@ async function renderSettings(c: C, form?: { values: Profile; errors: Profile },
             <button class="button secondary" type="submit">Add address</button>
           </form>
         </section>
+        )}
 
+        {page === "sign-in" && (
+<>
         <section class="settings-section" aria-labelledby="h-signin">
-          <h2 id="h-signin">Sign-in methods</h2>
+          <h2 id="h-signin">Linked services</h2>
           {identities.length ? (
             <dl class="meta">
               {identities.map((i: any) => (
@@ -162,7 +160,7 @@ async function renderSettings(c: C, form?: { values: Profile; errors: Profile },
           {unlinked.length > 0 && (
             <p class="link-services">
               {unlinked.map(([key, label]) => (
-                <a class="button secondary" href={`/auth/${key}/link?next=${encodeURIComponent("/account/settings/?notice=linked#h-signin")}`}>Link {label}</a>
+                <a class="button secondary" href={`/auth/${key}/link?next=${encodeURIComponent("/account/settings/sign-in/?notice=linked#h-signin")}`}>Link {label}</a>
               ))}
             </p>
           )}
@@ -181,6 +179,7 @@ async function renderSettings(c: C, form?: { values: Profile; errors: Profile },
           )}
           {passwordOn && (hasPassword || recent) && (
           <form method="post" action="/account/settings/password/" class="settings-form">
+            {hasPassword && <h3>Change your password</h3>}
             {askCurrent && (
               <div class="field">
                 <label for="f-current-password">Current password</label>
@@ -197,6 +196,11 @@ async function renderSettings(c: C, form?: { values: Profile; errors: Profile },
           )}
           {hasPassword && (
             <form method="post" action="/account/settings/password/remove/" class="settings-form">
+              <h3>Remove your password</h3>
+              <p class="hint">
+                {passwordOn ? "Then you sign in with an email link or another method instead, and nobody can sign in to your account with a password." : "Then nobody can sign in to your account with a password if password sign-in is switched back on."}{" "}
+                Removing it signs you out everywhere else.
+              </p>
               {askCurrent && (
                 <div class="field">
                   <label for="f-remove-password">Current password</label>
@@ -207,7 +211,11 @@ async function renderSettings(c: C, form?: { values: Profile; errors: Profile },
             </form>
           )}
         </section>
+</>
+        )}
 
+        {page === "two-step" && (
+<>
         <section class="settings-section" aria-labelledby="h-two-step" id="two-step">
           <h2 id="h-two-step">Two-step sign-in</h2>
           {recoveryCodes ? (
@@ -327,47 +335,73 @@ async function renderSettings(c: C, form?: { values: Profile; errors: Profile },
             </form>
           )}
         </section>
+</>
+        )}
+
+        {page === "tokens" && (
+        <section class="settings-section lone">
+          <p class="hint">
+            An API token lets a script or an AI assistant use the EELSdb API as you. For now a token can only make drafts: it cannot submit,
+            publish or change anything else. Treat it like a password. See <a href="/docs/share/drafts/">Prepare drafts with an assistant</a>. Your drafts are on the{" "}
+            <a href="/account/drafts/">drafts page</a>.
+          </p>
+          {token?.created && (
+            <div class="notice" role="status">
+              <p><strong>Your new token.</strong> Copy it now: it is not shown again.</p>
+              <pre id="new-token">{token.created}</pre>
+            </div>
+          )}
+          <form method="post" action="/account/settings/tokens/" class="inline-form">
+            <input type="text" name="label" placeholder="What is it for? e.g. laptop" aria-label="Token label" maxlength={80} />
+            <button class="button secondary" type="submit">Make a token</button>
+          </form>
+          {tokens.length > 0 && (
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Label</th><th>Made</th><th>Last used</th><th></th></tr></thead>
+                <tbody>
+                  {tokens.map((t: any) => (
+                    <tr>
+                      <td>{t.label || <span class="muted">No label</span>}</td>
+                      <td>{String(t.created_at).slice(0, 10)}</td>
+                      <td>{t.last_used_at ? String(t.last_used_at).slice(0, 10) : "Never"}</td>
+                      <td>
+                        <form method="post" action={`/account/settings/tokens/${t.id}/revoke/`}>
+                          <button class="button secondary" type="submit">Revoke</button>
+                        </form>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+        )}
       </div>
       <script src="/settings.js" type="module"></script>
       <script src="/passkeys.js" type="module"></script>
-    </Layout>
+    </AccountLayout>
   );
 }
 
-settings.get("/account/settings/", requireUser, async (c) => c.html(await renderSettings(c)));
+settings.get("/account/settings/", (c) => c.redirect(pageUrl("profile")));
+for (const page of ["profile", "emails", "sign-in", "two-step", "tokens"] as const) {
+  settings.get(pageUrl(page), requireUser, async (c) => c.html(await renderSettings(c, page)));
+}
 
-const back = (c: C, notice: string) => c.redirect(`/account/settings/?notice=${notice}`);
+const back = (c: C, page: Page, notice: string, hash = "") => c.redirect(`${pageUrl(page)}?notice=${notice}${hash}`);
 
 settings.post("/account/settings/profile/", requireUser, async (c) => {
-  const failed = await saveProfile(c.env.DB, c.get("user")!.id, await c.req.parseBody());
-  if (failed) return c.html(await renderSettings(c, failed), 422);
-  return back(c, "profile");
+  const failed = await saveProfile(c.env, c.get("user")!.id, await c.req.parseBody(), true);
+  if (failed) return c.html(await renderSettings(c, "profile", failed), 422);
+  return back(c, "profile", "profile");
 });
 
 settings.post("/account/settings/theme/", requireUser, async (c) => {
   const theme = String((await c.req.parseBody()).theme ?? "");
   if (THEMES.some(([t]) => t === theme)) await c.env.DB.prepare("UPDATE users SET theme = ? WHERE id = ?").bind(theme, c.get("user")!.id).run();
-  return back(c, "theme");
-});
-
-settings.post("/account/settings/avatar/", requireUser, async (c) => {
-  const user = c.get("user")!;
-  const file = (await c.req.parseBody()).avatar;
-  if (!(file instanceof File) || !file.size || file.size > MAX_AVATAR_BYTES) return back(c, "avatar-bad");
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  const kind = AVATAR_TYPES.find(([, , magic]) => magic(bytes));
-  if (!kind) return back(c, "avatar-bad");
-  // A new name each time, so browsers and caches never show the old picture.
-  const key = `${user.id}/${crypto.randomUUID()}.${kind[0]}`;
-  await c.env.FILES.put(`avatars/${key}`, bytes, { httpMetadata: { contentType: kind[1] } });
-  await c.env.DB.prepare("UPDATE users SET avatar_key = ? WHERE id = ?").bind(key, user.id).run();
-  if (user.avatar_key) await c.env.FILES.delete(`avatars/${user.avatar_key}`);
-  return back(c, "avatar");
-});
-
-settings.post("/account/settings/avatar/remove/", requireUser, async (c) => {
-  await removeAvatar(c.env, c.get("user")!.id);
-  return back(c, "avatar-removed");
+  return back(c, "profile", "theme");
 });
 
 settings.get("/avatars/:user/:file", async (c) => {
@@ -388,7 +422,7 @@ settings.get("/avatars/:user/:file", async (c) => {
 settings.post("/account/settings/emails/", requireUser, async (c) => {
   const user = c.get("user")!;
   const intro = `Someone signed in to the EELS Data Base as "${user.display_name}" and added this address.`;
-  return back(c, await addEmail(c.env, new URL(c.req.url).origin, user.id, (await c.req.parseBody()).email, intro));
+  return back(c, "emails", await addEmail(c.env, new URL(c.req.url).origin, user.id, (await c.req.parseBody()).email, intro));
 });
 
 const ownEmail = (c: C) => emailOf(c.env.DB, c.get("user")!.id, Number(c.req.param("id")));
@@ -397,21 +431,24 @@ settings.post("/account/settings/emails/:id/send/", requireUser, async (c) => {
   const row = await ownEmail(c);
   if (!row) return c.notFound();
   const user = c.get("user")!;
-  await resendVerification(c.env, new URL(c.req.url).origin, user.id, row, `Someone signed in to the EELS Data Base as "${user.display_name}" and added this address.`);
-  return back(c, "sent");
+  const sent = await resendVerification(c.env, new URL(c.req.url).origin, user.id, row, `Someone signed in to the EELS Data Base as "${user.display_name}" and added this address.`);
+  // The banner sends the page it was on, and asks for JSON so it can say what happened without a reload.
+  if (c.req.header("Accept")?.includes("application/json")) return c.json({ sent });
+  const next = (await c.req.parseBody()).next;
+  return typeof next === "string" && next ? c.redirect(safeNext(next)) : back(c, "emails", "sent");
 });
 
 settings.post("/account/settings/emails/:id/primary/", requireUser, async (c) => {
   const row = await ownEmail(c);
   if (!row?.verified) return c.notFound();
   await makePrimary(c.env.DB, c.get("user")!.id, row);
-  return back(c, "primary");
+  return back(c, "emails", "primary");
 });
 
 settings.post("/account/settings/emails/:id/remove/", requireUser, async (c) => {
   const row = await ownEmail(c);
   if (!row) return c.notFound();
-  return back(c, await removeEmail(c.env.DB, row));
+  return back(c, "emails", await removeEmail(c.env.DB, row));
 });
 
 settings.get("/account/emails/verify/:token/", requireUser, async (c) => {
@@ -421,7 +458,7 @@ settings.get("/account/emails/verify/:token/", requireUser, async (c) => {
     `SELECT e.id FROM email_verifications v JOIN user_emails e ON e.id = v.email_id
      WHERE v.token_hash = ? AND e.user_id = ? AND v.expires_at > ?`,
   ).bind(await sha256(c.req.param("token")), user.id, new Date().toISOString()).first<number>("id");
-  if (row === null) return back(c, "verify-failed");
+  if (row === null) return back(c, "emails", "verify-failed");
   try {
     await db.batch([
       db.prepare("UPDATE user_emails SET verified = 1 WHERE id = ?").bind(row),
@@ -429,7 +466,7 @@ settings.get("/account/emails/verify/:token/", requireUser, async (c) => {
     ]);
   } catch {
     // The unique index on confirmed addresses: another account confirmed it first.
-    return back(c, "verify-failed");
+    return back(c, "emails", "verify-failed");
   }
   // A confirmed address takes over from an unconfirmed primary.
   await db.prepare(
@@ -437,7 +474,7 @@ settings.get("/account/emails/verify/:token/", requireUser, async (c) => {
      WHERE user_id = ?2 AND NOT EXISTS (SELECT 1 FROM user_emails WHERE user_id = ?2 AND is_primary = 1 AND verified = 1)`,
   ).bind(row, user.id).run();
   await syncEmails(db, user.id);
-  return back(c, "verified");
+  return back(c, "emails", "verified");
 });
 
 /** Passes when the session is fresh or the current password is right; wrong guesses count towards the same hourly lockout as sign-in. */
@@ -461,26 +498,26 @@ settings.post("/account/settings/password/", requireUser, async (c) => {
   const user = c.get("user")!;
   const body = await c.req.parseBody();
   const next = typeof body.new_password === "string" ? body.new_password : "";
-  if (!(await methodsOn(c.env)).includes("password")) return back(c, "password-off");
+  if (!(await methodsOn(c.env)).includes("password")) return back(c, "sign-in", "password-off");
   const allowed = await mayChangePassword(c, body.current_password);
-  if (allowed !== "ok") return back(c, `password-${allowed}`);
-  if (next.length < MIN_PASSWORD_LENGTH || next.length > MAX_PASSWORD_LENGTH) return back(c, "password-short");
+  if (allowed !== "ok") return back(c, "sign-in", `password-${allowed}`);
+  if (next.length < MIN_PASSWORD_LENGTH || next.length > MAX_PASSWORD_LENGTH) return back(c, "sign-in", "password-short");
   await c.env.DB.prepare("UPDATE users SET password_hash = ?, legacy_password_hash = NULL WHERE id = ?").bind(await pbkdf2Hash(next), user.id).run();
   await signOutOtherSessions(c, user.id);
-  return back(c, "password-saved");
+  return back(c, "sign-in", "password-saved");
 });
 
 settings.post("/account/settings/password/remove/", requireUser, async (c) => {
   const user = c.get("user")!;
   const allowed = await mayChangePassword(c, (await c.req.parseBody()).current_password);
-  if (allowed !== "ok") return back(c, `password-${allowed}`);
+  if (allowed !== "ok") return back(c, "sign-in", `password-${allowed}`);
   await c.env.DB.prepare("UPDATE users SET password_hash = NULL, legacy_password_hash = NULL WHERE id = ?").bind(user.id).run();
   await signOutOtherSessions(c, user.id);
-  return back(c, "password-removed");
+  return back(c, "sign-in", "password-removed");
 });
 
 
-const stepBack = (c: C, notice: string) => c.redirect(`/account/settings/?notice=${notice}#h-two-step`);
+const stepBack = (c: C, notice: string) => back(c, "two-step", notice, "#h-two-step");
 
 settings.post("/account/settings/two-step/start/", requireUser, async (c) => {
   const user = c.get("user")!;
@@ -510,7 +547,7 @@ settings.post("/account/settings/two-step/confirm/", requireUser, async (c) => {
   }
   await db.prepare("UPDATE user_totp SET enabled_at = datetime('now'), last_step = ? WHERE user_id = ? AND enabled_at IS NULL").bind(step, user.id).run();
   c.header("Cache-Control", "no-store");
-  return c.html(await renderSettings(c, undefined, await makeRecoveryCodes(db, user.id)));
+  return c.html(await renderSettings(c, "two-step", undefined, await makeRecoveryCodes(db, user.id)));
 });
 
 /** The forms for an account with two-step sign-in on all need a current code or a recovery code. */
@@ -535,7 +572,7 @@ settings.post("/account/settings/two-step/recovery/", requireUser, async (c) => 
   const refused = await codeOk(c, await c.req.parseBody());
   if (refused) return refused;
   c.header("Cache-Control", "no-store");
-  return c.html(await renderSettings(c, undefined, await makeRecoveryCodes(c.env.DB, c.get("user")!.id)));
+  return c.html(await renderSettings(c, "two-step", undefined, await makeRecoveryCodes(c.env.DB, c.get("user")!.id)));
 });
 
 settings.post("/account/settings/two-step/all-methods/", requireUser, async (c) => {
@@ -572,7 +609,28 @@ settings.post("/account/settings/passkeys/", requireUser, async (c) => {
 });
 
 settings.post("/account/settings/passkeys/remove/", requireUser, async (c) => {
-  if (!(await signedInRecently(c))) return back(c, "passkey-stale");
+  if (!(await signedInRecently(c))) return back(c, "two-step", "passkey-stale", "#h-passkeys");
   await c.env.DB.prepare("DELETE FROM passkeys WHERE credential_id = ? AND user_id = ?").bind(String((await c.req.parseBody()).id ?? ""), c.get("user")!.id).run();
-  return c.redirect("/account/settings/?notice=passkey-removed#h-passkeys");
+  return back(c, "two-step", "passkey-removed", "#h-passkeys");
+});
+
+const staleToken = (c: C) =>
+  renderSettings(c, "tokens", undefined, undefined, {
+    notice: `To make or revoke a token, sign out and sign in again, then do it within ${FRESH_SIGN_IN_MINUTES} minutes. This keeps a token out of reach of anyone at a browser you left signed in.`,
+  }).then((page) => c.html(page, 403));
+
+settings.post("/account/settings/tokens/", requireUser, async (c) => {
+  const user = c.get("user")!;
+  if (!(await signedInRecently(c))) return staleToken(c);
+  const label = String((await c.req.parseBody()).label ?? "").trim().slice(0, 80) || null;
+  const token = "eelsdb_draft_" + [...crypto.getRandomValues(new Uint8Array(24))].map((b) => b.toString(16).padStart(2, "0")).join("");
+  await c.env.DB.prepare("INSERT INTO draft_tokens (user_id, hash, label) VALUES (?, ?, ?)").bind(user.id, await sha256(token), label).run();
+  c.header("Cache-Control", "no-store");
+  return c.html(await renderSettings(c, "tokens", undefined, undefined, { created: token }));
+});
+
+settings.post("/account/settings/tokens/:id/revoke/", requireUser, async (c) => {
+  if (!(await signedInRecently(c))) return staleToken(c);
+  await c.env.DB.prepare("DELETE FROM draft_tokens WHERE id = ? AND user_id = ?").bind(Number(c.req.param("id")), c.get("user")!.id).run();
+  return back(c, "tokens", "token-revoked");
 });

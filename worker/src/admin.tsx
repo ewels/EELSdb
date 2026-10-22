@@ -22,7 +22,7 @@ const DECISION_LABELS: Record<Decision, string> = { approve: "Approve", request_
 // ---- Moderation (moderators and admins) ----------------------------------------------------
 
 admin.use("/admin/*", requireUser, async (c, next) => {
-  if (c.get("user")!.needs_2fa) return c.redirect("/account/settings/?notice=two-step-required#h-two-step");
+  if (c.get("user")!.needs_2fa) return c.redirect("/account/settings/two-step/?notice=two-step-required#h-two-step");
   if (!isModerator(c.get("user"))) return c.text("Only moderators can see this page.", 403);
   await next();
 });
@@ -243,7 +243,7 @@ async function settingsPage(c: Context<AppEnv>, opts: { error?: string; proposed
             <p class="hint">
               {accounts(twoStep.without[g.role])} in this group {twoStep.without[g.role] === 1 ? "has" : "have"} no authenticator app or passkey.
               {g.role === "user"
-                ? " Without it, people must set up two-step sign-in before they use their account, and drafts tokens stop working for them."
+                ? " Without it, people must set up two-step sign-in before they use their account, and API tokens stop working for them."
                 : " Without it, the role does nothing until they set it up."}
             </p>
           </div>
@@ -357,7 +357,7 @@ function twoStepConfirmPage(c: Context<AppEnv>, p: { proposed: TwoStepProposed; 
             <li>
               <strong>{GROUP_LABELS[r]}</strong>: {accounts(p.counts[r])} without two-step sign-in.{" "}
               {r === "user"
-                ? "They are sent to their settings to set it up before they can submit, use drafts or open their account pages, and their drafts tokens stop working. Public pages still work."
+                ? "They are sent to their settings to set it up before they can submit, use drafts or open their account pages, and their API tokens stop working. Public pages still work."
                 : "They lose the powers of their role until they set it up."}
             </li>
           ))}

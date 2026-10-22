@@ -29,10 +29,10 @@ describe("pages", () => {
 
   it("moderators page lists admins and moderators in separate groups, without private details", async () => {
     await env.DB.batch([
-      env.DB.prepare("INSERT INTO users (id, display_name, role, slug, profile_public) VALUES (6400001, 'Public Mod', 'moderator', 'public-mod', 1)"),
+      env.DB.prepare("INSERT INTO users (id, display_name, role, slug, use_gravatar, show_details, show_links) VALUES (6400001, 'Public Mod', 'moderator', 'public-mod', 1, 1, 1)"),
       env.DB.prepare("INSERT INTO user_emails (user_id, email, verified, is_primary) VALUES (6400001, 'public-mod@example.org', 1, 1)"),
-      env.DB.prepare("INSERT INTO users (id, display_name, role, profile_public) VALUES (6400002, 'Quiet Admin', 'admin', 0)"),
-      env.DB.prepare("INSERT INTO users (id, display_name, role, slug, profile_public) VALUES (6400003, 'Plain User', 'user', 'plain-user', 1)"),
+      env.DB.prepare("INSERT INTO users (id, display_name, role, use_gravatar, show_details, show_links) VALUES (6400002, 'Quiet Admin', 'admin', 0, 0, 0)"),
+      env.DB.prepare("INSERT INTO users (id, display_name, role, slug, use_gravatar, show_details, show_links) VALUES (6400003, 'Plain User', 'user', 'plain-user', 1, 1, 1)"),
     ]);
     const { status, html } = await page("/moderators/");
     expect(status).toBe(200);
@@ -51,11 +51,12 @@ describe("pages", () => {
     // Staff pages exist even with no spectra and a private profile, showing only what the list shows.
     const admin = await page("/author/quiet-admin/");
     expect(admin.status).toBe(200);
-    expect(admin.html).toContain("Administrator of the EELS Data Base");
+    expect(admin.html).toMatch(/<h1 class="profile-name">Quiet Admin<span class="chip role-badge"[^>]*>Administrator<\/span><\/h1>/);
+    expect(admin.html).not.toContain("Administrator of the EELS Data Base ·");
     expect(admin.html).not.toContain("gravatar.com/avatar/");
     expect((await page("/author/quiet-admin.md")).html).toContain("Administrator of the EELS Data Base.");
     expect((await page("/author/plain-user/")).status).toBe(200);
-    await env.DB.prepare("INSERT INTO users (id, display_name, role, slug, profile_public) VALUES (6400004, 'Hidden User', 'user', 'hidden-user', 0)").run();
+    await env.DB.prepare("INSERT INTO users (id, display_name, role, slug, use_gravatar, show_details, show_links) VALUES (6400004, 'Hidden User', 'user', 'hidden-user', 0, 0, 0)").run();
     expect((await page("/author/hidden-user/")).status).toBe(404);
   });
 

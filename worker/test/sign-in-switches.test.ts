@@ -80,8 +80,8 @@ describe("each switch hides and refuses its method", () => {
       expect(calls).toEqual([]);
 
       const u = await sessionFor({ id: nextId++, display_name: "Linker" });
-      expect(where(await go(`/auth/${provider}/link`, u))).toBe("/account/settings/?notice=link-off#h-signin");
-      expect(await (await go("/account/settings/", u)).text()).not.toContain(`/auth/${provider}/link`);
+      expect(where(await go(`/auth/${provider}/link`, u))).toBe("/account/settings/sign-in/?notice=link-off#h-signin");
+      expect(await (await go("/account/settings/sign-in/", u)).text()).not.toContain(`/auth/${provider}/link`);
     });
   }
 
@@ -96,7 +96,7 @@ describe("each switch hides and refuses its method", () => {
     expect(cookieOf(res, "eelsdb_session")).toBeUndefined();
 
     const u = await sessionFor({ id: nextId++, display_name: "No Password" });
-    const settings = await (await go("/account/settings/", u)).text();
+    const settings = await (await go("/account/settings/sign-in/", u)).text();
     expect(settings).not.toContain("Set password");
     expect(settings).toContain("Password sign-in is switched off");
     expect(where(await post("/account/settings/password/", { new_password: "another long password" }, u))).toContain("notice=password-off");
@@ -230,7 +230,7 @@ describe("the welcome page", () => {
 
 describe("the ORCID banner", () => {
   it("says ORCID is how you sign in, without a hide button, when ORCID is the only method on", async () => {
-    const u = await sessionFor({ id: nextId++, display_name: "Unlinked" });
+    const u = await sessionFor({ id: nextId++, display_name: "Unlinked" }, { email: true });
     let page = await (await go("/spectra/", u)).text();
     expect(page).toContain("Hide for 30 days");
     await off("google", "github", "passkey", "email_link", "password");
@@ -240,7 +240,7 @@ describe("the ORCID banner", () => {
   });
 
   it("is not shown when ORCID sign-in is off, as nothing could be linked", async () => {
-    const u = await sessionFor({ id: nextId++, display_name: "Unlinked Too" });
+    const u = await sessionFor({ id: nextId++, display_name: "Unlinked Too" }, { email: true });
     await off("orcid");
     expect(await (await go("/spectra/", u)).text()).not.toContain('class="orcid-banner"');
   });

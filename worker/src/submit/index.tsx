@@ -4,7 +4,7 @@ import { raw } from "hono/html";
 import type { Child } from "hono/jsx";
 import { requireUser, type AppEnv } from "../auth";
 import { ELEMENTS } from "../elements";
-import { Layout, TYPE_NAMES } from "../pages/layout";
+import { AccountLayout, Layout, TYPE_NAMES } from "../pages/layout";
 import { BEAM_ENERGIES, COMPANION_EXTENSIONS, MAX_FILE_BYTES, SPECTRUM_EXTENSIONS, UNIT_LABELS, VARIANTS, cleanBrowserChecks, collectUploads, parseForm } from "./form";
 import { createSpectrum, instrumentOk, storeFile } from "./store";
 
@@ -524,7 +524,7 @@ submit.get("/account/submissions/", requireUser, async (c) => {
     rejected: "Not accepted",
   };
   return c.html(
-    <Layout title="Your submissions" path="/account/" user={user}>
+    <AccountLayout title="Your submissions" current="/account/submissions/" user={user}>
       <h1>Your submissions</h1>
       {just && <p class="notice" role="status">Thank you. Your spectrum is in the review queue; you will see its status here.</p>}
       {results.length ? (
@@ -550,6 +550,6 @@ submit.get("/account/submissions/", requireUser, async (c) => {
           <p><a class="button" href="/submit-data/">Submit a spectrum</a></p>
         </>
       )}
-    </Layout>,
+    </AccountLayout>,
   );
 });

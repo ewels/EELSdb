@@ -94,9 +94,9 @@ const GO = (
 /** "(Dr) Marie Cheynet" or "Dr. Gilles Hug" to the name alone. */
 const plainName = (name: string) => name.replace(/^\(?Dr\.?\)?\s+/i, "").trim();
 
-/** A contributor's picture shows only when they chose a public profile. */
+/** A contributor's picture shows only when they chose to use their Gravatar; an uploaded picture always shows. */
 async function person(row: any): Promise<Person> {
-  return { slug: row.slug, name: plainName(row.name), avatar: row.profile_public ? await avatarUrl(row.avatar_key, row.email) : null };
+  return { slug: row.slug, name: plainName(row.name), avatar: await avatarUrl(row.avatar_key, row.email, row.use_gravatar) };
 }
 
 export async function homePage(c: Context<AppEnv>) {
@@ -110,14 +110,14 @@ export async function homePage(c: Context<AppEnv>) {
     ),
     db.prepare(
       `SELECT s.author_slug AS slug, MIN(s.author_display) AS name, COUNT(*) AS n, MIN(substr(s.published_at, 1, 4)) AS since,
-              u.profile_public, u.avatar_key,
+              u.use_gravatar, u.avatar_key,
               (SELECT e.email FROM user_emails e WHERE e.user_id = u.id ORDER BY e.is_primary DESC, e.verified DESC, e.id LIMIT 1) AS email
        FROM spectra s LEFT JOIN users u ON u.slug = s.author_slug
        WHERE s.${published} GROUP BY s.author_slug ORDER BY n DESC, name LIMIT 24`,
     ),
     db.prepare(
       `SELECT s.id, s.slug, s.title, s.formula, s.type, s.author_slug AS slug_author, s.author_display,
-              u.profile_public, u.avatar_key,
+              u.use_gravatar, u.avatar_key,
               (SELECT e.email FROM user_emails e WHERE e.user_id = u.id ORDER BY e.is_primary DESC, e.verified DESC, e.id LIMIT 1) AS email,
               f.r2_key AS file,
               (SELECT json_group_array(e.element) FROM spectrum_elements e WHERE e.spectrum_id = s.id) AS elements
@@ -145,7 +145,7 @@ export async function homePage(c: Context<AppEnv>) {
         r,
         label: r.title,
         plot: r.file ? await miniPlot(c, r.file, JSON.parse(r.elements ?? "[]")) : null,
-        author: await person({ slug: r.slug_author, name: r.author_display, profile_public: r.profile_public, avatar_key: r.avatar_key, email: r.email }),
+        author: await person({ slug: r.slug_author, name: r.author_display, use_gravatar: r.use_gravatar, avatar_key: r.avatar_key, email: r.email }),
       };
     }),
   );

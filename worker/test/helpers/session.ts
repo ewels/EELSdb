@@ -2,13 +2,17 @@ import { env } from "cloudflare:workers";
 import { sha256 } from "../../src/auth";
 
 /** A signed-in user without going through OAuth: returns the Cookie header value. */
-export async function sessionFor(user: { id: number; display_name: string; role?: string; slug?: string | null }, options: { totp?: boolean } = {}) {
+export async function sessionFor(user: { id: number; display_name: string; role?: string; slug?: string | null }, options: { totp?: boolean; email?: boolean } = {}) {
   await env.DB.prepare("INSERT OR IGNORE INTO users (id, display_name, role, slug) VALUES (?, ?, ?, ?)")
     .bind(user.id, user.display_name, user.role ?? "user", user.slug ?? null)
     .run();
   // Moderators and admins only have their role with two-step sign-in on; pass `{ totp: false }` to test without it.
   if ((user.role ?? "user") !== "user" && options.totp !== false) {
     await env.DB.prepare("INSERT OR IGNORE INTO user_totp (user_id, secret, enabled_at) VALUES (?, ?, datetime('now'))").bind(user.id, "JBSWY3DPEHPK3PXP").run();
+  }
+  // The email banner shows for accounts with no confirmed address, so tests of other banners ask for one.
+  if (options.email) {
+    await env.DB.prepare("INSERT OR IGNORE INTO user_emails (user_id, email, verified, is_primary) VALUES (?, ?, 1, 1)").bind(user.id, `u${user.id}@example.invalid`).run();
   }
   const token = crypto.randomUUID();
   await env.DB.prepare("INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)")

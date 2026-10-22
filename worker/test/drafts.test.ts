@@ -25,7 +25,7 @@ const createDraft = (token: string | null, fields: Record<string, string>, file:
 };
 
 async function tokenFor(cookie: string) {
-  const html = await (await post("/account/drafts/tokens/", cookie, { label: "laptop" })).text();
+  const html = await (await post("/account/settings/tokens/", cookie, { label: "laptop" })).text();
   return html.match(/eelsdb_draft_[0-9a-f]{48}/)![0];
 }
 
@@ -119,13 +119,13 @@ describe("drafts", () => {
     const limited = await createDraft(token, { title: "One too many", type: "coreloss", formula: "C" });
     expect(limited.status).toBe(429);
 
-    await post(`/account/drafts/tokens/${await env.DB.prepare("SELECT id FROM draft_tokens WHERE user_id = 6500006").first("id")}/revoke/`, owner, {});
+    await post(`/account/settings/tokens/${await env.DB.prepare("SELECT id FROM draft_tokens WHERE user_id = 6500006").first("id")}/revoke/`, owner, {});
     expect((await createDraft(token, { title: "Revoked", type: "coreloss", formula: "C" })).status).toBe(401);
   });
 
   it("are documented in the API v2 OpenAPI file", async () => {
     const doc = await (await exports.default.fetch(`${SITE}/api/openapi-v2.json`)).json<any>();
     expect(doc.paths["/drafts"].post.operationId).toBe("createDraft");
-    expect(doc.components.securitySchemes.draftToken).toMatchObject({ type: "http", scheme: "bearer" });
+    expect(doc.components.securitySchemes.apiToken).toMatchObject({ type: "http", scheme: "bearer" });
   });
 });

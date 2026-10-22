@@ -9,18 +9,18 @@ A draft is not public, and moderators do not see it. Nothing goes to review unti
 
 ## Make a token
 
-1. [Sign in](/docs/share/sign-in/) and open [Your drafts](/account/drafts/).
-2. Under **Let an assistant make drafts**, type a label, for example "laptop", and click **Make a token**.
+1. [Sign in](/docs/share/sign-in/) and open **Settings**, then [**API tokens**](/account/settings/tokens/).
+2. Type a label, for example "laptop", and click **Make a token**.
 3. Copy the token. The page shows it only once.
 
-A token can only make drafts in your account. It cannot submit, publish or change anything else. Treat it like a password. Revoke it on the same page when you no longer need it. Making or revoking a token needs a sign-in in the last 15 minutes: if yours is older, sign out and sign in again first.
+A token can only make drafts in your account. It cannot submit, publish or change anything else. Treat it like a password. Revoke it on the same page (**Settings**, **API tokens**) when you no longer need it. Making or revoking a token needs a sign-in in the last 15 minutes: if yours is older, sign out and sign in again first.
 
 ## Give it to your assistant
 
 Install the [`eelsdb` agent skill](/docs/use/agents/#install-the-agent-skill). It tells the assistant how to make drafts, and that it must not guess values.
 Then ask in plain words, for example:
 
-> Make EELSdb drafts for the spectra in `spectra/`. The token is in the `EELSDB_DRAFT_TOKEN` environment variable. Take the beam energy and angles from the file headers or from `notes.md`, and leave out any value you cannot find.
+> Make EELSdb drafts for the spectra in `spectra/`. The token is in the `EELSDB_API_TOKEN` environment variable. Take the beam energy and angles from the file headers or from `notes.md`, and leave out any value you cannot find.
 
 Give the token to the assistant in an environment variable or a file, not in the chat.
 
@@ -44,7 +44,7 @@ Send each spectrum to `POST https://api.eelsdb.eu/v2/drafts` as `multipart/form-
 
 ```sh
 $ curl https://api.eelsdb.eu/v2/drafts \
-    -H "Authorization: Bearer $EELSDB_DRAFT_TOKEN" \
+    -H "Authorization: Bearer $EELSDB_API_TOKEN" \
     -F file=@hematite.msa -F title=Hematite -F type=coreloss -F formula=Fe2O3 \
     -F edges="Fe_L2,3; O_K" -F beam_energy=200 -F beam_energy_source=file \
     -F ref_doi=10.1016/j.jssc.2009.07.037

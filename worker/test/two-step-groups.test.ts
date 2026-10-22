@@ -15,7 +15,7 @@ const cookieOf = (res: Response, name: string) =>
 const run = (sql: string, ...args: unknown[]) => env.DB.prepare(sql).bind(...args).run();
 const value = (key: string) => env.DB.prepare("SELECT value FROM site_settings WHERE key = ?").bind(key).first<string>("value");
 const set = (group: string, v: "0" | "1") => run("INSERT OR REPLACE INTO site_settings (key, value) VALUES (?, ?)", `require_2fa_${group}`, v);
-const REDIRECT = "/account/settings/?notice=two-step-required#h-two-step";
+const REDIRECT = "/account/settings/two-step/?notice=two-step-required#h-two-step";
 
 let nextId = 9970001;
 const person = async (role: string, opts: { totp?: boolean; passkey?: boolean } = {}) => {
@@ -104,17 +104,17 @@ describe("other users", () => {
     for (const p of pages.slice(0, 4)) expect(where(await go(p, u.cookie))).toBe(REDIRECT);
     expect(where(await post("/account/settings/profile/", { display_name: "X" }, u.cookie))).toBe(REDIRECT);
     expect(where(await post("/account/drafts/", {}, u.cookie))).toBe(REDIRECT);
-    const settings = await go("/account/settings/?notice=two-step-required", u.cookie);
+    const settings = await go("/account/settings/two-step/?notice=two-step-required", u.cookie);
     expect(settings.status).toBe(200);
     expect(where(await go("/account/emails/verify/not-a-token/", u.cookie))).not.toBe(REDIRECT);
-    const html = await (await go("/account/settings/", u.cookie)).text();
+    const html = await (await go("/account/settings/two-step/", u.cookie)).text();
     expect(html).toContain("This site requires two-step sign-in");
   });
 
   it("on: settings, the two-step and passkey parts and sign-out stay reachable; public pages work", async () => {
     await set("user", "1");
     const u = await person("user");
-    expect((await go("/account/settings/", u.cookie)).status).toBe(200);
+    expect((await go("/account/settings/two-step/", u.cookie)).status).toBe(200);
     expect(where(await post("/account/settings/two-step/start/", {}, u.cookie))).not.toBe(REDIRECT);
     const options = await go("/account/settings/passkeys/options/", u.cookie, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
     expect(options.status).toBe(200);
@@ -157,7 +157,7 @@ describe("other users", () => {
 
   it("drafts tokens stop working for accounts without 2FA while it is on", async () => {
     const u = await person("user");
-    const html = await (await post("/account/drafts/tokens/", { label: "t" }, u.cookie)).text();
+    const html = await (await post("/account/settings/tokens/", { label: "t" }, u.cookie)).text();
     const token = html.match(/eelsdb_draft_[0-9a-f]{48}/)![0];
     const draft = () => {
       const fd = new FormData();

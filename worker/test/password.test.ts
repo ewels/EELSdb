@@ -137,7 +137,7 @@ describe("password settings", () => {
     expect((await post("/account/settings/password/", { new_password: "a long password" }, stale)).headers.get("location")).toContain("password-stale");
     expect(await column(id, "password_hash")).toBeNull();
     const cookie = await sessionAt(id, 1);
-    expect((await post("/account/settings/password/", { new_password: "short" }, cookie)).headers.get("location")).toBe("/account/settings/?notice=password-short");
+    expect((await post("/account/settings/password/", { new_password: "short" }, cookie)).headers.get("location")).toBe("/account/settings/sign-in/?notice=password-short");
     expect(await column(id, "password_hash")).toBeNull();
     expect((await post("/account/settings/password/", { new_password: "x".repeat(201) }, cookie)).headers.get("location")).toContain("password-short");
     expect((await post("/account/settings/password/", { new_password: "a long password" }, cookie)).headers.get("location")).toContain("password-saved");
@@ -166,7 +166,7 @@ describe("password settings", () => {
 
   it("asks for the current password on the page only when it is needed", async () => {
     const id = await mkUser({ password: "old password!" });
-    const page = (cookie: string) => exports.default.fetch(`${SITE}/account/settings/`, { headers: { Cookie: cookie } }).then((r) => r.text());
+    const page = (cookie: string) => exports.default.fetch(`${SITE}/account/settings/sign-in/`, { headers: { Cookie: cookie } }).then((r) => r.text());
     expect(await page(await sessionAt(id, 30))).toContain('name="current_password"');
     expect(await page(await sessionAt(id, 1))).not.toContain('name="current_password"');
   });
@@ -190,7 +190,7 @@ describe("password settings", () => {
     await sessionAt(id, 1);
     await post("/account/settings/password/remove/", {}, mine);
     expect(await sessionCount(id)).toBe(1);
-    const page = await exports.default.fetch(`${SITE}/account/settings/`, { headers: { Cookie: mine }, redirect: "manual" });
+    const page = await exports.default.fetch(`${SITE}/account/settings/sign-in/`, { headers: { Cookie: mine }, redirect: "manual" });
     expect(page.status).toBe(200);
   });
 

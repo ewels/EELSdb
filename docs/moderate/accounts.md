@@ -32,7 +32,7 @@ Click a name to open the account page.
 
 ## The account page
 
-- **Profile:** name, username, job title, affiliation, links and whether the profile is public. The same checks apply as in the person's own settings. You can also remove an uploaded picture.
+- **Profile:** name, username, job title, affiliation, links and whether the profile is public. The same checks apply as in the person's own settings. You can also change their picture to initials or Gravatar, which deletes an uploaded picture, but you cannot upload one for them.
 - **Role:** user, moderator or administrator. Staff get a username, so they have an author page.
 - **Email addresses:** add one (it stays unconfirmed, and EELSdb sends it a confirmation link), send the confirmation link again, make a confirmed address primary, or remove one that is not the primary. For a confirmed address, **Send sign-in link** emails the person a normal sign-in link. You do not see the link. While email links are [switched off](#sign-in-methods), this button is not there.
 - **Sign-in:** linked ORCID, Google and GitHub accounts (you can unlink one), whether a password is set, whether the authenticator app is on and how many recovery codes are left, the passkeys with their last use, and the number of active sessions.
@@ -86,8 +86,8 @@ People with no linked ORCID see a banner on every page asking them to link it. T
 
 Three switches decide who must use [two-step sign-in](/docs/share/sign-in/#two-step-sign-in) (an authenticator app or a passkey): administrators (on by default), moderators (on) and all other users (off). Beside each switch the page shows how many accounts in that group have neither.
 
-- **Administrators and moderators, on:** without two-step sign-in the role does nothing (the moderation and admin pages send them to **Settings**), and they are asked for a second step after every way of signing in except a passkey. **Off:** the role works without it. Accounts that have two-step sign-in are then asked for it like any user: after an email link or a password, and after ORCID, Google and GitHub only if they chose **Also ask after ORCID, Google and GitHub**.
-- **All other users, on:** a signed-in user without two-step sign-in is sent to the two-step part of **Settings** by every page that needs an account (submitting, drafts, favourites, account and settings pages), until they set it up. Public pages keep working, and so do **Settings** (two-step and passkeys) and sign-out. Their drafts tokens stop working. Everyone who has two-step sign-in is asked for it after every way of signing in except a passkey. **Off:** users choose for themselves.
+- **Administrators and moderators, on:** without two-step sign-in the role does nothing (the moderation and admin pages send them to **Settings**, **Two-step and passkeys**), and they are asked for a second step after every way of signing in except a passkey. **Off:** the role works without it. Accounts that have two-step sign-in are then asked for it like any user: after an email link or a password, and after ORCID, Google and GitHub only if they chose **Also ask after ORCID, Google and GitHub**.
+- **All other users, on:** a signed-in user without two-step sign-in is sent to **Settings**, **Two-step and passkeys** by every page that needs an account (submitting, drafts, favourites, account and settings pages), until they set it up. Public pages keep working, and so do the **Two-step and passkeys** settings page and sign-out. Their API tokens stop working. Everyone who has two-step sign-in is asked for it after every way of signing in except a passkey. **Off:** users choose for themselves.
 - The contact form emails administrators who hold the role: with the administrators switch on, only those with two-step sign-in; with it off, every administrator.
 
 Switching a requirement **on** shows a confirmation page first, with how many accounts have no two-step sign-in and what happens to them. Type that number (or tick the box if it is 0) and confirm. Switching **off** only needs the box unticked. You cannot require it for administrators unless your own account has two-step sign-in, so no one is left unable to change the setting back. Changes appear under **Recent changes**.
@@ -96,7 +96,7 @@ Switching a requirement **on** shows a confirmation page first, with how many ac
 
 One switch for each way to sign in: ORCID, Google, GitHub, passkey sign-in, email links and passwords. All are on by default. Beside each switch the page shows how many accounts can sign in with it. A service that is not set up on the server is unavailable whatever its switch says.
 
-A method that is switched off is off everywhere: it is not on the sign-in page, its pages refuse with a message, **Settings** no longer offers to link that service or set a password, and **Send sign-in link** is gone from the account pages. People who are signed in stay signed in until their session ends. Passkeys keep working as the second step, so moderators keep their two-step sign-in.
+A method that is switched off is off everywhere: it is not on the sign-in page, its pages refuse with a message, the **Sign-in methods** settings page no longer offers to link that service or set a password, and **Send sign-in link** is gone from the account pages. People who are signed in stay signed in until their session ends. Passkeys keep working as the second step, so moderators keep their two-step sign-in.
 
 Above the switches, a warning says how many accounts have no switched-on way to sign in right now.
 

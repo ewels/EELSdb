@@ -1,6 +1,6 @@
 import { Hono, type Context } from "hono";
 import { FRESH_SIGN_IN_MINUTES, PROVIDERS, methodOn, signOutEverywhere, signedInRecently, type AppEnv } from "./auth";
-import { EmailList, ProfileFields, addEmail, emailOf, makePrimary, removeAvatar, removeEmail, resendVerification, saveProfile, storedProfile, type EmailRow } from "./account-edit";
+import { EmailList, PictureChoice, ProfileFields, addEmail, emailOf, makePrimary, pictureState, removeEmail, resendVerification, saveProfile, storedProfile, type EmailRow } from "./account-edit";
 import { sendEmail } from "./email";
 import { accountFacts, mergeAccounts, mergePlan, outranks, type Facts } from "./merge";
 import { Avatar, Layout } from "./pages/layout";
@@ -18,7 +18,6 @@ const ROLES = ["user", "moderator", "admin"];
 const NOTICES: Record<string, string> = {
   stale: `Admin changes need a sign-in in the last ${FRESH_SIGN_IN_MINUTES} minutes. Sign out, sign in again, then repeat the change.`,
   profile: "Profile saved.",
-  "avatar-removed": "Picture removed.",
   role: "Role saved.",
   sent: "Added, and a confirmation link was sent to the address. It stays unconfirmed until the person opens it.",
   limit: "That account has had its daily limit of confirmation emails. Try again tomorrow.",
@@ -179,6 +178,7 @@ async function renderUser(c: C, id: number, form?: { values: Record<string, stri
   const totp = totpRows[0] as { enabled_at: string | null; codes_left: number } | undefined;
   const totpOn = !!totp?.enabled_at;
   const v = form?.values ?? (await storedProfile(db, id));
+  const picture = await pictureState(db, id);
   const errors = form?.errors ?? {};
   const base = `/admin/users/${id}`;
   const noticeText = form ? null : NOTICES[c.req.query("notice") ?? ""];
@@ -204,14 +204,10 @@ async function renderUser(c: C, id: number, form?: { values: Record<string, stri
           <h2 id="h-profile">Profile</h2>
           {Object.keys(errors).length > 0 && <p class="notice error-summary" role="alert">Some fields need attention. Nothing was saved.</p>}
           <form method="post" action={`${base}/profile/`} class="settings-form">
-            <ProfileFields v={v} errors={errors} origin={origin} orcidLocked={identities.some((i: any) => i.provider === "orcid")} who="their" />
+            <PictureChoice v={v} errors={errors} name={u.display_name} seed={u.slug ?? u.display_name} state={picture} who="their" uploads={false} heading="h3" />
+            <ProfileFields v={v} errors={errors} origin={origin} orcid={identities.find((i: any) => i.provider === "orcid")?.subject ?? null} linkNext={null} who="their" />
             <div><button class="button" type="submit">Save profile</button></div>
           </form>
-          {u.avatar_key && (
-            <form method="post" action={`${base}/avatar/remove/`}>
-              <button class="link-button danger" type="submit">Remove the uploaded picture</button>
-            </form>
-          )}
         </section>
 
         <section class="settings-section" aria-labelledby="h-role">
@@ -337,7 +333,7 @@ async function renderUser(c: C, id: number, form?: { values: Record<string, stri
 
 adminUsers.get("/admin/users/:id/", async (c) => {
   const id = Number(c.req.param("id"));
-  if (id === c.get("user")!.id) return c.redirect("/account/settings/");
+  if (id === c.get("user")!.id) return c.redirect("/account/settings/profile/");
   const view = await renderUser(c, id);
   return view ? c.html(view) : c.notFound();
 });
@@ -347,7 +343,7 @@ adminUsers.get("/admin/users/:id/", async (c) => {
 adminUsers.get("/admin/users/:id/merge/", async (c) => {
   const id = Number(c.req.param("id"));
   const adminId = c.get("user")!.id;
-  if (id === adminId) return c.redirect("/account/settings/");
+  if (id === adminId) return c.redirect("/account/settings/profile/");
   const kept = await personRow(c.env.DB, id);
   if (!kept) return c.notFound();
   const q = (c.req.query("q") ?? "").trim().slice(0, 100);
@@ -447,7 +443,7 @@ function renderMerge(c: C, kept: Facts, gone: Facts, error?: string) {
 }
 
 adminUsers.get("/admin/users/:id/merge/:other/", async (c) => {
-  if (Number(c.req.param("id")) === c.get("user")!.id) return c.redirect("/account/settings/");
+  if (Number(c.req.param("id")) === c.get("user")!.id) return c.redirect("/account/settings/profile/");
   const pair = await mergePair(c);
   if (pair === null) return c.text("You cannot merge your own account, or an account into itself.", 400);
   if (!pair) return c.notFound();
@@ -484,18 +480,15 @@ action("", async (c, p) => {
 
 action("profile/", async (c, p) => {
   const before = await storedProfile(c.env.DB, p.id);
-  const failed = await saveProfile(c.env.DB, p.id, await c.req.parseBody());
+  const failed = await saveProfile(c.env, p.id, await c.req.parseBody(), false);
   if (failed) return c.html((await renderUser(c, p.id, failed))!, 422);
   const after = await storedProfile(c.env.DB, p.id);
-  const fields = Object.keys({ ...before, ...after }).filter((k) => before[k] !== after[k]);
+  const removed = before.picture === "upload" && after.picture !== "upload";
+  if (removed) await record(c, p, "avatar_removed", {});
+  // Dropping the upload for initials is the whole change, so "Picture removed" says it.
+  const fields = Object.keys({ ...before, ...after }).filter((k) => before[k] !== after[k] && !(k === "picture" && removed && after.picture === "initials"));
   if (fields.length) await record(c, p, "profile_edited", { fields });
   return "profile";
-});
-
-action("avatar/remove/", async (c, p) => {
-  await removeAvatar(c.env, p.id);
-  await record(c, p, "avatar_removed", {});
-  return "avatar-removed";
 });
 
 action("emails/", async (c, p) => {

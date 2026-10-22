@@ -60,7 +60,7 @@ describe("registration", () => {
     expect(res.status).toBe(200);
     const row = await env.DB.prepare("SELECT name, counter, transports FROM passkeys WHERE credential_id = ?").bind(auth.id).first<any>();
     expect(row).toMatchObject({ name: "Work laptop", counter: 0 });
-    const page = await (await go("/account/settings/", { headers: { Cookie: u.cookie } })).text();
+    const page = await (await go("/account/settings/two-step/", { headers: { Cookie: u.cookie } })).text();
     expect(page).toContain("Work laptop");
     expect(page).toContain("never used");
   });
@@ -305,7 +305,7 @@ describe("pages", () => {
   it("lets a passkey-only account ask for its passkey after ORCID, Google and GitHub, after a fresh sign-in", async () => {
     const { id, cookie } = await mkUser();
     await register(cookie);
-    expect(await (await go("/account/settings/", { headers: { Cookie: cookie } })).text()).toContain("Also ask for a passkey after ORCID");
+    expect(await (await go("/account/settings/two-step/", { headers: { Cookie: cookie } })).text()).toContain("Also ask for a passkey after ORCID");
     const stale = await staleSession(id);
     expect((await form("/account/settings/two-step/all-methods/", { all_methods: "1" }, stale)).headers.get("location")).toContain("passkey-stale");
     expect(await env.DB.prepare("SELECT mfa_all_methods FROM users WHERE id = ?").bind(id).first("mfa_all_methods")).toBe(0);

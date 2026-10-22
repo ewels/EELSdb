@@ -124,7 +124,7 @@ describe("the welcome page", () => {
     const profile = orcidProfile();
     const pending = await welcomed("orcid", profile);
     const res = await post("/login/welcome/", {}, pending);
-    expect(res.headers.get("location")).toBe("/spectra/");
+    expect(res.headers.get("location")).toBe("/account/welcome/email/?next=%2Fspectra%2F");
     expect(cookieOf(res, "eelsdb_session")).toBeDefined();
     expect(cookieOf(res, "eelsdb_last_method")).toBe("eelsdb_last_method=orcid");
     const id = (await identityOwner("orcid", profile.orcid))!;
@@ -164,13 +164,13 @@ describe("Yes: the next sign-in links the pending identity", () => {
     const profile = orcidProfile();
     const pending = await welcomed("orcid", profile);
     const res = await emailLink(u.email, pending);
-    expect(res.headers.get("location")).toBe("/account/settings/?notice=linked-orcid#h-signin");
+    expect(res.headers.get("location")).toBe("/account/settings/sign-in/?notice=linked-orcid#h-signin");
     expect(cookieOf(res, "eelsdb_session")).toBeDefined();
     expect(await identityOwner("orcid", profile.orcid)).toBe(u.id);
     expect(await env.DB.prepare("SELECT orcid FROM users WHERE id = ?").bind(u.id).first("orcid")).toBe(profile.orcid);
     expect(await count("SELECT 1 FROM pending_identities WHERE subject = ?", profile.orcid)).toBe(0);
     expect(res.headers.getSetCookie().some((c) => c.startsWith("eelsdb_pending=;"))).toBe(true);
-    const page = await (await go("/account/settings/?notice=linked-orcid", { headers: { Cookie: cookieOf(res, "eelsdb_session")! } })).text();
+    const page = await (await go("/account/settings/sign-in/?notice=linked-orcid", { headers: { Cookie: cookieOf(res, "eelsdb_session")! } })).text();
     expect(page).toContain("ORCID linked");
   });
 
@@ -179,7 +179,7 @@ describe("Yes: the next sign-in links the pending identity", () => {
     const profile = { id: 770000 + ++n, login: "ghp", name: "G" };
     const pending = await welcomed("github", profile);
     const res = await post("/login/password/", { login: u.email, password: "correct horse battery" }, pending);
-    expect(res.headers.get("location")).toBe("/account/settings/?notice=linked-github#h-signin");
+    expect(res.headers.get("location")).toBe("/account/settings/sign-in/?notice=linked-github#h-signin");
     expect(await identityOwner("github", String(profile.id))).toBe(u.id);
   });
 
@@ -203,7 +203,7 @@ describe("Yes: the next sign-in links the pending identity", () => {
     const profile = orcidProfile();
     const pending = await welcomed("orcid", profile);
     const res = await providerSignIn("github", { id: `gh-${u.id}`, login: "x", name: "X" }, {}, pending);
-    expect(res.headers.get("location")).toBe("/account/settings/?notice=linked-orcid#h-signin");
+    expect(res.headers.get("location")).toBe("/account/settings/sign-in/?notice=linked-orcid#h-signin");
     expect(await identityOwner("orcid", profile.orcid)).toBe(u.id);
   });
 
@@ -221,7 +221,7 @@ describe("Yes: the next sign-in links the pending identity", () => {
     expect(wrong.status).toBe(422);
     expect(await identityOwner("orcid", profile.orcid)).toBeNull();
     const done = await post("/login/second-step/", { code: await totpCode(secret, stepAt(Date.now())) }, challenge);
-    expect(done.headers.get("location")).toBe("/account/settings/?notice=linked-orcid#h-signin");
+    expect(done.headers.get("location")).toBe("/account/settings/sign-in/?notice=linked-orcid#h-signin");
     expect(cookieOf(done, "eelsdb_session")).toBeDefined();
     expect(await identityOwner("orcid", profile.orcid)).toBe(u.id);
   });
@@ -232,7 +232,7 @@ describe("Yes: the next sign-in links the pending identity", () => {
     const pending = await welcomed("orcid", profile);
     await env.DB.prepare("INSERT INTO identities (user_id, provider, subject) VALUES (?, 'orcid', ?)").bind(b.id, profile.orcid).run();
     const res = await emailLink(a.email, pending);
-    expect(res.headers.get("location")).toBe("/account/settings/?notice=link-taken#h-signin");
+    expect(res.headers.get("location")).toBe("/account/settings/sign-in/?notice=link-taken#h-signin");
     expect(cookieOf(res, "eelsdb_session")).toBeDefined();
     expect(await identityOwner("orcid", profile.orcid)).toBe(b.id);
     expect(await count("SELECT 1 FROM pending_identities WHERE subject = ?", profile.orcid)).toBe(0);
@@ -243,7 +243,7 @@ describe("Yes: the next sign-in links the pending identity", () => {
     await env.DB.prepare("INSERT INTO identities (user_id, provider, subject) VALUES (?, 'orcid', '0000-0000-0000-0001')").bind(u.id).run();
     const profile = orcidProfile();
     const res = await emailLink(u.email, await welcomed("orcid", profile));
-    expect(res.headers.get("location")).toBe("/account/settings/?notice=link-has#h-signin");
+    expect(res.headers.get("location")).toBe("/account/settings/sign-in/?notice=link-has#h-signin");
     expect(await identityOwner("orcid", profile.orcid)).toBeNull();
   });
 });
@@ -299,5 +299,127 @@ describe("the pending identity", () => {
     const token = pending.split("=")[1];
     expect(await count("SELECT 1 FROM pending_identities WHERE token_hash = ?", await sha256(token))).toBe(1);
     expect(await count("SELECT 1 FROM pending_identities WHERE token_hash = ?", token)).toBe(0);
+  });
+});
+
+describe("the email step after a provider sign-up", () => {
+  const STEP = "/account/welcome/email/?next=%2Fspectra%2F";
+  const record = (email: string) => ({ email, verified: true, primary: true });
+
+  async function signedUp(provider: "github" | "orcid" | "google", profile: Record<string, any>, orcid?: Orcid) {
+    const res = await post("/login/welcome/", {}, await welcomed(provider, profile, orcid));
+    return { res, cookie: cookieOf(res, "eelsdb_session")!, id: (await identityOwner(provider, profile.orcid ?? String(profile.id)))! };
+  }
+
+  it("follows the account being made, for ORCID and the other services, with a form and no way to skip", async () => {
+    for (const [provider, profile] of [["orcid", orcidProfile()], ["github", { id: 870000 + ++n, login: "gh", name: "Gh" }]] as const) {
+      const { res, cookie } = await signedUp(provider, profile);
+      expect(res.headers.get("location")).toBe(STEP);
+      const page = await (await go(STEP, { headers: { Cookie: cookie } })).text();
+      expect(page).toContain("One more step: add your email address");
+      expect(page).toContain("Send confirmation link");
+      expect(page).not.toMatch(/skip for now/i);
+    }
+  });
+
+  it("is not asked when the service shared a confirmed address, nor of an existing account", async () => {
+    const mail = `s-${uniq()}@example.invalid`;
+    const { res } = await signedUp("orcid", orcidProfile(), { emails: [record(mail)] });
+    expect(res.headers.get("location")).toBe("/spectra/");
+    const u = await user();
+    const profile = orcidProfile();
+    await env.DB.prepare("INSERT INTO identities (user_id, provider, subject) VALUES (?, 'orcid', ?)").bind(u.id, profile.orcid).run();
+    expect((await providerSignIn("orcid", profile)).headers.get("location")).toBe("/spectra/");
+  });
+
+  it("sends the link, makes the address primary and unconfirmed, then offers Continue to next; the page can be left", async () => {
+    const { cookie, id } = await signedUp("orcid", orcidProfile());
+    const address = `Step-${uniq()}@Example.invalid`;
+    const before = sent.length;
+    const res = await post("/account/welcome/email/", { email: address, next: "/spectra/" }, cookie);
+    expect(res.status).toBe(200);
+    const page = await res.text();
+    expect(page).toContain("Check your email");
+    expect(page).toContain(address.toLowerCase());
+    expect(page).toContain('href="/spectra/"');
+    expect(sent.length).toBe(before + 1);
+    expect(sent[sent.length - 1].to).toBe(address.toLowerCase());
+    expect(await env.DB.prepare("SELECT verified, is_primary FROM user_emails WHERE user_id = ?").bind(id).first()).toEqual({ verified: 0, is_primary: 1 });
+    expect((await go("/spectra/", { headers: { Cookie: cookie } })).status).toBe(200);
+  });
+
+  it("refuses a bad address and keeps the form", async () => {
+    const { cookie } = await signedUp("orcid", orcidProfile());
+    const res = await post("/account/welcome/email/", { email: "nope", next: "/spectra/" }, cookie);
+    expect(res.status).toBe(422);
+    expect(await res.text()).toContain("Send confirmation link");
+  });
+
+  it("keeps its place before the two-step set-up that new accounts must do", async () => {
+    await env.DB.prepare("INSERT OR REPLACE INTO site_settings (key, value) VALUES ('require_2fa_user', '1')").run();
+    try {
+      const { res, cookie } = await signedUp("orcid", orcidProfile());
+      expect(res.headers.get("location")).toBe(STEP);
+      expect((await go(STEP, { headers: { Cookie: cookie } })).status).toBe(200);
+      expect((await go("/spectra/", { headers: { Cookie: cookie } })).status).toBe(200);
+      expect((await go("/account/", { headers: { Cookie: cookie } })).headers.get("location")).toContain("/account/settings/two-step/");
+    } finally {
+      await env.DB.prepare("DELETE FROM site_settings WHERE key = 'require_2fa_user'").run();
+    }
+  });
+});
+
+describe("the email banner", () => {
+  const go2 = (path: string, cookie: string) => go(path, { headers: { Cookie: cookie } });
+  const text = async (path: string, cookie: string) => (await go2(path, cookie)).text();
+
+  it("asks for an address when there is none, with a link to the emails page", async () => {
+    const cookie = await sessionFor({ id: 9990081, display_name: "No Address" });
+    const page = await text("/spectra/", cookie);
+    expect(page).toContain("Add an email address so we can send you sign-in links and news about your submissions.");
+    expect(page).toContain('href="/account/settings/emails/"');
+    expect(page).toContain("Hide for 7 days");
+  });
+
+  it("asks to confirm an unconfirmed address, and the resend button returns to the page", async () => {
+    const cookie = await sessionFor({ id: 9990082, display_name: "Unconfirmed" });
+    const row = (await env.DB.prepare("INSERT INTO user_emails (user_id, email, is_primary) VALUES (9990082, 'unc@example.invalid', 1) RETURNING id").first<number>("id"))!;
+    const page = await text("/spectra/", cookie);
+    expect(page).toContain("Confirm your email address: we sent a link to unc@example.invalid.");
+    expect(page).toContain(`action="/account/settings/emails/${row}/send/"`);
+    const before = sent.length;
+    const res = await post(`/account/settings/emails/${row}/send/`, { next: "/spectra/?x=1" }, cookie);
+    expect(res.headers.get("location")).toBe("/spectra/?x=1");
+    expect(sent.length).toBe(before + 1);
+    expect((await post(`/account/settings/emails/${row}/send/`, { next: "https://evil.example/" }, cookie)).headers.get("location")).toBe("/account/");
+
+    // The banner's script asks for JSON, so it can say whether a link went out (the daily limit is 5).
+    const ask = () => go(`/account/settings/emails/${row}/send/`, {
+      method: "POST",
+      headers: { Origin: SITE, Accept: "application/json", "Content-Type": "application/x-www-form-urlencoded", Cookie: cookie },
+      body: new URLSearchParams({ next: "/spectra/" }).toString(),
+    }).then((r) => r.json<{ sent: boolean }>());
+    const answers = [];
+    for (let i = 0; i < 6; i++) answers.push((await ask()).sent);
+    expect(answers.at(0)).toBe(true);
+    expect(answers.at(-1)).toBe(false);
+  });
+
+  it("is not shown with a confirmed address, on sign-in pages, the email step or the emails page; and gives way to nothing but itself", async () => {
+    const cookie = await sessionFor({ id: 9990083, display_name: "Hidden Places" });
+    for (const path of ["/account/welcome/email/", "/account/settings/emails/", "/login/"]) {
+      expect(await text(path, cookie)).not.toContain('class="email-banner"');
+    }
+    const confirmed = await sessionFor({ id: 9990084, display_name: "Confirmed" }, { email: true });
+    expect(await text("/spectra/", confirmed)).not.toContain('class="email-banner"');
+  });
+
+  it("takes priority over the ORCID banner", async () => {
+    const cookie = await sessionFor({ id: 9990085, display_name: "Both" });
+    const page = await text("/spectra/", cookie);
+    expect(page).toContain('class="email-banner"');
+    expect(page).not.toContain('class="orcid-banner"');
+    const confirmed = await sessionFor({ id: 9990086, display_name: "Orcid Only" }, { email: true });
+    expect(await text("/spectra/", confirmed)).toContain('class="orcid-banner"');
   });
 });

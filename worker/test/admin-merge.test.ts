@@ -235,7 +235,7 @@ describe("the merge pages and safety rules", () => {
     expect((await merge(other.id, a.id, a.cookie)).status).toBe(400);
     expect((await go(`/admin/users/${other.id}/merge/${a.id}/`, a.cookie)).status).toBe(400);
     expect((await merge(other.id, other.id, a.cookie)).status).toBe(400);
-    expect((await go(`/admin/users/${a.id}/merge/${other.id}/`, a.cookie)).headers.get("location")).toBe("/account/settings/");
+    expect((await go(`/admin/users/${a.id}/merge/${other.id}/`, a.cookie)).headers.get("location")).toBe("/account/settings/profile/");
     expect(await row("SELECT 1 FROM users WHERE id = ?", a.id)).not.toBeNull();
 
     const stale = await account({ name: "Stale Target" });

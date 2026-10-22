@@ -12,7 +12,7 @@ You review on the website. You do not need to install anything.
 ## Two-step sign-in is required
 
 While the site requires it for your group (an administrator sets this under **Site settings**, and it is on for moderators and administrators by default), you must turn on [two-step sign-in with an authenticator app](/docs/share/sign-in/#two-step-sign-in) or add a [passkey](/docs/share/sign-in/#passkeys).
-Until you do, your role does nothing: the moderation pages send you to **Settings**, and you cannot approve instrument profiles or see other people's pending submissions.
+Until you do, your role does nothing: the moderation pages send you to **Settings**, **Two-step and passkeys**, and you cannot approve instrument profiles or see other people's pending submissions.
 After you turn it on, EELSdb asks for a code or a passkey every time you sign in, also after ORCID, Google or GitHub. Signing in with a passkey is complete by itself.
 Keep your recovery codes safe, and keep a second passkey or an authenticator app as a back-up.
 If an administrator switches the requirement off for your group, your role works without it. If you have turned it on anyway, EELSdb still asks for it, as it does for any user.

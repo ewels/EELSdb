@@ -28,7 +28,8 @@ async function signIn(provider: "github" | "google" | "orcid", profile: Record<s
   const authorize = new URL(start.headers.get("location")!);
   const state = authorize.searchParams.get("state")!;
   const callback = await createIfWelcomed(await go(`/auth/${provider}/callback?code=abc&state=${state}`, { headers: { Cookie: cookieOf(start, "eelsdb_oauth")! } }));
-  expect(callback.headers.get("location")).toBe("/spectra/");
+  // A new account with no confirmed address from the service passes the email step on the way.
+  expect(["/spectra/", "/account/welcome/email/?next=%2Fspectra%2F"]).toContain(callback.headers.get("location"));
   return cookieOf(callback, "eelsdb_session")!;
 }
 
@@ -127,7 +128,7 @@ describe("claiming an old account", () => {
 
 describe("avatar", () => {
   it("links the sign-in email's Gravatar by hash and never shows the email", async () => {
-    await env.DB.prepare("INSERT INTO users (id, display_name) VALUES (9101, 'Ada Avatar')").run();
+    await env.DB.prepare("INSERT INTO users (id, display_name, use_gravatar) VALUES (9101, 'Ada Avatar', 1)").run();
     await env.DB.prepare("INSERT INTO identities (user_id, provider, subject, email, email_verified) VALUES (9101, 'github', 'ada-9101', ' Ada@Example.org ', 1)").run();
     await syncEmails(env.DB, 9101);
     const token = crypto.randomUUID();

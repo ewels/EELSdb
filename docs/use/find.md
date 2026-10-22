@@ -38,4 +38,4 @@ Your [account page](/account/) lists your favourite spectra.
 ## Find a contributor's spectra
 
 Click the contributor's name on a spectrum page.
-Their author page lists every spectrum they contributed, and their public profile if they have one.
+Their author page lists every spectrum they contributed, and the parts of their profile (picture, job title and affiliation, links) that they chose to show.

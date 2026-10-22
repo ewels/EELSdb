@@ -6,7 +6,7 @@ description: Find, download, load and cite reference spectra from the EELS Data 
 # EELS Data Base
 
 EELSdb holds about 300 published reference spectra: core loss, low loss, zero loss and X-ray absorption.
-Reading is public: there is no key, no account and no rate-limit token. The only write action is making drafts for a user, with their drafts token (see below).
+Reading is public: there is no key, no account and no rate-limit token. The only write action is making drafts for a user, with their API token (see below).
 
 Use API v2 for everything below. It returns JSON with numbers as numbers and the unit in the field name (`beam_energy` → `value_kv`, angles in `_mrad`, energies in `_ev`).
 
@@ -109,7 +109,7 @@ For a two-column text file without HyperSpy: `numpy.loadtxt(name, comments="#")`
 
 A user can share many spectra by letting you prepare them as drafts. A draft is private: the user checks it on the website and submits it for review. You cannot submit or publish anything.
 
-You need the user's drafts token. They make it at https://eelsdb.eu/account/drafts/. Ask them to put it in an environment variable (for example `EELSDB_DRAFT_TOKEN`) or a file. Do not ask them to paste it into the chat, and never print it.
+You need the user's API token. They make it at https://eelsdb.eu/account/settings/tokens/. Ask them to put it in an environment variable (for example `EELSDB_API_TOKEN`) or a file. Do not ask them to paste it into the chat, and never print it.
 
 For each spectrum file, send one request:
 
@@ -120,7 +120,7 @@ import requests
 with open("hematite.msa", "rb") as f:
     r = requests.post(
         "https://api.eelsdb.eu/v2/drafts",
-        headers={"Authorization": f"Bearer {os.environ['EELSDB_DRAFT_TOKEN']}", "User-Agent": "my-tool (me@example.org)"},
+        headers={"Authorization": f"Bearer {os.environ['EELSDB_API_TOKEN']}", "User-Agent": "my-tool (me@example.org)"},
         data={"title": "Hematite", "type": "coreloss", "formula": "Fe2O3", "edges": "Fe_L2,3; O_K",
               "beam_energy": "200", "beam_energy_source": "file", "ref_doi": "10.1016/j.jssc.2009.07.037"},
         files={"file": f},

@@ -18,7 +18,8 @@ import { spectrumPage } from "./spectrum";
 import { downloadSpectrum } from "./download";
 import { suggestSpectra } from "./suggest";
 import { settings } from "./settings";
-import { HAS_PAGE_SQL, LINK_FIELDS, STAFF_ROLES, linkUrl, parseLinks } from "./profile";
+import { HAS_PAGE_SQL, LINK_FIELDS, STAFF_ROLES, linkText, linkUrl, parseLinks } from "./profile";
+import { LinkIcon } from "./link-icons";
 import { authorSlug } from "../submit/store";
 import { decodeEntities } from "./entities";
 import { authorMarkdown, markdownHeaders, newsMarkdown, spectrumMarkdown } from "./markdown";
@@ -123,8 +124,8 @@ const STAFF_GROUPS = [
 
 pages.get("/moderators/", async (c) => {
   const { results } = await c.env.DB.prepare(
-    `SELECT u.id, u.display_name, u.slug, u.role, u.profile_public, u.avatar_key,
-            CASE WHEN u.profile_public THEN (SELECT e.email FROM user_emails e WHERE e.user_id = u.id ORDER BY e.is_primary DESC, e.verified DESC, e.id LIMIT 1) END AS email
+    `SELECT u.id, u.display_name, u.slug, u.role, u.use_gravatar, u.avatar_key,
+            CASE WHEN u.use_gravatar THEN (SELECT e.email FROM user_emails e WHERE e.user_id = u.id ORDER BY e.is_primary DESC, e.verified DESC, e.id LIMIT 1) END AS email
      FROM users u WHERE u.role IN ('moderator', 'admin') ORDER BY u.display_name`,
   ).all<any>();
   // Staff made before every moderator and admin got a username get one here, once, so their names can link to a page.
@@ -132,7 +133,7 @@ pages.get("/moderators/", async (c) => {
     results.map(async (u) => ({
       ...u,
       slug: u.slug ?? (await authorSlug(c.env.DB, u)),
-      avatar: u.profile_public ? await avatarUrl(u.avatar_key, u.email) : null,
+      avatar: await avatarUrl(u.avatar_key, u.email, u.use_gravatar),
     })),
   );
   return c.html(
@@ -178,8 +179,8 @@ async function authorPage(c: C) {
   const slug = c.req.param("slug");
   const db = c.env.DB;
   const person = await db.prepare(
-    `SELECT u.id, u.display_name, u.job_title, u.affiliation, u.orcid, u.links_json, u.profile_public, u.avatar_key, u.role,
-            (SELECT e.email FROM user_emails e WHERE e.user_id = u.id ORDER BY e.is_primary DESC, e.verified DESC, e.id LIMIT 1) AS email
+    `SELECT u.id, u.display_name, u.job_title, u.affiliation, (SELECT i.subject FROM identities i WHERE i.user_id = u.id AND i.provider = 'orcid') AS orcid, u.links_json, u.use_gravatar, u.show_details, u.show_links, u.avatar_key, u.role,
+            CASE WHEN u.use_gravatar THEN (SELECT e.email FROM user_emails e WHERE e.user_id = u.id ORDER BY e.is_primary DESC, e.verified DESC, e.id LIMIT 1) END AS email
      FROM users u WHERE u.slug = ?`,
   ).bind(slug).first<any>();
   if (!person) {
@@ -190,25 +191,29 @@ async function authorPage(c: C) {
     `SELECT slug, title, type, formula, author_display, published_at FROM spectra
      WHERE status = 'published' AND (author_slug = ? OR owner_id = ?) ORDER BY published_at DESC, id DESC`,
   ).bind(slug, person?.id ?? -1).all<any>();
-  const showProfile = !!person?.profile_public;
+  const showDetails = !!person?.show_details;
+  const showLinks = !!person?.show_links;
   const role = STAFF_ROLES[person?.role];
-  if (!results.length && !showProfile && !role) return c.notFound();
+  if (!results.length && !showDetails && !showLinks && !role) return c.notFound();
   const name = person?.display_name ?? results[0].author_display;
-  const links = showProfile ? parseLinks(person.links_json) : {};
-  const avatar = showProfile ? await avatarUrl(person.avatar_key, person.email) : null;
-  const facts = [role && `${role} of the EELS Data Base`, ...(showProfile ? [person.job_title, person.affiliation] : [])].filter(Boolean).join(" · ");
+  const links = showLinks ? parseLinks(person.links_json) : {};
+  const avatar = person ? await avatarUrl(person.avatar_key, person.email, person.use_gravatar) : null;
+  const facts = (showDetails ? [person.job_title, person.affiliation] : []).filter(Boolean).join(" · ");
   return c.html(
     <Layout user={c.get("user")} title={name} path="/author/" head={mdLink(`/author/${slug}.md`)}>
       <div class="profile-head">
         <Avatar name={name} seed={slug!} src={avatar?.replace("s=64", "s=160")} class="av-large" />
         <div>
-          <h1>{name}</h1>
+          <h1 class="profile-name">
+            {name}
+            {role && <span class="chip role-badge" title={`${role} of the EELS Data Base`}>{role}</span>}
+          </h1>
           {facts && <p class="lede profile-facts">{facts}</p>}
-          {showProfile && (person.orcid || Object.keys(links).length > 0) && (
+          {showLinks && (person.orcid || Object.keys(links).length > 0) && (
             <ul class="profile-links">
-              {person.orcid && <li><a href={`https://orcid.org/${person.orcid}`} rel="me">ORCID {person.orcid}</a></li>}
+              {person.orcid && <li><a href={`https://orcid.org/${person.orcid}`} rel="me"><LinkIcon name="orcid" />ORCID {person.orcid}</a></li>}
               {LINK_FIELDS.filter((f) => links[f.key]).map((f) => (
-                <li><a href={linkUrl(f.key, links[f.key])} rel="me noopener">{f.label}</a></li>
+                <li><a href={linkUrl(f.key, links[f.key])} rel="me noopener"><LinkIcon name={f.key} />{linkText(f.key, links[f.key])}</a></li>
               ))}
             </ul>
           )}

@@ -1,10 +1,10 @@
-// Drafts: spectra that an assistant or script prepares through API v2 (POST /v2/drafts) with a drafts-only token.
+// Drafts: spectra that an assistant or script prepares through API v2 (POST /v2/drafts) with an API token (which can only make drafts for now).
 // Nothing is reviewed or published until the owner checks a draft on the website and submits it.
 import { Hono, type Context } from "hono";
 import { getSettings, twoStepRequired } from "../settings";
-import { FRESH_SIGN_IN_MINUTES, requireUser, sha256, signedInRecently, type AppEnv } from "../auth";
+import { requireUser, sha256, type AppEnv } from "../auth";
 import { SITE } from "../api/format";
-import { Layout, TypeBadge } from "../pages/layout";
+import { AccountLayout, TypeBadge } from "../pages/layout";
 import { ORCID_REQUIRED_MESSAGE } from "./index";
 import { collectUploads, parseForm } from "./form";
 import { createSpectrum, instrumentOk, storeFile } from "./store";
@@ -47,7 +47,7 @@ async function tokenUser(c: Context<AppEnv>) {
 /** POST /v2/drafts: the submit form's fields and files, from a script. Acquisition values left out are unknown. */
 export async function createDraft(c: Context<AppEnv>) {
   const user = await tokenUser(c);
-  if (!user) return apiError(c, 401, "unauthorized", `Send a drafts token as "Authorization: Bearer …". Make one at ${SITE}/account/drafts/.`);
+  if (!user) return apiError(c, 401, "unauthorized", `Send an API token as "Authorization: Bearer …". Make one at ${SITE}/account/settings/tokens/.`);
   const db = c.env.DB;
   const recent = await db.prepare("SELECT COUNT(*) AS n FROM rate_events WHERE kind = 'draft' AND key = ? AND at > datetime('now', '-1 hour')")
     .bind(String(user.id)).first<number>("n");
@@ -93,25 +93,24 @@ function measured(a: Record<string, any> | undefined, col: string, unit: string,
   return `${v} ${unit} (${SOURCE_LABELS[a[`${col}_source`]] ?? a[`${col}_source`]})`;
 }
 
-drafts.get("/account/drafts/", requireUser, async (c) => draftsPage(c, null));
+drafts.get("/account/drafts/", requireUser, async (c) => draftsPage(c));
 
-async function draftsPage(c: Context<AppEnv>, created: string | null, notice?: string, status: 200 | 403 = 200) {
+async function draftsPage(c: Context<AppEnv>, notice?: string, status: 200 | 403 = 200) {
   const user = c.get("user")!;
   const db = c.env.DB;
-  const [{ results: list }, { results: acq }, { results: files }, { results: tokens }] = await db.batch<any>([
+  const [{ results: list }, { results: acq }, { results: files }] = await db.batch<any>([
     db.prepare("SELECT id, slug, title, type, formula, created_at FROM spectra WHERE owner_id = ? AND status = 'draft' ORDER BY created_at DESC, id DESC").bind(user.id),
     db.prepare("SELECT a.* FROM eels_acquisition a JOIN spectra s ON s.id = a.spectrum_id WHERE s.owner_id = ? AND s.status = 'draft'").bind(user.id),
     db.prepare("SELECT f.spectrum_id, f.filename FROM files f JOIN spectra s ON s.id = f.spectrum_id WHERE s.owner_id = ? AND s.status = 'draft' AND f.role = 'original'").bind(user.id),
-    db.prepare("SELECT id, label, created_at, last_used_at FROM draft_tokens WHERE user_id = ? ORDER BY id DESC").bind(user.id),
   ]);
   const acqOf = new Map(acq.map((a: any) => [a.spectrum_id, a]));
   const fileOf = new Map(files.map((f: any) => [f.spectrum_id, f.filename]));
   return c.html(
-    <Layout title="Your drafts" path="/account/" user={user}>
+    <AccountLayout title="Your drafts" current="/account/drafts/" user={user}>
       <h1>Your drafts</h1>
       <p class="lede">
         Drafts are spectra that an assistant or a script prepared for you. They are not public and moderators do not see them. Check each one, then
-        submit it for review. Drafts are deleted after {DRAFT_DAYS} days.
+        submit it for review. Drafts are deleted after {DRAFT_DAYS} days. See <a href="/docs/share/drafts/">Prepare drafts with an assistant</a>.
       </p>
       {notice && <p class="notice" role="status">{notice}</p>}
       {user.orcid_prompt === "required" && (
@@ -163,43 +162,8 @@ async function draftsPage(c: Context<AppEnv>, created: string | null, notice?: s
         <p class="muted">You have no drafts.</p>
       )}
 
-      <h2>Let an assistant make drafts</h2>
-      <p class="prose">
-        An AI assistant or a script can make drafts for you with a token. A token can only make drafts: it cannot submit, publish or change
-        anything else. Treat it like a password. See <a href="/docs/share/drafts/">Prepare drafts with an assistant</a>.
-      </p>
-      {created && (
-        <div class="notice" role="status">
-          <p><strong>Your new token.</strong> Copy it now: it is not shown again.</p>
-          <pre id="new-token">{created}</pre>
-        </div>
-      )}
-      <form method="post" action="/account/drafts/tokens/" class="inline-form">
-        <input type="text" name="label" placeholder="What is it for? e.g. laptop" aria-label="Token label" maxlength={80} />
-        <button class="button secondary" type="submit">Make a token</button>
-      </form>
-      {tokens.length > 0 && (
-        <div class="table-scroll">
-          <table>
-            <thead><tr><th>Label</th><th>Made</th><th>Last used</th><th></th></tr></thead>
-            <tbody>
-              {tokens.map((t: any) => (
-                <tr>
-                  <td>{t.label || <span class="muted">No label</span>}</td>
-                  <td>{String(t.created_at).slice(0, 10)}</td>
-                  <td>{t.last_used_at ? String(t.last_used_at).slice(0, 10) : "Never"}</td>
-                  <td>
-                    <form method="post" action={`/account/drafts/tokens/${t.id}/revoke/`}>
-                      <button class="button secondary" type="submit">Revoke</button>
-                    </form>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </Layout>,
+      <p class="muted">To let an assistant or a script make drafts, <a href="/account/settings/tokens/">make an API token</a>.</p>
+    </AccountLayout>,
     status,
   );
 }
@@ -209,17 +173,17 @@ drafts.post("/account/drafts/", requireUser, async (c) => {
   const db = c.env.DB;
   const body = await c.req.parseBody({ all: true });
   const ids = [body.id ?? []].flat().map(Number).filter(Number.isInteger);
-  if (!ids.length) return draftsPage(c, null, "Choose one or more drafts first.");
+  if (!ids.length) return draftsPage(c, "Choose one or more drafts first.");
   const marks = ids.map(() => "?").join(",");
   if (body.action === "delete") {
     const n = await deleteDrafts(c.env, `owner_id = ? AND id IN (${marks})`, user.id, ...ids);
-    return draftsPage(c, null, `Deleted ${n === 1 ? "one draft" : `${n} drafts`}.`);
+    return draftsPage(c, `Deleted ${n === 1 ? "one draft" : `${n} drafts`}.`);
   }
-  if (user.orcid_prompt === "required") return draftsPage(c, null, ORCID_REQUIRED_MESSAGE, 403);
-  if (!body.agreement) return draftsPage(c, null, "Please confirm that you checked the drafts and agree to the licence.");
+  if (user.orcid_prompt === "required") return draftsPage(c, ORCID_REQUIRED_MESSAGE, 403);
+  if (!body.agreement) return draftsPage(c, "Please confirm that you checked the drafts and agree to the licence.");
   const { results } = await db.prepare(`SELECT id, slug FROM spectra WHERE owner_id = ? AND status = 'draft' AND id IN (${marks})`)
     .bind(user.id, ...ids).all<{ id: number; slug: string }>();
-  if (!results.length) return draftsPage(c, null, "None of the chosen drafts is still a draft.");
+  if (!results.length) return draftsPage(c, "None of the chosen drafts is still a draft.");
   await db.batch(results.flatMap((s) => submitDraftStatements(db, s.id, user.id, null)));
   return c.redirect(`/account/submissions/?submitted=${results.length}`);
 });
@@ -231,21 +195,3 @@ export const submitDraftStatements = (db: D1Database, id: number, userId: number
     .bind(id, userId, browserChecks),
   db.prepare("INSERT INTO history (spectrum_id, user_id, change_json) VALUES (?, ?, ?)").bind(id, userId, JSON.stringify({ action: "submitted" })),
 ];
-
-const staleSignIn = (c: Context<AppEnv>) =>
-  draftsPage(c, null, `To make or revoke a token, sign out and sign in again, then do it within ${FRESH_SIGN_IN_MINUTES} minutes. This keeps a token out of reach of anyone at a browser you left signed in.`, 403);
-
-drafts.post("/account/drafts/tokens/", requireUser, async (c) => {
-  const user = c.get("user")!;
-  if (!(await signedInRecently(c))) return staleSignIn(c);
-  const label = String((await c.req.parseBody()).label ?? "").trim().slice(0, 80) || null;
-  const token = "eelsdb_draft_" + [...crypto.getRandomValues(new Uint8Array(24))].map((b) => b.toString(16).padStart(2, "0")).join("");
-  await c.env.DB.prepare("INSERT INTO draft_tokens (user_id, hash, label) VALUES (?, ?, ?)").bind(user.id, await sha256(token), label).run();
-  return draftsPage(c, token);
-});
-
-drafts.post("/account/drafts/tokens/:id/revoke/", requireUser, async (c) => {
-  if (!(await signedInRecently(c))) return staleSignIn(c);
-  await c.env.DB.prepare("DELETE FROM draft_tokens WHERE id = ? AND user_id = ?").bind(Number(c.req.param("id")), c.get("user")!.id).run();
-  return c.redirect("/account/drafts/");
-});

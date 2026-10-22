@@ -1,8 +1,10 @@
 // Public profile fields: links to a user's other profiles, and the username in their /author/ address.
 
-type LinkField = { key: string; label: string; placeholder: string; url: (handle: string) => string; host: RegExp };
+type LinkField = { key: string; label: string; placeholder: string; url: (handle: string) => string; host: RegExp; web?: true };
 
 export const LINK_FIELDS: LinkField[] = [
+  { key: "website", label: "Personal web page", placeholder: "https://example.org/name", url: (h) => h, host: /./, web: true },
+  { key: "institution", label: "Institutional web page", placeholder: "https://lab.example.org", url: (h) => h, host: /./, web: true },
   { key: "github", label: "GitHub", placeholder: "username", url: (h) => `https://github.com/${h}`, host: /(^|\.)github\.com$/ },
   { key: "x", label: "X (Twitter)", placeholder: "@username", url: (h) => `https://x.com/${h}`, host: /(^|\.)(x|twitter)\.com$/ },
   { key: "bluesky", label: "Bluesky", placeholder: "name.bsky.social", url: (h) => `https://bsky.app/profile/${h}`, host: /(^|\.)bsky\.app$/ },
@@ -39,6 +41,13 @@ export function parseLink(key: string, raw: string): { value: string | null } | 
   const field = LINK_FIELDS.find((f) => f.key === key)!;
   const v = raw.trim();
   if (!v) return { value: null };
+  if (field.web) {
+    try {
+      const url = new URL(v);
+      if (url.protocol === "https:" && url.hostname.includes(".")) return { value: url.href };
+    } catch {}
+    return { error: `${field.label}: use a full address starting with https://.` };
+  }
   if (/^https?:\/\//i.test(v)) {
     try {
       const url = new URL(v);
@@ -52,6 +61,12 @@ export function parseLink(key: string, raw: string): { value: string | null } | 
 }
 
 /** The address to link to for a stored value (a handle, or a full https:// link). */
+/** What to show for a link: the service name, or the host name for a web page. */
+export const linkText = (key: string, value: string) => {
+  const field = LINK_FIELDS.find((f) => f.key === key)!;
+  return field.web ? new URL(value).hostname : field.label;
+};
+
 export const linkUrl = (key: string, value: string) => (value.startsWith("https://") ? value : LINK_FIELDS.find((f) => f.key === key)!.url(value));
 
 export const ORCID = /^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$/;
@@ -86,5 +101,5 @@ export const STAFF_ROLES: Record<string, string> = { admin: "Administrator", mod
  * SQL for "this user (alias u) has a public page at /author/{slug}/": a contributor, a public profile, or a moderator
  * or admin, whose name the site shows anyway. Other accounts stay unlisted.
  */
-export const HAS_PAGE_SQL = `(u.slug IS NOT NULL AND (u.profile_public OR u.role IN ('moderator', 'admin') OR EXISTS (
+export const HAS_PAGE_SQL = `(u.slug IS NOT NULL AND (u.show_details OR u.show_links OR u.role IN ('moderator', 'admin') OR EXISTS (
   SELECT 1 FROM spectra s WHERE s.status = 'published' AND (s.author_slug = u.slug OR s.owner_id = u.id))))`;

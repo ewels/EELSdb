@@ -105,19 +105,20 @@ export async function spectrumMarkdown(db: D1Database, slug: string) {
 }
 
 export async function authorMarkdown(db: D1Database, slug: string) {
-  const person = await db.prepare("SELECT id, display_name, job_title, affiliation, orcid, profile_public, role FROM users WHERE slug = ?").bind(slug).first<Row>();
+  const person = await db.prepare("SELECT u.id, u.display_name, u.job_title, u.affiliation, (SELECT i.subject FROM identities i WHERE i.user_id = u.id AND i.provider = 'orcid') AS orcid, u.show_details, u.show_links, u.role FROM users u WHERE u.slug = ?").bind(slug).first<Row>();
   const { results } = await db.prepare(
     `SELECT slug, title, type, formula, author_display, published_at FROM spectra
      WHERE status = 'published' AND (author_slug = ? OR owner_id = ?) ORDER BY published_at DESC, id DESC`,
   ).bind(slug, person?.id ?? -1).all<Row>();
-  const profile = !!person?.profile_public;
+  const details = !!person?.show_details;
+  const links = !!person?.show_links;
   const role = STAFF_ROLES[person?.role];
-  if (!results.length && !profile && !role) return null;
+  if (!results.length && !details && !links && !role) return null;
   const name = person?.display_name ?? results[0].author_display;
   return [
     `# ${name}`,
     role && `${role} of the EELS Data Base.`,
-    profile && list([["Job title", person!.job_title], ["Affiliation", person!.affiliation], ["ORCID", person!.orcid && `https://orcid.org/${person!.orcid}`]]),
+    list([...(details ? [["Job title", person!.job_title], ["Affiliation", person!.affiliation]] : []), ...(links ? [["ORCID", person!.orcid && `https://orcid.org/${person!.orcid}`]] : [])] as [string, any][]),
     `- Web page: ${SITE}/author/${slug}/`,
     results.length > 0 && `## Contributed spectra (${results.length})`,
     results.map((s) => `- [${s.title}](${SITE}/spectra/${encodeURIComponent(s.slug)}.md): ${TYPE_NAMES[s.type] ?? s.type}${s.formula ? `, ${s.formula}` : ""}, ${String(s.published_at).slice(0, 10)}`).join("\n"),

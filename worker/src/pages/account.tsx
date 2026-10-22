@@ -2,13 +2,14 @@ import { Hono, type Context } from "hono";
 import { raw } from "hono/html";
 import type { Child } from "hono/jsx";
 import { deleteCookie, getCookie } from "hono/cookie";
-import { CHALLENGE_COOKIE, LAST_METHOD_COOKIE, MAX_PASSWORD_FAILURES, METHOD_OFF, MAX_PASSWORD_LENGTH, PROVIDERS, accountForEmail, clearPendingIdentity, completeSignIn, createSession, createUserForIdentity, findUserForIdentity, finishSignIn, getPendingIdentity, linkPendingIdentity, methodOn, methodsOn, rememberMethod, requireUser, safeNext, sha256, signOut, startLink, startSignIn, type AppEnv, type SignInMethod } from "../auth";
+import { CHALLENGE_COOKIE, LAST_METHOD_COOKIE, MAX_PASSWORD_FAILURES, METHOD_OFF, MAX_PASSWORD_LENGTH, PROVIDERS, accountForEmail, clearPendingIdentity, completeSignIn, createSession, createUserForIdentity, findUserForIdentity, finishSignIn, getPendingIdentity, linkPendingIdentity, methodOn, methodsOn, rememberMethod, requireUser, safeNext, sha256, signOut, startLink, startSignIn, type AppEnv, type SignInMethod, type User } from "../auth";
+import { addEmail } from "../account-edit";
 import { sendEmail } from "../email";
 import { mergeAccounts } from "../merge";
 import { authenticationOptions, hasPasskey, verifyPasskey } from "../passkeys";
 import { pbkdf2Hash, verifyLegacyPassword } from "../legacy-password";
 import { spendCode } from "../totp";
-import { Avatar, Formula, Layout, TypeBadge, accountSummary } from "./layout";
+import { AccountLayout, Avatar, Formula, Layout, TypeBadge, accountSummary } from "./layout";
 
 export const account = new Hono<AppEnv>();
 
@@ -44,9 +45,9 @@ const LAST_USED_SCRIPT = `(function(){try{var m=localStorage.getItem("signin-met
 const METHOD_NAMES: Record<string, string> = { email_link: "an email link", password: "a password", passkey: "a passkey" };
 const listOr = (items: string[]) => (items.length > 1 ? `${items.slice(0, -1).join(", ")} or ${items[items.length - 1]}` : items[0] ?? "");
 
-function AuthPage(props: { title: string; status?: number; aside?: Child; children: Child; script?: boolean }) {
+function AuthPage(props: { title: string; status?: number; aside?: Child; children: Child; script?: boolean; user?: User }) {
   return (
-    <Layout title={props.title} path="/login/" user={null}>
+    <Layout title={props.title} path="/login/" user={props.user ?? null}>
       <div class="auth">
         <div class="auth-panel">{props.children}</div>
         {props.aside}
@@ -216,8 +217,55 @@ account.post("/login/welcome/", async (c) => {
   await clearPendingIdentity(c);
   if (!(await methodOn(c.env, pending.provider))) return c.redirect(METHOD_OFF);
   // Another tab may have linked this identity since; then it signs in to that account instead of making a second one.
-  const userId = (await findUserForIdentity(c.env.DB, pending)) ?? (await createUserForIdentity(c.env.DB, pending));
-  return completeSignIn(c, userId, { method: pending.provider as SignInMethod, next: pending.next ?? undefined });
+  const found = await findUserForIdentity(c.env.DB, pending);
+  const userId = found ?? (await createUserForIdentity(c.env.DB, pending));
+  // A new account whose service shared no confirmed address goes to the email step first, then on; it rides in `next`, so a second step keeps the order.
+  const askEmail = found === null && !(pending.email && pending.emailVerified);
+  const next = askEmail ? `${EMAIL_STEP}?next=${encodeURIComponent(safeNext(pending.next ?? undefined))}` : pending.next ?? undefined;
+  return completeSignIn(c, userId, { method: pending.provider as SignInMethod, next });
+});
+
+const EMAIL_STEP = "/account/welcome/email/";
+
+function EmailStep(props: { user: User; next: string; error?: string; sent?: string }) {
+  return (
+    <AuthPage title={props.sent ? "Check your email" : "Add your email address"} user={props.user}>
+      {props.sent ? (
+        <>
+          <h1>Check your email</h1>
+          <p class="auth-lede">We sent a confirmation link to <strong>{props.sent}</strong>. Open it in this browser to confirm the address.</p>
+          <a class="button auth-wide" href={props.next}>Continue</a>
+        </>
+      ) : (
+        <>
+          <h1>One more step: add your email address</h1>
+          <p class="auth-lede">We use it for sign-in links, emails about your submissions, and getting you back into your account.</p>
+          {props.error && <p class="notice error-summary" role="alert">{props.error}</p>}
+          <form method="post" action={EMAIL_STEP} class="auth-form">
+            <input type="hidden" name="next" value={props.next} />
+            <div class="field">
+              <label for="email">Email address</label>
+              <input id="email" name="email" type="email" autocomplete="email" required aria-invalid={props.error ? "true" : undefined} />
+            </div>
+            <button class="button" type="submit">Send confirmation link</button>
+          </form>
+        </>
+      )}
+    </AuthPage>
+  );
+}
+
+account.get("/account/welcome/email/", requireUser, (c) => c.html(<EmailStep user={c.get("user")!} next={safeNext(c.req.query("next"))} />));
+
+account.post("/account/welcome/email/", requireUser, async (c) => {
+  const user = c.get("user")!;
+  const body = await c.req.parseBody();
+  const next = safeNext(typeof body.next === "string" ? body.next : undefined);
+  const intro = `Someone signed in to the EELS Data Base as "${user.display_name}" and added this address.`;
+  const result = await addEmail(c.env, new URL(c.req.url).origin, user.id, body.email, intro);
+  if (result === "email-bad") return c.html(<EmailStep user={user} next={next} error="That does not look like an email address." />, 422);
+  if (result === "limit") return c.html(<EmailStep user={user} next={next} error="Too many addresses added today. Please try again tomorrow." />, 429);
+  return c.html(<EmailStep user={user} next={next} sent={String(body.email).trim().toLowerCase()} />);
 });
 
 /** Makes a one-use link and emails it; the token only ever reaches the address. */
@@ -511,7 +559,7 @@ account.get("/account/", requireUser, async (c) => {
   ]);
   const notice = c.req.query("claim");
   return c.html(
-    <Layout title="Your account" path="/account/" user={user}>
+    <AccountLayout title="Your account" current="/account/" user={user}>
       <div class="profile-head">
         <Avatar name={user.display_name} seed={user.slug ?? user.display_name} src={user.avatar} class="av-large" />
         <div>
@@ -529,16 +577,9 @@ account.get("/account/", requireUser, async (c) => {
       {notice === "limit" && <p class="notice" role="status">You have asked for {MAX_CLAIMS_PER_DAY} links today. Please try again tomorrow.</p>}
       {notice === "done" && <p class="notice" role="status">Your old account is now linked. Its favourites and spectra are below.</p>}
 
-      <div class="account-actions">
+      <p class="account-actions">
         <a class="button" href="/submit-data/">Submit a spectrum</a>
-        <a class="button secondary" href="/account/submissions/">Your submissions</a>
-        <a class="button secondary" href="/account/drafts/">Drafts</a>
-        <a class="button secondary" href="/account/settings/">Settings</a>
-        {(user.role === "moderator" || user.role === "admin") && <a class="button secondary" href="/admin/">Moderation</a>}
-        <form method="post" action="/logout/">
-          <button class="button secondary" type="submit">Sign out</button>
-        </form>
-      </div>
+      </p>
 
       <h2>Favourite spectra</h2>
       {favourites.length ? (
@@ -567,7 +608,7 @@ account.get("/account/", requireUser, async (c) => {
           <button class="button secondary" type="submit">Send link</button>
         </form>
       </div>
-    </Layout>,
+    </AccountLayout>,
   );
 });
 
@@ -612,7 +653,7 @@ async function findClaim(c: any) {
 account.get("/account/claim/:token/", requireUser, async (c) => {
   const claim = await findClaim(c);
   return c.html(
-    <Layout title="Link your old account" path="/account/" user={c.get("user")}>
+    <AccountLayout title="Link your old account" current="/account/" user={c.get("user")!}>
       <div class="prose">
         <h1>Link your old account</h1>
         {claim ? (
@@ -627,7 +668,7 @@ account.get("/account/claim/:token/", requireUser, async (c) => {
           <p class="notice">This link has expired, was already used, or was sent to a different signed-in account.</p>
         )}
       </div>
-    </Layout>,
+    </AccountLayout>,
     claim ? 200 : 404,
   );
 });

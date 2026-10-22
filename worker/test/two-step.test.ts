@@ -85,12 +85,12 @@ describe("set-up in settings", () => {
   it("is off until a valid code is entered, then shows 10 recovery codes once", async () => {
     const u = await mkUser({ totp: false });
     const cookie = await sessionFor({ id: u.id, display_name: "Two Step" });
-    expect(await (await go("/account/settings/", { headers: { Cookie: cookie } })).text()).toContain("Set up two-step sign-in");
+    expect(await (await go("/account/settings/two-step/", { headers: { Cookie: cookie } })).text()).toContain("Set up two-step sign-in");
 
     expect((await post("/account/settings/two-step/start/", {}, cookie)).status).toBe(302);
     const row = await env.DB.prepare("SELECT secret, enabled_at FROM user_totp WHERE user_id = ?").bind(u.id).first<{ secret: string; enabled_at: string | null }>();
     expect(row!.enabled_at).toBeNull();
-    const page = await (await go("/account/settings/", { headers: { Cookie: cookie } })).text();
+    const page = await (await go("/account/settings/two-step/", { headers: { Cookie: cookie } })).text();
     expect(page).toContain("otpauth://totp/");
     expect(page).toContain(`secret=${row!.secret}`);
     expect(page).toContain('id="totp-qr"');
@@ -109,13 +109,13 @@ describe("set-up in settings", () => {
     expect(stored.results).toHaveLength(10);
     expect(stored.results.map((r) => r.code_hash)).toContain(await sha256(codes[0].replace("-", "")));
     expect(html).not.toContain("Set up two-step sign-in");
-    expect(await (await go("/account/settings/", { headers: { Cookie: cookie } })).text()).not.toMatch(/<code>[a-z0-9]{5}-[a-z0-9]{5}<\/code>/);
+    expect(await (await go("/account/settings/two-step/", { headers: { Cookie: cookie } })).text()).not.toMatch(/<code>[a-z0-9]{5}-[a-z0-9]{5}<\/code>/);
   });
 
   it("needs a recent sign-in to start", async () => {
     const u = await mkUser({ totp: false });
     const cookie = await staleSession(u.id);
-    expect(await (await go("/account/settings/", { headers: { Cookie: cookie } })).text()).not.toContain("Set up two-step sign-in</button>");
+    expect(await (await go("/account/settings/two-step/", { headers: { Cookie: cookie } })).text()).not.toContain("Set up two-step sign-in</button>");
     const res = await post("/account/settings/two-step/start/", {}, cookie);
     expect(res.headers.get("location")).toContain("two-step-stale");
     expect(await env.DB.prepare("SELECT 1 FROM user_totp WHERE user_id = ?").bind(u.id).first()).toBeNull();
@@ -279,9 +279,9 @@ describe("moderators and admins", () => {
     for (const path of ["/admin/", "/admin/submissions/1/", "/admin/users/"]) {
       const res = await go(path, { headers: { Cookie: cookie } });
       expect(res.status).toBe(302);
-      expect(res.headers.get("location")).toBe("/account/settings/?notice=two-step-required#h-two-step");
+      expect(res.headers.get("location")).toBe("/account/settings/two-step/?notice=two-step-required#h-two-step");
     }
-    const page = await (await go("/account/settings/?notice=two-step-required", { headers: { Cookie: cookie } })).text();
+    const page = await (await go("/account/settings/two-step/?notice=two-step-required", { headers: { Cookie: cookie } })).text();
     expect(page).toContain("Until you set it up, your role does nothing");
   });
 
@@ -306,18 +306,18 @@ describe("drafts tokens", () => {
   it("need a sign-in in the last 15 minutes to make or revoke", async () => {
     const id = (await env.DB.prepare("INSERT INTO users (display_name) VALUES ('Draft Fresh') RETURNING id").first<number>("id"))!;
     const stale = await staleSession(id);
-    const made = await post("/account/drafts/tokens/", { label: "x" }, stale);
+    const made = await post("/account/settings/tokens/", { label: "x" }, stale);
     expect(made.status).toBe(403);
     expect(await made.text()).toContain("sign in again, then do it within 15 minutes");
     expect(await env.DB.prepare("SELECT COUNT(*) AS n FROM draft_tokens WHERE user_id = ?").bind(id).first("n")).toBe(0);
 
     await env.DB.prepare("INSERT INTO draft_tokens (user_id, hash, label) VALUES (?, 'h', 'keep')").bind(id).run();
     const tokenId = await env.DB.prepare("SELECT id FROM draft_tokens WHERE user_id = ?").bind(id).first<number>("id");
-    expect((await post(`/account/drafts/tokens/${tokenId}/revoke/`, {}, stale)).status).toBe(403);
+    expect((await post(`/account/settings/tokens/${tokenId}/revoke/`, {}, stale)).status).toBe(403);
     expect(await env.DB.prepare("SELECT COUNT(*) AS n FROM draft_tokens WHERE user_id = ?").bind(id).first("n")).toBe(1);
 
     const fresh = await sessionFor({ id, display_name: "Draft Fresh" });
-    expect((await post(`/account/drafts/tokens/${tokenId}/revoke/`, {}, fresh)).status).toBe(302);
-    expect((await post("/account/drafts/tokens/", { label: "y" }, fresh)).status).toBe(200);
+    expect((await post(`/account/settings/tokens/${tokenId}/revoke/`, {}, fresh)).status).toBe(302);
+    expect((await post("/account/settings/tokens/", { label: "y" }, fresh)).status).toBe(200);
   });
 });

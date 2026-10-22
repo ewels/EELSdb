@@ -52,7 +52,7 @@ With the `eelsdb` skill installed, or after you give the agent `https://eelsdb.e
 - "Find EELSdb core-loss spectra of titanium oxides with the Ti L2,3 edge, recorded at 200 kV with known angles, and plot them together."
 - "Download the EELSdb hematite Fe L2,3 spectrum and compare its L3/L2 ratio with my file `sample.msa`."
 - "Which EELSdb spectra of carbon have a convergence angle from an instrument profile?"
-- "Make EELSdb drafts for the spectra in `spectra/`. The drafts token is in `EELSDB_DRAFT_TOKEN`. Leave out any beam energy or angle you cannot find in the files or in `notes.md`."
+- "Make EELSdb drafts for the spectra in `spectra/`. The API token is in `EELSDB_API_TOKEN`. Leave out any beam energy or angle you cannot find in the files or in `notes.md`."
 
 ## Rules for agents
 
@@ -62,4 +62,4 @@ The `eelsdb` skill tells agents to follow these rules. Check that yours does:
 - Ask for 500 spectra per page instead of many small pages, make one request at a time, and use the [bulk download](/downloads/) for the whole database.
 - Report an acquisition value with the source `unknown` as unknown. Never fill it in from another spectrum.
 - Cite the contributor's paper and the EELS Data Base for every spectrum that the work uses.
-- Prepare a contributor's spectra only as [drafts](/docs/share/drafts/), with their drafts token. Never guess an acquisition value: leave it out, and it is recorded as unknown. Only the contributor submits, on the website.
+- Prepare a contributor's spectra only as [drafts](/docs/share/drafts/), with their API token. Never guess an acquisition value: leave it out, and it is recorded as unknown. Only the contributor submits, on the website.

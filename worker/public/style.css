@@ -22,6 +22,8 @@ body {
 
 a { color: var(--accent-ink); text-decoration: none; text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
 a:hover { text-decoration-line: underline; }
+/* An avatar-only link (header account button, contributor wall) shows its hover as a ring, not an underline under the initials. */
+a:has(> .av:only-child):hover, .account-link:hover { text-decoration-line: none; }
 /* Links inside running text need a cue besides colour; a faint underline is enough. */
 :is(p, .prose li, dd) a:not(.button) { text-decoration-line: underline; text-decoration-color: color-mix(in oklab, currentColor 30%, transparent); }
 :is(p, .prose li, dd) a:not(.button):hover { text-decoration-color: currentColor; }
@@ -908,21 +910,62 @@ input[type="file"]::file-selector-button:hover { background: var(--surface); bor
   .file-card[data-state="reading"] .file-status::before { animation: none; border-color: var(--accent); }
 }
 
+/* Account pages: a nav rail beside the content, like the browse filters and the submit steps. */
+.account-layout { display: grid; grid-template-columns: 13rem minmax(0, 1fr); gap: 1.5rem 3.5rem; align-items: start; margin-top: 1.75rem; }
+.account-main > :first-child, .account-main > :first-child > h1:first-child { margin-top: 0; }
+.account-nav { position: sticky; top: 5.5rem; display: grid; gap: 1.5rem; font-size: 0.95rem; }
+.account-nav ul { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--rule); }
+.account-nav li { max-width: none; }
+.account-nav a, .account-nav button { display: block; margin-left: -1px; padding: 0.3rem 0 0.3rem 1rem; border-left: 2px solid transparent; color: var(--ink); font-weight: 500; text-decoration: none; }
+.account-nav a:hover { border-left-color: var(--line); }
+.account-nav a[aria-current] { border-left-color: var(--accent); font-weight: 600; }
+.account-nav-label { margin: 0 0 0.4rem; font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+.account-nav form { margin: 0; }
+.account-nav button { all: unset; display: block; padding: 0.3rem 0; color: var(--muted); font-weight: 500; cursor: pointer; }
+.account-nav button:hover { color: var(--ink); }
+.account-nav button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+
 /* Settings and public profiles */
 .settings { max-width: 52rem; }
 
-.settings h1 { margin-top: 0.5rem; }
 .settings-section { border-top: 1px solid var(--rule); margin-top: 2.5rem; }
 .settings-section > h2 { margin-top: 1.5rem; }
+.settings-section.lone { border-top: 0; margin-top: 0; }
+.settings-section.lone > * + * { margin-top: 1rem; }
 .settings-section h3 { margin-top: 1.25rem; }
 .settings-form { display: grid; gap: 0.25rem; }
+.hint + .settings-form { margin-top: 0.75rem; }
 .settings-form input[type="text"] { width: 100%; }
 .settings-form input[readonly] { background: var(--sunken); color: var(--muted); }
 .av.av-large { width: 4.5rem; height: 4.5rem; font-size: 1.45rem; }
-.avatar-row { display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap; }
-.avatar-actions { display: grid; gap: 0.6rem; flex: 1 1 18rem; min-width: 0; }
-.avatar-actions .inline-form { align-items: center; }
-.avatar-actions .inline-form input { flex: 0 1 auto; }
+/* Picture: three radio cards. The label's ::after stretches over the card so a click anywhere picks it; the file button sits above it. */
+.picture-choice { border: 0; margin: 0; padding: 0; min-width: 0; }
+.picture-choice legend { padding: 0; }
+.picture-choice legend h2 { margin: 1.5rem 0 1rem; }
+.picture-choice legend h3 { margin: 1.25rem 0 0.75rem; }
+.picture-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; max-width: 40rem; }
+.picture-option { position: relative; display: grid; justify-items: center; align-content: start; gap: 0.35rem; padding: 1rem 0.9rem; text-align: center;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px; transition: border-color 0.15s, box-shadow 0.15s; }
+.picture-option:hover { border-color: var(--muted); }
+.picture-option:has(input[type="radio"]:checked) { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.picture-option:has(input[type="radio"]:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
+.picture-option input[type="radio"] { position: absolute; top: 0.6rem; left: 0.6rem; margin: 0; accent-color: var(--accent); }
+.picture-option > label { display: grid; justify-items: center; gap: 0.5rem; cursor: pointer; }
+.picture-option > label::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.picture-name { font-weight: 600; }
+.picture-option .hint { overflow-wrap: break-word; text-wrap: pretty; }
+.picture-email { color: var(--ink); }
+.picture-option.is-off { background: var(--sunken); border-style: dashed; }
+.picture-option.is-off > label { cursor: not-allowed; opacity: 0.6; }
+.picture-option.is-off:hover { border-color: var(--line); }
+.picture-empty { background: transparent; border: 1px dashed var(--muted); }
+.picture-file { position: relative; z-index: 1; margin-top: 0.4rem; }
+.js .picture-file input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.js .picture-file input:focus-visible + label { outline: 2px solid var(--focus); outline-offset: 2px; }
+html:not(.js) .picture-file label { display: none; }
+.picture-file input { max-width: 100%; font-size: 0.8rem; }
+.picture-option.drop-over { border-color: var(--accent); border-style: dashed; background: var(--accent-soft); }
+.picture-choice > .error { margin-top: 0.6rem; }
 .email-list { list-style: none; margin: 1rem 0; padding: 0; }
 .email-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 1rem; padding: 0.6rem 0; border-bottom: 1px solid var(--rule); max-width: none; }
 .email-address { font-weight: 500; overflow-wrap: anywhere; }
@@ -937,12 +980,44 @@ input[type="file"]::file-selector-button:hover { background: var(--surface); bor
 .profile-head { display: flex; gap: 1.25rem; align-items: center; margin-top: 1.75rem; }
 .profile-head > div { min-width: 0; }
 .profile-head h1 { margin: 0; }
+.profile-name { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.75rem; }
+.role-badge { font-size: 0.8rem; font-weight: 600; letter-spacing: 0; }
 .profile-facts { margin: 0.3rem 0 0; }
+.link-list { display: grid; gap: 0.6rem; max-width: 36rem; margin-bottom: 0.75rem; }
+/* One column, the width of the social account rows (the icon column and its gap make up the 2rem). */
+.profile-form .field:has(input[type="text"]) { max-width: 34rem; }
+.profile-form .field input[type="text"] { width: 100%; }
+.link-row { display: grid; grid-template-columns: 1.25rem minmax(0, 1fr); align-items: center; gap: 0.2rem 0.75rem; }
+.link-row > :is(.hint, .error) { grid-column: 2; }
+.link-linked { margin: 0; display: flex; align-items: center; gap: 0.75rem; }
+.link-icon { width: 1.25rem; height: 1.25rem; color: var(--muted); flex: none; }
+.link-row input { width: 100%; }
+.link-row.is-off > :first-child { opacity: 0.55; }
+.settings-form > .hint { margin-bottom: 0.5rem; }
+.profile-links a { display: inline-flex; align-items: center; gap: 0.4rem; }
+.profile-links .link-icon { width: 1.1rem; height: 1.1rem; }
 .profile-links { list-style: none; padding: 0; margin: 0.6rem 0 0; display: flex; flex-wrap: wrap; gap: 0.35rem 1.25rem; font-size: 0.95rem; }
-.account-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.5rem; }
-.account-actions form { margin: 0; }
+.account-actions { margin: 1.5rem 0 0; }
+/* Below 860px the rail becomes one row of links above the page, underlined like the main nav. */
+@media (max-width: 860px) {
+  .account-layout { grid-template-columns: minmax(0, 1fr); margin-top: 1.25rem; }
+  .account-nav, .account-nav div { position: static; display: flex; flex-wrap: wrap; align-items: center; gap: 0.15rem 1.1rem; }
+  .account-nav { padding-bottom: 0.4rem; border-bottom: 1px solid var(--rule); }
+  .account-nav ul { display: flex; flex-wrap: wrap; gap: 0.15rem 1.1rem; border: 0; }
+  .account-nav a { margin: 0; padding: 0.25rem 0; border-left: 0; border-bottom: 2px solid transparent; }
+  .account-nav button { padding: 0.25rem 0; }
+  .account-nav a:hover { border-bottom-color: var(--line); }
+  .account-nav a[aria-current] { border-bottom-color: var(--accent); }
+  .account-nav-label { display: none; }
+}
 @media (max-width: 560px) {
   .av.av-large { width: 3.5rem; height: 3.5rem; font-size: 1.15rem; }
+  .picture-options { grid-template-columns: minmax(0, 1fr); gap: 0.5rem; }
+  .picture-option { grid-template-columns: auto minmax(0, 1fr); justify-items: start; align-items: center; column-gap: 0.9rem; padding: 0.75rem 0.9rem 0.75rem 2.4rem; text-align: left; }
+  .picture-option input[type="radio"] { top: 50%; translate: 0 -50%; left: 0.9rem; }
+  .picture-option > label { display: contents; }
+  .picture-option > label > .av { grid-row: 1 / span 3; }
+  .picture-option > :not(label, input) { grid-column: 2; }
 }
 
 .file-metadata { margin-top: 1.5rem; }
@@ -985,13 +1060,15 @@ input[type="file"]::file-selector-button:hover { background: var(--surface); bor
 .passkey-list li { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
 .passkey-list form { margin: 0; }
 
-.orcid-banner { background: var(--accent-soft); border-bottom: 1px solid var(--line); font-size: 0.93rem; }
-.orcid-banner[hidden] { display: none; }
-.orcid-banner .wrap { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem 1rem; padding-block: 0.45rem; }
-.orcid-banner p { margin: 0; }
-.orcid-banner .button { padding: 0.2rem 0.8rem; font-size: 0.88rem; }
-.orcid-banner .link-button { color: var(--muted); font-weight: 400; font-size: 0.88rem; }
-.orcid-banner .link-button:hover { color: var(--ink); }
+.orcid-banner, .email-banner { background: var(--accent-soft); border-bottom: 1px solid var(--line); font-size: 0.93rem; }
+.orcid-banner[hidden], .email-banner[hidden] { display: none; }
+.orcid-banner .wrap, .email-banner .wrap { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem 1rem; padding-block: 0.45rem; }
+.orcid-banner p, .email-banner p { margin: 0; }
+.orcid-banner .button, .email-banner .button { padding: 0.2rem 0.8rem; font-size: 0.88rem; }
+.banner-close { margin-left: auto; display: grid; place-items: center; width: 1.75rem; height: 1.75rem; padding: 0; border: 0; border-radius: 4px; background: none; color: var(--muted); cursor: pointer; }
+.banner-close svg { width: 18px; height: 18px; }
+.banner-close:hover { color: var(--ink); background: color-mix(in oklab, var(--accent-soft), var(--ink) 8%); }
+.email-banner form { margin: 0; }
 .lockout-warning { max-width: 46rem; margin-bottom: 1.25rem; }
 .lockout-warning p { margin: 0; }
 .lockout-warning p + p { margin-top: 0.4rem; font-size: 0.93rem; color: var(--muted); }

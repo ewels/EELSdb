@@ -103,7 +103,7 @@ describe("user page", () => {
 
   it("sends an admin who opens their own page to their settings", async () => {
     const a = await admin();
-    expect((await go(`/admin/users/${a.id}/`, a.cookie)).headers.get("location")).toBe("/account/settings/");
+    expect((await go(`/admin/users/${a.id}/`, a.cookie)).headers.get("location")).toBe("/account/settings/profile/");
   });
 });
 
@@ -120,9 +120,9 @@ describe("profile", () => {
     expect(await log(p.id)).toEqual([]);
     expect(other.id).not.toBe(p.id);
 
-    const ok = await post(`/admin/users/${p.id}/profile/`, a.cookie, { display_name: "New Name", username: "new-name", job_title: "Microscopist", profile_public: "1" });
+    const ok = await post(`/admin/users/${p.id}/profile/`, a.cookie, { display_name: "New Name", username: "new-name", job_title: "Microscopist", show_details: "1", show_links: "1" });
     expect(ok.headers.get("location")).toBe(`/admin/users/${p.id}/?notice=profile`);
-    expect(await row<any>("SELECT display_name, slug, job_title, profile_public FROM users WHERE id = ?", p.id)).toEqual({ display_name: "New Name", slug: "new-name", job_title: "Microscopist", profile_public: 1 });
+    expect(await row<any>("SELECT display_name, slug, job_title, show_details FROM users WHERE id = ?", p.id)).toEqual({ display_name: "New Name", slug: "new-name", job_title: "Microscopist", show_details: 1 });
     expect(await row("SELECT slug FROM user_slug_history WHERE user_id = ?", p.id).then((r: any) => r.slug)).toBe("old-name");
     const entries = await log(p.id);
     expect(entries.map((e) => e.action)).toEqual(["profile_edited"]);
@@ -130,15 +130,42 @@ describe("profile", () => {
     expect(JSON.parse(entries[0].details_json).fields).toEqual(expect.arrayContaining(["display_name", "username", "job_title"]));
   });
 
-  it("removes the uploaded picture", async () => {
+  it("drops the uploaded picture for initials or Gravatar, from the one profile form", async () => {
     const a = await admin();
-    const p = await person();
-    await env.FILES.put(`avatars/${p.id}/pic.png`, new Uint8Array([1]));
-    await env.DB.prepare("UPDATE users SET avatar_key = ? WHERE id = ?").bind(`${p.id}/pic.png`, p.id).run();
-    await post(`/admin/users/${p.id}/avatar/remove/`, a.cookie);
-    expect(await row("SELECT avatar_key FROM users WHERE id = ?", p.id).then((r: any) => r.avatar_key)).toBeNull();
+    const withPicture = async () => {
+      const p = await person();
+      await env.FILES.put(`avatars/${p.id}/pic.png`, new Uint8Array([1]));
+      await env.DB.prepare("UPDATE users SET avatar_key = ? WHERE id = ?").bind(`${p.id}/pic.png`, p.id).run();
+      return p;
+    };
+    const p = await withPicture();
+    const page = await (await go(`/admin/users/${p.id}/`, a.cookie)).text();
+    expect(page).toContain('name="picture" id="f-picture-upload" value="upload" checked=""');
+    expect(page).not.toContain('type="file"');
+    expect(page).not.toContain("/avatar/remove/");
+    expect(page).not.toContain("/gravatar/");
+
+    expect((await post(`/admin/users/${p.id}/profile/`, a.cookie, { display_name: `Person ${p.id}`, picture: "initials" })).headers.get("location")).toBe(`/admin/users/${p.id}/?notice=profile`);
+    expect(await row<any>("SELECT avatar_key, use_gravatar FROM users WHERE id = ?", p.id)).toEqual({ avatar_key: null, use_gravatar: 0 });
     expect(await env.FILES.get(`avatars/${p.id}/pic.png`)).toBeNull();
     expect((await log(p.id)).map((e) => e.action)).toEqual(["avatar_removed"]);
+
+    const g = await withPicture();
+    await post(`/admin/users/${g.id}/profile/`, a.cookie, { display_name: `Person ${g.id}`, picture: "gravatar" });
+    expect(await row<any>("SELECT avatar_key, use_gravatar FROM users WHERE id = ?", g.id)).toEqual({ avatar_key: null, use_gravatar: 1 });
+    expect(await env.FILES.get(`avatars/${g.id}/pic.png`)).toBeNull();
+    const entries = await log(g.id);
+    expect(entries.map((e) => e.action)).toEqual(["avatar_removed", "profile_edited"]);
+    expect(JSON.parse(entries[1].details_json).fields).toEqual(["picture"]);
+  });
+
+  it("cannot pick an uploaded picture that is not there", async () => {
+    const a = await admin();
+    const p = await person();
+    const res = await post(`/admin/users/${p.id}/profile/`, a.cookie, { display_name: `Person ${p.id}`, picture: "upload" });
+    expect(res.status).toBe(422);
+    expect(await res.text()).toContain("There is no uploaded picture to keep.");
+    expect(await log(p.id)).toEqual([]);
   });
 });
 
@@ -322,7 +349,6 @@ describe("safety", () => {
     const attempts: [string, Record<string, string>][] = [
       ["", { role: "admin" }],
       ["profile/", { display_name: "Changed" }],
-      ["avatar/remove/", {}],
       ["emails/", { email: "x@example.invalid" }],
       [`emails/${emailId}/send/`, {}],
       [`emails/${emailId}/login-link/`, {}],
@@ -348,7 +374,7 @@ describe("safety", () => {
   it("refuses every action on one's own account, including the role", async () => {
     const a = await admin();
     const emailId = (await env.DB.prepare("INSERT INTO user_emails (user_id, email, verified, is_primary) VALUES (?, ?, 1, 1) RETURNING id").bind(a.id, `self${a.id}@example.invalid`).first<number>("id"))!;
-    for (const path of ["", "profile/", "avatar/remove/", "emails/", `emails/${emailId}/remove/`, `emails/${emailId}/login-link/`, "identities/unlink/", "password/remove/", "two-step/reset/", "sessions/end/"]) {
+    for (const path of ["", "profile/", "emails/", `emails/${emailId}/remove/`, `emails/${emailId}/login-link/`, "identities/unlink/", "password/remove/", "two-step/reset/", "sessions/end/"]) {
       expect((await post(`/admin/users/${a.id}/${path}`, a.cookie, { role: "user", email: "y@example.invalid" })).status, path).toBe(400);
     }
     expect(await row("SELECT role FROM users WHERE id = ?", a.id).then((r: any) => r.role)).toBe("admin");

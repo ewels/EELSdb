@@ -28,7 +28,7 @@ const config = env as { ORCID_CLIENT_ID?: string };
 const configured = config.ORCID_CLIENT_ID;
 
 let nextId = 9940100;
-const user = (name = "Orcid Person") => sessionFor({ id: ++nextId, display_name: name }).then((cookie) => ({ id: nextId, cookie }));
+const user = (name = "Orcid Person") => sessionFor({ id: ++nextId, display_name: name }, { email: true }).then((cookie) => ({ id: nextId, cookie }));
 const linkOrcid = (id: number, subject = `0000-0001-0000-${id}`) =>
   env.DB.prepare("INSERT INTO identities (user_id, provider, subject) VALUES (?, 'orcid', ?)").bind(id, subject).run();
 
@@ -86,10 +86,10 @@ describe("linking a service", () => {
     await env.DB.prepare("INSERT INTO identities (user_id, provider, subject) VALUES (?, 'orcid', '0000-0003-0000-0001')").bind(owner.id).run();
     const u = await user();
     const res = await link(u.cookie, "orcid", { orcid: "0000-0003-0000-0001", name: "Taken" });
-    expect(res.headers.get("location")).toBe("/account/settings/?notice=link-taken#h-signin");
+    expect(res.headers.get("location")).toBe("/account/settings/sign-in/?notice=link-taken#h-signin");
     expect(await count("SELECT 1 FROM identities WHERE user_id = ?", u.id)).toBe(0);
     expect(await env.DB.prepare("SELECT orcid FROM users WHERE id = ?").bind(u.id).first("orcid")).toBeNull();
-    const page = await (await go("/account/settings/?notice=link-taken", u.cookie)).text();
+    const page = await (await go("/account/settings/sign-in/?notice=link-taken", u.cookie)).text();
     expect(page).toContain("already linked to a different EELSdb account");
     expect(page).toContain("Claim your account from the old site");
   });
@@ -97,7 +97,7 @@ describe("linking a service", () => {
   it("refuses a second account of the same kind and linking again is harmless", async () => {
     const u = await user();
     await link(u.cookie, "orcid", { orcid: "0000-0004-0000-0001", name: "One" });
-    expect((await link(u.cookie, "orcid", { orcid: "0000-0004-0000-0002", name: "Two" })).headers.get("location")).toBe("/account/settings/?notice=link-has#h-signin");
+    expect((await link(u.cookie, "orcid", { orcid: "0000-0004-0000-0002", name: "Two" })).headers.get("location")).toBe("/account/settings/sign-in/?notice=link-has#h-signin");
     expect((await link(u.cookie, "orcid", { orcid: "0000-0004-0000-0001", name: "One" })).headers.get("location")).toBe("/spectra/");
     expect(await count("SELECT 1 FROM identities WHERE user_id = ?", u.id)).toBe(1);
   });
@@ -108,14 +108,25 @@ describe("linking a service", () => {
     const start = await go("/auth/orcid/link?next=//evil.example/", u.cookie);
     expect(decodeURIComponent(cookieOf(start, "eelsdb_oauth")!)).toMatch(/\|\/account\/\|link$/);
     const bad = await go("/auth/orcid/callback?code=abc&state=wrong", u.cookie, { headers: { Cookie: `${u.cookie}; ${cookieOf(start, "eelsdb_oauth")!}` } });
-    expect(bad.headers.get("location")).toBe("/account/settings/?notice=link-failed#h-signin");
+    expect(bad.headers.get("location")).toBe("/account/settings/sign-in/?notice=link-failed#h-signin");
     expect(await count("SELECT 1 FROM identities WHERE user_id = ?", u.id)).toBe(0);
+  });
+
+  it("shows the ORCID row on the profile page, greyed out when ORCID sign-in is off", async () => {
+    const u = await user();
+    const on = await (await go("/account/settings/profile/", u.cookie)).text();
+    expect(on).toContain("/auth/orcid/link?next=");
+    config.ORCID_CLIENT_ID = "";
+    const off = await (await go("/account/settings/profile/", u.cookie)).text();
+    expect(off).not.toContain("/auth/orcid/link");
+    expect(off).toMatch(/<button class="button secondary" type="button" disabled="">Link ORCID<\/button>/);
+    expect(off).toContain("ORCID sign-in is not available at the moment.");
   });
 
   it("offers a button for each service not yet linked", async () => {
     const u = await user();
     await linkOrcid(u.id);
-    const page = await (await go("/account/settings/", u.cookie)).text();
+    const page = await (await go("/account/settings/sign-in/", u.cookie)).text();
     expect(page).toContain("Link Google");
     expect(page).toContain("Link GitHub");
     expect(page).not.toContain("Link ORCID");
@@ -220,7 +231,7 @@ describe("the requirement", () => {
     return go("/submit-data/", cookie, { method: "POST", headers: { Origin: SITE }, body: fd });
   };
   const makeDraft = async (cookie: string, name: string) => {
-    const html = await (await postForm("/account/drafts/tokens/", cookie, { label: "t" })).text();
+    const html = await (await postForm("/account/settings/tokens/", cookie, { label: "t" })).text();
     const token = html.match(/eelsdb_draft_[0-9a-f]{48}/)![0];
     const fd = new FormData();
     fd.append("type", "coreloss");

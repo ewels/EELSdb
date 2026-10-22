@@ -281,13 +281,13 @@ export const draftRoute = createRoute({
   operationId: "createDraft",
   summary: "Create a draft",
   description:
-    "Saves a spectrum as a draft in the token owner's account. A draft is not public and is not reviewed: the owner checks it on the website and submits it. Drafts that are not submitted are deleted after 30 days. Needs a drafts token from https://eelsdb.eu/account/drafts/. At most 200 drafts an hour.",
-  security: [{ draftToken: [] }],
+    "Saves a spectrum as a draft in the token owner's account. A draft is not public and is not reviewed: the owner checks it on the website and submits it. Drafts that are not submitted are deleted after 30 days. Needs an API token from https://eelsdb.eu/account/settings/tokens/. At most 200 drafts an hour.",
+  security: [{ apiToken: [] }],
   request: { body: { content: { "multipart/form-data": { schema: DraftForm } }, required: true } },
   responses: {
     201: json(Draft, "The draft was saved."),
     400: json(DraftError, "The draft has errors; nothing was saved."),
-    401: json(DraftError, "No valid drafts token."),
+    401: json(DraftError, "No valid API token."),
     429: json(DraftError, "Too many drafts in the last hour."),
   },
 });
