@@ -222,6 +222,14 @@ describe("pages", () => {
     expect(html).toContain('href="/spectra/mlc-nanotube-ys-tas2/"');
   });
 
+  it("missing pages, also under /docs/, get the site's 404 page", async () => {
+    for (const missing of ["/no-such-page/", "/docs/no-such-page/"]) {
+      const r = await page(missing);
+      expect(r.status, missing).toBe(404);
+      expect(r.html, missing).toContain("<h1>Page not found</h1>");
+    }
+  });
+
   it("spectrum pages work for non-ASCII slugs and redirect without the slash", async () => {
     expect((await page("/spectra/%ce%b1-moo3/")).status).toBe(200);
     const r = await page("/spectra/mlc-nanotube-ylas-tas2");

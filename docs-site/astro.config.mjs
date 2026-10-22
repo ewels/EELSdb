@@ -3,6 +3,7 @@ import { cpSync, mkdirSync, writeFileSync } from 'node:fs';
 import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
 import codeblocks, { linksValidatorExclude } from 'starlight-codeblocks';
+import { python } from 'starlight-codeblocks/adapters/python';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightLlmsTxt from 'starlight-llms-txt';
 import starlightOpenAPI, { openAPISidebarGroups } from 'starlight-openapi';
@@ -48,6 +49,8 @@ export default defineConfig({
       editLink: { baseUrl: 'https://github.com/ewels/EELSdb/edit/rewrite/' },
       routeMiddleware: './src/routeData.ts',
       lastUpdated: true,
+      // The Worker serves the site's own 404 page for every missing path, /docs/ included.
+      disable404Route: true,
       components: {
         Head: './src/components/Head.astro',
         Header: './src/components/Header.astro',
@@ -86,7 +89,16 @@ export default defineConfig({
         },
       ],
       plugins: [
-        codeblocks({ swatches: { prose: true } }),
+        codeblocks({
+          swatches: { prose: true },
+          apiLinks: {
+            adapters: [
+              python({
+                inventories: ['https://hyperspy.org/hyperspy-doc/current/objects.inv', 'https://hyperspy.org/exspy/objects.inv'],
+              }),
+            ],
+          },
+        }),
         starlightOpenAPI([
           { base: 'api/v2', schema: OPENAPI_V2, sidebar: { label: 'API v2 reference' } },
           { base: 'api/v1', schema: '../worker/src/api/openapi-v1.json', sidebar: { label: 'API v1 reference (deprecated)' } },
