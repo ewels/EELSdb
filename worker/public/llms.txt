@@ -16,6 +16,7 @@ Every spectrum page has a Markdown version: replace the trailing slash with `.md
 - [API v2 OpenAPI file](https://eelsdb.eu/api/openapi-v2.json): every parameter and response field, generated from the code that serves the API
 - [List spectra](https://api.eelsdb.eu/v2/spectra?per_page=5): an example request
 - [Spectrum fields](https://eelsdb.eu/docs/reference/fields.md): what each field of a record means
+- [Harvest metadata](https://eelsdb.eu/docs/use/harvest.md): OAI-PMH, DCAT-AP and schema.org records for catalogues and repositories
 
 ## Data
 

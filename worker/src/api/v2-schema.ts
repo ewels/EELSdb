@@ -2,9 +2,10 @@
 // and, in the tests, check every response, so the documentation cannot drift from the code.
 import { createRoute, z } from "@hono/zod-openapi";
 import { ELEMENTS } from "../elements";
+import { sqlTime } from "./dates";
 
 export const MAX_PER_PAGE = 500;
-export const SORTS = ["formula", "title", "published_at", "min_energy_ev", "max_energy_ev", "beam_energy_kv", "resolution_ev", "author", "id"] as const;
+export const SORTS = ["formula", "title", "published_at", "min_energy_ev", "max_energy_ev", "beam_energy_kv", "resolution_ev", "author", "updated_at", "id"] as const;
 export const SOURCES = ["file", "companion", "profile", "user", "estimate", "unknown"] as const;
 
 export const TYPES = ["coreloss", "lowloss", "zeroloss", "xrayabs"] as const;
@@ -47,6 +48,15 @@ export const ListQuery = z
     covers_ev: number("Spectra whose energy range includes this energy (eV).", 708),
     beam_energy_kv: number("Beam energy (kV).", 200),
     max_resolution_ev: number("Spectra with this energy resolution or better (eV).", 0.5),
+    updated_since: z
+      .string()
+      .transform((v, ctx) => sqlTime(v) ?? (ctx.addIssue({ code: "custom", message: "is not a date (2026-01-31) or a UTC time (2026-01-31T09:00:00Z)" }), z.NEVER))
+      .optional()
+      .openapi({
+        param: { description: "Spectra published or changed at or after this date (`2026-01-31`) or UTC time (`2026-01-31T09:00:00Z`)." },
+        type: "string",
+        example: "2026-01-31",
+      }),
     sort: z.enum(SORTS).default("formula").openapi({ param: { description: "Sort key. Spectra with no value for it come last." } }),
     order: z.enum(["asc", "desc"]).default("asc").openapi({ param: { description: "Sort direction." } }),
     page: z.coerce.number().int().min(1).default(1).openapi({ param: { description: "Page number, from 1." }, type: "integer", default: 1 }),
@@ -96,7 +106,7 @@ export const Spectrum = z
     licence: text.openapi({ description: "SPDX identifier, for example `ODbL-1.0`. Null for spectra migrated from the old site." }),
     completeness: z.enum(["full", "partial"]).nullable().openapi({ description: "`full` when the beam energy and both angles are known. Null for X-ray absorption." }),
     published_at: text,
-    updated_at: text,
+    updated_at: text.openapi({ description: "When the spectrum was last changed; the publication date if it never was." }),
     author: z.strictObject({ name: text, profile_url: z.string() }),
     energy: z.strictObject({ min_ev: num, max_ev: num, step_ev: num }),
     acquisition: z

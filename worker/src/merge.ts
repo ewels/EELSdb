@@ -149,7 +149,7 @@ export async function mergeAccounts(db: D1Database, fromId: number, intoId: numb
     db.prepare("UPDATE users SET slug = COALESCE(slug, ?) WHERE id = ?").bind(gone.slug, to),
     move("user_slug_history", "user_id"),
     db.prepare("INSERT OR REPLACE INTO user_slug_history (slug, user_id) SELECT ?1, ?2 WHERE ?1 IS NOT NULL AND ?1 != COALESCE((SELECT slug FROM users WHERE id = ?2), '')").bind(gone.slug, to),
-    db.prepare("UPDATE spectra SET author_slug = (SELECT slug FROM users WHERE id = ?1), author_display = (SELECT display_name FROM users WHERE id = ?1) WHERE owner_id = ?2").bind(to, from),
+    db.prepare("UPDATE spectra SET author_slug = (SELECT slug FROM users WHERE id = ?1), author_display = (SELECT display_name FROM users WHERE id = ?1), updated_at = datetime('now') WHERE owner_id = ?2").bind(to, from),
     move("spectra", "owner_id"),
     db.prepare("INSERT OR IGNORE INTO favourites (user_id, spectrum_id, created_at) SELECT ?, spectrum_id, created_at FROM favourites WHERE user_id = ?").bind(to, from),
     db.prepare("DELETE FROM favourites WHERE user_id = ?").bind(from),

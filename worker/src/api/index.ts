@@ -2,6 +2,8 @@ import { Hono, type Context } from "hono";
 import type { AppEnv } from "../auth";
 import { API_HOST, SITE, formatV1, loadBundle, loadMany } from "./format";
 import { v2 } from "./v2";
+import { oai } from "./oai";
+import { dcat } from "./dcat";
 import { ORDER_META_KEYS, buildSpectraQuery, firstUnknownArg, parseParams, sortAndPage, type SpectrumRow } from "./query";
 
 export const api = new Hono<AppEnv>();
@@ -51,6 +53,8 @@ const INDEX = {
 };
 
 api.route("/v2", v2);
+api.route("/oai", oai);
+api.route("/dcat", dcat);
 
 api.get("/", (c) => json(c, INDEX));
 api.get("/index.php", (c) => json(c, INDEX));

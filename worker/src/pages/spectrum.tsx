@@ -1,15 +1,15 @@
 import type { Context } from "hono";
+import { raw } from "hono/html";
 import type { AppEnv } from "../auth";
 import { API_HOST, SITE, loadBundle, type SpectrumBundle } from "../api/format";
-import { EELSDB_BIBTEX, EELSDB_CITATION } from "./citation";
+import { creatorOrcids, jsonLdScript, schemaOrg, toRecord } from "../api/metadata";
+import { EELSDB_BIBTEX, EELSDB_CITATION, referenceText, stripTags } from "./citation";
 import { isModerator } from "../instruments";
 import { UNIT_LABELS, VARIANTS, variantUnits } from "../submit/form";
 import { Formula, Layout, TypeBadge, fmt } from "./layout";
 
 type Row = Record<string, any>;
 
-/** CrossRef titles carry HTML (<i>, <sub>); citations need plain text. */
-const stripTags = (v: unknown) => String(v ?? "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
 
 const SOURCE_NOTE: Record<string, string> = {
   file: "from the data file",
@@ -79,19 +79,6 @@ function EdgeList(props: { b: SpectrumBundle }) {
       })}
     </span>
   );
-}
-
-function referenceText(r: Row | null) {
-  if (!r) return null;
-  if (!r.authors && !r.title && r.freetext) return String(r.freetext);
-  const parts = [
-    r.authors,
-    r.title && `“${stripTags(r.title)}”`,
-    [r.journal, r.volume && (r.issue ? `${r.volume}(${r.issue})` : r.volume), r.page].filter(Boolean).join(", "),
-    r.year && `(${r.year})`,
-    r.doi && `doi:${r.doi}`,
-  ].filter(Boolean);
-  return parts.length ? parts.join(". ").replace(/\.\s*\(/, " (") : null;
 }
 
 function bibKey(s: Row) {
@@ -194,6 +181,8 @@ export async function spectrumPage(c: Context<AppEnv>) {
     t.deconv_other,
   ].filter(Boolean).join(", ");
   const canEdit = !!user && (s.owner_id === user.id || isModerator(user));
+  const published = s.status === "published";
+  const orcid = published ? ((await creatorOrcids(c.env.DB, [s.id])).get(s.id) ?? null) : null;
   const authorLink = <a href={`/author/${s.author_slug}/`}>{s.author_display}</a>;
 
   return c.html(
@@ -204,10 +193,12 @@ export async function spectrumPage(c: Context<AppEnv>) {
       head={
         <>
           <link rel="stylesheet" href="/vendor/uPlot.min.css" />
-          {b.spectrum.status === "published" && (
+          {published && (
             <>
               <link rel="alternate" type="text/markdown" href={`/spectra/${encodeURIComponent(s.slug)}.md`} />
               <link rel="alternate" type="application/json" href={`${API_HOST}/v2/spectra/${s.id}`} />
+              <link rel="alternate" type="application/ld+json" href={`${API_HOST}/dcat/spectra/${s.id}.jsonld`} />
+              <script type="application/ld+json">{raw(jsonLdScript(schemaOrg(toRecord(b, orcid))))}</script>
             </>
           )}
         </>

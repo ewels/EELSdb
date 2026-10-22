@@ -59,9 +59,10 @@ Give filters as query parameters. A spectrum must match all of them.
 - `covers_ev=708`: Spectra whose energy range includes this energy, in eV.
 - `beam_energy_kv=200`: Spectra recorded at this beam energy.
 - `max_resolution_ev=0.5`: Spectra with this energy resolution or better, in eV.
+- `updated_since=2026-01-31`: Spectra published or changed on or after this date, or after a UTC time such as `2026-01-31T09:00:00Z`.
 
 Sort with `sort` and `order`.
-`sort` is one of `formula` (the default), `title`, `published_at`, `min_energy_ev`, `max_energy_ev`, `beam_energy_kv`, `resolution_ev`, `author` or `id`.
+`sort` is one of `formula` (the default), `title`, `published_at`, `updated_at`, `min_energy_ev`, `max_energy_ev`, `beam_energy_kv`, `resolution_ev`, `author` or `id`.
 `order` is `asc` (the default) or `desc`.
 Spectra with no value for the sort field come last.
 
@@ -162,6 +163,15 @@ Each file has a `role`, a `url`, a `filename`, its size in `bytes` and its `sha2
 - `hspy`: A HyperSpy file with the metadata, made by the moderator at review.
 
 `download_url` is the main file: the `legacy` file, else the `msa` file, else the `original` file.
+
+To keep a copy up to date, ask only for what changed since your last run:
+
+```sh
+$ curl "https://api.eelsdb.eu/v2/spectra?updated_since=2026-01-31&sort=updated_at"
+```
+
+A spectrum that a moderator withdraws does not appear in this list, so read all the pages again now and then.
+Catalogues and repository harvesters can use [OAI-PMH or DCAT-AP](/docs/use/harvest/) instead.
 
 ## Make drafts
 

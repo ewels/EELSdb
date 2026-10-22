@@ -4,6 +4,7 @@ import { avatarUrl, type AppEnv } from "../auth";
 import NAMES from "../element-names.json";
 import { Avatar as SharedAvatar, EdgeName, Formula, Layout, TYPE_NAMES } from "./layout";
 import { HERO_LOGO_SVG } from "./logo";
+import { jsonLdScript, schemaOrgCatalog } from "../api/metadata";
 import { majorEdges, parseSpectrum } from "../preview";
 
 const ELEMENT_NAMES: Record<string, string> = NAMES;
@@ -152,7 +153,17 @@ export async function homePage(c: Context<AppEnv>) {
   const faces = await Promise.all(people.map(async (p: any) => ({ ...(await person(p)), n: p.n, since: p.since })));
 
   return c.html(
-    <Layout user={c.get("user")} path="/" home head={<script src="/home.js" defer></script>}>
+    <Layout
+      user={c.get("user")}
+      path="/"
+      home
+      head={
+        <>
+          <script src="/home.js" defer></script>
+          <script type="application/ld+json">{raw(jsonLdScript(schemaOrgCatalog()))}</script>
+        </>
+      }
+    >
       <section class="intro">
         <h1 class="hero-logo">{raw(HERO_LOGO_SVG)}</h1>
         <p class="lede">Reference spectra for electron energy-loss and X-ray absorption spectroscopy, shared by microscopists.</p>

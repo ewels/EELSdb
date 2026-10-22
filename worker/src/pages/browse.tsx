@@ -85,6 +85,7 @@ function chipLabel(key: string, v: string) {
     beam_energy_kv: `${v} kV`,
     monochromated: v === "true" ? "monochromated" : "not monochromated",
     complete: "angles known",
+    updated_since: `updated since ${v}`,
     type: TYPE_NAMES[v] ?? v,
   };
   return labels[key] ?? v;
@@ -328,6 +329,10 @@ export async function browsePage(c: Context<AppEnv>) {
           <label class="check">
             <input type="checkbox" name="complete" value="true" checked={one(f, "complete") === "true"} /> Beam energy and angles known
           </label>
+          <div>
+            <label for="f-updated">Published or updated since</label>
+            <input type="date" id="f-updated" name="updated_since" value={one(f, "updated_since")} />
+          </div>
           {f.has("sort") && <input type="hidden" name="sort" value={sort} />}
           {desc && <input type="hidden" name="order" value="desc" />}
           <div class="filter-actions">

@@ -7,6 +7,7 @@ import { variantUnits } from "../submit/form";
 import { API_HOST, SITE, loadMany, type SpectrumBundle } from "./format";
 import { DOCUMENT, ListQuery, draftRoute, listRoute, oneRoute, type Spectrum } from "./v2-schema";
 import { createDraft } from "../submit/drafts";
+import { MODIFIED_SQL, modifiedAt } from "./dates";
 import type { z } from "@hono/zod-openapi";
 
 type C = Context<AppEnv>;
@@ -39,6 +40,7 @@ const SORT_SQL: Record<string, string> = {
   beam_energy_kv: "a.beam_energy_kv",
   resolution_ev: "a.resolution_ev",
   author: "s.author_display COLLATE NOCASE",
+  updated_at: MODIFIED_SQL,
   id: "s.id",
 };
 
@@ -76,6 +78,7 @@ export function spectraFilter(q: z.infer<typeof ListQuery>) {
   if (q.covers_ev !== undefined) add("s.min_energy_ev <= ? AND s.max_energy_ev >= ?", q.covers_ev, q.covers_ev);
   if (q.beam_energy_kv !== undefined) add("a.beam_energy_kv = ?", q.beam_energy_kv);
   if (q.max_resolution_ev !== undefined) add("a.resolution_ev <= ?", q.max_resolution_ev);
+  if (q.updated_since) add(`${MODIFIED_SQL} >= ?`, q.updated_since);
 
   const sort = SORT_SQL[q.sort];
   return {
@@ -140,7 +143,7 @@ export function formatV2(b: SpectrumBundle): z.infer<typeof Spectrum> {
     licence: s.licence,
     completeness: s.completeness,
     published_at: s.published_at,
-    updated_at: s.updated_at,
+    updated_at: modifiedAt(s),
     author: { name: s.author_display, profile_url: `${SITE}/author/${s.author_slug}/` },
     energy: { min_ev: num(s.min_energy_ev), max_ev: num(s.max_energy_ev), step_ev: num(s.step_ev) },
     acquisition: a && {

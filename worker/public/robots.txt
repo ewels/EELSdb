@@ -4,4 +4,5 @@ Disallow: /admin/
 Disallow: /account/
 Disallow: /submissions/
 
+Sitemap: https://eelsdb.eu/sitemap.xml
 Sitemap: https://eelsdb.eu/docs/sitemap-index.xml

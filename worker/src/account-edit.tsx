@@ -278,8 +278,13 @@ export async function saveProfile(env: Env, userId: number, body: Record<string,
       name, text(body.job_title, 100) || null, text(body.affiliation, 200) || null,
       Object.keys(links).length ? JSON.stringify(links) : null, values.show_details ? 1 : 0, values.show_links ? 1 : 0, username, userId,
     ),
-    // Spectra carry the author's name and address for the API and listings.
-    db.prepare("UPDATE spectra SET author_display = ?, author_slug = COALESCE(?, author_slug) WHERE owner_id = ?").bind(name, username, userId),
+    // Spectra carry the author's name and address for the API and listings. Showing links publishes the ORCID iD in
+    // harvested metadata, so that counts as a change to the spectra too.
+    db.prepare(
+      `UPDATE spectra SET author_display = ?1, author_slug = COALESCE(?2, author_slug),
+         updated_at = CASE WHEN author_display IS NOT ?1 OR author_slug IS NOT COALESCE(?2, author_slug) OR ?3 THEN datetime('now') ELSE updated_at END
+       WHERE owner_id = ?4`,
+    ).bind(name, username, (values.show_links ? "1" : "") !== stored.show_links ? 1 : 0, userId),
   ];
   if (username && stored.username && username !== stored.username) {
     statements.push(

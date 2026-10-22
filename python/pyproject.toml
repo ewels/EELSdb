@@ -13,6 +13,8 @@ dependencies = [
 dev = [
     "exspy>=0.3.2",
     "hyperspy>=2.5.0",
+    "lxml>=6.1.3",
+    "pyshacl>=0.40.1",
     "pytest>=9.1.1",
 ]
 

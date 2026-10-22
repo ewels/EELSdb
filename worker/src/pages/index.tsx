@@ -4,6 +4,9 @@ import { raw } from "hono/html";
 import { loadUser, type AppEnv } from "../auth";
 import openapiV1 from "../api/openapi-v1.json";
 import { openapiV2 } from "../api/v2";
+import { MODIFIED_SQL, isoTime } from "../api/dates";
+import { SITE } from "../api/format";
+import { xml } from "../api/metadata";
 import { EXPORT_KEY, serveFile } from "../files";
 import { browsePage } from "./browse";
 import { Avatar, Formula, Layout, TYPE_NAMES, TypeBadge } from "./layout";
@@ -116,6 +119,17 @@ for (const [from, to] of Object.entries(MOVED)) pages.get(from, (c) => c.redirec
 
 pages.get("/api/openapi-v2.json", (c) => c.json(openapiV2()));
 pages.get("/api/openapi-v1.json", (c) => c.json(openapiV1));
+
+pages.get("/sitemap.xml", async (c) => {
+  const { results } = await c.env.DB.prepare(
+    `SELECT s.slug, ${MODIFIED_SQL} AS modified FROM spectra s WHERE s.status = 'published' ORDER BY s.id`,
+  ).all<{ slug: string; modified: string }>();
+  const url = (loc: string, modified?: string) => `<url><loc>${xml(loc)}</loc>${modified ? `<lastmod>${isoTime(modified)}</lastmod>` : ""}</url>`;
+  const body = [`${SITE}/`, `${SITE}/spectra/`].map((u) => url(u)).concat(results.map((r) => url(`${SITE}/spectra/${encodeURIComponent(r.slug)}/`, r.modified)));
+  return c.body(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body.join("\n")}\n</urlset>\n`, 200, {
+    "Content-Type": "application/xml; charset=utf-8",
+  });
+});
 
 const STAFF_GROUPS = [
   { role: "admin", title: "Administrators", about: "Administrators run the site: they manage accounts and roles, and they moderate too." },
