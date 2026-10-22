@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-21T09:40:21+00:00",
+  "generatedAt": "2026-10-22T17:50:23+00:00",
   "title": "Design System: EELS Data Base",
   "extensions": {
     "colorMeta": {
@@ -430,7 +430,7 @@
       {
         "name": "soft-lift",
         "value": "0 1px 2px var(--shadow-color), 0 8px 24px var(--shadow-color)",
-        "purpose": "Dialogs and tooltips only. --shadow-color is light-dark(rgb(40 30 20 / 0.08), rgb(0 0 0 / 0.4))."
+        "purpose": "Dialogs, tooltips, suggestion lists, the About menu panel and the burger menu panel. --shadow-color is light-dark(rgb(40 30 20 / 0.08), rgb(0 0 0 / 0.4))."
       }
     ],
     "motion": [
@@ -467,6 +467,10 @@
       {
         "name": "home-md",
         "value": "960px"
+      },
+      {
+        "name": "nav",
+        "value": "1000px"
       },
       {
         "name": "home-lg",
@@ -579,14 +583,62 @@
       "description": "Status or information panel.",
       "html": "<p class=\"ds-notice\">The archive has not been made yet.</p>",
       "css": ".ds-notice { border: 1px solid var(--line); background: var(--sunken); color: var(--ink); border-radius: 8px; padding: 1rem 1.25rem; font: 16px/1.55 var(--font); }"
+    },
+    {
+      "name": "Sign-in Panel",
+      "kind": "card",
+      "refersTo": "auth-panel",
+      "description": "The one surface panel on the sign-in page and its states: ORCID first as the only primary, other ways in as full-width secondaries, email below an 'or' rule.",
+      "html": "<div class=\"ds-auth\"><h1>Sign in</h1><p class=\"ds-auth-lede\">Share spectra and keep favourites. New here? Your first sign-in makes your account.</p><a class=\"ds-auth-btn ds-auth-primary\" href=\"#\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"12\" fill=\"#A6CE39\"/><path fill=\"#fff\" d=\"M8.3 17.5H6.8V7.1h1.5v10.4zM7.6 4.9a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM10.4 7.1h4c3.8 0 5.5 2.7 5.5 5.2 0 2.7-2.1 5.2-5.5 5.2h-4V7.1zm1.5 9h2.4c3.4 0 4.2-2.6 4.2-3.8 0-2-1.3-3.8-4.1-3.8h-2.5v7.6z\"/></svg> Continue with ORCID</a><p class=\"ds-auth-hint\">EELSdb credits contributors by their ORCID iD.</p><a class=\"ds-auth-btn\" href=\"#\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3\"/></svg> Continue with GitHub</a><p class=\"ds-auth-or\">or</p><label class=\"ds-auth-label\" for=\"ds-auth-email\">Email address</label><input id=\"ds-auth-email\" class=\"ds-auth-input\" type=\"email\"><button class=\"ds-auth-btn\" type=\"button\">Email me a sign-in link</button></div>",
+      "css": ".ds-auth { width: min(26rem, 100%); background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 2rem 2rem 1.75rem; font: 16px/1.55 var(--font); display: grid; gap: 0.6rem; } .ds-auth h1 { margin: 0; font-size: 2rem; font-weight: 700; letter-spacing: -0.025em; line-height: 1.2; } .ds-auth-lede { margin: 0 0 0.75rem; color: var(--muted); } .ds-auth-btn { display: flex; align-items: center; justify-content: center; gap: 0.5rem; white-space: nowrap; padding: 0.6rem 1rem; border-radius: 4px; border: 1px solid color-mix(in oklab, var(--line), var(--muted) 25%); background: var(--sunken); color: var(--ink); font: 600 0.95rem/1.55 var(--font); text-decoration: none; cursor: pointer; } .ds-auth-btn svg { width: 18px; height: 18px; } .ds-auth-btn:hover { background: var(--surface); border-color: var(--muted); } .ds-auth-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); } .ds-auth-primary:hover { background: var(--accent); filter: brightness(1.08); } .ds-auth-btn:focus-visible, .ds-auth-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; } .ds-auth-hint { margin: 0; text-align: center; font-size: 0.8rem; color: var(--muted); } .ds-auth-or { display: flex; align-items: center; gap: 0.75rem; margin: 0.9rem 0; font-size: 0.85rem; color: var(--muted); } .ds-auth-or::before, .ds-auth-or::after { content: ''; flex: 1; border-top: 1px solid var(--line); } .ds-auth-label { font-size: 0.85rem; font-weight: 600; } .ds-auth-input { background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 0.55rem 0.7rem; font: inherit; } .ds-auth-input:hover { border-color: var(--muted); }"
+    },
+    {
+      "name": "Last Used Tag",
+      "kind": "chip",
+      "refersTo": "last-used-tag",
+      "description": "Marks the sign-in method used last time, on the top-right edge of its button; the button keeps its fill and gains an accent border.",
+      "html": "<a class=\"ds-lu-btn\" href=\"#\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3\"/></svg> Continue with GitHub<span class=\"ds-lu\">Last used</span></a>",
+      "css": ".ds-lu-btn { position: relative; display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 22rem; max-width: 100%; padding: 0.6rem 1rem; border-radius: 4px; border: 1px solid var(--accent); background: var(--sunken); color: var(--ink); font: 600 0.95rem/1.55 var(--font); text-decoration: none; margin-top: 0.75rem; } .ds-lu-btn svg { width: 18px; height: 18px; } .ds-lu-btn:hover { background: var(--surface); } .ds-lu-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; } .ds-lu { position: absolute; top: -0.6rem; right: 0.6rem; padding: 0 0.45rem; border: 1px solid var(--accent); border-radius: 999px; background: var(--surface); color: var(--ink); font-size: 0.72rem; font-weight: 600; line-height: 1.1rem; }"
+    },
+    {
+      "name": "Account Banner",
+      "kind": "custom",
+      "refersTo": "orcid-banner",
+      "description": "Full-width strip above the header asking a signed-in person to confirm an email address or link ORCID; one at a time, closed with the right-aligned button.",
+      "html": "<div class=\"ds-banner\" role=\"region\" aria-label=\"Confirm your email address\"><p>Confirm your email address: we sent a link to ada@example.org.</p><button class=\"ds-banner-btn\" type=\"button\">Send it again</button><button class=\"ds-banner-close\" type=\"button\" aria-label=\"Hide this message for 7 days\"><svg viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M5.5 5.5l9 9M14.5 5.5l-9 9\"/></svg></button></div>",
+      "css": ".ds-banner { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem 1rem; padding: 0.45rem 1rem; background: var(--accent-soft); border-bottom: 1px solid var(--line); color: var(--ink); font: 0.93rem/1.55 var(--font); } .ds-banner p { margin: 0; } .ds-banner-btn { padding: 0.2rem 0.8rem; border-radius: 4px; border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); font: 600 0.88rem/1.55 var(--font); white-space: nowrap; cursor: pointer; } .ds-banner-btn:hover { filter: brightness(1.08); } .ds-banner-close { margin-left: auto; display: grid; place-items: center; width: 1.75rem; height: 1.75rem; padding: 0; border: 0; border-radius: 4px; background: none; color: var(--muted); cursor: pointer; } .ds-banner-close svg { width: 18px; height: 18px; } .ds-banner-close:hover { color: var(--ink); background: color-mix(in oklab, var(--accent-soft), var(--ink) 8%); } .ds-banner button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }"
+    },
+    {
+      "name": "Account Nav",
+      "kind": "nav",
+      "refersTo": "account-nav-current",
+      "description": "Left rail on every account page: page links, a Settings group and a Staff group; the current page is a 2px accent mark on a 1px rule rail.",
+      "html": "<nav class=\"ds-anav\" aria-label=\"Your account\"><ul><li><a href=\"#\">Overview</a></li><li><a href=\"#\">Submissions</a></li><li><a href=\"#\">Drafts</a></li></ul><p class=\"ds-anav-label\">Settings</p><ul><li><a href=\"#\" aria-current=\"page\">Profile</a></li><li><a href=\"#\">Email addresses</a></li><li><a href=\"#\">Sign-in methods</a></li><li><a href=\"#\">Two-step and passkeys</a></li><li><a href=\"#\">API tokens</a></li></ul><button class=\"ds-anav-out\" type=\"button\">Sign out</button></nav>",
+      "css": ".ds-anav { width: 13rem; font: 0.95rem/1.55 var(--font); } .ds-anav ul { list-style: none; margin: 0 0 1.25rem; padding: 0; border-left: 1px solid var(--rule); } .ds-anav a { display: block; margin-left: -1px; padding: 0.3rem 0 0.3rem 1rem; border-left: 2px solid transparent; color: var(--ink); font-weight: 500; text-decoration: none; } .ds-anav a:hover { border-left-color: var(--line); } .ds-anav a[aria-current] { border-left-color: var(--accent); font-weight: 600; } .ds-anav a:focus-visible, .ds-anav-out:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; } .ds-anav-label { margin: 0 0 0.4rem; color: var(--muted); font-size: 0.8rem; font-weight: 600; } .ds-anav-out { padding: 0; border: 0; background: none; color: var(--muted); font: inherit; cursor: pointer; } .ds-anav-out:hover { color: var(--ink); }"
+    },
+    {
+      "name": "Picture Choice",
+      "kind": "custom",
+      "refersTo": "avatar",
+      "description": "Three radio cards on the Profile page (Initials, Gravatar, Your picture), each previewing what people will see; a click anywhere on a card picks it.",
+      "html": "<fieldset class=\"ds-pick\"><legend>Picture</legend><label class=\"ds-pick-card\"><input type=\"radio\" name=\"ds-pic\" checked><span class=\"ds-pick-av ds-pick-a\">AL</span><strong>Initials</strong><span class=\"ds-pick-hint\">From your name.</span></label><label class=\"ds-pick-card\"><input type=\"radio\" name=\"ds-pic\"><span class=\"ds-pick-av ds-pick-a\">AL</span><strong>Gravatar</strong><span class=\"ds-pick-hint\">From gravatar.com for ada@example.org.</span></label><label class=\"ds-pick-card\"><input type=\"radio\" name=\"ds-pic\"><span class=\"ds-pick-av ds-pick-empty\"></span><strong>Your picture</strong><span class=\"ds-pick-btn\">Choose a picture</span></label></fieldset>",
+      "css": ".ds-pick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; max-width: 40rem; margin: 0; padding: 0; border: 0; font: 16px/1.55 var(--font); color: var(--ink); } .ds-pick legend { grid-column: 1 / -1; padding: 0; margin-bottom: 0.6rem; font-size: 1.3rem; font-weight: 600; letter-spacing: -0.015em; } .ds-pick-card { position: relative; display: grid; justify-items: center; gap: 0.35rem; padding: 1rem 0.75rem; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; text-align: center; cursor: pointer; } .ds-pick-card input { position: absolute; top: 0.6rem; left: 0.6rem; margin: 0; accent-color: var(--accent); } .ds-pick-card:has(input:checked) { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); } .ds-pick-card:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; } .ds-pick-av { display: grid; place-items: center; width: 4.5rem; height: 4.5rem; border-radius: 50%; font-size: 1.5rem; font-weight: 600; } .ds-pick-a { background: var(--avatar-a); color: var(--ink); } .ds-pick-empty { border: 1px dashed var(--muted); } .ds-pick-hint { font-size: 0.8rem; color: var(--muted); } .ds-pick-btn { margin-top: 0.25rem; padding: 0.35rem 0.8rem; border-radius: 4px; border: 1px solid color-mix(in oklab, var(--line), var(--muted) 25%); background: var(--sunken); font-size: 0.9rem; font-weight: 600; }"
+    },
+    {
+      "name": "Social Account Row",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Profile links: a service mark on the left and one full-width input with no visible label; the ORCID row shows the linked iD instead of an input.",
+      "html": "<div class=\"ds-links\"><div class=\"ds-link-row\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"12\" fill=\"#A6CE39\"/><path fill=\"#fff\" d=\"M8.3 17.5H6.8V7.1h1.5v10.4zM7.6 4.9a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM10.4 7.1h4c3.8 0 5.5 2.7 5.5 5.2 0 2.7-2.1 5.2-5.5 5.2h-4V7.1zm1.5 9h2.4c3.4 0 4.2-2.6 4.2-3.8 0-2-1.3-3.8-4.1-3.8h-2.5v7.6z\"/></svg><p class=\"ds-link-linked\"><a href=\"#\">0000-0002-1825-0097</a> <span>Linked</span></p></div><div class=\"ds-link-row\"><svg viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.2.5-2.3 1.3-3.1-.2-.4-.6-1.6 0-3.2 0 0 1-.3 3.4 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.2.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3\"/></svg><input type=\"text\" aria-label=\"GitHub\" placeholder=\"username\"></div></div>",
+      "css": ".ds-links { display: grid; gap: 0.6rem; max-width: 36rem; font: 16px/1.55 var(--font); color: var(--ink); } .ds-link-row { display: grid; grid-template-columns: 1.25rem minmax(0, 1fr); align-items: center; gap: 0.75rem; } .ds-link-row > svg { width: 1.25rem; height: 1.25rem; color: var(--muted); } .ds-link-row input { width: 100%; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 0.5rem 0.7rem; font: inherit; } .ds-link-row input::placeholder { color: var(--muted); } .ds-link-row input:hover { border-color: var(--muted); } .ds-link-row input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; } .ds-link-linked { margin: 0; display: flex; gap: 0.75rem; align-items: center; } .ds-link-linked a { color: var(--accent-ink); text-decoration: none; } .ds-link-linked a:hover { text-decoration: underline; } .ds-link-linked span { color: var(--muted); }"
     }
   ],
   "narrative": {
     "northStar": "The Instrument Readout",
-    "overview": "The site reads like the output of a well-kept spectrometer: neutral warm-grey paper, black ink, numbers in tabular figures, and exactly two strong colours, the red and ochre traces of the logo. Everything else is quiet. Links are coloured but not underlined except inside running text, tables have hairline rules instead of boxes, spectrum types are coloured dots, and the interface accent is a calm slate blue chosen so it never competes with the logo. Real data carries the page: the homepage shows real spectra, real counts and the real people who shared them.\n\nThe system is light and dark from one source: every colour is a `light-dark()` pair, the OS picks the scheme, and a signed-in user can pin one in their settings (`data-theme` on the root). Dark mode is built for the darkened microscope room: warm near-black paper, warm off-white ink, and lighter, softer versions of every hue.\n\nDensity is that of a reference tool used on wide desktop monitors: a 1320px column (1920px for wide pages such as browse), a sticky header, and multi-column layouts that fold to one column on narrow screens. Motion is limited to three things: the homepage logo's scan, the header logo's fade, and the tooltip's fade. All respect reduced motion.",
+    "overview": "The site reads like the output of a well-kept spectrometer: neutral warm-grey paper, black ink, numbers in tabular figures, and exactly two strong colours, the red and ochre traces of the logo. Everything else is quiet. Links are coloured but not underlined except inside running text, tables have hairline rules instead of boxes, spectrum types are coloured dots, and the interface accent is a calm slate blue chosen so it never competes with the logo. Real data carries the page: the homepage shows real spectra, real counts and the real people who shared them.\n\nThe system is light and dark from one source: every colour is a `light-dark()` pair, the OS picks the scheme, and the header's light/dark toggle pins one (`data-theme` on the root): remembered in the browser, and saved to the account when signed in. Dark mode is built for the darkened microscope room: warm near-black paper, warm off-white ink, and lighter, softer versions of every hue.\n\nDensity is that of a reference tool used on wide desktop monitors: a 1320px column (1920px for wide pages such as browse), a sticky header, and multi-column layouts that fold to one column on narrow screens. Motion is limited to four things: the homepage logo's scan, the header logo's fade, the burger menu's drop-in, and the tooltip's fade. All respect reduced motion.",
     "keyCharacteristics": [
       "Two strong colours only, both in the logo; the interface accent is a muted slate blue.",
-      "Flat surfaces separated by 1px rules and tonal steps (bg, surface, sunken); one soft shadow, on dialogs and tooltips.",
+      "Flat surfaces separated by 1px rules and tonal steps (bg, surface, sunken); one soft shadow, on dialogs, tooltips and suggestion lists.",
       "Mona Sans variable throughout, self-hosted, the same face as the logo's lettering; tabular figures site-wide.",
       "Chemical formulas typeset with real subscripts and superscripts, variable stoichiometry in italics.",
       "Spectrum types shown as a coloured dot plus a label.",
@@ -655,7 +707,9 @@
       "**Don't** add shadows to cards, tiles, buttons or notices; dialogs and tooltips are the only lifted surfaces.",
       "**Don't** add a second typeface; Mona Sans carries the interface and the logo, with ui-monospace only for code and identifiers.",
       "**Don't** use pill-shaped buttons.",
-      "**Don't** add animation beyond the logo scan, the header logo fade and the tooltip fade.",
+      "**Don't** add animation beyond the logo scan, the header logo fade, the burger menu's drop-in and the tooltip fade.",
+      "**Don't** hide or move header controls on particular pages; the header is the same everywhere, including the sign-in pages.",
+      "**Don't** put more than one primary button in the sign-in panel.",
       "**Don't** add explanatory filler sentences; if a heading and a count say it, stop.",
       "**Don't** change the logo traces or their colours, or extend the tails outside the header lockup."
     ]
