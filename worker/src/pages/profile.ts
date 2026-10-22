@@ -79,3 +79,12 @@ export const parseLinks = (json: string | null): Record<string, string> => {
     return {};
   }
 };
+
+export const STAFF_ROLES: Record<string, string> = { admin: "Administrator", moderator: "Moderator" };
+
+/**
+ * SQL for "this user (alias u) has a public page at /author/{slug}/": a contributor, a public profile, or a moderator
+ * or admin, whose name the site shows anyway. Other accounts stay unlisted.
+ */
+export const HAS_PAGE_SQL = `(u.slug IS NOT NULL AND (u.profile_public OR u.role IN ('moderator', 'admin') OR EXISTS (
+  SELECT 1 FROM spectra s WHERE s.status = 'published' AND (s.author_slug = u.slug OR s.owner_id = u.id))))`;

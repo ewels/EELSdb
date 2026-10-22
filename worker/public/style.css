@@ -392,8 +392,8 @@ input:hover, select:hover { border-color: var(--muted); }
 .button:hover { filter: brightness(1.08); text-decoration: none; }
 .button svg { width: 16px; height: 16px; flex: none; }
 /* A filled secondary: next to a filled primary, a bare outline reads as a smaller button. */
-.button.secondary { background: var(--sunken); color: var(--ink); border-color: color-mix(in oklab, var(--line), var(--muted) 25%); }
-.button.secondary:hover { background: var(--surface); border-color: var(--muted); filter: none; }
+.button.secondary, .auth:has(.auth-password[open]) .button[data-method="email_link"] { background: var(--sunken); color: var(--ink); border-color: color-mix(in oklab, var(--line), var(--muted) 25%); }
+.button.secondary:hover, .auth:has(.auth-password[open]) .button[data-method="email_link"]:hover { background: var(--surface); border-color: var(--muted); filter: none; }
 
 /* Browse */
 .browse { display: grid; grid-template-columns: 17.5rem minmax(0, 1fr); gap: 2rem; align-items: start; }
@@ -500,14 +500,46 @@ td.formula-cell { white-space: nowrap; }
 .spectrum-head h1 { margin-bottom: 0.25rem; }
 .head-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .head-actions form { margin: 0; }
-/* Sign in */
-.sign-in .lede { margin: 0 0 1.5rem; }
-.sign-in .notice { margin: 0 0 2rem; }
-.sign-in-buttons { display: grid; gap: 0.5rem; max-width: 22rem; margin: 0 0 2rem; }
-.sign-in-buttons .button { justify-content: center; }
-.password-login { max-width: 22rem; margin-bottom: 2rem; }
-.password-login h2 { margin-top: 0; }
-.password-login .field input { width: 100%; }
+/* Sign in: one narrow column, the methods on one surface panel */
+.auth { max-width: 26rem; margin: 3.5rem auto 0; }
+.auth-panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 2rem 2rem 1.75rem; }
+.auth h1 { margin: 0 0 0.4rem; }
+.auth-lede { margin: 0 0 1.5rem; color: var(--muted); text-wrap: pretty; }
+.auth .hint { text-wrap: pretty; }
+.auth .notice { margin: 0 0 1.25rem; padding: 0.75rem 1rem; font-size: 0.93rem; }
+.auth-form { display: grid; gap: 0.75rem; }
+.auth-form .auth-lede { margin-bottom: 0.25rem; }
+.auth .field { margin: 0; }
+.auth .field input { width: 100%; padding: 0.55rem 0.7rem; }
+.auth .field input:hover { border-color: var(--muted); }
+.auth .field input[aria-invalid="true"] { border-color: var(--danger); }
+.label-row { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+.label-row label { font-size: 0.85rem; font-weight: 600; }
+.label-row a { font-size: 0.85rem; }
+.auth .button, .auth-wide { position: relative; width: 100%; justify-content: center; padding-block: 0.6rem; }
+.auth .button svg { width: 18px; height: 18px; }
+.auth-password { margin-top: 1.25rem; }
+.auth-password summary { cursor: pointer; width: fit-content; font-size: 0.95rem; font-weight: 600; }
+.auth-password summary::marker { color: var(--muted); }
+.auth-password[open] summary { margin-bottom: 0.75rem; }
+.auth-or { display: flex; align-items: center; gap: 0.75rem; margin: 1.5rem 0; font-size: 0.85rem; color: var(--muted); }
+.auth-or::before, .auth-or::after { content: ""; flex: 1; border-top: 1px solid var(--line); }
+.auth-alt { display: grid; gap: 0.6rem; }
+.auth-alt .notice { margin: 0; }
+.auth .button.secondary.is-last { border-color: var(--accent); }
+.auth .auth-why { margin: -0.2rem 0 0.35rem; text-align: center; }
+.last-used { position: absolute; top: -0.6rem; right: 0.6rem; padding: 0 0.45rem; border: 1px solid var(--accent); border-radius: 999px; background: var(--surface); color: var(--ink); font-size: 0.72rem; font-weight: 600; line-height: 1.1rem; }
+summary .last-used { position: static; display: inline-block; margin-left: 0.5rem; vertical-align: 0.1em; }
+.auth .auth-restart { margin: 1.5rem 0 0; }
+/* An address can be longer than the panel is wide. */
+.auth .long-label { white-space: normal; overflow-wrap: anywhere; text-align: center; }
+.auth-note { margin: 1.75rem 0 0; padding: 0 0.25rem; font-size: 0.875rem; color: var(--muted); }
+.auth-note h2 { margin: 0 0 0.3rem; font-size: 0.95rem; color: var(--ink); }
+.auth-note p { margin: 0; }
+@media (max-width: 560px) {
+  .auth { margin-top: 1.5rem; }
+  .auth-panel { padding: 1.5rem 1.25rem 1.25rem; }
+}
 input[type="password"], input[type="email"] { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 0.45rem 0.6rem; min-width: 0; }
 .inline-form { display: flex; gap: 0.5rem; flex-wrap: wrap; max-width: 36rem; }
 .inline-form input { flex: 1 1 16rem; }
@@ -901,6 +933,7 @@ input[type="file"]::file-selector-button:hover { background: var(--surface); bor
 .tag-primary { background: var(--accent-soft); color: var(--accent-ink); }
 .tag-pending { color: var(--note); }
 .link-button.danger { color: var(--danger); }
+.button.danger { background: var(--danger); border-color: var(--danger); color: var(--on-accent); }
 .profile-head { display: flex; gap: 1.25rem; align-items: center; margin-top: 1.75rem; }
 .profile-head > div { min-width: 0; }
 .profile-head h1 { margin: 0; }
@@ -940,3 +973,40 @@ input[type="file"]::file-selector-button:hover { background: var(--surface); bor
   border: 2px dashed var(--line); border-radius: 8px; background: color-mix(in oklab, var(--bg) 88%, transparent); font-weight: 600; }
 .plot-drop[hidden] { display: none; }
 .plot-drop.over { border-color: var(--accent); color: var(--accent-ink); background: color-mix(in oklab, var(--accent) 10%, var(--bg)); }
+.settings-section .settings-form + .settings-form { margin-top: 1rem; }
+.totp-qr { width: 11rem; margin: 0.5rem 0 1rem; padding: 0.4rem; background: #fff; border: 1px solid var(--line); border-radius: 6px; }
+.totp-qr:empty { display: none; }
+.totp-qr svg { display: block; width: 100%; height: auto; }
+.totp-secret { font-size: 1rem; letter-spacing: 0.04em; overflow-wrap: anywhere; }
+.recovery-codes { list-style: none; margin: 1rem 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); gap: 0.4rem 1rem; max-width: 30rem; }
+.recovery-codes code { font-size: 1.05rem; }
+
+.passkey-list { list-style: none; margin: 1rem 0; padding: 0; display: grid; gap: 0.5rem; max-width: 40rem; }
+.passkey-list li { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+.passkey-list form { margin: 0; }
+
+.orcid-banner { background: var(--accent-soft); border-bottom: 1px solid var(--line); font-size: 0.93rem; }
+.orcid-banner[hidden] { display: none; }
+.orcid-banner .wrap { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem 1rem; padding-block: 0.45rem; }
+.orcid-banner p { margin: 0; }
+.orcid-banner .button { padding: 0.2rem 0.8rem; font-size: 0.88rem; }
+.orcid-banner .link-button { color: var(--muted); font-weight: 400; font-size: 0.88rem; }
+.orcid-banner .link-button:hover { color: var(--ink); }
+.lockout-warning { max-width: 46rem; margin-bottom: 1.25rem; }
+.lockout-warning p { margin: 0; }
+.lockout-warning p + p { margin-top: 0.4rem; font-size: 0.93rem; color: var(--muted); }
+.lockout-count { margin: 1rem 0 0.25rem; font-size: 1.6rem; font-weight: 650; line-height: 1.25; text-wrap: balance; color: var(--danger); }
+.lockout-confirm .settings-form { margin-top: 1.5rem; }
+.settings-log { padding-left: 1.1rem; font-size: 0.93rem; }
+.link-services { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0 0; }
+.orcid-required p { margin: 0 0 0.75rem; }
+.orcid-required p:last-child { margin: 0; }
+
+.contact form { max-width: 36rem; margin-top: 1.25rem; }
+.contact .field :is(input, select, textarea) { width: 100%; }
+.contact .field :is(input, textarea)[aria-invalid="true"] { border-color: var(--danger); }
+.hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.messages { list-style: none; padding: 0; display: grid; gap: 1rem; }
+.messages li { border: 1px solid var(--line); border-radius: 8px; padding: 0.9rem 1.1rem; background: var(--surface); }
+.messages p { margin: 0 0 0.3rem; }
+.message-text { white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 0.6rem !important; }

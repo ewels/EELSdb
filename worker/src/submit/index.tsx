@@ -1,4 +1,5 @@
 import { Hono, type Context } from "hono";
+import { turnstileOk } from "../turnstile";
 import { raw } from "hono/html";
 import type { Child } from "hono/jsx";
 import { requireUser, type AppEnv } from "../auth";
@@ -26,17 +27,6 @@ const XAS_LABELS: [string, string, string?][] = [
   ["calibration_reference", "Energy calibration reference"],
   ["i0_normalisation", "I0 normalisation"],
 ];
-
-async function turnstileOk(c: C, token: string | null) {
-  const secret = c.env.TURNSTILE_SECRET_KEY;
-  if (!secret) return true; // not configured (local development)
-  if (!token) return false;
-  const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-    method: "POST",
-    body: new URLSearchParams({ secret, response: token, remoteip: c.req.header("CF-Connecting-IP") ?? "" }),
-  });
-  return ((await res.json<{ success: boolean }>()).success) === true;
-}
 
 type Instrument = { id: number; version: number; name: string; facility: string | null; voltages_kv_json: string | null; calibrations: string };
 
@@ -123,12 +113,15 @@ function Step(props: { id: string; hidden?: boolean; children: Child }) {
   );
 }
 
+export const ORCID_REQUIRED_MESSAGE = "Submitting spectra needs an ORCID iD linked to your account, so your spectra are credited to you. Link your ORCID iD and then submit.";
+
 export function SubmitPage(props: { c: C; v: Values; errors: Record<string, string>; instruments: Instrument[]; edit?: { slug: string; title: string; draft?: boolean; file?: { url: string; name: string } | null } }) {
   const { c, v, errors } = props;
   const siteKey = c.env.TURNSTILE_SITE_KEY;
   const choice = v.beam_energy_choice ?? "";
   const count = Object.keys(errors).length;
   const accept = SPECTRUM_EXTENSIONS.map((e) => `.${e}`).join(",");
+  const blocked = c.get("user")?.orcid_prompt === "required" && (!props.edit || props.edit.draft);
   return (
     <Layout
       title={props.edit ? `${props.edit.draft ? "Check" : "Edit"} ${props.edit.title}` : "Submit a spectrum"}
@@ -163,13 +156,20 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
           ? "Changes to the title, description, keywords, reference and links are published straight away. Changes to the data file, the specimen or how it was measured go to a moderator first."
           : "A moderator checks every submission before it is published."}
       </p>
-      {count > 0 && (
+      {blocked && (
+        <div class="notice orcid-required" role="status">
+          <p>{ORCID_REQUIRED_MESSAGE}</p>
+          <p><a class="button" href={`/auth/orcid/link?next=${encodeURIComponent(props.edit ? `/spectra/${props.edit.slug}/edit/` : "/submit-data/")}`}>Link ORCID</a></p>
+        </div>
+      )}
+      {!blocked && count > 0 && (
         <div class="notice error-summary" role="alert" tabindex={-1} id="errors">
           <strong>{count === 1 ? "One field needs attention" : `${count} fields need attention`}.</strong> Files are not kept after an
           error, so please attach them again.
           {errors.rate && <p>{errors.rate}</p>}
         </div>
       )}
+      {!blocked && <>
       <div class="wizard">
         <nav class="steps" aria-label="Steps">
           <ol>
@@ -455,6 +455,7 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
       </div>
       <script src="/vendor/uPlot.iife.min.js" defer></script>
       <script src="/submit.js" type="module"></script>
+      </>}
     </Layout>
   );
 }
@@ -463,7 +464,7 @@ export const formValues = (body: Record<string, unknown>): Values =>
   Object.fromEntries(Object.entries(body).filter(([, v]) => typeof v === "string")) as Values;
 
 // The stepped form posts in the background so the browser keeps the chosen files; it asks for JSON.
-const wantsJson = (c: C) => c.req.header("Accept")?.includes("application/json") ?? false;
+export const wantsJson = (c: C) => c.req.header("Accept")?.includes("application/json") ?? false;
 
 export async function rejectForm(c: C, errors: Record<string, string>, status: 409 | 422, page: () => Promise<ReturnType<typeof SubmitPage>>) {
   return wantsJson(c) ? c.json({ errors }, status) : c.html(await page(), status);
@@ -477,12 +478,13 @@ submit.get("/submit-data/", requireUser, async (c) =>
 
 submit.post("/submit-data/", requireUser, async (c) => {
   const user = c.get("user")!;
+  if (user.orcid_prompt === "required") return wantsJson(c) ? c.json({ errors: { orcid: ORCID_REQUIRED_MESSAGE } }, 403) : c.html(<SubmitPage c={c} v={{}} errors={{}} instruments={[]} />, 403);
   const body = await c.req.parseBody();
   const { form, errors } = parseForm(body as any);
   const uploads = await collectUploads(body, errors);
   if (!(await instrumentOk(c.env.DB, form))) errors.instrument = "Choose an approved instrument profile.";
   if (!body.agreement) errors.agreement = "Please agree to the licence to publish your data.";
-  if (!(await turnstileOk(c, typeof body["cf-turnstile-response"] === "string" ? body["cf-turnstile-response"] : null))) {
+  if (!(await turnstileOk(c.env, c.req.header("CF-Connecting-IP"), typeof body["cf-turnstile-response"] === "string" ? body["cf-turnstile-response"] : null))) {
     errors.turnstile = "The anti-spam check failed. Please try again.";
   }
   const recent = await c.env.DB.prepare("SELECT COUNT(*) AS n FROM submissions WHERE submitted_by = ? AND created_at > datetime('now', '-1 hour')")

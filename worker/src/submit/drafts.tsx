@@ -1,9 +1,11 @@
 // Drafts: spectra that an assistant or script prepares through API v2 (POST /v2/drafts) with a drafts-only token.
 // Nothing is reviewed or published until the owner checks a draft on the website and submits it.
 import { Hono, type Context } from "hono";
-import { requireUser, sha256, type AppEnv } from "../auth";
+import { getSettings, twoStepRequired } from "../settings";
+import { FRESH_SIGN_IN_MINUTES, requireUser, sha256, signedInRecently, type AppEnv } from "../auth";
 import { SITE } from "../api/format";
 import { Layout, TypeBadge } from "../pages/layout";
+import { ORCID_REQUIRED_MESSAGE } from "./index";
 import { collectUploads, parseForm } from "./form";
 import { createSpectrum, instrumentOk, storeFile } from "./store";
 
@@ -28,8 +30,16 @@ async function tokenUser(c: Context<AppEnv>) {
   if (!token) return null;
   const hash = await sha256(token);
   const user = await c.env.DB.prepare(
-    "SELECT u.id, u.display_name, u.slug FROM draft_tokens t JOIN users u ON u.id = t.user_id WHERE t.hash = ?",
-  ).bind(hash).first<{ id: number; display_name: string; slug: string | null }>();
+    `SELECT u.id, u.display_name, u.slug, u.role,
+            (EXISTS (SELECT 1 FROM user_totp x WHERE x.user_id = u.id AND x.enabled_at IS NOT NULL) OR EXISTS (SELECT 1 FROM passkeys p WHERE p.user_id = u.id)) AS has_2fa
+     FROM draft_tokens t JOIN users u ON u.id = t.user_id WHERE t.hash = ?`,
+  ).bind(hash).first<{ id: number; display_name: string; slug: string | null; role: string; has_2fa: number }>();
+  if (user && !user.has_2fa) {
+    const settings = await getSettings(c.env.DB);
+    // Same rule as loadUser: a staff member without two-step sign-in whose group requires it counts as an ordinary user.
+    const role = twoStepRequired(settings, user.role) ? "user" : user.role;
+    if (role === "user" && twoStepRequired(settings, "user")) return null;
+  }
   if (user) await c.env.DB.prepare("UPDATE draft_tokens SET last_used_at = datetime('now') WHERE hash = ?").bind(hash).run();
   return user;
 }
@@ -85,7 +95,7 @@ function measured(a: Record<string, any> | undefined, col: string, unit: string,
 
 drafts.get("/account/drafts/", requireUser, async (c) => draftsPage(c, null));
 
-async function draftsPage(c: Context<AppEnv>, created: string | null, notice?: string) {
+async function draftsPage(c: Context<AppEnv>, created: string | null, notice?: string, status: 200 | 403 = 200) {
   const user = c.get("user")!;
   const db = c.env.DB;
   const [{ results: list }, { results: acq }, { results: files }, { results: tokens }] = await db.batch<any>([
@@ -104,6 +114,12 @@ async function draftsPage(c: Context<AppEnv>, created: string | null, notice?: s
         submit it for review. Drafts are deleted after {DRAFT_DAYS} days.
       </p>
       {notice && <p class="notice" role="status">{notice}</p>}
+      {user.orcid_prompt === "required" && (
+        <div class="notice orcid-required" role="status">
+          <p>{ORCID_REQUIRED_MESSAGE}</p>
+          <p><a class="button" href="/auth/orcid/link?next=%2Faccount%2Fdrafts%2F">Link ORCID</a></p>
+        </div>
+      )}
       {list.length ? (
         <form method="post" action="/account/drafts/">
           <div class="table-scroll">
@@ -184,6 +200,7 @@ async function draftsPage(c: Context<AppEnv>, created: string | null, notice?: s
         </div>
       )}
     </Layout>,
+    status,
   );
 }
 
@@ -198,6 +215,7 @@ drafts.post("/account/drafts/", requireUser, async (c) => {
     const n = await deleteDrafts(c.env, `owner_id = ? AND id IN (${marks})`, user.id, ...ids);
     return draftsPage(c, null, `Deleted ${n === 1 ? "one draft" : `${n} drafts`}.`);
   }
+  if (user.orcid_prompt === "required") return draftsPage(c, null, ORCID_REQUIRED_MESSAGE, 403);
   if (!body.agreement) return draftsPage(c, null, "Please confirm that you checked the drafts and agree to the licence.");
   const { results } = await db.prepare(`SELECT id, slug FROM spectra WHERE owner_id = ? AND status = 'draft' AND id IN (${marks})`)
     .bind(user.id, ...ids).all<{ id: number; slug: string }>();
@@ -214,8 +232,12 @@ export const submitDraftStatements = (db: D1Database, id: number, userId: number
   db.prepare("INSERT INTO history (spectrum_id, user_id, change_json) VALUES (?, ?, ?)").bind(id, userId, JSON.stringify({ action: "submitted" })),
 ];
 
+const staleSignIn = (c: Context<AppEnv>) =>
+  draftsPage(c, null, `To make or revoke a token, sign out and sign in again, then do it within ${FRESH_SIGN_IN_MINUTES} minutes. This keeps a token out of reach of anyone at a browser you left signed in.`, 403);
+
 drafts.post("/account/drafts/tokens/", requireUser, async (c) => {
   const user = c.get("user")!;
+  if (!(await signedInRecently(c))) return staleSignIn(c);
   const label = String((await c.req.parseBody()).label ?? "").trim().slice(0, 80) || null;
   const token = "eelsdb_draft_" + [...crypto.getRandomValues(new Uint8Array(24))].map((b) => b.toString(16).padStart(2, "0")).join("");
   await c.env.DB.prepare("INSERT INTO draft_tokens (user_id, hash, label) VALUES (?, ?, ?)").bind(user.id, await sha256(token), label).run();
@@ -223,6 +245,7 @@ drafts.post("/account/drafts/tokens/", requireUser, async (c) => {
 });
 
 drafts.post("/account/drafts/tokens/:id/revoke/", requireUser, async (c) => {
+  if (!(await signedInRecently(c))) return staleSignIn(c);
   await c.env.DB.prepare("DELETE FROM draft_tokens WHERE id = ? AND user_id = ?").bind(Number(c.req.param("id")), c.get("user")!.id).run();
   return c.redirect("/account/drafts/");
 });

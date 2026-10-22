@@ -9,6 +9,7 @@ import { browsePage } from "./browse";
 import { Avatar, Formula, Layout, TYPE_NAMES, TypeBadge } from "./layout";
 import { homePage } from "./home";
 import { admin } from "../admin";
+import { contact } from "../contact";
 import { instruments } from "../instruments";
 import { edit } from "../submit/edit";
 import { submit } from "../submit/index";
@@ -17,7 +18,8 @@ import { spectrumPage } from "./spectrum";
 import { downloadSpectrum } from "./download";
 import { suggestSpectra } from "./suggest";
 import { settings } from "./settings";
-import { LINK_FIELDS, linkUrl, parseLinks } from "./profile";
+import { HAS_PAGE_SQL, LINK_FIELDS, STAFF_ROLES, linkUrl, parseLinks } from "./profile";
+import { authorSlug } from "../submit/store";
 import { decodeEntities } from "./entities";
 import { authorMarkdown, markdownHeaders, newsMarkdown, spectrumMarkdown } from "./markdown";
 import { avatarUrl } from "../auth";
@@ -35,6 +37,7 @@ pages.route("/", instruments);
 pages.route("/", edit);
 pages.route("/", drafts);
 pages.route("/", admin);
+pages.route("/", contact);
 
 const markdown = (render: (db: D1Database, slug: string) => Promise<string | null>) => async (c: C) => {
   const body = await render(c.env.DB, c.req.param("file")!.slice(0, -3));
@@ -101,7 +104,6 @@ pages.get("/downloads/", async (c) => {
 const MOVED: Record<string, string> = {
   "/about/": "/docs/about/",
   "/citation/": "/docs/about/citation/",
-  "/contact/": "/docs/about/contact/",
   "/logo/": "/docs/about/logo/",
   "/logo": "/docs/about/logo/",
   "/brand/": "/docs/about/logo/",
@@ -114,44 +116,55 @@ for (const [from, to] of Object.entries(MOVED)) pages.get(from, (c) => c.redirec
 pages.get("/api/openapi-v2.json", (c) => c.json(openapiV2()));
 pages.get("/api/openapi-v1.json", (c) => c.json(openapiV1));
 
-const ROLE_NAMES: Record<string, string> = { admin: "Administrator", moderator: "Moderator" };
+const STAFF_GROUPS = [
+  { role: "admin", title: "Administrators", about: "Administrators run the site: they manage accounts and roles, and they moderate too." },
+  { role: "moderator", title: "Moderators", about: "Moderators check each submitted spectrum before it is published." },
+];
 
 pages.get("/moderators/", async (c) => {
   const { results } = await c.env.DB.prepare(
     `SELECT u.id, u.display_name, u.slug, u.role, u.profile_public, u.avatar_key,
-            CASE WHEN u.profile_public THEN (SELECT e.email FROM user_emails e WHERE e.user_id = u.id ORDER BY e.is_primary DESC, e.verified DESC, e.id LIMIT 1) END AS email,
-            u.slug IS NOT NULL AND (u.profile_public OR EXISTS (
-              SELECT 1 FROM spectra s WHERE s.status = 'published' AND (s.author_slug = u.slug OR s.owner_id = u.id)
-            )) AS has_page
+            CASE WHEN u.profile_public THEN (SELECT e.email FROM user_emails e WHERE e.user_id = u.id ORDER BY e.is_primary DESC, e.verified DESC, e.id LIMIT 1) END AS email
      FROM users u WHERE u.role IN ('moderator', 'admin') ORDER BY u.display_name`,
   ).all<any>();
+  // Staff made before every moderator and admin got a username get one here, once, so their names can link to a page.
   const people = await Promise.all(
-    results.map(async (u) => ({ ...u, avatar: u.profile_public ? await avatarUrl(u.avatar_key, u.email) : null })),
+    results.map(async (u) => ({
+      ...u,
+      slug: u.slug ?? (await authorSlug(c.env.DB, u)),
+      avatar: u.profile_public ? await avatarUrl(u.avatar_key, u.email) : null,
+    })),
   );
   return c.html(
     <Layout user={c.get("user")} title="Moderators" path="/moderators/">
       <div class="prose">
         <h1>Moderators</h1>
         <p class="lede">
-          Moderators check each submitted spectrum before it is published. To reach them, see <a href="/docs/about/contact/">Contact</a>.
+          The people who look after the EELS Data Base. To reach them, see <a href="/contact/">Contact</a>.
         </p>
         {people.length ? (
-          <ul class="mod-list">
-            {people.map((u) => {
-              const face = (
-                <>
-                  <Avatar name={u.display_name} seed={u.slug ?? u.display_name} src={u.avatar} />
-                  <span class="by-name">{u.display_name}</span>
-                </>
-              );
-              return (
-                <li>
-                  {u.has_page ? <a class="by" href={`/author/${u.slug}/`}>{face}</a> : <span class="by">{face}</span>}
-                  <span class="muted">{ROLE_NAMES[u.role]}</span>
-                </li>
-              );
-            })}
-          </ul>
+          STAFF_GROUPS.map((g) => {
+            const members = people.filter((u) => u.role === g.role);
+            return (
+              members.length > 0 && (
+                <section aria-labelledby={`h-${g.role}`}>
+                  <h2 id={`h-${g.role}`}>{g.title}</h2>
+                  <p class="muted">{g.about}</p>
+                  <ul class="mod-list">
+                    {members.map((u) => {
+                      const face = (
+                        <>
+                          <Avatar name={u.display_name} seed={u.slug ?? u.display_name} src={u.avatar} />
+                          <span class="by-name">{u.display_name}</span>
+                        </>
+                      );
+                      return <li><a class="by" href={`/author/${u.slug}/`}>{face}</a></li>;
+                    })}
+                  </ul>
+                </section>
+              )
+            );
+          })
         ) : (
           <p class="muted">No moderators yet.</p>
         )}
@@ -165,7 +178,7 @@ async function authorPage(c: C) {
   const slug = c.req.param("slug");
   const db = c.env.DB;
   const person = await db.prepare(
-    `SELECT u.id, u.display_name, u.job_title, u.affiliation, u.orcid, u.links_json, u.profile_public, u.avatar_key,
+    `SELECT u.id, u.display_name, u.job_title, u.affiliation, u.orcid, u.links_json, u.profile_public, u.avatar_key, u.role,
             (SELECT e.email FROM user_emails e WHERE e.user_id = u.id ORDER BY e.is_primary DESC, e.verified DESC, e.id LIMIT 1) AS email
      FROM users u WHERE u.slug = ?`,
   ).bind(slug).first<any>();
@@ -178,11 +191,12 @@ async function authorPage(c: C) {
      WHERE status = 'published' AND (author_slug = ? OR owner_id = ?) ORDER BY published_at DESC, id DESC`,
   ).bind(slug, person?.id ?? -1).all<any>();
   const showProfile = !!person?.profile_public;
-  if (!results.length && !showProfile) return c.notFound();
+  const role = STAFF_ROLES[person?.role];
+  if (!results.length && !showProfile && !role) return c.notFound();
   const name = person?.display_name ?? results[0].author_display;
   const links = showProfile ? parseLinks(person.links_json) : {};
   const avatar = showProfile ? await avatarUrl(person.avatar_key, person.email) : null;
-  const facts = showProfile ? [person.job_title, person.affiliation].filter(Boolean).join(" · ") : "";
+  const facts = [role && `${role} of the EELS Data Base`, ...(showProfile ? [person.job_title, person.affiliation] : [])].filter(Boolean).join(" · ");
   return c.html(
     <Layout user={c.get("user")} title={name} path="/author/" head={mdLink(`/author/${slug}.md`)}>
       <div class="profile-head">

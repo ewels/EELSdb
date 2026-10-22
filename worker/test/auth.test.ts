@@ -2,6 +2,7 @@ import { env, exports } from "cloudflare:workers";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { sha256, syncEmails } from "../src/auth";
 import { sent } from "../src/email";
+import { createIfWelcomed } from "./helpers/welcome";
 
 const SITE = "https://eelsdb.eu";
 const go = (path: string, init: RequestInit = {}) => exports.default.fetch(`${SITE}${path}`, { redirect: "manual", ...init });
@@ -26,7 +27,7 @@ async function signIn(provider: "github" | "google" | "orcid", profile: Record<s
   expect(start.status).toBe(302);
   const authorize = new URL(start.headers.get("location")!);
   const state = authorize.searchParams.get("state")!;
-  const callback = await go(`/auth/${provider}/callback?code=abc&state=${state}`, { headers: { Cookie: cookieOf(start, "eelsdb_oauth")! } });
+  const callback = await createIfWelcomed(await go(`/auth/${provider}/callback?code=abc&state=${state}`, { headers: { Cookie: cookieOf(start, "eelsdb_oauth")! } }));
   expect(callback.headers.get("location")).toBe("/spectra/");
   return cookieOf(callback, "eelsdb_session")!;
 }

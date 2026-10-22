@@ -4,6 +4,7 @@
 interface __BaseEnv_Env {
 	FILES: R2Bucket;
 	DB: D1Database;
+	EMAIL: SendEmail;
 	ASSETS: Fetcher;
 }
 declare namespace Cloudflare {

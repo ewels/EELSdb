@@ -1,6 +1,6 @@
 import type { Child } from "hono/jsx";
 import { raw } from "hono/html";
-import type { User } from "../auth";
+import { LAST_METHOD_COOKIE, type User } from "../auth";
 import { ABOUT_NAV, NAV, currentAbout } from "../nav";
 import { LOGO_SVG } from "./logo";
 
@@ -16,6 +16,12 @@ export function accountSummary(user: User | null) {
 // Every page records the account in this browser, so the static docs header can show it before it paints.
 const accountScript = (user: User | null) =>
   `try{localStorage.setItem("account",JSON.stringify(Object.assign(${JSON.stringify(accountSummary(user)).replace(/</g, "\\u003c")},{at:Date.now()})))}catch(e){}`;
+
+// Signed-in pages only, so a sign-in waiting for its second step is not remembered yet.
+const LAST_METHOD_SCRIPT = `try{var m=document.cookie.match(/(?:^|; )${LAST_METHOD_COOKIE}=(\\w+)/);if(m){document.cookie="${LAST_METHOD_COOKIE}=; Max-Age=0; Path=/";localStorage.setItem("signin-method",m[1])}}catch(e){}`;
+
+// Right after the banner, so a hidden banner never paints. The link returns to the exact page.
+const ORCID_BANNER_SCRIPT = `(function(){var b=document.querySelector(".orcid-banner"),k="orcid-banner-hidden";b.querySelector("a").href="/auth/orcid/link?next="+encodeURIComponent(location.pathname+location.search);if(!b.querySelector("button"))return;try{if(Number(localStorage.getItem(k))>Date.now())b.hidden=true}catch(e){}b.querySelector("button").addEventListener("click",function(){b.hidden=true;try{localStorage.setItem(k,Date.now()+30*864e5)}catch(e){}})})()`;
 
 // Flips light and dark, remembers it in this browser, and saves it to the account when signed in.
 const TOGGLE_SCRIPT = `document.querySelectorAll(".theme-toggle").forEach(function(b){b.addEventListener("click",function(){var r=document.documentElement,d=r.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"),n=d==="dark"?"light":"dark";r.dataset.theme=n;try{localStorage.setItem("theme",n)}catch(e){}if(this.dataset.save)fetch("/account/settings/theme/",{method:"POST",body:new URLSearchParams({theme:n})})})})`;
@@ -69,11 +75,28 @@ export function Layout(props: {
           <link rel="preload" href="/fonts/mona-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="" />
           <link rel="stylesheet" href="/tokens.css" />
           <link rel="stylesheet" href="/style.css" />
-          <script>{raw(THEME_SCRIPT + accountScript(props.user))}</script>
+          <script>{raw(THEME_SCRIPT + accountScript(props.user) + (props.user ? LAST_METHOD_SCRIPT : ""))}</script>
           {props.head}
         </head>
         <body class={props.home ? "home" : undefined}>
           <a class="skip" href="#main">Skip to content</a>
+          {/* While ORCID is required, the submit page explains it in place of the form, so the banner would repeat it. */}
+          {props.user?.orcid_prompt && !props.path.startsWith("/login") && !(props.user.orcid_prompt === "required" && props.path === "/submit-data/") && (
+            <>
+              <div class="orcid-banner" role="region" aria-label="Link your ORCID iD">
+                <div class="wrap">
+                  {props.user.orcid_only ? (
+                    <p>EELSdb now signs people in with ORCID only. Link your ORCID iD to keep signing in to this account.</p>
+                  ) : (
+                    <p>Link your ORCID iD so your spectra are credited to you.</p>
+                  )}
+                  <a class="button" href={`/auth/orcid/link?next=${encodeURIComponent(props.path || "/account/")}`}>Link ORCID</a>
+                  {!props.user.orcid_only && <button class="link-button" type="button">Hide for 30 days</button>}
+                </div>
+              </div>
+              <script>{raw(ORCID_BANNER_SCRIPT)}</script>
+            </>
+          )}
           <header class={props.home ? "site-header" : "site-header stuck"}>
             <div class="wrap">
               <a class="logo" href="/" aria-label="EELSdb home" tabindex={props.home ? -1 : undefined}>{raw(LOGO_SVG)}</a>
@@ -139,7 +162,7 @@ export function Layout(props: {
           <main id="main" class={wrap}>{props.children}</main>
           <footer class="site-footer">
             <div class="wrap">
-              <a href="/docs/about/contact/">Contact</a>
+              <a href="/contact/">Contact</a>
               <a href="https://github.com/ewels/EELSdb">Website source code on GitHub</a>
               <a class="downloads" href="/downloads/">Bulk download</a>
               <span class="licence">

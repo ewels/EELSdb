@@ -78,7 +78,7 @@ export default defineConfig({
             'share/drafts',
           ],
         },
-        { label: 'Moderate', items: ['moderate/review'] },
+        { label: 'Moderate', items: ['moderate/review', 'moderate/accounts'] },
         { label: 'Reference', items: ['reference/fields', ...openAPISidebarGroups] },
         {
           label: 'About',

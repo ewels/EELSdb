@@ -14,7 +14,6 @@ describe("pages", () => {
     const moved: Record<string, string> = {
       "/about/": "/docs/about/",
       "/citation/": "/docs/about/citation/",
-      "/contact/": "/docs/about/contact/",
       "/logo/": "/docs/about/logo/",
       "/logo": "/docs/about/logo/",
       "/brand/": "/docs/about/logo/",
@@ -28,7 +27,7 @@ describe("pages", () => {
     }
   });
 
-  it("moderators page lists moderators and admins without private details", async () => {
+  it("moderators page lists admins and moderators in separate groups, without private details", async () => {
     await env.DB.batch([
       env.DB.prepare("INSERT INTO users (id, display_name, role, slug, profile_public) VALUES (6400001, 'Public Mod', 'moderator', 'public-mod', 1)"),
       env.DB.prepare("INSERT INTO user_emails (user_id, email, verified, is_primary) VALUES (6400001, 'public-mod@example.org', 1, 1)"),
@@ -37,12 +36,27 @@ describe("pages", () => {
     ]);
     const { status, html } = await page("/moderators/");
     expect(status).toBe(200);
-    expect(html).toContain('href="/docs/about/contact/"');
-    expect(html).toMatch(/<a class="by" href="\/author\/public-mod\/">[\s\S]*?Public Mod<\/span><\/a><span class="muted">Moderator</);
-    expect(html).toMatch(/<span class="by">[\s\S]*?Quiet Admin<\/span><\/span><span class="muted">Administrator</);
+    expect(html).toContain('href="/contact/"');
+    const admins = html.slice(html.indexOf('id="h-admin"'), html.indexOf('id="h-moderator"'));
+    const mods = html.slice(html.indexOf('id="h-moderator"'));
+    // An admin without a username gets one, so every name links to a page.
+    expect(admins).toMatch(/<a class="by" href="\/author\/quiet-admin\/">[\s\S]*?Quiet Admin<\/span><\/a>/);
+    expect(admins).not.toContain("Public Mod");
+    expect(mods).toMatch(/<a class="by" href="\/author\/public-mod\/">[\s\S]*?Public Mod<\/span><\/a>/);
+    expect(mods).not.toContain("Quiet Admin");
     expect(html).toContain("gravatar.com/avatar/");
     expect(html).not.toContain("Plain User");
     expect(html).not.toContain("example.org");
+
+    // Staff pages exist even with no spectra and a private profile, showing only what the list shows.
+    const admin = await page("/author/quiet-admin/");
+    expect(admin.status).toBe(200);
+    expect(admin.html).toContain("Administrator of the EELS Data Base");
+    expect(admin.html).not.toContain("gravatar.com/avatar/");
+    expect((await page("/author/quiet-admin.md")).html).toContain("Administrator of the EELS Data Base.");
+    expect((await page("/author/plain-user/")).status).toBe(200);
+    await env.DB.prepare("INSERT INTO users (id, display_name, role, slug, profile_public) VALUES (6400004, 'Hidden User', 'user', 'hidden-user', 0)").run();
+    expect((await page("/author/hidden-user/")).status).toBe(404);
   });
 
   it("header has a burger button that controls the menu panel", async () => {

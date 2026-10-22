@@ -18,3 +18,6 @@ if (!seeded) {
     await env.DB.batch(statements.slice(i, i + 500).map((s) => env.DB.prepare(s)));
   }
 }
+
+// The code default requires an ORCID iD to submit; most tests submit as users without one. orcid.test.ts turns it on.
+await env.DB.prepare("INSERT OR IGNORE INTO site_settings (key, value) VALUES ('require_orcid', '0')").run();

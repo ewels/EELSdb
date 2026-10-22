@@ -4,10 +4,11 @@ import { requireUser, type AppEnv } from "../auth";
 import { isModerator } from "../instruments";
 import { SPECTRUM_EXTENSIONS, XAS_FIELDS, checkUpload, cleanBrowserChecks, completeness, parseForm, type ParsedForm } from "./form";
 import { submitDraftStatements } from "./drafts";
-import { SubmitPage, approvedInstruments, finishForm, formValues, rejectForm } from "./index";
+import { SubmitPage, approvedInstruments, finishForm, formValues, rejectForm, wantsJson, ORCID_REQUIRED_MESSAGE } from "./index";
 import { mediaType } from "../files";
 import { Layout } from "../pages/layout";
 import { coreStatements, instrumentOk, textColumnsStatement, textStatements } from "./store";
+import { HAS_PAGE_SQL } from "../pages/profile";
 
 export const edit = new Hono<AppEnv>();
 type C = Context<AppEnv>;
@@ -124,6 +125,9 @@ edit.post("/spectra/:slug/edit/", requireUser, async (c) => {
   const s = bundle.spectrum;
   const user = c.get("user")!;
   const db = c.env.DB;
+  if (status === "draft" && user.orcid_prompt === "required") {
+    return wantsJson(c) ? c.json({ errors: { orcid: ORCID_REQUIRED_MESSAGE } }, 403) : c.html(<SubmitPage c={c} v={valuesFromBundle(bundle)} errors={{}} instruments={await approvedInstruments(db)} edit={editInfo(bundle)} />, 403);
+  }
   const body = await c.req.parseBody();
   const { form, errors } = parseForm(body as any);
   const file = body.file instanceof File && body.file.size ? body.file : null;
@@ -228,7 +232,8 @@ edit.get("/spectra/:slug/history/", async (c) => {
   const row = await c.env.DB.prepare("SELECT id, title, slug FROM spectra WHERE slug = ? AND status = 'published'").bind(c.req.param("slug")).first<any>();
   if (!row) return c.notFound();
   const { results } = await c.env.DB.prepare(
-    "SELECT h.at, h.change_json, u.display_name FROM history h LEFT JOIN users u ON u.id = h.user_id WHERE h.spectrum_id = ? ORDER BY h.at DESC, h.id DESC",
+    `SELECT h.at, h.change_json, u.display_name, CASE WHEN ${HAS_PAGE_SQL} THEN u.slug END AS page
+     FROM history h LEFT JOIN users u ON u.id = h.user_id WHERE h.spectrum_id = ? ORDER BY h.at DESC, h.id DESC`,
   ).bind(row.id).all<any>();
   return c.html(
     <Layout title={`History of ${row.title}`} path="/spectra/" user={c.get("user")}>
@@ -248,7 +253,7 @@ edit.get("/spectra/:slug/history/", async (c) => {
                   <tr>
                     <td class="when">{String(h.at).slice(0, 16).replace("T", " ")}</td>
                     <td class="change">{change.action}{fields && ` (${fields})`}</td>
-                    <td>{h.display_name ?? <span class="muted">–</span>}</td>
+                    <td>{h.page ? <a href={`/author/${h.page}/`}>{h.display_name}</a> : h.display_name ?? <span class="muted">–</span>}</td>
                   </tr>
                 );
               })}

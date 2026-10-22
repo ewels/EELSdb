@@ -8,6 +8,8 @@ interface Env {
   GITHUB_CLIENT_ID?: string;
   GITHUB_CLIENT_SECRET?: string;
   EMAIL_PROVIDER?: string;
+  EMAIL_FROM?: string;
+  CONTACT_EMAIL?: string;
   LEGACY_PASSWORD_LOGIN?: string;
   TURNSTILE_SITE_KEY?: string;
   TURNSTILE_SECRET_KEY?: string;

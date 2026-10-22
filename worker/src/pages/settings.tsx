@@ -1,14 +1,15 @@
 import { Hono, type Context } from "hono";
-import { PROVIDERS, requireUser, sha256, syncEmails, type AppEnv } from "../auth";
+import { FRESH_SIGN_IN_MINUTES, MAX_PASSWORD_FAILURES, MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, PROVIDERS, methodsOn, requireUser, sha256, signOutOtherSessions, signedInRecently, syncEmails, type AppEnv } from "../auth";
 import { sendEmail } from "../email";
+import { pbkdf2Hash, verifyLegacyPassword } from "../legacy-password";
+import { MAX_PASSKEYS, addPasskey, registrationOptions } from "../passkeys";
+import { MAX_SECOND_STEP_FAILURES, makeRecoveryCodes, matchingStep, newSecret, otpauthUri, spendCode } from "../totp";
 import { Avatar, Layout } from "./layout";
-import { LINK_FIELDS, parseLink, parseLinks, parseOrcid, parseUsername } from "./profile";
+import { EmailList, ProfileFields, VERIFY_HOURS, MAX_EMAILS_PER_DAY, addEmail, emailOf, makePrimary, removeAvatar, removeEmail, resendVerification, saveProfile, storedProfile, text, type EmailRow, type Profile } from "../account-edit";
 
 export const settings = new Hono<AppEnv>();
 type C = Context<AppEnv>;
 
-const VERIFY_HOURS = 24;
-const MAX_EMAILS_PER_DAY = 5;
 const MAX_AVATAR_BYTES = 512 * 1024;
 const AVATAR_TYPES: [ext: string, type: string, magic: (b: Uint8Array) => boolean][] = [
   ["png", "image/png", (b) => b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47],
@@ -34,48 +35,62 @@ const NOTICES: Record<string, string> = {
   "verify-failed": "This link has expired, was already used, belongs to another signed-in account, or the address is confirmed on another account.",
   primary: "Primary address changed.",
   removed: "Address removed.",
+  "password-saved": "Password saved. You were signed out everywhere else.",
+  "password-removed": "Password removed. You were signed out everywhere else. You can still sign in with an email link.",
+  "password-wrong": "The current password is not right. Nothing was changed.",
+  "password-short": `A password needs ${MIN_PASSWORD_LENGTH} to ${MAX_PASSWORD_LENGTH} characters.`,
+  "password-locked": "Too many wrong passwords. Please wait an hour.",
+  "password-stale": `To set a password, sign out and sign in again, then set it within ${FRESH_SIGN_IN_MINUTES} minutes.`,
+  "two-step-required": "Moderators and admins need two-step sign-in. Until you set it up, your role does nothing.",
+  "two-step-users": "This site requires two-step sign-in. Set it up below before you use your account.",
+  "two-step-started": "Add the secret to your authenticator app, then enter a code it shows to turn two-step sign-in on.",
+  "two-step-stale": `To set up two-step sign-in, sign out and sign in again, then set it up within ${FRESH_SIGN_IN_MINUTES} minutes.`,
+  "two-step-bad-code": "That code is not right. Nothing was changed.",
+  "two-step-locked": "Too many wrong codes. Please wait an hour.",
+  "two-step-cancelled": "Set-up cancelled.",
+  "two-step-off": "Two-step sign-in is off.",
+  "two-step-all-on": "You will be asked for your second step after ORCID, Google and GitHub too.",
+  "passkey-added": "Passkey added.",
+  "passkey-removed": "Passkey removed.",
+  "passkey-stale": `To add or remove a passkey, sign out and sign in again, then try within ${FRESH_SIGN_IN_MINUTES} minutes.`,
+  "two-step-all-off": "You will be asked for your second step after an email link or a password only.",
+  linked: "Linked.",
+  "linked-orcid": "ORCID linked. You can now sign in with it.",
+  "linked-google": "Google linked. You can now sign in with it.",
+  "linked-github": "GitHub linked. You can now sign in with it.",
+  "link-taken": "That account is already linked to a different EELSdb account, so nothing was changed. If it belongs to your account from the old website, use \u201cClaim your account from the old site\u201d on your account page.",
+  "link-has": "Your account already has a different account of that kind linked. Nothing was changed.",
+  "link-off": "Sign-in with that service is switched off on this site, so it cannot be linked.",
+  "password-off": "Password sign-in is switched off on this site, so a password cannot be set.",
+  "link-failed": "The sign-in service did not confirm who you are, so nothing was linked. Please try again.",
   "keep-primary": "Make another confirmed address primary before removing this one.",
 };
 
-type EmailRow = { id: number; email: string; verified: number; is_primary: number };
-
-type Profile = Record<string, string>;
-
-function Field(props: { name: string; label: string; errors: Profile; hint?: string; children: any }) {
-  return (
-    <div class={`field${props.errors[props.name] ? " has-error" : ""}`}>
-      <label for={`f-${props.name}`}>{props.label}</label>
-      {props.children}
-      {props.hint && <p class="hint">{props.hint}</p>}
-      {props.errors[props.name] && <p class="error">{props.errors[props.name]}</p>}
-    </div>
-  );
-}
-
-async function storedProfile(db: D1Database, userId: number): Promise<Profile> {
-  const row = await db.prepare("SELECT display_name, slug, job_title, affiliation, orcid, links_json, profile_public FROM users WHERE id = ?")
-    .bind(userId).first<any>();
-  return {
-    display_name: row.display_name ?? "",
-    username: row.slug ?? "",
-    job_title: row.job_title ?? "",
-    affiliation: row.affiliation ?? "",
-    orcid: row.orcid ?? "",
-    profile_public: row.profile_public ? "1" : "",
-    ...Object.fromEntries(Object.entries(parseLinks(row.links_json)).map(([k, v]) => [`link_${k}`, v])),
-  };
-}
-
-async function renderSettings(c: C, form?: { values: Profile; errors: Profile }) {
+async function renderSettings(c: C, form?: { values: Profile; errors: Profile }, recoveryCodes?: string[]) {
   const user = c.get("user")!;
   const db = c.env.DB;
-  const [{ results: emails }, { results: identities }] = await db.batch<any>([
+  const [{ results: emails }, { results: identities }, { results: pw }, { results: totpRows }, { results: passkeys }] = await db.batch<any>([
     db.prepare("SELECT id, email, verified, is_primary FROM user_emails WHERE user_id = ? ORDER BY is_primary DESC, verified DESC, email").bind(user.id),
     db.prepare("SELECT provider, email FROM identities WHERE user_id = ? ORDER BY provider").bind(user.id),
+    db.prepare("SELECT password_hash IS NOT NULL AS has, mfa_all_methods FROM users WHERE id = ?").bind(user.id),
+    db.prepare(
+      `SELECT t.secret, t.enabled_at, (SELECT COUNT(*) FROM recovery_codes r WHERE r.user_id = t.user_id AND r.used_at IS NULL) AS codes_left
+       FROM user_totp t WHERE t.user_id = ?`,
+    ).bind(user.id),
+    db.prepare("SELECT credential_id, name, created_at, last_used_at FROM passkeys WHERE user_id = ? ORDER BY created_at, name").bind(user.id),
   ]);
+  const totp = totpRows[0] as { secret: string; enabled_at: string | null; codes_left: number } | undefined;
+  const hasPassword = !!pw[0].has;
+  const recent = await signedInRecently(c);
+  const askCurrent = hasPassword && !recent;
   const v = form?.values ?? (await storedProfile(db, user.id));
   const errors = form?.errors ?? {};
   const orcidLocked = identities.some((i: any) => i.provider === "orcid");
+  const on: string[] = await methodsOn(c.env);
+  const passwordOn = on.includes("password");
+  const unlinked = Object.entries(PROVIDERS)
+    .filter(([key]) => on.includes(key) && !identities.some((i: any) => i.provider === key))
+    .map(([key, p]) => [key, p.label] as const);
   const origin = new URL(c.req.url).origin;
   const notice = form ? null : NOTICES[c.req.query("notice") ?? ""];
   return (
@@ -84,42 +99,15 @@ async function renderSettings(c: C, form?: { values: Profile; errors: Profile })
         <p class="small back-link"><a href="/account/">← Your account</a></p>
         <h1>Settings</h1>
         {notice && <p class="notice" role="status">{notice}</p>}
+        {(user.needs_2fa || user.setup_required) && !notice && (
+          <p class="notice" role="status">{NOTICES[user.setup_required ? "two-step-users" : "two-step-required"]}</p>
+        )}
 
         <section class="settings-section" aria-labelledby="h-profile">
           <h2 id="h-profile">Profile</h2>
           {Object.keys(errors).length > 0 && <p class="notice error-summary" role="alert">Some fields need attention. Nothing was saved.</p>}
           <form method="post" action="/account/settings/profile/" class="settings-form">
-            <div class="grid-2">
-              <Field name="display_name" label="Name" errors={errors} hint="Shown as the author of your spectra.">
-                <input id="f-display_name" name="display_name" type="text" required maxlength={100} value={v.display_name} autocomplete="name" />
-              </Field>
-              <Field name="username" label="Username" errors={errors} hint={`Your page: ${origin}/author/${v.username || "username"}/`}>
-                <input id="f-username" name="username" type="text" maxlength={40} value={v.username} autocomplete="username" spellcheck={false} />
-              </Field>
-              <Field name="job_title" label="Job title" errors={errors}>
-                <input id="f-job_title" name="job_title" type="text" maxlength={100} value={v.job_title} autocomplete="organization-title" />
-              </Field>
-              <Field name="affiliation" label="Affiliation" errors={errors}>
-                <input id="f-affiliation" name="affiliation" type="text" maxlength={200} value={v.affiliation} autocomplete="organization" />
-              </Field>
-            </div>
-            <h3>Links</h3>
-            <div class="grid-2">
-              <Field name="orcid" label="ORCID iD" errors={errors} hint={orcidLocked ? "From your ORCID sign-in." : undefined}>
-                <input id="f-orcid" name="orcid" type="text" value={v.orcid} placeholder="0000-0002-1825-0097" readonly={orcidLocked} spellcheck={false} />
-              </Field>
-              {LINK_FIELDS.map((f) => (
-                <Field name={`link_${f.key}`} label={f.label} errors={errors}>
-                  <input id={`f-link_${f.key}`} name={`link_${f.key}`} type="text" maxlength={200} value={v[`link_${f.key}`] ?? ""} placeholder={f.placeholder} spellcheck={false} />
-                </Field>
-              ))}
-            </div>
-            <Field name="profile_public" label="Public profile" errors={errors}>
-              <label class="check">
-                <input id="f-profile_public" type="checkbox" name="profile_public" value="1" checked={!!v.profile_public} /> Show my picture, job title, affiliation
-                and links on my author page, with the spectra I have contributed
-              </label>
-            </Field>
+            <ProfileFields v={v} errors={errors} origin={origin} orcidLocked={orcidLocked} who="your" />
             <div><button class="button" type="submit">Save profile</button></div>
           </form>
         </section>
@@ -150,30 +138,7 @@ async function renderSettings(c: C, form?: { values: Profile; errors: Profile })
         <section class="settings-section" aria-labelledby="h-emails">
           <h2 id="h-emails">Email addresses</h2>
           <p class="hint">The primary address is used for your avatar and for messages about your submissions. Addresses are never shown on the site.</p>
-          {emails.length > 0 && (
-            <ul class="email-list">
-              {(emails as EmailRow[]).map((e) => (
-                <li>
-                  <span class="email-address">{e.email}</span>
-                  <span class="email-tags">
-                    {e.is_primary ? <span class="tag tag-primary">Primary</span> : null}
-                    {e.verified ? <span class="tag">Confirmed</span> : <span class="tag tag-pending">Not confirmed</span>}
-                  </span>
-                  <span class="email-actions">
-                    {e.verified && !e.is_primary ? (
-                      <form method="post" action={`/account/settings/emails/${e.id}/primary/`}><button class="link-button" type="submit">Make primary</button></form>
-                    ) : null}
-                    {!e.verified ? (
-                      <form method="post" action={`/account/settings/emails/${e.id}/send/`}><button class="link-button" type="submit">Send link</button></form>
-                    ) : null}
-                    {!e.is_primary ? (
-                      <form method="post" action={`/account/settings/emails/${e.id}/remove/`}><button class="link-button danger" type="submit">Remove</button></form>
-                    ) : null}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+          {emails.length > 0 && <EmailList emails={emails as EmailRow[]} base="/account/settings/emails" />}
           <form method="post" action="/account/settings/emails/" class="inline-form">
             <input type="email" name="email" required aria-label="Email address to add" autocomplete="email" placeholder="name@example.org" />
             <button class="button secondary" type="submit">Add address</button>
@@ -192,11 +157,179 @@ async function renderSettings(c: C, form?: { values: Profile; errors: Profile })
               ))}
             </dl>
           ) : (
-            <p class="muted">You sign in with your password from the old site. Sign in once with ORCID, Google or GitHub to link one of them.</p>
+            <p class="muted">No sign-in service is linked to your account yet.</p>
+          )}
+          {unlinked.length > 0 && (
+            <p class="link-services">
+              {unlinked.map(([key, label]) => (
+                <a class="button secondary" href={`/auth/${key}/link?next=${encodeURIComponent("/account/settings/?notice=linked#h-signin")}`}>Link {label}</a>
+              ))}
+            </p>
+          )}
+        </section>
+
+        <section class="settings-section" aria-labelledby="h-password">
+          <h2 id="h-password">Password</h2>
+          {passwordOn ? (
+          <p class="hint">
+            {hasPassword ? "You can sign in with your email address and password." : "You have no password. A password is optional."}{" "}
+            {askCurrent && `Changing or removing it needs your current password, because you signed in more than ${FRESH_SIGN_IN_MINUTES} minutes ago.`}
+            {!hasPassword && !recent && `To set one, sign out and sign in again, then set it within ${FRESH_SIGN_IN_MINUTES} minutes.`}
+          </p>
+          ) : (
+            <p class="hint">Password sign-in is switched off on this site.{hasPassword && " You can remove the password your account still has."}</p>
+          )}
+          {passwordOn && (hasPassword || recent) && (
+          <form method="post" action="/account/settings/password/" class="settings-form">
+            {askCurrent && (
+              <div class="field">
+                <label for="f-current-password">Current password</label>
+                <input id="f-current-password" name="current_password" type="password" autocomplete="current-password" required />
+              </div>
+            )}
+            <div class="field">
+              <label for="f-new-password">{hasPassword ? "New password" : "Password"}</label>
+              <input id="f-new-password" name="new_password" type="password" autocomplete="new-password" required minlength={MIN_PASSWORD_LENGTH} maxlength={MAX_PASSWORD_LENGTH} />
+              <p class="hint">{MIN_PASSWORD_LENGTH} to {MAX_PASSWORD_LENGTH} characters. Changing it signs you out everywhere else.</p>
+            </div>
+            <div><button class="button" type="submit">{hasPassword ? "Change password" : "Set password"}</button></div>
+          </form>
+          )}
+          {hasPassword && (
+            <form method="post" action="/account/settings/password/remove/" class="settings-form">
+              {askCurrent && (
+                <div class="field">
+                  <label for="f-remove-password">Current password</label>
+                  <input id="f-remove-password" name="current_password" type="password" autocomplete="current-password" required />
+                </div>
+              )}
+              <div><button class="button secondary" type="submit">Remove password</button></div>
+            </form>
+          )}
+        </section>
+
+        <section class="settings-section" aria-labelledby="h-two-step" id="two-step">
+          <h2 id="h-two-step">Two-step sign-in</h2>
+          {recoveryCodes ? (
+            <>
+              <p class="notice" role="status">Two-step sign-in is on. Save these recovery codes now: they are not shown again. Each works once, if you lose your phone.</p>
+              <ul class="recovery-codes">{recoveryCodes.map((code) => <li><code>{code}</code></li>)}</ul>
+            </>
+          ) : totp?.enabled_at ? (
+            <>
+              <p class="hint">
+                On. After you sign in with an email link or a password you also enter a code from your authenticator app. You have {totp.codes_left} unused recovery{" "}
+                {totp.codes_left === 1 ? "code" : "codes"}. Each form below needs a current code or a recovery code.
+              </p>
+              {["admin", "moderator"].includes(user.role) && <p class="hint">Your moderator role needs this: turning it off ends your role until you set it up again.</p>}
+              <form method="post" action="/account/settings/two-step/all-methods/" class="settings-form">
+                <h3>Other sign-in services</h3>
+                <label class="check">
+                  <input type="checkbox" name="all_methods" value="1" checked={!!pw[0].mfa_all_methods} /> Also ask after ORCID, Google and GitHub
+                </label>
+                <div class="field">
+                  <label for="f-code-all">Current code or recovery code</label>
+                  <input id="f-code-all" name="code" type="text" autocomplete="one-time-code" autocapitalize="off" spellcheck={false} required />
+                </div>
+                <div><button class="button secondary" type="submit">Save</button></div>
+              </form>
+              <form method="post" action="/account/settings/two-step/recovery/" class="settings-form">
+                <h3>New recovery codes</h3>
+                <div class="field">
+                  <label for="f-code-new">Current code or recovery code</label>
+                  <input id="f-code-new" name="code" type="text" autocomplete="one-time-code" autocapitalize="off" spellcheck={false} required />
+                </div>
+                <div><button class="button secondary" type="submit">Make new recovery codes</button></div>
+              </form>
+              <form method="post" action="/account/settings/two-step/off/" class="settings-form">
+                <h3>Turn off</h3>
+                <div class="field">
+                  <label for="f-code-off">Current code or recovery code</label>
+                  <input id="f-code-off" name="code" type="text" autocomplete="one-time-code" autocapitalize="off" spellcheck={false} required />
+                </div>
+                <div><button class="button secondary" type="submit">Turn off two-step sign-in</button></div>
+              </form>
+            </>
+          ) : totp ? (
+            <>
+              <p class="hint">
+                In your authenticator app, scan this code, or add the secret by hand. Then enter the code the app shows.
+              </p>
+              <div id="totp-qr" class="totp-qr" data-uri={otpauthUri(totp.secret, user.display_name)}></div>
+              <p>Secret: <code class="totp-secret">{totp.secret.match(/.{1,4}/g)!.join(" ")}</code></p>
+              <p class="small"><a href={otpauthUri(totp.secret, user.display_name)}>Open in an authenticator app on this device</a></p>
+              <form method="post" action="/account/settings/two-step/confirm/" class="settings-form">
+                <div class="field">
+                  <label for="f-code-confirm">Code</label>
+                  <input id="f-code-confirm" name="code" type="text" inputmode="numeric" pattern="[0-9 ]*" autocomplete="one-time-code" required />
+                </div>
+                <div><button class="button" type="submit">Turn on two-step sign-in</button></div>
+              </form>
+              <form method="post" action="/account/settings/two-step/cancel/"><button class="link-button" type="submit">Cancel</button></form>
+            </>
+          ) : (
+            <>
+              <p class="hint">
+                Protect your account with a code from an authenticator app (such as your phone's, or a password manager) as well as an email link or password.
+                Moderators and admins need it.
+              </p>
+              {recent ? (
+                <form method="post" action="/account/settings/two-step/start/"><button class="button" type="submit">Set up two-step sign-in</button></form>
+              ) : (
+                <p class="hint">{NOTICES["two-step-stale"]}</p>
+              )}
+            </>
+          )}
+        </section>
+
+        <section class="settings-section" aria-labelledby="h-passkeys" id="passkeys">
+          <h2 id="h-passkeys">Passkeys</h2>
+          <p class="hint">
+            {on.includes("passkey")
+              ? "A passkey signs you in with your device's fingerprint, face or screen lock instead of an email link or a password, and needs no second step."
+              : "Passkey sign-in is switched off on this site, but a passkey still works as your second step after another way in."}{" "}
+            It also counts as two-step sign-in for moderators and admins.
+          </p>
+          {passkeys.length > 0 && (
+            <ul class="passkey-list">
+              {passkeys.map((p: any) => (
+                <li>
+                  <span><strong>{p.name}</strong> <span class="muted small">added {p.created_at.slice(0, 10)}, {p.last_used_at ? `last used ${p.last_used_at.slice(0, 10)}` : "never used"}</span></span>
+                  {recent && (
+                    <form method="post" action="/account/settings/passkeys/remove/">
+                      <input type="hidden" name="id" value={p.credential_id} />
+                      <button class="link-button" type="submit" aria-label={`Remove passkey ${p.name}`}>Remove</button>
+                    </form>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+          {recent ? (
+            <form id="passkey-add" class="settings-form" hidden>
+              <div class="field">
+                <label for="f-passkey-name">Name</label>
+                <input id="f-passkey-name" name="name" type="text" maxLength={60} placeholder="Laptop" required />
+              </div>
+              <div><button class="button" type="submit">Add a passkey</button></div>
+              <p class="notice error-summary" id="passkey-error" role="alert" hidden></p>
+            </form>
+          ) : (
+            <p class="hint">{NOTICES["passkey-stale"]}</p>
+          )}
+          {passkeys.length > 0 && !totp?.enabled_at && recent && (
+            <form method="post" action="/account/settings/two-step/all-methods/" class="settings-form">
+              <h3>Other sign-in services</h3>
+              <label class="check">
+                <input type="checkbox" name="all_methods" value="1" checked={!!pw[0].mfa_all_methods} /> Also ask for a passkey after ORCID, Google and GitHub
+              </label>
+              <div><button class="button secondary" type="submit">Save</button></div>
+            </form>
           )}
         </section>
       </div>
       <script src="/settings.js" type="module"></script>
+      <script src="/passkeys.js" type="module"></script>
     </Layout>
   );
 }
@@ -204,69 +337,10 @@ async function renderSettings(c: C, form?: { values: Profile; errors: Profile })
 settings.get("/account/settings/", requireUser, async (c) => c.html(await renderSettings(c)));
 
 const back = (c: C, notice: string) => c.redirect(`/account/settings/?notice=${notice}`);
-const text = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
 settings.post("/account/settings/profile/", requireUser, async (c) => {
-  const user = c.get("user")!;
-  const db = c.env.DB;
-  const body = await c.req.parseBody();
-  const values: Profile = Object.fromEntries(Object.entries(body).filter(([, x]) => typeof x === "string").map(([k, x]) => [k, String(x).trim()]));
-  const errors: Profile = {};
-  const stored = await storedProfile(db, user.id);
-
-  const name = text(body.display_name, 100);
-  if (!name) errors.display_name = "Enter your name.";
-
-  let username: string | null = stored.username || null;
-  if (values.username && values.username.toLowerCase() !== stored.username) {
-    const parsed = parseUsername(values.username);
-    if ("error" in parsed) errors.username = parsed.error;
-    else {
-      const taken = await db.prepare(
-        `SELECT 1 FROM users WHERE slug = ?1 AND id != ?2
-         UNION SELECT 1 FROM spectra WHERE author_slug = ?1 AND (owner_id IS NULL OR owner_id != ?2)
-         UNION SELECT 1 FROM user_slug_history WHERE slug = ?1 AND user_id != ?2`,
-      ).bind(parsed.value, user.id).first();
-      if (taken) errors.username = "That username is taken.";
-      else username = parsed.value;
-    }
-  } else if (!values.username && stored.username) {
-    errors.username = "Your username is part of your author page address, so it cannot be empty.";
-  }
-  if (values.profile_public && !username && !errors.username) errors.username = "Choose a username for your public profile address.";
-
-  const identities = await db.prepare("SELECT 1 FROM identities WHERE user_id = ? AND provider = 'orcid'").bind(user.id).first();
-  let orcid: string | null = stored.orcid || null;
-  if (!identities) {
-    const parsed = parseOrcid(values.orcid ?? "");
-    if ("error" in parsed) errors.orcid = parsed.error;
-    else orcid = parsed.value;
-  }
-
-  const links: Record<string, string> = {};
-  for (const f of LINK_FIELDS) {
-    const parsed = parseLink(f.key, values[`link_${f.key}`] ?? "");
-    if ("error" in parsed) errors[`link_${f.key}`] = parsed.error;
-    else if (parsed.value) links[f.key] = parsed.value;
-  }
-
-  if (Object.keys(errors).length) return c.html(await renderSettings(c, { values: { ...values, orcid: orcid ?? values.orcid ?? "" }, errors }), 422);
-
-  const statements = [
-    db.prepare("UPDATE users SET display_name = ?, job_title = ?, affiliation = ?, orcid = ?, links_json = ?, profile_public = ?, slug = ? WHERE id = ?").bind(
-      name, text(body.job_title, 100) || null, text(body.affiliation, 200) || null, orcid,
-      Object.keys(links).length ? JSON.stringify(links) : null, values.profile_public ? 1 : 0, username, user.id,
-    ),
-    // Spectra carry the author's name and address for the API and listings.
-    db.prepare("UPDATE spectra SET author_display = ?, author_slug = COALESCE(?, author_slug) WHERE owner_id = ?").bind(name, username, user.id),
-  ];
-  if (username && stored.username && username !== stored.username) {
-    statements.push(
-      db.prepare("INSERT OR REPLACE INTO user_slug_history (slug, user_id) VALUES (?, ?)").bind(stored.username, user.id),
-      db.prepare("DELETE FROM user_slug_history WHERE slug = ?").bind(username),
-    );
-  }
-  await db.batch(statements);
+  const failed = await saveProfile(c.env.DB, c.get("user")!.id, await c.req.parseBody());
+  if (failed) return c.html(await renderSettings(c, failed), 422);
   return back(c, "profile");
 });
 
@@ -292,9 +366,7 @@ settings.post("/account/settings/avatar/", requireUser, async (c) => {
 });
 
 settings.post("/account/settings/avatar/remove/", requireUser, async (c) => {
-  const user = c.get("user")!;
-  await c.env.DB.prepare("UPDATE users SET avatar_key = NULL WHERE id = ?").bind(user.id).run();
-  if (user.avatar_key) await c.env.FILES.delete(`avatars/${user.avatar_key}`);
+  await removeAvatar(c.env, c.get("user")!.id);
   return back(c, "avatar-removed");
 });
 
@@ -313,68 +385,33 @@ settings.get("/avatars/:user/:file", async (c) => {
   });
 });
 
-async function sendVerification(c: C, row: { id: number; email: string }) {
-  const token = crypto.randomUUID();
-  await c.env.DB.prepare("INSERT INTO email_verifications (token_hash, email_id, expires_at) VALUES (?, ?, ?)")
-    .bind(await sha256(token), row.id, new Date(Date.now() + VERIFY_HOURS * 3600_000).toISOString())
-    .run();
-  await sendEmail(c.env, {
-    to: row.email,
-    subject: "Confirm your email address for the EELS Data Base",
-    text: `Someone signed in to the EELS Data Base as "${c.get("user")!.display_name}" and added this address.\n\nIf that was you, open this link while signed in (it works for ${VERIFY_HOURS} hours):\n${new URL(c.req.url).origin}/account/emails/verify/${token}/\n\nIf not, ignore this email.`,
-  });
-}
-
-/** Rate-limited per user; the same answer whatever happens, so the form cannot tell which addresses have accounts. */
-async function allowEmail(c: C) {
-  const key = String(c.get("user")!.id);
-  const recent = await c.env.DB.prepare("SELECT COUNT(*) AS n FROM rate_events WHERE kind = 'email' AND key = ? AND at > datetime('now', '-1 day')")
-    .bind(key).first<number>("n");
-  if ((recent ?? 0) >= MAX_EMAILS_PER_DAY) return false;
-  await c.env.DB.prepare("INSERT INTO rate_events (kind, key) VALUES ('email', ?)").bind(key).run();
-  return true;
-}
-
 settings.post("/account/settings/emails/", requireUser, async (c) => {
   const user = c.get("user")!;
-  const email = text((await c.req.parseBody()).email, 254).toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return back(c, "email-bad");
-  if (!(await allowEmail(c))) return back(c, "limit");
-  const row = await c.env.DB.prepare(
-    "INSERT INTO user_emails (user_id, email) VALUES (?, ?) ON CONFLICT (user_id, email) DO UPDATE SET email = excluded.email RETURNING id, email, verified",
-  ).bind(user.id, email).first<{ id: number; email: string; verified: number }>();
-  if (row && !row.verified) await sendVerification(c, row);
-  return back(c, "sent");
+  const intro = `Someone signed in to the EELS Data Base as "${user.display_name}" and added this address.`;
+  return back(c, await addEmail(c.env, new URL(c.req.url).origin, user.id, (await c.req.parseBody()).email, intro));
 });
 
-const ownEmail = (c: C) =>
-  c.env.DB.prepare("SELECT id, email, verified, is_primary FROM user_emails WHERE id = ? AND user_id = ?")
-    .bind(Number(c.req.param("id")), c.get("user")!.id)
-    .first<EmailRow>();
+const ownEmail = (c: C) => emailOf(c.env.DB, c.get("user")!.id, Number(c.req.param("id")));
 
 settings.post("/account/settings/emails/:id/send/", requireUser, async (c) => {
   const row = await ownEmail(c);
   if (!row) return c.notFound();
-  if (!row.verified && (await allowEmail(c))) await sendVerification(c, row);
+  const user = c.get("user")!;
+  await resendVerification(c.env, new URL(c.req.url).origin, user.id, row, `Someone signed in to the EELS Data Base as "${user.display_name}" and added this address.`);
   return back(c, "sent");
 });
 
 settings.post("/account/settings/emails/:id/primary/", requireUser, async (c) => {
   const row = await ownEmail(c);
   if (!row?.verified) return c.notFound();
-  await c.env.DB.batch([
-    c.env.DB.prepare("UPDATE user_emails SET is_primary = 0 WHERE user_id = ?").bind(c.get("user")!.id),
-    c.env.DB.prepare("UPDATE user_emails SET is_primary = 1 WHERE id = ?").bind(row.id),
-  ]);
+  await makePrimary(c.env.DB, c.get("user")!.id, row);
   return back(c, "primary");
 });
 
 settings.post("/account/settings/emails/:id/remove/", requireUser, async (c) => {
   const row = await ownEmail(c);
   if (!row) return c.notFound();
-  if (row.is_primary) return back(c, "keep-primary");
-  await c.env.DB.prepare("DELETE FROM user_emails WHERE id = ?").bind(row.id).run();
-  return back(c, "removed");
+  return back(c, await removeEmail(c.env.DB, row));
 });
 
 settings.get("/account/emails/verify/:token/", requireUser, async (c) => {
@@ -401,4 +438,141 @@ settings.get("/account/emails/verify/:token/", requireUser, async (c) => {
   ).bind(row, user.id).run();
   await syncEmails(db, user.id);
   return back(c, "verified");
+});
+
+/** Passes when the session is fresh or the current password is right; wrong guesses count towards the same hourly lockout as sign-in. */
+// A first password needs a fresh sign-in too: otherwise anyone at an unattended signed-in browser could set one and keep access.
+async function mayChangePassword(c: C, current: unknown): Promise<"ok" | "wrong" | "locked" | "stale"> {
+  const user = c.get("user")!;
+  const db = c.env.DB;
+  const row = await db.prepare("SELECT password_hash FROM users WHERE id = ?").bind(user.id).first<string | null>("password_hash");
+  if (await signedInRecently(c)) return "ok";
+  if (!row) return "stale";
+  const key = `account:${user.id}`;
+  const failures = await db.prepare("SELECT COUNT(*) AS n FROM rate_events WHERE kind = 'password' AND key = ? AND at > datetime('now', '-1 hour')").bind(key).first<number>("n");
+  if ((failures ?? 0) >= MAX_PASSWORD_FAILURES) return "locked";
+  const password = typeof current === "string" ? current : "";
+  if (password.length <= MAX_PASSWORD_LENGTH && (await verifyLegacyPassword(password, row))) return "ok";
+  await db.prepare("INSERT INTO rate_events (kind, key) VALUES ('password', ?)").bind(key).run();
+  return "wrong";
+}
+
+settings.post("/account/settings/password/", requireUser, async (c) => {
+  const user = c.get("user")!;
+  const body = await c.req.parseBody();
+  const next = typeof body.new_password === "string" ? body.new_password : "";
+  if (!(await methodsOn(c.env)).includes("password")) return back(c, "password-off");
+  const allowed = await mayChangePassword(c, body.current_password);
+  if (allowed !== "ok") return back(c, `password-${allowed}`);
+  if (next.length < MIN_PASSWORD_LENGTH || next.length > MAX_PASSWORD_LENGTH) return back(c, "password-short");
+  await c.env.DB.prepare("UPDATE users SET password_hash = ?, legacy_password_hash = NULL WHERE id = ?").bind(await pbkdf2Hash(next), user.id).run();
+  await signOutOtherSessions(c, user.id);
+  return back(c, "password-saved");
+});
+
+settings.post("/account/settings/password/remove/", requireUser, async (c) => {
+  const user = c.get("user")!;
+  const allowed = await mayChangePassword(c, (await c.req.parseBody()).current_password);
+  if (allowed !== "ok") return back(c, `password-${allowed}`);
+  await c.env.DB.prepare("UPDATE users SET password_hash = NULL, legacy_password_hash = NULL WHERE id = ?").bind(user.id).run();
+  await signOutOtherSessions(c, user.id);
+  return back(c, "password-removed");
+});
+
+
+const stepBack = (c: C, notice: string) => c.redirect(`/account/settings/?notice=${notice}#h-two-step`);
+
+settings.post("/account/settings/two-step/start/", requireUser, async (c) => {
+  const user = c.get("user")!;
+  if (!(await signedInRecently(c))) return stepBack(c, "two-step-stale");
+  await c.env.DB.prepare("INSERT INTO user_totp (user_id, secret) VALUES (?, ?) ON CONFLICT (user_id) DO UPDATE SET secret = excluded.secret, last_step = 0 WHERE enabled_at IS NULL")
+    .bind(user.id, newSecret()).run();
+  return stepBack(c, "two-step-started");
+});
+
+settings.post("/account/settings/two-step/cancel/", requireUser, async (c) => {
+  await c.env.DB.prepare("DELETE FROM user_totp WHERE user_id = ? AND enabled_at IS NULL").bind(c.get("user")!.id).run();
+  return stepBack(c, "two-step-cancelled");
+});
+
+settings.post("/account/settings/two-step/confirm/", requireUser, async (c) => {
+  const user = c.get("user")!;
+  const db = c.env.DB;
+  const pending = await db.prepare("SELECT secret FROM user_totp WHERE user_id = ? AND enabled_at IS NULL").bind(user.id).first<string>("secret");
+  if (!pending) return stepBack(c, "two-step-cancelled");
+  const failures = await db.prepare("SELECT COUNT(*) AS n FROM rate_events WHERE kind = 'second_step' AND key = ? AND at > datetime('now', '-1 hour')").bind(String(user.id)).first<number>("n");
+  if ((failures ?? 0) >= MAX_SECOND_STEP_FAILURES) return stepBack(c, "two-step-locked");
+  const code = String((await c.req.parseBody()).code ?? "").replace(/\s/g, "");
+  const step = await matchingStep(pending, code, 0);
+  if (step === null) {
+    await db.prepare("INSERT INTO rate_events (kind, key) VALUES ('second_step', ?)").bind(String(user.id)).run();
+    return stepBack(c, "two-step-bad-code");
+  }
+  await db.prepare("UPDATE user_totp SET enabled_at = datetime('now'), last_step = ? WHERE user_id = ? AND enabled_at IS NULL").bind(step, user.id).run();
+  c.header("Cache-Control", "no-store");
+  return c.html(await renderSettings(c, undefined, await makeRecoveryCodes(db, user.id)));
+});
+
+/** The forms for an account with two-step sign-in on all need a current code or a recovery code. */
+async function codeOk(c: C, body: Record<string, unknown>) {
+  const result = await spendCode(c.env.DB, c.get("user")!.id, body.code);
+  return result === "ok" ? null : stepBack(c, result === "locked" ? "two-step-locked" : "two-step-bad-code");
+}
+
+settings.post("/account/settings/two-step/off/", requireUser, async (c) => {
+  const user = c.get("user")!;
+  const refused = await codeOk(c, await c.req.parseBody());
+  if (refused) return refused;
+  await c.env.DB.batch([
+    c.env.DB.prepare("DELETE FROM user_totp WHERE user_id = ?").bind(user.id),
+    c.env.DB.prepare("DELETE FROM recovery_codes WHERE user_id = ?").bind(user.id),
+    c.env.DB.prepare("UPDATE users SET mfa_all_methods = 0 WHERE id = ? AND NOT EXISTS (SELECT 1 FROM passkeys WHERE user_id = ?)").bind(user.id, user.id),
+  ]);
+  return stepBack(c, "two-step-off");
+});
+
+settings.post("/account/settings/two-step/recovery/", requireUser, async (c) => {
+  const refused = await codeOk(c, await c.req.parseBody());
+  if (refused) return refused;
+  c.header("Cache-Control", "no-store");
+  return c.html(await renderSettings(c, undefined, await makeRecoveryCodes(c.env.DB, c.get("user")!.id)));
+});
+
+settings.post("/account/settings/two-step/all-methods/", requireUser, async (c) => {
+  const body = await c.req.parseBody();
+  const userId = c.get("user")!.id;
+  // With an authenticator app the change needs a code; with passkeys only, a fresh sign-in (which used the passkey).
+  if (await c.env.DB.prepare("SELECT 1 FROM user_totp WHERE user_id = ? AND enabled_at IS NOT NULL").bind(userId).first()) {
+    const refused = await codeOk(c, body);
+    if (refused) return refused;
+  } else {
+    if (!(await c.env.DB.prepare("SELECT 1 FROM passkeys WHERE user_id = ?").bind(userId).first())) return stepBack(c, "two-step-bad-code");
+    if (!(await signedInRecently(c))) return stepBack(c, "passkey-stale");
+  }
+  await c.env.DB.prepare("UPDATE users SET mfa_all_methods = ? WHERE id = ?").bind(body.all_methods ? 1 : 0, c.get("user")!.id).run();
+  return stepBack(c, body.all_methods ? "two-step-all-on" : "two-step-all-off");
+});
+
+// Adding or removing a passkey needs a sign-in in the last 15 minutes, like setting up two-step sign-in: someone at an
+// unattended browser could otherwise add their own passkey, or remove the owner's.
+settings.post("/account/settings/passkeys/options/", requireUser, async (c) => {
+  if (!(await signedInRecently(c))) return c.json({ error: NOTICES["passkey-stale"] }, 403);
+  const count = await c.env.DB.prepare("SELECT COUNT(*) AS n FROM passkeys WHERE user_id = ?").bind(c.get("user")!.id).first<number>("n");
+  if ((count ?? 0) >= MAX_PASSKEYS) return c.json({ error: `You can have up to ${MAX_PASSKEYS} passkeys.` }, 400);
+  return c.json(await registrationOptions(c, c.get("user")!));
+});
+
+settings.post("/account/settings/passkeys/", requireUser, async (c) => {
+  if (!(await signedInRecently(c))) return c.json({ error: NOTICES["passkey-stale"] }, 403);
+  const body = await c.req.json().catch(() => ({}));
+  if (!(await addPasskey(c, c.get("user")!.id, body.token, body.response, text(body.name, 60) || "Passkey"))) {
+    return c.json({ error: "The passkey could not be added. Nothing was changed." }, 400);
+  }
+  return c.json({ ok: true });
+});
+
+settings.post("/account/settings/passkeys/remove/", requireUser, async (c) => {
+  if (!(await signedInRecently(c))) return back(c, "passkey-stale");
+  await c.env.DB.prepare("DELETE FROM passkeys WHERE credential_id = ? AND user_id = ?").bind(String((await c.req.parseBody()).id ?? ""), c.get("user")!.id).run();
+  return c.redirect("/account/settings/?notice=passkey-removed#h-passkeys");
 });

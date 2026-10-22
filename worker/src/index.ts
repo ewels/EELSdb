@@ -1,5 +1,6 @@
 import { api } from "./api/index";
 import { pages } from "./pages/index";
+import { deleteOldMessages } from "./contact";
 import { deleteOldDrafts } from "./submit/drafts";
 
 // No full Content-Security-Policy yet: Pyodide (wasm) and Turnstile need careful allowances.
@@ -20,5 +21,6 @@ export default {
   },
   async scheduled(_controller, env, ctx) {
     ctx.waitUntil(deleteOldDrafts(env));
+    ctx.waitUntil(deleteOldMessages(env));
   },
 } satisfies ExportedHandler<Env>;

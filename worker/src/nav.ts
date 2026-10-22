@@ -12,7 +12,7 @@ export const ABOUT_NAV = [
   ["/docs/about/citation/", "How to cite"],
   ["/moderators/", "Moderators"],
   ["/docs/about/logo/", "Logo and colours"],
-  ["/docs/about/contact/", "Contact"],
+  ["/contact/", "Contact"],
 ] as const;
 
 /** The About link for this page: the longest that its path starts with, so /docs/about/logo/ is not also /docs/about/. */

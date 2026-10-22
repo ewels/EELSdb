@@ -13,6 +13,9 @@
     }
   ],
   "r2_buckets": [{ "binding": "FILES", "bucket_name": "eelsdb-files" }],
+  // Simulated locally (wrangler dev and the tests). Before deploying, onboard a sending domain in the
+  // Cloudflare account (Email Sending) and set EMAIL_PROVIDER=cloudflare and EMAIL_FROM on that domain.
+  "send_email": [{ "name": "EMAIL" }],
   // Daily: delete drafts that were never submitted.
   "triggers": { "crons": ["17 3 * * *"] }
 }

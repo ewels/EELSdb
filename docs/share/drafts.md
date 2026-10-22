@@ -13,7 +13,7 @@ A draft is not public, and moderators do not see it. Nothing goes to review unti
 2. Under **Let an assistant make drafts**, type a label, for example "laptop", and click **Make a token**.
 3. Copy the token. The page shows it only once.
 
-A token can only make drafts in your account. It cannot submit, publish or change anything else. Treat it like a password. Revoke it on the same page when you no longer need it.
+A token can only make drafts in your account. It cannot submit, publish or change anything else. Treat it like a password. Revoke it on the same page when you no longer need it. Making or revoking a token needs a sign-in in the last 15 minutes: if yours is older, sign out and sign in again first.
 
 ## Give it to your assistant
 
@@ -25,6 +25,8 @@ Then ask in plain words, for example:
 Give the token to the assistant in an environment variable or a file, not in the chat.
 
 ## Check and submit
+
+If the site requires a [linked ORCID iD](/docs/share/submit/#orcid-id) to submit, you need one to submit a draft. Making drafts, and checking them, does not need it. The drafts page and the check page show a **Link ORCID** button when it is missing.
 
 1. Open [Your drafts](/account/drafts/). The table shows each draft with its file, beam energy and angles, and where each value came from. "Unknown" means the assistant did not find the value.
 2. Click a draft to open it in the submit form. The form plots the spectrum and runs the [file checks](/docs/share/checks/) in your browser. Correct what is wrong.

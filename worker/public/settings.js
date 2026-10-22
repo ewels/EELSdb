@@ -1,4 +1,4 @@
-// Settings page: shrinks a chosen picture before upload.
+// Settings page: shrinks a chosen picture before upload, and draws the two-step set-up QR code.
 
 const SIZE = 256;
 
@@ -25,3 +25,11 @@ avatar?.addEventListener("change", async () => {
     // The browser could not decode it; the server checks the original instead.
   }
 });
+
+const qr = document.querySelector("#totp-qr");
+if (qr) {
+  // Without the QR code the secret and the link next to it still work.
+  import("/vendor/uqr.mjs").then(({ renderSVG }) => {
+    qr.innerHTML = renderSVG(qr.dataset.uri, { border: 2, whiteColor: "#fff", blackColor: "#000" });
+  }).catch(() => {});
+}

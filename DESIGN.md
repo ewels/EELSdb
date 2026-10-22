@@ -171,6 +171,21 @@ components:
     textColor: "{colors.bg}"
     rounded: "{rounded.control}"
     padding: "0.25rem 0.65rem"
+  auth-panel:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.panel}"
+    padding: "2rem 2rem 1.75rem"
+    width: "26rem"
+  last-used-tag:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.pill}"
+    padding: "0 0.45rem"
+  orcid-banner:
+    backgroundColor: "{colors.accent-soft}"
+    textColor: "{colors.ink}"
+    padding: "0.45rem 0"
 ---
 
 # Design System: EELS Data Base
@@ -360,13 +375,35 @@ A button that copies a DOI to the clipboard.
 
 ### Navigation
 - **Sticky header:** see Layout. The header's background and border transition over 0.25s. The homepage's small logo fades up into place (opacity plus a 6px rise, 0.2s, `cubic-bezier(0.16, 1, 0.3, 1)`) when the page leaves the top, and fades straight out with no movement when it returns to the very top. While hidden it is out of the tab order. Below 1000px it is never hidden.
-- **Main nav:** `ink` text at weight 500 with a 2px transparent bottom border. Hover shows a `line` underline; the current page shows an `accent` underline. No backgrounds, no pills. "Sign in" is a secondary button; signed in, the account avatar takes its place. Before the links: a search box (13rem, 4px, magnifier icon, searches titles in browse) and a 2rem light/dark toggle (a half-filled circle icon in `muted`, `sunken` on hover) with 0.6rem extra space before Browse.
+- **Main nav:** `ink` text at weight 500 with a 2px transparent bottom border. Hover shows a `line` underline; the current page shows an `accent` underline. No backgrounds, no pills. "Sign in" is a secondary button; signed in, the account avatar takes its place. It stays in the header on the sign-in pages too: the header looks the same on every page, and a control that vanishes on one page reads as a glitch. Before the links: a search box (13rem, 4px, magnifier icon, searches titles in browse) and a 2rem light/dark toggle (a half-filled circle icon in `muted`, `sunken` on hover) with 0.6rem extra space before Browse.
 - **About menu:** "About" is a disclosure button (`aria-expanded`, `aria-controls`) with a small `muted` caret, styled like the other nav links and underlined in `accent` on any of its pages: About EELSdb (`/about/`), How to cite (`/citation/`), Moderators (`/moderators/`), Logo and colours (`/logo/`) and Contact (`/contact/`). On wide screens the links drop into a small `surface` panel under the button, right-aligned to it: `line` border, 6px corners, the soft shadow, rows that tint `sunken` on hover and underline the current page in `accent`. It opens on click (never on hover), and closes on Escape (focus returns to the button), an outside click, a chosen link or tabbing out. In the burger panel it is a tap row with the caret on the right, and the five links follow as rows indented 1rem; Escape folds the group first, then closes the panel. Without JavaScript it opens on hover or keyboard focus on wide screens and is always open in the burger panel.
 - **Burger menu (below 1000px):** a 2.5rem icon button (three lines, an X when open) with `aria-expanded`, on the right. The panel spans the full width under the header: `bg`, a `rule` bottom border and the soft shadow; a full-width search box, then the links as tap rows split by `rule` hairlines, the current one underlined in `accent`, then one row with Sign in or the avatar and name on the left and the icon-only light/dark toggle (2.5rem) on the right. The toggle is a second copy of the button, so each copy sits in DOM and Tab order where it shows; CSS hides the other. It fades and drops 6px in over 0.18s (motion allowed only), and closes on Escape (focus returns to the button), an outside click, a chosen link, or widening past 1000px. Without JavaScript the panel is simply shown, in flow.
 - **Back link:** "← Parent" above a page title, 0.875rem, no underline until hover (class `back-link`).
 - **Wide pages:** only `main` widens (browse uses 1920px); the header and footer keep the 1320px column on every page.
 - **Pager:** text items with 4px corners, `sunken` on hover, the current page inverted to `ink` on `bg`.
 - **Footer:** small `muted` text on a `rule` top border, links not underlined (they turn `ink` on hover), the licence line pushed right.
+
+### Sign-in panel
+The sign-in page and its states (link sent, the email link, used or expired links, the second step) share one layout: a 26rem centred column, 3.5rem below the header, holding one `surface` panel (1px `line` border, 8px corners, padding 2rem 2rem 1.75rem, no shadow). It follows the convention people know from GitHub, Linear and Vercel: one main way in, the others clearly second.
+- **Order:** title and a one-sentence `muted` lede ("New here? Your first sign-in makes your account": sign-up is the same page), then "Continue with ORCID", the only primary button, with a centred 0.8rem hint under it on why ("EELSdb credits contributors by their ORCID iD"). Then "Continue with Google", "Continue with GitHub" and "Sign in with a passkey", each a full-width secondary button with an 18px mark. An "or" rule (`line` hairlines either side of a 0.85rem `muted` word) separates the email field (`autocomplete="username webauthn"`, so browsers offer passkeys there too) and "Email me a sign-in link" (secondary) with a 0.8rem hint that no password is needed. "Sign in with a password" folds out below as a `<details>` (600, 0.95rem), with "Forgot your password?" right-aligned on the password label row; it opens by itself after a failed attempt.
+- **Methods switched off** by an admin are not rendered. Without ORCID, "Email me a sign-in link" takes the primary fill (and gives it up while the password form is open). The "or" rule shows only when there are ways in on both sides of it.
+- **Buttons in the panel** are full width, centred, padding 0.6rem block. Labels stay on one line, except "Send a new link to {address}", which may wrap because an address can be longer than the panel.
+- **Service marks:** inline SVGs within each brand's rules: Google's four-colour "G" on the neutral secondary button (Google does not allow a coloured button), GitHub's mark in `currentColor`, ORCID's iD in its green. These are the only colours from outside the palette in the interface; they identify the service.
+- **Welcome page** (`/login/welcome/`, after a first ORCID, Google or GitHub sign-in that matches no account) uses the same panel: h1, a `muted` lede asking whether the person has signed in before (naming the other ways in that are on), then two full-width buttons: "Yes, sign in to my account" (the one primary) and "No, create a new account" (secondary), and a small hint under them. When that service is the only way in that is on, the lede asks the person to create the account and ask us to merge them (linking to the contact page), with one primary "Create my account". The sign-in page shows the follow-up as a plain notice above the buttons.
+- **Old-site note** sits under the panel, outside it, in 0.875rem `muted` text with a 600 heading.
+- **Errors** are a notice with the `danger` border at the top of the panel (`role="alert"`); the field in error gets the `danger` border and `aria-invalid`.
+
+### "Last used" tag
+After a sign-in, the browser remembers the method (never the address) and the sign-in page marks it next time: a small pill (0.72rem 600, `ink` on `surface`, 1px `accent` border, full round) set on the top-right edge of that button, or inline after the password summary. Fills never change: "Continue with ORCID" stays the one primary, and a secondary button it marks gets an `accent` border (Google's button stays neutral, as Google asks). A remembered password also opens the password form. Without JavaScript or storage the page shows its default.
+
+### ORCID banner
+A full-width strip above the header for signed-in people with no linked ORCID iD: `accent-soft` with a `line` bottom border, 0.93rem text, the content on the 1320px column. One sentence on why, a compact primary "Link ORCID" button (0.2rem 0.8rem, 0.88rem) and a `muted` "Hide for 30 days" text button. It is a labelled region, not an alert. It is not shown on the sign-in pages, and not on the submit page while ORCID is required there, because that page says the same thing in place of the form. While ORCID is the only sign-in method on, the sentence says ORCID is how people sign in and the hide button is not there. With ORCID sign-in switched off, there is no banner.
+
+### Sign-in switches (admin)
+On `/admin/settings/`, under "Sign-in methods": a `notice` with the current count in 600 ("Right now, N accounts have no switched-on way to sign in.") and two `muted` sentences on what switching off does and that switching back on restores access, then one checkbox per method with a small hint giving how many accounts can sign in with it. "Review and save" never saves a switch-off: it opens a confirmation page whose h1 names the methods, with the lock-out count at 1.6rem 650 in `danger`, the per-method counts as a list, plain consequences, and a typed-number field (or a checkbox when the count is 0) above a `danger` button and a secondary Cancel. "Recent changes" lists the log under the form.
+
+### Staff list (moderators page)
+Administrators and moderators in two groups, each with an h2 and one `muted` line on what the role does. Each person is a row (rule hairlines between rows) with a 2.25rem avatar and the name, linking to their author page; hover adds the 2px `accent` ring to the avatar. Every name and avatar the site shows publicly links to a page, so staff always have one.
 
 ### Ways in (homepage)
 A list of linked rows separated by `line` rules: a title (600, 1.12rem), a muted line, and a 20px right arrow that slides 4px right and turns `accent-ink` on hover, as does the title. The search row holds a label-as-heading, an input and a primary Search button. The type row adds the four type links: dot, name, and the count in `muted`.
@@ -428,5 +465,7 @@ On the homepage, with motion allowed, the traces are recorded left to right like
 - **Don't** add a second typeface; Mona Sans carries the interface and the logo, with ui-monospace only for code and identifiers.
 - **Don't** use pill-shaped buttons.
 - **Don't** add animation beyond the logo scan, the header logo fade, the burger menu's drop-in and the tooltip fade.
+- **Don't** hide or move header controls on particular pages; the header is the same everywhere, including the sign-in pages.
+- **Don't** put more than one primary button in the sign-in panel.
 - **Don't** add explanatory filler sentences; if a heading and a count say it, stop.
 - **Don't** change the logo traces or their colours, or extend the tails outside the header lockup.

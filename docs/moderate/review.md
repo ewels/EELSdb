@@ -4,10 +4,18 @@ description: How EELSdb moderators check submissions and instrument profiles on 
 ---
 
 Moderators check each new spectrum, each edit to the data of a spectrum, and each new instrument profile version before EELSdb publishes it.
-An administrator gives the moderator role on the **Users and roles** admin page.
+An administrator gives the moderator role on the user's page under **Accounts** in the admin area. See [Manage accounts](/docs/moderate/accounts/).
 The [moderators page](/moderators/) lists the current moderators.
 
 You review on the website. You do not need to install anything.
+
+## Two-step sign-in is required
+
+While the site requires it for your group (an administrator sets this under **Site settings**, and it is on for moderators and administrators by default), you must turn on [two-step sign-in with an authenticator app](/docs/share/sign-in/#two-step-sign-in) or add a [passkey](/docs/share/sign-in/#passkeys).
+Until you do, your role does nothing: the moderation pages send you to **Settings**, and you cannot approve instrument profiles or see other people's pending submissions.
+After you turn it on, EELSdb asks for a code or a passkey every time you sign in, also after ORCID, Google or GitHub. Signing in with a passkey is complete by itself.
+Keep your recovery codes safe, and keep a second passkey or an authenticator app as a back-up.
+If an administrator switches the requirement off for your group, your role works without it. If you have turned it on anyway, EELSdb still asks for it, as it does for any user.
 
 ## Review a submission
 
