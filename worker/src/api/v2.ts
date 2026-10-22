@@ -53,7 +53,7 @@ export function spectraFilter(q: z.infer<typeof ListQuery>) {
     binds.push(...values);
   };
 
-  if (q.phase) add("s.phase = ?", q.phase);
+  if (q.phase?.length) add(`s.phase IN (${q.phase.map(() => "?").join(",")})`, ...q.phase);
   if (q.type?.length) add(`s.type IN (${q.type.map(() => "?").join(",")})`, ...q.type);
   if (q.technique) add("s.technique = ?", q.technique);
   for (const el of q.element ?? []) add("EXISTS (SELECT 1 FROM spectrum_elements e WHERE e.spectrum_id = s.id AND e.element = ?)", el);

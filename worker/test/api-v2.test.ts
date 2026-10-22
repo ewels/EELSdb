@@ -83,5 +83,6 @@ describe("API v2", () => {
     expect((await json("/spectra")).total).toBe(956);
     expect((await json("/spectra?phase=gas")).total).toBe(666);
     expect((await json("/spectra?phase=solid")).total).toBe(290);
+    expect((await json("/spectra?phase=solid&phase=gas")).total).toBe(956);
   });
 });

@@ -1,12 +1,57 @@
-// Keep shared browse URLs short: drop empty fields.
-document.getElementById("filters").addEventListener("submit", (event) => {
-  for (const el of event.target.elements) if (el.name && el.value === "") el.disabled = true;
-});
+// Filters apply as they change: the results section is fetched and swapped in, and the URL follows.
+// Without JavaScript the form submits with its Apply button instead.
+const form = document.getElementById("filters");
+let timer;
+let pending;
 
-// Fields disabled on submit stay disabled when the page is restored from the back/forward cache.
-addEventListener("pageshow", () => {
-  for (const el of document.getElementById("filters").elements) el.disabled = false;
+// Short shareable URLs: no empty fields, and a toggle group that is all on (or all off) means "any".
+function filterUrl() {
+  const data = new FormData(form);
+  for (const group of form.querySelectorAll(".toggles")) {
+    const boxes = [...group.querySelectorAll("input")];
+    if (boxes.every((b) => b.checked) || boxes.every((b) => !b.checked)) data.delete(boxes[0].name);
+  }
+  const q = new URLSearchParams([...data].filter(([, v]) => v !== ""));
+  return `/spectra/${q.size ? `?${q}` : ""}`;
+}
+
+async function load() {
+  const url = filterUrl();
+  if (url === location.pathname + location.search) return;
+  pending?.abort();
+  pending = new AbortController();
+  const section = document.querySelector(".browse > section");
+  section.setAttribute("aria-busy", "true");
+  try {
+    const res = await fetch(url, { signal: pending.signal });
+    const fresh = new DOMParser().parseFromString(await res.text(), "text/html").querySelector(".browse > section");
+    // Reuse the live region so screen readers announce the new count.
+    const status = section.querySelector(".result-bar [role=status]");
+    const next = fresh.querySelector(".result-bar [role=status]");
+    status.innerHTML = next.innerHTML;
+    next.replaceWith(status);
+    section.replaceWith(fresh);
+    history.pushState(null, "", url);
+  } catch (err) {
+    if (err.name !== "AbortError") location.href = url;
+  }
+}
+
+const refresh = (delay = 0) => {
+  clearTimeout(timer);
+  timer = setTimeout(load, delay);
+};
+
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  refresh();
 });
+form.addEventListener("change", () => refresh());
+form.addEventListener("input", (event) => {
+  if (event.target.matches('input[type="text"], input[type="search"]')) refresh(400);
+});
+// The form keeps the state it had when the page loaded, so stepping back reloads instead of swapping.
+addEventListener("popstate", () => location.reload());
 
 // A type-to-filter combobox with removable chips, drawn over a native field that stays the submitted value.
 // items: { value, name, count, html, selected: pick order or falsy }; rank(item, query) → sort key, or -1 for no match.
@@ -181,7 +226,10 @@ const esc = (s) => s.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
       return -1;
     },
     exact: (w) => items.find((x) => x.value.toLowerCase() === w.toLowerCase() || x.name.toLowerCase() === w.toLowerCase()),
-    onChange: () => items.forEach((x) => (x.o.selected = !!x.selected)),
+    onChange: () => {
+      items.forEach((x) => (x.o.selected = !!x.selected));
+      refresh();
+    },
   });
 }
 
@@ -210,7 +258,10 @@ const esc = (s) => s.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
         if (words(k).includes(" " + q)) return 2;
         return k.includes(q) ? 3 : -1;
       },
-      onChange: () => items.forEach((x) => (x.o.selected = !!x.selected)),
+      onChange: () => {
+        items.forEach((x) => (x.o.selected = !!x.selected));
+        refresh();
+      },
     });
   }
 }
@@ -244,6 +295,49 @@ const esc = (s) => s.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
     rank: (x, q) => (words(x.name).includes(words(q)) ? 0 : -1),
     onChange: (chosen, typed) => {
       field.value = [...chosen.map((x) => x.value), typed].filter(Boolean).join(", ");
+      refresh(400);
     },
   });
 }
+
+const eV = (v) => (v >= 1000 ? `${Number((v / 1000).toPrecision(3))} keV` : `${Number(Number(v).toPrecision(3))} eV`);
+
+// Histogram sliders write the number fields (shown only without JavaScript); a thumb at its open end leaves its field empty, so it does not filter.
+for (const hist of document.querySelectorAll(".hist")) {
+  const lo = Number(hist.dataset.lo);
+  const hi = Number(hist.dataset.hi);
+  const max = Number(hist.dataset.max);
+  const track = hist.querySelector(".hist-range");
+  const ranges = [...track.querySelectorAll("input")];
+  const fields = ranges.map((r) => document.getElementById(r.dataset.for));
+  const bars = [...hist.querySelectorAll("rect")];
+  const readout = hist.closest("fieldset").querySelector("output");
+  const openEnd = (i) => (ranges.length === 2 && i === 0 ? 0 : max);
+  const toEv = (pos) => Number((10 ** (lo + ((hi - lo) * pos) / max)).toPrecision(2));
+
+  const paint = () => {
+    const [a, b] = ranges.length === 2 ? ranges.map((r) => Number(r.value)) : [0, Number(ranges[0].value)];
+    track.style.setProperty("--a", a / max);
+    track.style.setProperty("--b", b / max);
+    const [from, to] = ranges.length === 2 ? fields.map((f) => f.value) : ["", fields[0].value];
+    readout.textContent = from && to ? `${eV(from)} – ${eV(to)}` : from ? `≥ ${eV(from)}` : to ? `≤ ${eV(to)}` : "Any";
+    bars.forEach((bar, i) => {
+      const mid = ((i + 0.5) / bars.length) * max;
+      bar.classList.toggle("in", mid >= a && mid <= b);
+    });
+  };
+
+  paint();
+  ranges.forEach((range, i) => {
+    range.addEventListener("input", () => {
+      if (ranges.length === 2) {
+        const [a, b] = ranges.map((r) => Number(r.value));
+        if (a > b) range.value = i === 0 ? b : a;
+      }
+      const pos = Number(range.value);
+      fields[i].value = pos === openEnd(i) ? "" : toEv(pos);
+      paint();
+    });
+  });
+}
+

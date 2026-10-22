@@ -10,7 +10,8 @@ const PER_PAGE = 50;
 const ELEMENT_NAMES: Record<string, string> = NAMES;
 const EDGES = ["K", "L1", "L2,3", "M2,3", "M4,5", "N2,3", "N4,5", "O2,3", "O4,5"];
 // Filters that may be given more than once; the others take one value.
-const REPEATED = new Set(["type", "element", "edge", "author", "keyword"]);
+const REPEATED = new Set(["type", "phase", "element", "edge", "author", "keyword"]);
+const PHASES = ["solid", "liquid", "gas"];
 
 /** Browse filters as API v2 query parameters, one list of values per name. */
 type Filters = Map<string, string[]>;
@@ -92,15 +93,49 @@ function chipLabel(key: string, v: string) {
   return labels[key] ?? v;
 }
 
-/** A number filter with its unit drawn inside the field. */
-function EnergyInput(props: { f: Filters; name: string; label: string }) {
+/** A number filter drawn as one field: comparator, number, unit. */
+function Bound(props: { f: Filters; name: string; op: string; label: string; wide?: boolean }) {
   return (
-    <div class="bound">
-      <label for={`f-${props.name}`}>{props.label}</label>
-      <span class="bound-field">
-        <input type="number" step="any" inputmode="decimal" id={`f-${props.name}`} name={props.name} value={one(props.f, props.name)} />
-        <span class="unit" aria-hidden="true">eV</span>
-      </span>
+    <span class={props.wide ? "bound wide" : "bound"}>
+      <label for={`f-${props.name}`} class="op" aria-hidden="true">{props.op}</label>
+      <input type="number" step="any" min="0" inputmode="decimal" id={`f-${props.name}`} name={props.name} value={one(props.f, props.name)} aria-label={props.label} />
+      <span class="unit" aria-hidden="true">eV</span>
+    </span>
+  );
+}
+
+/** A log axis for a histogram filter, in decades of eV. */
+type Scale = { lo: number; hi: number; ticks: string[] };
+const ENERGY_SCALE: Scale = { lo: 0, hi: 4, ticks: ["1 eV", "100 eV", "10 keV"] };
+const RESOLUTION_SCALE: Scale = { lo: -1, hi: 1, ticks: ["0.1 eV", "1 eV", "10 eV"] };
+const BINS = 40;
+const SLIDER_MAX = 1000;
+
+const binOf = (s: Scale, ev: number) => Math.min(BINS - 1, Math.max(0, Math.floor(((Math.log10(Math.max(ev, 1e-6)) - s.lo) / (s.hi - s.lo)) * BINS)));
+const sliderPos = (s: Scale, ev: string, fallback: number) =>
+  ev === "" || !(Number(ev) > 0) ? fallback : Math.round(Math.min(1, Math.max(0, (Math.log10(Number(ev)) - s.lo) / (s.hi - s.lo))) * SLIDER_MAX);
+
+/** Bars of spectrum counts on a log axis, with range sliders over them; the sliders write the Bound fields beside them. */
+function Histogram(props: { scale: Scale; counts: number[]; label: string; thumbs: { for: string; label: string; pos: number }[] }) {
+  const peak = Math.max(1, ...props.counts);
+  const [a, b] = props.thumbs.length === 2 ? [props.thumbs[0].pos, props.thumbs[1].pos] : [0, props.thumbs[0].pos];
+  return (
+    <div class="hist" data-lo={props.scale.lo} data-hi={props.scale.hi} data-max={SLIDER_MAX}>
+      <svg viewBox={`0 0 ${BINS} 1`} preserveAspectRatio="none" role="img" aria-label={props.label}>
+        {props.counts.map((n, i) => {
+          const h = n ? Math.max(0.04, Math.sqrt(n / peak)) : 0;
+          const mid = ((i + 0.5) / BINS) * SLIDER_MAX;
+          return <rect x={i + 0.1} width="0.8" y={(1 - h).toFixed(3)} height={h.toFixed(3)} class={mid >= a && mid <= b ? "in" : undefined} />;
+        })}
+      </svg>
+      <div class="hist-range" style={`--a:${a / SLIDER_MAX};--b:${b / SLIDER_MAX}`}>
+        {props.thumbs.map((t) => (
+          <input type="range" min="0" max={SLIDER_MAX} value={t.pos} data-for={t.for} aria-label={t.label} />
+        ))}
+      </div>
+      <div class="hist-ticks" aria-hidden="true">
+        {props.scale.ticks.map((t) => <span>{t}</span>)}
+      </div>
     </div>
   );
 }
@@ -204,7 +239,7 @@ export async function browsePage(c: Context<AppEnv>) {
   const { total, ids } = await listSpectra(db, q);
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
 
-  const [{ results: rows }, { results: elementRows }, { results: authorRows }, { results: keywordRows }] = await db.batch<any>([
+  const [{ results: rows }, { results: elementRows }, { results: authorRows }, { results: keywordRows }, { results: spreadRows }] = await db.batch<any>([
     db.prepare(
       `SELECT s.id, s.slug, s.title, s.type, s.phase, s.formula, s.min_energy_ev, s.max_energy_ev, s.author_display, s.author_slug, s.published_at,
               s.preview, s.preview_key, a.beam_energy_kv, a.resolution_ev, a.monochromated, r.journal, r.year,
@@ -223,6 +258,9 @@ export async function browsePage(c: Context<AppEnv>) {
       `SELECT MIN(k.keyword) AS keyword, COUNT(*) AS n FROM spectrum_keywords k JOIN spectra s ON s.id = k.spectrum_id
        WHERE s.status = 'published' GROUP BY k.keyword COLLATE NOCASE ORDER BY n DESC, keyword`,
     ),
+    db.prepare(
+      "SELECT s.min_energy_ev AS lo, s.max_energy_ev AS hi, a.resolution_ev AS res FROM spectra s LEFT JOIN eels_acquisition a ON a.spectrum_id = s.id WHERE s.status = 'published'",
+    ),
   ]);
   const byId = new Map(rows.map((r: any) => [r.id, r]));
   const thumbs = await previews(c.env, c.executionCtx, rows);
@@ -238,6 +276,13 @@ export async function browsePage(c: Context<AppEnv>) {
   const keywordCounts: [string, number][] = keywordRows.map((r: any) => [r.keyword, r.n]);
   for (const k of f.get("keyword") ?? []) if (!keywordCounts.some(([x]) => x.toLowerCase() === k.toLowerCase())) keywordCounts.push([k, 0]);
   const types = new Set(f.get("type") ?? []);
+  const phases = new Set(f.get("phase") ?? []);
+  const energyCounts = new Array(BINS).fill(0);
+  const resolutionCounts = new Array(BINS).fill(0);
+  for (const r of spreadRows) {
+    if (r.lo !== null && r.hi !== null && r.hi > 1) for (let i = binOf(ENERGY_SCALE, r.lo); i <= binOf(ENERGY_SCALE, r.hi); i++) energyCounts[i]++;
+    if (r.res > 0) resolutionCounts[binOf(RESOLUTION_SCALE, r.res)]++;
+  }
   const sort = q.sort;
   const desc = q.order === "desc";
   const activeChips: [string, string][] = [...f]
@@ -246,31 +291,35 @@ export async function browsePage(c: Context<AppEnv>) {
 
   return c.html(
     <Layout user={c.get("user")} title="Browse spectra" path="/spectra/" wide>
-      <div class="page-head">
-        <h1>Browse spectra</h1>
-        <a class="button secondary" href="/downloads/">Bulk download</a>
-      </div>
       <div class="browse">
         <form class="filters" method="get" action="/spectra/" id="filters">
           <div>
             <label for="f-q">Title or description</label>
             <input type="search" id="f-q" name="q" value={one(f, "q")} placeholder="e.g. graphite" />
           </div>
-          <fieldset class="types">
-            <legend>Type</legend>
-            {Object.entries(TYPE_NAMES).map(([code, name]) => (
-              <label class="check">
-                <input type="checkbox" name="type" value={code} checked={types.has(code)} />
-                <span class={`type type-${code}`}>{name}</span>
-              </label>
-            ))}
-          </fieldset>
-          <div>
-            <label for="f-phase">Phase</label>
-            <select id="f-phase" name="phase">
-              <option value="">All</option>
-              {["solid", "liquid", "gas"].map((ph) => <option value={ph} selected={one(f, "phase") === ph}>{ph[0].toUpperCase() + ph.slice(1)} only</option>)}
-            </select>
+          <div class="toggle-groups">
+            <fieldset>
+              <legend>Type</legend>
+              <div class="toggles">
+                {Object.entries(TYPE_NAMES).map(([code, name]) => (
+                  <label>
+                    <input type="checkbox" name="type" value={code} checked={!types.size || types.has(code)} />
+                    <span class={`type type-${code}`}>{name}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>Phase</legend>
+              <div class="toggles">
+                {PHASES.map((ph) => (
+                  <label>
+                    <input type="checkbox" name="phase" value={ph} checked={!phases.size || phases.has(ph)} />
+                    <span>{ph[0].toUpperCase() + ph.slice(1)}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
           </div>
           <div>
             <label for="f-formula">Formula contains</label>
@@ -308,14 +357,38 @@ export async function browsePage(c: Context<AppEnv>) {
             </div>
           )}
           <fieldset>
-            <legend>Energy range</legend>
-            <div class="energy-range">
-              <EnergyInput f={f} name="min_energy_ev" label="Starts at or above" />
-              <EnergyInput f={f} name="max_energy_ev" label="Ends at or below" />
-              <EnergyInput f={f} name="covers_ev" label="Includes" />
+            <legend class="hist-legend">
+              Energy range <output></output>
+            </legend>
+            <Histogram
+              scale={ENERGY_SCALE}
+              counts={energyCounts}
+              label="Number of spectra at each energy, 1 eV to 10 keV"
+              thumbs={[
+                { for: "f-min_energy_ev", label: "Starts at or above", pos: sliderPos(ENERGY_SCALE, one(f, "min_energy_ev"), 0) },
+                { for: "f-max_energy_ev", label: "Ends at or below", pos: sliderPos(ENERGY_SCALE, one(f, "max_energy_ev"), SLIDER_MAX) },
+              ]}
+            />
+            <div class="bounds">
+              <Bound f={f} name="min_energy_ev" op="≥" label="Starts at or above" />
+              <Bound f={f} name="max_energy_ev" op="≤" label="Ends at or below" />
+              <Bound f={f} name="covers_ev" op="Includes" label="Includes" wide />
             </div>
           </fieldset>
-          <EnergyInput f={f} name="max_resolution_ev" label="Resolution at or better than" />
+          <fieldset>
+            <legend class="hist-legend">
+              Resolution <output></output>
+            </legend>
+            <Histogram
+              scale={RESOLUTION_SCALE}
+              counts={resolutionCounts}
+              label="Number of spectra at each resolution, 0.1 eV to 10 eV"
+              thumbs={[{ for: "f-max_resolution_ev", label: "Resolution at or better than", pos: sliderPos(RESOLUTION_SCALE, one(f, "max_resolution_ev"), SLIDER_MAX) }]}
+            />
+            <div class="bounds">
+              <Bound f={f} name="max_resolution_ev" op="≤" label="Resolution at or better than" />
+            </div>
+          </fieldset>
           <div class="author-filter">
             <label for="f-author">Author</label>
             <input type="text" id="f-author" name="author" value={(f.get("author") ?? []).join(", ")} list="f-author-list" autocomplete="off" aria-describedby="f-author-hint" />
@@ -334,7 +407,7 @@ export async function browsePage(c: Context<AppEnv>) {
           </label>
           <div>
             <label for="f-updated">Published or updated since</label>
-            <input type="date" id="f-updated" name="updated_since" value={one(f, "updated_since")} />
+            <input type="date" id="f-updated" name="updated_since" value={one(f, "updated_since")} max={new Date().toISOString().slice(0, 10)} />
           </div>
           {f.has("sort") && <input type="hidden" name="sort" value={sort} />}
           {desc && <input type="hidden" name="order" value="desc" />}
@@ -344,7 +417,11 @@ export async function browsePage(c: Context<AppEnv>) {
           </div>
         </form>
 
-        <section aria-label="Results">
+        <section aria-labelledby="browse-title">
+          <div class="page-head">
+            <h1 id="browse-title">Browse spectra</h1>
+            <a class="button secondary" href="/downloads/">Bulk download</a>
+          </div>
           <div class="result-bar">
             <p class="muted" role="status">
               {total === 1 ? "1 spectrum" : `${total} spectra`}
@@ -356,6 +433,7 @@ export async function browsePage(c: Context<AppEnv>) {
                 {activeChips.map(([k, v]) => (
                   <a class="chip" href={withoutFilter(f, k, v)} title="Remove filter">{chipLabel(k, v)} ×</a>
                 ))}
+                {activeChips.length > 1 && <a class="chip clear" href="/spectra/">Clear all</a>}
               </div>
             )}
           </div>

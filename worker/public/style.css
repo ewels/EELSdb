@@ -104,7 +104,6 @@ pre {
 .nav-search input::placeholder { color: var(--muted); }
 .nav-search input:hover { border-color: var(--muted); }
 :is(.theme-toggle, .menu-toggle) { display: grid; place-items: center; width: 2rem; height: 2rem; padding: 0; border: 0; border-radius: 4px; background: none; color: var(--muted); cursor: pointer; }
-.theme-toggle { margin-right: 0.6rem; }
 .theme-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .to-light, :root[data-theme="dark"] .to-dark { display: none; }
 :root[data-theme="dark"] .to-light { display: inline; }
@@ -392,7 +391,7 @@ a.el:hover { box-shadow: 0 0 0 2px var(--ink); z-index: 1; }
 
 /* Forms */
 input, select, button { font: inherit; color: inherit; }
-input[type="text"], input[type="search"], input[type="number"], select {
+input[type="text"], input[type="search"], input[type="number"], input[type="date"], select {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 4px;
@@ -400,6 +399,15 @@ input[type="text"], input[type="search"], input[type="number"], select {
   min-width: 0;
 }
 input:hover, select:hover { border-color: var(--muted); }
+/* The native chevron sits flush against the edge; this one is drawn from the palette with room around it. */
+select:not([multiple]) {
+  appearance: none;
+  padding-right: 2rem;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 1rem) 55%, calc(100% - 0.7rem) 55%;
+  background-size: 0.3rem 0.3rem;
+  background-repeat: no-repeat;
+}
 .button {
   display: inline-flex;
   align-items: center;
@@ -422,27 +430,72 @@ input:hover, select:hover { border-color: var(--muted); }
 .button.secondary:hover, .auth:has(.auth-password[open]) .button[data-method="email_link"]:hover { background: var(--surface); border-color: var(--muted); filter: none; }
 
 /* Browse */
-.browse { display: grid; grid-template-columns: 17.5rem minmax(0, 1fr); gap: 2rem; align-items: start; }
-/* Scrolls on its own when taller than the window, so Apply stays reachable; the padding keeps focus rings unclipped. */
-.filters { display: grid; gap: 1.1rem; position: sticky; top: 5.5rem; max-height: calc(100vh - 6.5rem); overflow-y: auto; padding: 0.25rem 0.25rem 1rem; margin: -0.25rem -0.25rem 0; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.browse { display: grid; grid-template-columns: 18.75rem minmax(0, 1fr); gap: 2rem; align-items: start; margin-top: 1.75rem; }
+.browse .page-head { margin-top: 0; }
+/* Starts level with its sticky offset and scrolls on its own, so Apply (pinned to its foot) is always on screen. The left padding keeps focus rings unclipped; the right keeps overlay scrollbars off the fields. */
+.filters { display: grid; gap: 1.25rem; position: sticky; top: 6.25rem; max-height: calc(100dvh - 6.5rem); overflow-y: auto; padding: 0.25rem 1.25rem 0 0.25rem; margin: -0.25rem 0 0 -0.25rem; border-right: 1px solid var(--rule); scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
 .filters label, .filters legend { display: block; padding: 0; font-size: 0.8rem; font-weight: 600; color: var(--muted); margin-bottom: 0.3rem; }
 .filters fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
 .filters input[type="text"], .filters input[type="search"], .filters input[type="number"], .filters select { width: 100%; }
 .filters input[type="checkbox"] { accent-color: var(--accent); width: 0.95rem; height: 0.95rem; margin: 0; flex: none; }
-.energy-range { display: grid; gap: 0.6rem; }
-.bound { display: grid; gap: 0.25rem; }
-.bound label { font-size: 0.85rem; color: var(--muted); font-weight: 400; }
-.bound-field { display: flex; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; }
-.bound-field:hover { border-color: var(--muted); }
-.bound-field:has(:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
-.filters .bound-field input { flex: 1; min-width: 0; border: 0; background: transparent; outline: 0; padding-inline: 0.5rem 0.25rem; appearance: textfield; -moz-appearance: textfield; }
-.bound-field input::-webkit-inner-spin-button, .bound-field input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-.bound-field .unit { padding-right: 0.6rem; font-size: 0.85rem; color: var(--muted); }
 .check { display: flex !important; gap: 0.5rem; align-items: center; font-weight: 500 !important; color: var(--ink) !important; font-size: 0.95rem !important; }
 .filters .check { margin: 0; padding-block: 0.15rem; cursor: pointer; }
-.filters .types { display: grid; gap: 0.1rem; }
-.filters .types .type { font-size: inherit; color: var(--ink); }
-.filter-actions { display: flex; gap: 0.5rem; padding-top: 0.25rem; }
+
+.toggle-groups { display: grid; grid-template-columns: auto auto; justify-content: start; gap: 0 1.5rem; }
+.toggles { display: flex; flex-direction: column; align-items: flex-start; gap: 0.3rem; }
+.filters .toggles label { margin: 0; font-size: 0.875rem; font-weight: 500; color: var(--ink); }
+.toggles input { position: absolute; opacity: 0; }
+.toggles span { display: inline-flex; border: 1px dashed color-mix(in oklab, var(--line), var(--muted) 25%); border-radius: 4px; padding: 0.25rem 0.6rem; color: var(--muted); font-size: inherit; opacity: 0.65; cursor: pointer; }
+.toggles .type::before { background: transparent; box-shadow: inset 0 0 0 1.5px currentColor; }
+.toggles span:hover { border-color: var(--muted); opacity: 1; }
+.toggles input:checked + span { border-style: solid; background: var(--surface); color: var(--ink); opacity: 1; }
+.toggles input:checked + .type::before { background: var(--t, var(--muted)); box-shadow: none; }
+.toggles input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* Inset by half a thumb so the thumb centres line up with the ends of the bars without being clipped by the rail. */
+.hist { --thumb: 14px; margin-top: 0.15rem; padding-inline: calc(var(--thumb) / 2); }
+.hist svg { display: block; width: 100%; height: 2.5rem; }
+.hist rect { fill: var(--line); }
+.hist rect.in { fill: color-mix(in oklab, var(--plot) 55%, transparent); }
+.hist-range { position: relative; height: var(--thumb); margin: -1px calc(var(--thumb) / -2) 0; }
+.hist-ticks { margin-inline: calc(var(--thumb) / -2); }
+.hist-range::before { content: ""; position: absolute; left: calc(var(--thumb) / 2); right: calc(var(--thumb) / 2); top: 50%; height: 2px; translate: 0 -50%; border-radius: 1px;
+  background: linear-gradient(to right, var(--line) calc(var(--a) * 100%), var(--accent) 0 calc(var(--b) * 100%), var(--line) 0); }
+.hist-range input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; background: transparent; appearance: none; -webkit-appearance: none; pointer-events: none; }
+.hist-range input::-webkit-slider-runnable-track { background: transparent; }
+.hist-range input::-moz-range-track { background: transparent; }
+.hist-range input::-webkit-slider-thumb { -webkit-appearance: none; pointer-events: auto; width: var(--thumb); height: var(--thumb); border-radius: 50%; background: var(--surface); border: 2px solid var(--accent); cursor: grab; }
+.hist-range input::-moz-range-thumb { pointer-events: auto; width: var(--thumb); height: var(--thumb); box-sizing: border-box; border-radius: 50%; background: var(--surface); border: 2px solid var(--accent); cursor: grab; }
+.hist-range input:focus-visible { outline: 0; }
+.hist-range input:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--focus); outline-offset: 2px; }
+.hist-range input:focus-visible::-moz-range-thumb { outline: 2px solid var(--focus); outline-offset: 2px; }
+html:not(.js) .hist-range { display: none; }
+/* With JavaScript the sliders set these fields; without it, the fields are the filter. */
+.js .hist + .bounds { display: none; }
+.filters .hist-legend { display: flex; gap: 0.5rem; width: 100%; }
+.hist-legend output { flex: 1; display: flex; align-items: center; gap: 0.5rem; font-weight: 500; color: var(--ink); }
+.hist-legend output::before { content: ""; flex: 1; height: 1px; translate: 0 0.15em; background: linear-gradient(to right, color-mix(in oklab, var(--muted) 55%, transparent) 1px, transparent 1px) 0 0 / 5px 1px repeat-x; }
+.hist-ticks { display: grid; grid-template-columns: 1fr auto 1fr; margin-top: 0.1rem; font-size: 0.72rem; color: var(--muted); }
+.hist-ticks span:last-child { text-align: right; }
+
+.bounds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; margin-top: 0.6rem; }
+.bound { display: flex; align-items: stretch; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; }
+.bound.wide { grid-column: 1 / -1; }
+.bound:hover { border-color: var(--muted); }
+.bound:has(:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
+.filters .bound .op { display: flex; align-items: center; margin: 0; padding: 0 0.5rem; border-right: 1px solid var(--rule); font-size: 0.85rem; font-weight: 500; cursor: text; }
+.filters .bound input { flex: 1; min-width: 0; border: 0; background: transparent; outline: 0; padding-inline: 0.5rem 0.25rem; appearance: textfield; -moz-appearance: textfield; }
+.bound input::-webkit-inner-spin-button, .bound input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.bound .unit { display: flex; align-items: center; padding-right: 0.6rem; font-size: 0.85rem; }
+
+.filters input[type="date"] { width: 100%; }
+.filters input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.55; cursor: pointer; }
+.filters input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+.js .filter-actions { display: none; }
+.browse > section[aria-busy="true"] :is(.table-scroll, .empty, .pager) { opacity: 0.5; }
+.chip.clear { background: transparent; color: var(--muted); }
+.filter-actions { position: sticky; bottom: 0; display: flex; gap: 0.5rem; margin: 0 -1.25rem 0 -0.25rem; padding: 0.75rem 1.25rem 1rem 0.25rem; background: var(--bg); border-top: 1px solid var(--rule); }
 .result-bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 1rem; align-items: center; margin: 0 0 0.75rem; min-height: 1.75rem; }
 .result-bar p { margin: 0; }
 .jump-filters { display: none; }
@@ -568,7 +621,7 @@ summary .last-used { position: static; display: inline-block; margin-left: 0.5re
 input[type="password"], input[type="email"] { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 0.45rem 0.6rem; min-width: 0; }
 .inline-form { display: flex; gap: 0.5rem; flex-wrap: wrap; max-width: 36rem; }
 .inline-form input { flex: 1 1 16rem; }
-.cal-table input, .cal-table select { width: 100%; min-width: 5rem; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 0.3rem 0.4rem; }
+.cal-table input, .cal-table select { width: 100%; min-width: 5rem; background-color: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 0.3rem 0.4rem; }
 .cal-table select { min-width: 9rem; }
 .byline { color: var(--muted); margin: 0.35rem 0 0; display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; }
 .byline .formula { color: var(--ink); }
@@ -683,7 +736,8 @@ ul.mod-list { list-style: none; padding: 0; margin: 1.5rem 0 0; border-top: 1px 
 
 @media (max-width: 860px) {
   .browse, .spectrum-cols, .spectrum-intro { grid-template-columns: minmax(0, 1fr); }
-  .filters { position: static; max-height: none; overflow: visible; margin: 0; padding: 1.5rem 0 0; border-top: 1px solid var(--line); }
+  .filters { position: static; max-height: none; overflow: visible; margin: 0; padding: 1.5rem 0 0; border-top: 1px solid var(--line); border-right: 0; }
+  .filter-actions { position: static; border-top: 0; margin: 0; padding: 0.25rem 0 0; }
   .browse > section { order: -1; }
   .jump-filters { display: inline !important; }
   .plot { min-height: 280px; }
@@ -853,7 +907,7 @@ html:not(.js) [data-back], html:not(.js) [data-next] { display: none; }
 .field > label, .field > legend { font-size: 0.85rem; font-weight: 600; color: var(--ink); padding: 0; }
 .field input[type="text"], .field input[type="number"], .field input[type="url"], .field select, .field textarea {
   width: 100%;
-  background: var(--surface);
+  background-color: var(--surface);
   border: 1px solid var(--line);
   border-radius: 4px;
   padding: 0.45rem 0.6rem;
@@ -861,6 +915,7 @@ html:not(.js) [data-back], html:not(.js) [data-next] { display: none; }
   color: inherit;
 }
 .field textarea { resize: vertical; }
+:is(.field, .cal-table) select:not([multiple]) { padding-right: 2rem; }
 .field textarea:hover { border-color: var(--muted); }
 .field input[type="file"] { font-size: 0.9rem; }
 input[type="file"]::file-selector-button {

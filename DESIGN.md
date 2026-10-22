@@ -297,7 +297,7 @@ A single centred column, `min(1320px, 100% - 2rem)`, widened to `min(1920px, 100
 - Footer, 5rem below.
 
 **Other recurring grids** (inner pages):
-- **Browse:** a 17.5rem filter rail, sticky below the header, beside the results table, gap 2rem. Below 860px the results come first and the filters drop beneath them behind a "jump to filters" link.
+- **Browse:** an 18.75rem filter rail with a `rule` right border, sticky below the header, beside the results table, gap 2rem; the page title sits over the results so the rail starts level with its sticky offset. The rail scrolls on its own (1.25rem right padding keeps overlay scrollbars off the fields) and pins Apply and Clear to its foot. With JavaScript, filters apply as they change (text fields after a 400ms pause) by swapping in the results section, and Apply and Clear are hidden; a muted "Clear all" ends the active-filter chips instead. Below 860px the results come first and the filters drop beneath them behind a "jump to filters" link.
 - **Account pages:** a 13rem account nav, sticky below the header, beside the page, gap 3.5rem. Below 860px it becomes one wrapping row of links above the page.
 - **Spectrum page:** full-width plot (min 360px tall, 280px below 860px), then two equal metadata columns, gap 2rem.
 - **Forms:** a 60rem form with 2-, 3- and 4-column field grids (gap 0 1.25rem) that collapse to one (or two, for the 4-grid) below 860px.
@@ -370,13 +370,14 @@ A button that copies a DOI to the clipboard.
 - **Code block:** `sunken`, 6px corners, padding 0.9rem 1rem, line height 1.6, scrolls sideways.
 
 ### Inputs / Fields
-- **Style:** `surface` background, 1px `line` border, 4px corners, padding 0.5rem 0.7rem, inherited font, `muted` placeholder.
+- **Style:** `surface` background, 1px `line` border, 4px corners, padding 0.5rem 0.7rem, inherited font, `muted` placeholder. Selects draw their own `muted` chevron 1rem in from the right edge, with 2rem right padding.
 - **Hover / Focus:** border darkens to `muted` on hover; focus uses the 2px `accent` outline.
 - **Error:** `danger` border on the field and a 0.85rem 600-weight `danger` message beneath; hints are 0.8rem `muted`.
 - **Choice buttons:** visually hidden radios drawn as outlined segments; the checked one inverts to an `ink` fill with `bg` text.
 - **Element picker (browse):** a native multi-select of the elements with spectra ("Ti · Titanium (38)"), which JavaScript turns into a combobox: a text input whose suggestion list (`surface`, `line` border, 6px corners, the soft lift, at most 8 rows, the active row on `sunken`) matches symbols first, then names; picks show as removable chips above the input.
 - **Author picker (browse):** the same combobox over the plain `author` text field (with a native datalist of contributors when JavaScript is off). Suggestions are contributors with published spectra, matched from the start of any word in the name, most spectra first; picks become chips, and the field submits them comma-separated (any of them matches), plus any unpicked typed text.
-- **Number filters (browse):** comparator, number and unit as one 4px field: a quiet `muted` comparator prefix (≥ ≤ =) split off by a `rule` line, the number, and "eV" inside on the right. Start and end energy sit side by side under "Energy range"; resolution takes the full rail width.
+- **Histogram filters (browse):** energy range and resolution are bar charts of how many published spectra sit at each value on a log axis (40 bars, square-root heights), with range-slider thumbs (14px, `surface` fill, 2px `accent` ring) on a 2px `line` track under the bars; the selected span of track is `accent` and the bars inside it are `plot` at 55%, the rest `line`. Energy has two thumbs (start ≥, end ≤), resolution one (≤). The current value reads out in `ink` at the right of the legend ("Any" when open), joined to it by a faint dotted leader. Without JavaScript the sliders are hidden and the same filters show as comparator fields: a `muted` ≥ or ≤ prefix split off by a `rule` line, the number, and "eV" inside on the right.
+- **Type and phase toggles (browse):** two columns of 4px toggle chips under "Type" and "Phase", all on by default. On: `surface` fill, solid border, `ink` text, filled type dot. Off: transparent, dashed border, `muted` text, hollow dot, 65% opacity. All on (or all off) submits nothing, so it does not filter.
 
 ### Navigation
 - **Sticky header:** see Layout. The header's background and border transition over 0.25s. The homepage's small logo fades up into place (opacity plus a 6px rise, 0.2s, `cubic-bezier(0.16, 1, 0.3, 1)`) when the page leaves the top, and fades straight out with no movement when it returns to the very top. While hidden it is out of the tab order. Below 1000px it is never hidden.

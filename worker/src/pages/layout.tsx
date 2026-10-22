@@ -43,9 +43,12 @@ const MENU_SCRIPT = `;(function(){var h=document.querySelector(".site-header"),b
 function ThemeToggle(props: { class: string; save: boolean }) {
   return (
     <button class={`theme-toggle ${props.class}`} type="button" title="Light or dark" data-save={props.save ? "1" : undefined}>
-      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-        <circle cx="10" cy="10" r="6.5" />
-        <path d="M10 3.5a6.5 6.5 0 0 1 0 13z" fill="currentColor" stroke="none" />
+      <svg class="to-dark" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">
+        <path d="M16.5 12.2A6.8 6.8 0 0 1 7.8 3.5a6.8 6.8 0 1 0 8.7 8.7z" />
+      </svg>
+      <svg class="to-light" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+        <circle cx="10" cy="10" r="3.4" />
+        <path d="M10 2v1.8M10 16.2V18M2 10h1.8M16.2 10H18M4.3 4.3l1.3 1.3M14.4 14.4l1.3 1.3M4.3 15.7l1.3-1.3M14.4 5.6l1.3-1.3" />
       </svg>
       <span class="theme-label"><span class="to-dark">Switch to dark mode</span><span class="to-light">Switch to light mode</span></span>
     </button>
