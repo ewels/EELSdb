@@ -65,8 +65,9 @@ function elementTip(a) {
     .map((t) => `<li class="${on.has(t) ? "" : "off"}"><span class="dot t-${t}"></span>${TYPE_NAMES[t]}<span>${EL_TYPES[sym][t]}</span></li>`);
   return `<b>${a.dataset.name}</b><ul>${rows.join("")}</ul>`;
 }
+const esc = (s) => s.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
 const personTip = (a) =>
-  `<b>${a.getAttribute("aria-label").split(":")[0]}</b><p>${a.dataset.n} spectr${a.dataset.n === "1" ? "um" : "a"} since ${a.dataset.since}</p>`;
+  `<b>${esc(a.getAttribute("aria-label").split(":")[0])}</b><p>${esc(a.dataset.n)} spectr${a.dataset.n === "1" ? "um" : "a"} since ${esc(a.dataset.since)}</p>`;
 
 const GAP = 10;
 const EDGE = 8;

@@ -38,7 +38,8 @@ function picker({ id, after, label, placeholder, describedby, chipsLabel, listLa
     chips.replaceChildren(
       ...picked().map((x) => {
         const li = document.createElement("li");
-        li.innerHTML = `<button type="button" class="chip" aria-label="Remove ${x.name}"><span class="v"></span> <span aria-hidden="true">×</span></button>`;
+        li.innerHTML = `<button type="button" class="chip"><span class="v"></span> <span aria-hidden="true">×</span></button>`;
+        li.firstChild.setAttribute("aria-label", `Remove ${x.name}`);
         li.querySelector(".v").textContent = x.value;
         li.firstChild.addEventListener("click", () => {
           x.selected = false;
