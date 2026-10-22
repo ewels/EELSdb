@@ -16,6 +16,11 @@ const LICENCES: Record<string, { name: string; url: string; eu: string }> = {
     url: "https://opendatacommons.org/licenses/odbl/1-0/",
     eu: "http://publications.europa.eu/resource/authority/licence/ODC_BL",
   },
+  "CC0-1.0": {
+    name: "Creative Commons Zero v1.0 Universal",
+    url: "https://creativecommons.org/publicdomain/zero/1.0/",
+    eu: "http://publications.europa.eu/resource/authority/licence/CC0",
+  },
 };
 // The site footer puts all data under the ODbL; migrated spectra have no licence stored.
 const DEFAULT_LICENCE = "ODbL-1.0";

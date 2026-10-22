@@ -69,7 +69,7 @@ describe("completeness", () => {
   it("can be filtered on", async () => {
     const all = await (await get("/spectra/")).text();
     const complete = await (await get("/spectra/?complete=1")).text();
-    expect(all).toContain("290 spectra");
+    expect(all).toContain("956 spectra");
     expect(complete).toContain("245 spectra");
   });
 });

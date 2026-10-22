@@ -13,7 +13,7 @@ The filters combine: a spectrum must match all of them.
 
 - Title or description: Text in the specimen name or the contributor's comments.
 - Type: Core loss, low loss, zero loss or X-ray absorption. Select more than one to include each of them.
-- Phase: Solid and liquid spectra by default. Choose **Gas only** to see gas-phase spectra.
+- Phase: Solid, liquid or gas. All phases by default.
 - Formula contains: Text in the chemical formula, for example `TiO2`.
 - Elements: Spectra that contain all the selected elements. Type symbols or names separated by spaces or commas, for example `Fe O`, or choose each one from the list. The number after each element is its spectrum count.
 - Edge: One edge, for example `L2,3`. EELSdb matches the whole edge name, so `L2` does not match `L2,3`.

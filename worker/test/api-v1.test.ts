@@ -37,7 +37,9 @@ describe("API v1 deliberate changes", () => {
       "INSERT INTO spectra (id, slug, status, title, type, phase, formula, author_display, author_slug) VALUES (8800002, 'gas-n2', 'published', 'N2 gas', 'coreloss', 'gas', 'N2', 'Corex', 'corex')",
     ).run();
     expect((await getJson("/spectra/?formula=N2&per_page=-1")).map((s: any) => s.id)).not.toContain(8800002);
-    expect((await getJson("/spectra/?phase=gas&per_page=-1")).map((s: any) => s.id)).toEqual([8800002]);
+    const gas = await getJson("/spectra/?phase=gas&formula=N2&per_page=-1");
+    expect(gas.map((s: any) => s.id)).toContain(8800002);
+    expect(gas.every((s: any) => s.id >= 30001)).toBe(true);
   });
 
   it("serves the route index at the root", async () => {
@@ -110,7 +112,7 @@ describe("API v1 users", () => {
     for (const k of ["email", "laboratory", "city", "country", "skype", "twitter", "linkedin", "facebook"]) {
       expect(keys.has(k)).toBe(false);
     }
-    const published = await env.DB.prepare("SELECT COUNT(*) AS n FROM spectra WHERE status = 'published'").first("n");
+    const published = await env.DB.prepare("SELECT COUNT(*) AS n FROM spectra WHERE status = 'published' AND phase != 'gas'").first("n");
     expect(users.reduce((n: number, u: any) => n + u.num_spectra, 0)).toBe(published);
   });
 

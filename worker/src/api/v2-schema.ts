@@ -29,7 +29,7 @@ export const ListQuery = z
   .strictObject({
     type: repeated("Spectrum type. Repeat to include several.", "coreloss", (v) => (TYPES as readonly string[]).includes(v), `is not one of ${TYPES.join(", ")}`),
     technique: z.enum(TECHNIQUES).optional().openapi({ param: { description: "Measurement technique." } }),
-    phase: z.enum(PHASES).optional().openapi({ param: { description: "Specimen phase. Gas-phase spectra are listed only when `phase=gas` is given." } }),
+    phase: z.enum(PHASES).optional().openapi({ param: { description: "Specimen phase." } }),
     element: repeated(
       "Element symbol. Repeat to require several: a spectrum must contain all of them.",
       "Fe",

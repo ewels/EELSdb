@@ -1,9 +1,9 @@
 import { env } from "cloudflare:workers";
 import { expect, it } from "vitest";
 
-it("holds the 290 published spectra by type", async () => {
+it("holds the 290 migrated spectra by type", async () => {
   const { results } = await env.DB.prepare(
-    "SELECT type, COUNT(*) AS n FROM spectra WHERE status = 'published' GROUP BY type",
+    "SELECT type, COUNT(*) AS n FROM spectra WHERE status = 'published' AND phase != 'gas' GROUP BY type",
   ).all<{ type: string; n: number }>();
   expect(Object.fromEntries(results.map((r) => [r.type, r.n]))).toEqual({
     coreloss: 188,
@@ -11,6 +11,15 @@ it("holds the 290 published spectra by type", async () => {
     xrayabs: 21,
     zeroloss: 1,
   });
+});
+
+it("holds the 666 Corex gas-phase spectra, CC0, with oscillator-strength versions", async () => {
+  const row = await env.DB.prepare(
+    `SELECT COUNT(*) AS n, SUM(licence = 'CC0-1.0') AS cc0, SUM(type = 'coreloss') AS coreloss,
+            (SELECT COUNT(*) FROM files f JOIN spectra g ON g.id = f.spectrum_id WHERE g.phase = 'gas' AND f.variant = 'os') AS os
+     FROM spectra WHERE phase = 'gas' AND status = 'published'`,
+  ).first();
+  expect(row).toEqual({ n: 666, cc0: 666, coreloss: 666, os: 664 });
 });
 
 it("keeps legacy IDs, slugs and file paths", async () => {

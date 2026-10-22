@@ -20,6 +20,7 @@ type Shown = {
   slug: string;
   title: string;
   type: string;
+  phase: string;
   formula: string | null;
   min_energy_ev: number | null;
   max_energy_ev: number | null;
@@ -156,6 +157,7 @@ function Row({ s, picked }: { s: Shown; picked: Set<string> }) {
         <span class="sub">
           <Formula formula={s.formula} />
           <TypeBadge type={s.type} />
+          {s.phase === "gas" && <span>Gas phase</span>}
         </span>
       </td>
       <td class="hide-sm">
@@ -204,9 +206,10 @@ export async function browsePage(c: Context<AppEnv>) {
 
   const [{ results: rows }, { results: elementRows }, { results: authorRows }, { results: keywordRows }] = await db.batch<any>([
     db.prepare(
-      `SELECT s.id, s.slug, s.title, s.type, s.formula, s.min_energy_ev, s.max_energy_ev, s.author_display, s.author_slug, s.published_at,
+      `SELECT s.id, s.slug, s.title, s.type, s.phase, s.formula, s.min_energy_ev, s.max_energy_ev, s.author_display, s.author_slug, s.published_at,
               s.preview, s.preview_key, a.beam_energy_kv, a.resolution_ev, a.monochromated, r.journal, r.year,
-              (SELECT f.r2_key FROM files f WHERE f.spectrum_id = s.id ORDER BY f.role = 'legacy' DESC, f.created_at LIMIT 1) AS file,
+              (SELECT f.r2_key FROM files f WHERE f.spectrum_id = s.id AND f.role IN ('legacy', 'msa', 'original')
+               ORDER BY f.role = 'legacy' DESC, f.role = 'msa' DESC, f.created_at LIMIT 1) AS file,
               (SELECT json_group_array(e.element) FROM spectrum_elements e WHERE e.spectrum_id = s.id) AS elements,
               (SELECT group_concat(g.element || ' ' || g.edge, ', ') FROM spectrum_edges g WHERE g.spectrum_id = s.id) AS edges
        FROM spectra s LEFT JOIN eels_acquisition a ON a.spectrum_id = s.id LEFT JOIN reference r ON r.spectrum_id = s.id
@@ -265,7 +268,7 @@ export async function browsePage(c: Context<AppEnv>) {
           <div>
             <label for="f-phase">Phase</label>
             <select id="f-phase" name="phase">
-              <option value="">Solid and liquid</option>
+              <option value="">All</option>
               {["solid", "liquid", "gas"].map((ph) => <option value={ph} selected={one(f, "phase") === ph}>{ph[0].toUpperCase() + ph.slice(1)} only</option>)}
             </select>
           </div>

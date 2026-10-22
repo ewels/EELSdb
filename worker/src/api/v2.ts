@@ -53,8 +53,7 @@ export function spectraFilter(q: z.infer<typeof ListQuery>) {
     binds.push(...values);
   };
 
-  // Gas-phase spectra are only listed when asked for, as in v1.
-  add(q.phase ? "s.phase = ?" : "s.phase != 'gas'", ...(q.phase ? [q.phase] : []));
+  if (q.phase) add("s.phase = ?", q.phase);
   if (q.type?.length) add(`s.type IN (${q.type.map(() => "?").join(",")})`, ...q.type);
   if (q.technique) add("s.technique = ?", q.technique);
   for (const el of q.element ?? []) add("EXISTS (SELECT 1 FROM spectrum_elements e WHERE e.spectrum_id = s.id AND e.element = ?)", el);

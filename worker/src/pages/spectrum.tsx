@@ -516,6 +516,7 @@ export async function spectrumPage(c: Context<AppEnv>) {
           <h2 id="download-title">Cite this spectrum</h2>
           <p class="muted small">
             If you use this spectrum, cite the contributor{r ? "'s paper" : ""} and the EELS Data Base.
+            {s.licence === "CC0-1.0" && " It is in the public domain (CC0)."}
           </p>
           <div class="cite-block">
             <div id="cite-text" class="cite-text">{cite.text}</div>

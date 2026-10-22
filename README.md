@@ -45,6 +45,7 @@ The Python code is in `python/`. It is not a package: there is nothing for users
 uv run python/record_api.py       # record the live API into data/fixtures/api-v1/
 uv run python/download_files.py   # download spectrum files into data/cache/files/
 uv run python/analyse_files.py    # write data/fixtures/file-analysis.json
+uv run python/corex.py corex.zip  # import the Corex gas-phase spectra into data/fixtures/corex.json and data/cache/files/
 uv run python/build_seed.py       # write the local D1 seed and R2 upload list
 uv run python/export.py           # build the bulk-download zip from API v2 (--api http://api.localhost:8787 for a local Worker)
 uv run python/logo_files.py       # rebuild the logo downloads

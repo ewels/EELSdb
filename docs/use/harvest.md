@@ -35,7 +35,7 @@ $ curl "https://api.eelsdb.eu/oai?verb=ListRecords&metadataPrefix=oai_dc"
 - Deleted records
   - Not recorded (`deletedRecord` is `no`). A spectrum that a moderator withdraws is no longer listed, so harvest everything again now and then.
 
-The records include gas-phase spectra, which the API and browse page list only on request.
+The records include gas-phase spectra.
 
 ## DCAT-AP
 

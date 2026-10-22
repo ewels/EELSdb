@@ -87,14 +87,14 @@ describe("pages", () => {
     const { status, html } = await page("/");
     expect(status).toBe(200);
     expect(html).toMatch(/^<!doctype html>/);
-    expect(html).toContain('<span class="tl">Core loss</span><span class="tn">188</span>');
-    expect(html).toContain("290 spectra from 41 microscopists, shared since 2005.");
-    expect(html).toContain('aria-label="Oxygen: 171 spectra"');
+    expect(html).toContain('<span class="tl">Core loss</span><span class="tn">854</span>');
+    expect(html).toContain("956 spectra from 42 microscopists, shared since 2005.");
+    expect(html).toContain('aria-label="Oxygen: 508 spectra"');
   });
 
   it("browse filters, sorts and pages through the query string", async () => {
     const all = await page("/spectra/");
-    expect(all.html).toContain("290 spectra");
+    expect(all.html).toContain("956 spectra");
     expect(rows(all.html)).toBe(50);
     expect(all.html).toContain('href="/spectra/?page=2"');
 

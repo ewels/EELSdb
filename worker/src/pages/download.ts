@@ -35,7 +35,7 @@ export function toMsa(b: SpectrumBundle, x: number[], y: number[]) {
       ["CONVANGLE-mR", a.convergence_mrad],
       ["COLLANGLE-mR", a.collection_mrad],
     ] as const).filter(([, v]) => v !== null && v !== undefined).map(([k, v]) => `#${k}: ${v}`),
-    `#COMMENT     : https://eelsdb.eu/spectra/${s.slug}/ (ODbL)`,
+    `#COMMENT     : https://eelsdb.eu/spectra/${s.slug}/ (${s.licence === "CC0-1.0" ? "CC0" : "ODbL"})`,
     "#SPECTRUM    : Spectral Data Starts Here",
     ...x.map((e, i) => `${e}, ${y[i]}`),
     "#ENDOFDATA   :",

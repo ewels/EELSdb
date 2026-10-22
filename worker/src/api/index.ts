@@ -119,11 +119,12 @@ function contributorObject(u: Contributor) {
   return out;
 }
 
+// v1 lists gas-phase spectra only on request, so its contributor counts leave them out too.
 export const CONTRIBUTORS_SQL = `
   SELECT s.author_slug AS slug, MAX(COALESCE(u.display_name, s.author_display)) AS name,
          COUNT(*) AS num_spectra, MAX(u.orcid) AS orcid
   FROM spectra s LEFT JOIN users u ON u.id = s.owner_id
-  WHERE s.status = 'published' AND s.author_slug IS NOT NULL`;
+  WHERE s.status = 'published' AND s.author_slug IS NOT NULL AND s.phase != 'gas'`;
 
 api.get("/registered-users/", async (c) => {
   const { results } = await c.env.DB.prepare(`${CONTRIBUTORS_SQL} GROUP BY s.author_slug ORDER BY name COLLATE NOCASE`).all<Contributor>();

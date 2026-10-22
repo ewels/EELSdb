@@ -9,12 +9,12 @@ const json = async (path: string) => (await get(path)).json<any>();
 describe("API v2", () => {
   it("lists with a total and paging links", async () => {
     const page = await json("/spectra?per_page=100");
-    expect(page.total).toBe(290);
+    expect(page.total).toBe(956);
     expect(page.results).toHaveLength(100);
     expect(page.next).toBe("https://api.eelsdb.eu/v2/spectra?per_page=100&page=2");
     expect(page.previous).toBeNull();
-    const last = await json("/spectra?per_page=100&page=3");
-    expect(last.results).toHaveLength(90);
+    const last = await json("/spectra?per_page=100&page=10");
+    expect(last.results).toHaveLength(56);
     expect(last.next).toBeNull();
   });
 
@@ -79,11 +79,9 @@ describe("API v2", () => {
     expect((await get("/spectra?element=Fe&element=O&element=Ti&element=C&element=N&element=H&element=S&element=Si&element=Al&element=Mg&element=Ca&element=Na&element=K&element=Cl&element=P&element=B&element=Li&element=Be&element=F&element=Ne&element=Ar")).status).toBe(400);
   });
 
-  it("leaves gas-phase spectra out unless asked for", async () => {
-    await env.DB.prepare(
-      "INSERT INTO spectra (id, slug, status, title, type, phase, author_display, author_slug) VALUES (8800001, 'gas-co', 'published', 'CO gas', 'coreloss', 'gas', 'Corex', 'corex')",
-    ).run();
-    expect((await json("/spectra")).total).toBe(290);
-    expect((await json("/spectra?phase=gas")).total).toBe(1);
+  it("lists gas-phase spectra with the rest, and filters on phase", async () => {
+    expect((await json("/spectra")).total).toBe(956);
+    expect((await json("/spectra?phase=gas")).total).toBe(666);
+    expect((await json("/spectra?phase=solid")).total).toBe(290);
   });
 });

@@ -47,7 +47,7 @@ Give filters as query parameters. A spectrum must match all of them.
 - `edge=Fe_L2,3` or `edge=K`: The whole edge name, of one element or of any element. Repeat to require several.
 - `type=coreloss`: One of `coreloss`, `lowloss`, `zeroloss` or `xrayabs`. Repeat to include several types.
 - `technique=xas`: `eels` or `xas`.
-- `phase=gas`: `solid`, `liquid` or `gas`. The list leaves out gas-phase spectra unless you ask for `phase=gas`.
+- `phase=gas`: `solid`, `liquid` or `gas`.
 - `formula=TiO2`: Text in the formula.
 - `q=graphite`: Text in the title or description.
 - `author=Feldhoff`: Part of the contributor's name, or their profile name. Repeat to include several contributors.
@@ -198,6 +198,7 @@ API v1 (`https://api.eelsdb.eu/spectra/`) is the API of the old site. It stays o
 API v1 returns exactly what the old site returned, so the scripts that read it keep working.
 That stops it from changing: its values are strings with units, such as `"200 kV"`, and a script that reads `"200 kV"` breaks if the value becomes the number `200`.
 v1 also leaves out a field when its value is unknown, so a missing value and an unknown value look the same.
+It lists gas-phase spectra only when you ask for `phase=gas`, because exSpy's `eelsdb()` downloads every spectrum that a query matches.
 
 The new features of EELSdb need a different shape, so they are in v2:
 

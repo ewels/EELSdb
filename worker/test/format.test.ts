@@ -19,7 +19,7 @@ function withoutDropped(v1: any) {
 }
 
 it("formats migrated spectra like their recorded v1 objects", async () => {
-  const { results } = await env.DB.prepare("SELECT id, legacy_v1 FROM spectra ORDER BY id").all<{ id: number; legacy_v1: string }>();
+  const { results } = await env.DB.prepare("SELECT id, legacy_v1 FROM spectra WHERE legacy_v1 IS NOT NULL ORDER BY id").all<{ id: number; legacy_v1: string }>();
   const diffs: Record<string, number> = {};
   for (const row of results) {
     const expected = withoutDropped(JSON.parse(row.legacy_v1));

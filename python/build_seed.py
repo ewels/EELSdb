@@ -19,6 +19,7 @@ DROPPED_KEYWORDS = {"imported from old site"}
 DEAD_HOSTS = {"pc-web.cemes.fr"}
 
 FIXTURES = ROOT / "data" / "fixtures"
+COREX = FIXTURES / "corex.json"
 SEED_DIR = ROOT / "data" / "seed"
 TYPE_CODES = {"Core Loss": "coreloss", "Low Loss": "lowloss", "Zero Loss": "zeroloss", "X Ray Abs": "xrayabs"}
 DECONV_COLUMNS = {
@@ -200,6 +201,74 @@ def spectrum_rows(s, rank, ids_by_slug, manifest, analysis):
     return out
 
 
+COREX_IMPORTED = "2026-10-23 12:00:00"
+COREX_DESCRIPTION = "From Corex, the gas-phase core excitation database of A.P. Hitchcock and D.C. Mancini, McMaster University."
+COREX_LINKS = [
+    ("https://doi.org/10.5683/SP3/WUMVKY", "Corex on Borealis Dataverse"),
+    ("https://doi.org/10.1016/S0368-2048(00)00200-0", "Hitchcock (2000): Inner shell excitation spectroscopy of molecules using inelastic electron scattering"),
+]
+
+
+def corex_rows(r):
+    """Statements for one Corex record (see corex.py)."""
+    sid = r["id"]
+    notes = [COREX_DESCRIPTION,
+             f"Structural formula: {r['structural_formula']}." if r["structural_formula"] not in (None, r["formula"]) else None,
+             f"Corex file {r['source']}" + (f", reference code {r['ref_code']}." if r["ref_code"] else ".")]
+    out = [insert("spectra", {
+        "id": sid,
+        "slug": r["slug"],
+        "status": "published",
+        "title": r["title"],
+        "type": "coreloss",
+        "technique": "eels",
+        "phase": "gas",
+        "intensity_units": "counts",
+        "formula": r["formula"],
+        "source_purity": r["source_purity"],
+        "description": " ".join(n for n in notes if n),
+        "min_energy_ev": r["min_energy_ev"],
+        "max_energy_ev": r["max_energy_ev"],
+        "author_display": "Adam Hitchcock",
+        "author_slug": "adam-hitchcock",
+        "licence": "CC0-1.0",
+        "published_at": COREX_IMPORTED,
+        "created_at": COREX_IMPORTED,
+        "completeness": "partial",
+    })]
+    for i, el in enumerate(r["elements"]):
+        out.append(insert("spectrum_elements", {"spectrum_id": sid, "element": el, "position": i}))
+    for i, (el, edge) in enumerate(r["edges"]):
+        out.append(insert("spectrum_edges", {"spectrum_id": sid, "element": el, "edge": edge, "position": i}))
+    out.append(insert("spectrum_keywords", {"spectrum_id": sid, "keyword": "Corex", "position": 0}))
+    for i, (url, title) in enumerate(COREX_LINKS):
+        out.append(insert("spectrum_other_urls", {"spectrum_id": sid, "url": url, "title": title, "position": i}))
+    for f in r["files"]:
+        out.append(insert("files", {
+            "spectrum_id": sid,
+            "role": f["role"],
+            "r2_key": f["key"],
+            "filename": f["filename"],
+            "media_type": "text/plain",
+            "bytes": f["bytes"],
+            "sha256": f["sha256"],
+            "created_at": COREX_IMPORTED,
+            "variant": f["variant"],
+        }))
+    out.append(insert("eels_acquisition", {
+        "spectrum_id": sid,
+        "microscope": "ISEELS spectrometer, McMaster University",
+        "acquisition_mode": r["acquisition_mode"],
+        "beam_energy_source": "unknown",
+        "convergence_source": "unknown",
+        "collection_source": "unknown",
+        "resolution_ev": r["resolution_ev"],
+    }))
+    if r["reference"]:
+        out.append(insert("reference", {"spectrum_id": sid, "freetext": r["reference"]}))
+    return out
+
+
 def news_rows(post, list_order):
     full = FIXTURES / "news" / f"{slug_of(post['permalink'])}.html"
     body_html = full.read_text().strip() if full.exists() else post.get("description")
@@ -224,6 +293,9 @@ def build():
     lines = []
     for rank, s in enumerate(spectra):
         lines += spectrum_rows(s, rank, ids_by_slug, manifest, analysis)
+    corex = load(COREX) if COREX.exists() else []
+    for r in corex:
+        lines += corex_rows(r)
     # Spectra first, so rows that reference them (including links between spectra) insert in order.
     lines.sort(key=lambda line: not line.startswith("INSERT INTO spectra "))
 
@@ -237,6 +309,7 @@ def build():
 
     uploads = [{"key": f["path"], "file": f"data/cache/files/{f['path']}", "sha256": f["sha256"]}
                for f in sorted(manifest.values(), key=lambda f: f["path"])]
+    uploads += [{"key": f["key"], "file": f"data/cache/files/{f['key']}", "sha256": f["sha256"]} for r in corex for f in r["files"]]
     return "\n".join(lines) + "\n", uploads
 
 

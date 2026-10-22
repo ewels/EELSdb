@@ -35,7 +35,7 @@ Filters combine with AND. Repeat `element` or `edge` to require several.
 | `formula`, `q`, `author` | `TiO2`, `graphite`, `Feldhoff` | Text in the formula, title/description, contributor name |
 | `complete` | `true` | Beam energy and both angles are known |
 | `beam_energy_kv`, `monochromated` | `200`, `true` | Acquisition settings |
-| `phase` | `gas` | Gas-phase spectra are left out unless you ask for `phase=gas` |
+| `phase` | `gas` | `solid`, `liquid` or `gas` |
 | `sort`, `order` | `published_at`, `desc` | Default `formula`, `asc` |
 | `per_page`, `page` | `500`, `2` | Default 50, at most 500 |
 

@@ -98,7 +98,7 @@ describe("OAI-PMH", () => {
     expect(seen).toHaveLength(total!);
     expect(new Set(seen).size).toBe(total);
     expect(seen).toContain(22236);
-    expect(body).toMatch(/<resumptionToken completeListSize="\d+" cursor="200"><\/resumptionToken>/);
+    expect(body).toContain(`<resumptionToken completeListSize="${total}" cursor="${Math.floor((total! - 1) / 100) * 100}"></resumptionToken>`);
   });
 
   it("harvests selectively by date and set", async () => {
