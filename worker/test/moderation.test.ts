@@ -133,7 +133,11 @@ describe("review", () => {
     const editId = await env.DB.prepare("SELECT id FROM submissions WHERE spectrum_id = ? AND kind = 'edit'").bind(spectrumId).first<number>("id");
     await form(`/admin/submissions/${editId}/`, mod, { decision: "approve" });
     expect(await env.DB.prepare("SELECT beam_energy_kv FROM eels_acquisition WHERE spectrum_id = ?").bind(spectrumId).first("beam_energy_kv")).toBe(200);
-    expect(await (await page(`/spectra/${slug}/history/`)).text()).toContain("edit approved");
+    const history = await (await page(`/spectra/${slug}/history/`)).text();
+    expect(history).toContain("edit approved");
+    expect(history).toContain("published");
+    expect(history).not.toContain("new approved");
+    expect(history.indexOf("edit approved")).toBeLessThan(history.indexOf(">published<"));
   });
 
   it("rejecting a new submission keeps it unpublished", async () => {

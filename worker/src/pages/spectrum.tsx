@@ -1,12 +1,13 @@
 import type { Context } from "hono";
 import { raw } from "hono/html";
-import type { AppEnv } from "../auth";
+import { avatarUrl, type AppEnv } from "../auth";
 import { API_HOST, SITE, loadBundle, type SpectrumBundle } from "../api/format";
 import { creatorOrcids, jsonLdScript, schemaOrg, toRecord } from "../api/metadata";
 import { EELSDB_BIBTEX, EELSDB_CITATION, referenceText, stripTags } from "./citation";
 import { isModerator } from "../instruments";
 import { UNIT_LABELS, VARIANTS, variantUnits } from "../submit/form";
-import { Formula, Layout, TypeBadge, fmt } from "./layout";
+import { Avatar, Formula, Layout, TypeBadge, fmt } from "./layout";
+import { HistoryTimeline, spectrumHistory } from "./history";
 import { HyperSpySnippet } from "./snippet";
 
 type Row = Record<string, any>;
@@ -131,6 +132,17 @@ export async function visibleSpectrumId(c: Context<AppEnv>, slug: string): Promi
   return visible ? row.id : null;
 }
 
+/** Masked, for migrated owners only: tells the uploader which address to add to take their spectra over. */
+async function unclaimedUploaderEmail(db: D1Database, ownerId: number | null): Promise<string | null> {
+  const email = await db.prepare(
+    `SELECT trim(legacy_email) AS email FROM users u WHERE id = ? AND trim(COALESCE(legacy_email, '')) != ''
+     AND NOT EXISTS (SELECT 1 FROM identities i WHERE i.user_id = u.id)`,
+  ).bind(ownerId).first<string>("email");
+  return email ? maskEmail(email) : null;
+}
+
+const maskEmail = (email: string) => email.replace(/^(.)[^@]*@/, "$1•••@");
+
 export async function spectrumPage(c: Context<AppEnv>) {
   const slug = c.req.param("slug")!;
   const user = c.get("user");
@@ -184,7 +196,16 @@ export async function spectrumPage(c: Context<AppEnv>) {
   const canEdit = !!user && (s.owner_id === user.id || isModerator(user));
   const published = s.status === "published";
   const orcid = published ? ((await creatorOrcids(c.env.DB, [s.id])).get(s.id) ?? null) : null;
-  const authorLink = <a href={`/author/${s.author_slug}/`}>{s.author_display}</a>;
+  const [owner, history] = await Promise.all([
+    c.env.DB.prepare(
+      `SELECT avatar_key, use_gravatar,
+              (SELECT e.email FROM user_emails e WHERE e.user_id = u.id ORDER BY e.is_primary DESC, e.verified DESC, e.id LIMIT 1) AS email
+       FROM users u WHERE id = ?`,
+    ).bind(s.owner_id).first<any>(),
+    published ? spectrumHistory(c.env.DB, s) : [],
+  ]);
+  const avatar = owner ? await avatarUrl(owner.avatar_key, owner.email, owner.use_gravatar) : null;
+  const uploaderEmail = published ? await unclaimedUploaderEmail(c.env.DB, s.owner_id) : null;
 
   return c.html(
     <Layout user={c.get("user")}
@@ -215,12 +236,7 @@ export async function spectrumPage(c: Context<AppEnv>) {
         <div>
           <h1>{s.title}</h1>
           <p class="byline">
-            <TypeBadge type={s.type} /> <Formula formula={s.formula} /> · {authorLink} · added {String(s.published_at ?? "").slice(0, 10)}
-            {s.completeness === "full" && (
-              <> · <span class="badge-complete" title="Beam energy, convergence and collection angles are all recorded">Beam energy and angles known</span></>
-            )}
-            {" · "}
-            <a href={`/spectra/${encodeURIComponent(s.slug)}/history/`}>History</a>
+            <TypeBadge type={s.type} boxed /> <Formula formula={s.formula} />
           </p>
         </div>
         <div class="head-actions">
@@ -318,29 +334,27 @@ export async function spectrumPage(c: Context<AppEnv>) {
         </div>
       </div>
 
-      {fileUrl && (
-        <div class="spectrum-intro">
-          <div>
-            {fileUrl && (
-              <div class="compare" id="compare" hidden>
-                <label class="button secondary compare-pick">
-                  <input type="file" id="compare-file" multiple accept=".msa,.emsa,.txt,.csv,.dm3,.dm4,.emd,.hspy,.xdi" />
-                  Compare with your spectra
-                </label>
-                <span class="hint" id="compare-status" aria-live="polite">Or drop files on the plot. Your files are read in your browser and not uploaded.</span>
-                <ul class="compare-list" id="compare-list" aria-label="Compared spectra" hidden></ul>
-              </div>
-            )}
-          </div>
-          {s.status === "published" && fileName && PLOTTABLE.test(fileName) && (
-            <section class="snippet" aria-labelledby="snippet-title">
-              <h2 id="snippet-title">Use in HyperSpy</h2>
-              <HyperSpySnippet url={`${SITE}/spectra/${s.slug}/download/msa`} file="spectrum.msa" />
-              <p class="hint">The MSA file has the beam energy and angles. More in the <a href="/docs/use/python/">Python guide</a>.</p>
-            </section>
+      <div class="spectrum-intro">
+        <div>
+          {fileUrl && (
+            <div class="compare" id="compare" hidden>
+              <label class="button secondary compare-pick">
+                <input type="file" id="compare-file" multiple accept=".msa,.emsa,.txt,.csv,.dm3,.dm4,.emd,.hspy,.xdi" />
+                Compare with your spectra
+              </label>
+              <span class="hint" id="compare-status" aria-live="polite">Or drop files on the plot. Your files are read in your browser and not uploaded.</span>
+              <ul class="compare-list" id="compare-list" aria-label="Compared spectra" hidden></ul>
+            </div>
           )}
         </div>
-      )}
+        {s.status === "published" && fileName && PLOTTABLE.test(fileName) && (
+          <section class="snippet" aria-labelledby="snippet-title">
+            <h2 id="snippet-title">Use in HyperSpy</h2>
+            <HyperSpySnippet url={`${SITE}/spectra/${s.slug}/download/msa`} file="spectrum.msa" />
+            <p class="hint">The MSA file has the beam energy and angles. More in the <a href="/docs/use/python/">Python guide</a>.</p>
+          </section>
+        )}
+      </div>
 
       <div class="spectrum-cols">
         <section>
@@ -355,8 +369,30 @@ export async function spectrumPage(c: Context<AppEnv>) {
               ["Step", fmt(s.step_ev, "eV", 4)],
               ["Phase", s.phase !== "solid" ? s.phase : null],
               ["Intensity", s.intensity_units !== "counts" ? s.intensity_units.replace("_", " ") : null],
+              [
+                "Submitter",
+                <a class="by" href={`/author/${s.author_slug}/`}>
+                  <Avatar name={s.author_display ?? ""} seed={s.author_slug ?? ""} src={avatar} />
+                  <span class="by-name">{s.author_display}</span>
+                </a>,
+              ],
+              [
+                "Published",
+                published && (
+                  <>
+                    <time datetime={String(s.published_at).replace(" ", "T")}>{String(s.published_at).slice(0, 10)}</time>
+                    {" · "}
+                    <a href={`/spectra/${encodeURIComponent(s.slug)}/history/`} data-open="history-dialog">History</a>
+                  </>
+                ),
+              ],
             ]}
           />
+          {uploaderEmail && (
+            <p class="uploader-hint">
+              Uploaded with the address {uploaderEmail}. Claim by adding this email to your profile under <a href="/account/settings/emails/">Settings → Email addresses</a>.
+            </p>
+          )}
           {b.keywords.length > 0 && (
             <>
               <h3>Keywords</h3>
@@ -519,6 +555,15 @@ export async function spectrumPage(c: Context<AppEnv>) {
               </svg>
               <span class="dl-name">Download {downloads[0]?.name ?? fileName}</span>
             </a>
+          </div>
+        </dialog>
+      )}
+      {published && (
+        <dialog id="history-dialog" aria-labelledby="history-title">
+          <h2 id="history-title">History</h2>
+          <HistoryTimeline events={history} />
+          <div class="dialog-actions">
+            <button class="button secondary" type="button" data-close autofocus>Close</button>
           </div>
         </dialog>
       )}

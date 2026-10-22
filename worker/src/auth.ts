@@ -319,13 +319,16 @@ export function safeNext(next: string | undefined) {
 export async function accountForEmail(db: D1Database, email: string): Promise<number | null> {
   const address = email.trim();
   const verified = await db.prepare("SELECT user_id FROM user_emails WHERE email = ? AND verified = 1").bind(address).first<number>("user_id");
-  if (verified !== null) return verified;
+  return verified ?? unclaimedAccountForEmail(db, address);
+}
+
+export function unclaimedAccountForEmail(db: D1Database, email: string): Promise<number | null> {
   return db
     .prepare(
       `SELECT u.id FROM users u WHERE u.legacy_email = ? COLLATE NOCASE
        AND NOT EXISTS (SELECT 1 FROM identities i WHERE i.user_id = u.id) ORDER BY u.id LIMIT 1`,
     )
-    .bind(address)
+    .bind(email.trim())
     .first<number>("id");
 }
 
@@ -373,26 +376,25 @@ export async function linkIdentity(db: D1Database, userId: number, id: Identity,
   return safeNext(next);
 }
 
-export type SignInMethod = "orcid" | "google" | "github" | "email_link" | "password" | "claim" | "passkey";
+export type SignInMethod = "orcid" | "google" | "github" | "email_link" | "password" | "passkey";
 
-/** Only the methods the login page offers; a claim happens while signed in, so the method used before it stays. */
+
 const SHOWN_METHODS: string[] = ["orcid", "google", "github", "email_link", "password", "passkey"];
 
 export function rememberMethod(c: C, method: string | undefined, maxAge = LAST_METHOD_SECONDS) {
   if (method && SHOWN_METHODS.includes(method)) setCookie(c, LAST_METHOD_COOKIE, method, { ...cookieOptions(c), httpOnly: false, maxAge });
 }
 
-const FIRST_STEP_ALWAYS_ASKS: SignInMethod[] = ["email_link", "password", "claim"];
+const FIRST_STEP_ALWAYS_ASKS: SignInMethod[] = ["email_link", "password"];
 
 /**
  * The one way to finish a sign-in: every first step calls this, so the second-step check cannot be skipped.
  * A second step is asked when the account has two-step sign-in on and the first step was an email link or a password
- * (or a claim, which is an email link for the old account), or the account asked for it after ORCID, Google and
- * GitHub too, or the site requires two-step sign-in for the account's group. A passkey is already two factors, so it never asks.
+ * or the account asked for it after ORCID, Google and GitHub too, or the site requires two-step sign-in for the account's group. A passkey is already two factors, so it never asks.
  */
 export async function completeSignIn(c: C, userId: number, { method, next }: { method: SignInMethod; next?: string }) {
   const db = c.env.DB;
-  if (method !== "claim" && !(await methodOn(c.env, method))) return c.redirect(METHOD_OFF);
+  if (!(await methodOn(c.env, method))) return c.redirect(METHOD_OFF);
   if (method !== "passkey" && (await hasTwoStep(db, userId))) {
     const account = await db.prepare("SELECT role, mfa_all_methods FROM users WHERE id = ?").bind(userId).first<{ role: string; mfa_all_methods: number }>();
     if (FIRST_STEP_ALWAYS_ASKS.includes(method) || account?.mfa_all_methods || twoStepRequired(await getSettings(db), account?.role ?? "user")) {
@@ -407,10 +409,8 @@ export async function completeSignIn(c: C, userId: number, { method, next }: { m
   }
   await createSession(c, userId);
   rememberMethod(c, method);
-  if (method !== "claim") {
-    const linked = await linkPendingIdentity(c, userId);
-    if (linked) return c.redirect(linked);
-  }
+  const linked = await linkPendingIdentity(c, userId);
+  if (linked) return c.redirect(linked);
   return c.redirect(safeNext(next));
 }
 

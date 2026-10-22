@@ -25,8 +25,8 @@ a:hover { text-decoration-line: underline; }
 /* An avatar-only link (header account button, contributor wall) shows its hover as a ring, not an underline under the initials. */
 a:has(> .av:only-child):hover, .account-link:hover { text-decoration-line: none; }
 /* Links inside running text need a cue besides colour; a faint underline is enough. */
-:is(p, .prose li, dd) a:not(.button) { text-decoration-line: underline; text-decoration-color: color-mix(in oklab, currentColor 30%, transparent); }
-:is(p, .prose li, dd) a:not(.button):hover { text-decoration-color: currentColor; }
+:is(p, .prose li, dd) a:not(.button, .by) { text-decoration-line: underline; text-decoration-color: color-mix(in oklab, currentColor 30%, transparent); }
+:is(p, .prose li, dd) a:not(.button, .by):hover { text-decoration-color: currentColor; }
 .byline a { text-decoration-line: none !important; }
 
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
@@ -119,7 +119,7 @@ pre {
 .account-link { display: inline-flex; align-items: center; border-radius: 50%; }
 .account-link:focus-visible { border-radius: 50%; }
 .account-link .av { width: 2rem; height: 2rem; }
-.account-link:hover .av, .account-link[aria-current="page"] .av { box-shadow: 0 0 0 2px var(--accent); }
+.account-link:hover .av, .account-link[aria-current="page"] .av, .by:hover .av { box-shadow: 0 0 0 2px var(--accent); }
 .account-name { display: none; }
 .menu-foot { display: contents; }
 .theme-toggle.narrow { display: none; }
@@ -489,6 +489,8 @@ td.formula-cell { white-space: nowrap; }
 .type-lowloss { --t: var(--type-lowloss); }
 .type-zeroloss { --t: var(--type-zeroloss); }
 .type-xrayabs { --t: var(--type-xrayabs); }
+/* Same look as the home page's type filter buttons, without the hover. */
+.type-boxed { align-items: center; gap: 0.5rem; font-size: 0.9rem; padding: 0.3rem 0.65rem; border-radius: 4px; border: 1px solid color-mix(in oklab, var(--line), var(--muted) 25%); background: var(--surface); color: var(--ink); }
 
 /* Browse results: a thumbnail of the real spectrum leads each row. */
 .results td { vertical-align: middle; }
@@ -559,9 +561,6 @@ summary .last-used { position: static; display: inline-block; margin-left: 0.5re
 .auth .auth-restart { margin: 1.5rem 0 0; }
 /* An address can be longer than the panel is wide. */
 .auth .long-label { white-space: normal; overflow-wrap: anywhere; text-align: center; }
-.auth-note { margin: 1.75rem 0 0; padding: 0 0.25rem; font-size: 0.875rem; color: var(--muted); }
-.auth-note h2 { margin: 0 0 0.3rem; font-size: 0.95rem; color: var(--ink); }
-.auth-note p { margin: 0; }
 @media (max-width: 560px) {
   .auth { margin-top: 1.5rem; }
   .auth-panel { padding: 1.5rem 1.25rem 1.25rem; }
@@ -569,10 +568,9 @@ summary .last-used { position: static; display: inline-block; margin-left: 0.5re
 input[type="password"], input[type="email"] { background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 0.45rem 0.6rem; min-width: 0; }
 .inline-form { display: flex; gap: 0.5rem; flex-wrap: wrap; max-width: 36rem; }
 .inline-form input { flex: 1 1 16rem; }
-.badge-complete { white-space: nowrap; }
 .cal-table input, .cal-table select { width: 100%; min-width: 5rem; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 0.3rem 0.4rem; }
 .cal-table select { min-width: 9rem; }
-.byline { color: var(--muted); margin: 0; }
+.byline { color: var(--muted); margin: 0.35rem 0 0; display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; }
 .byline .formula { color: var(--ink); }
 .plot-panel { margin-top: 1.75rem; }
 .plot { min-height: 360px; }
@@ -600,9 +598,14 @@ dl.meta :is(dt, dd):nth-last-child(-n + 2) { border-bottom: 0; }
 .tags { display: flex; flex-wrap: wrap; gap: 0.35rem; padding: 0; margin: 0; list-style: none; }
 .plain-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.35rem; }
 .plain-list .type { margin-left: 0.5rem; }
-.history { max-width: 52rem; }
-.history td.when { white-space: nowrap; color: var(--muted); }
-.history td.change::first-letter { text-transform: uppercase; }
+.timeline { list-style: none; margin: 0; padding: 0; }
+.timeline li { position: relative; display: grid; padding: 0 0 1.1rem 1.9rem; max-width: none; }
+.timeline li::before { content: ""; position: absolute; left: 0; top: 0.2rem; width: 1rem; height: 1rem; border-radius: 50%; background: var(--accent-soft); }
+.timeline li:first-child::before { background: var(--accent); }
+.timeline li:not(:last-child)::after { content: ""; position: absolute; left: calc(0.5rem - 1px); top: 1.45rem; bottom: 0.25rem; width: 2px; border-radius: 1px; background: var(--line); }
+.timeline-label { font-weight: 600; }
+.timeline-label::first-letter { text-transform: uppercase; }
+.timeline-meta { font-size: 0.875rem; color: var(--muted); }
 
 dialog {
   border: 1px solid var(--line);
@@ -648,6 +651,7 @@ dialog h2 { margin-top: 0; }
 .spectrum-comments { max-width: none; margin: 1rem 0 1.25rem; padding: 0.8rem 1.1rem; border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0;
   background: var(--sunken); font-size: 1.05rem; line-height: 1.55; overflow-wrap: anywhere; }
 .spectrum-intro .compare { margin-top: 0; }
+.uploader-hint { margin: 0.75rem 0 0; font-size: 0.875rem; color: var(--muted); }
 .snippet h2 { font-size: 0.95rem; margin: 0 0 0.5rem; }
 .snippet .hint { margin: 0.5rem 0 0; }
 .notice { border: 1px solid var(--line); background: var(--sunken); border-radius: 8px; padding: 1rem 1.25rem; }

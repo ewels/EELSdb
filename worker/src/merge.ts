@@ -90,7 +90,6 @@ export async function mergeAccounts(db: D1Database, fromId: number, intoId: numb
     db.prepare("DELETE FROM sessions WHERE user_id = ?").bind(from),
     db.prepare("DELETE FROM login_challenges WHERE user_id = ?").bind(from),
     db.prepare("DELETE FROM webauthn_challenges WHERE user_id = ?").bind(from),
-    db.prepare("DELETE FROM account_claims WHERE user_id = ? OR legacy_user_id IN (?, ?)").bind(from, from, to),
   ];
 
   // An address both accounts have stays once. A verified address is unique, so the merged-away row goes first and then confirms the kept one.

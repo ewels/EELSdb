@@ -52,7 +52,7 @@ For a moderator or an administrator, the role does nothing until they turn two-s
 
 ## Merge two accounts
 
-Use this when one person has two accounts. The people who sign in with the old-site claim link merge their own accounts without you; this is for the ones that still happen.
+Use this when one person has two accounts. People who confirm the email address recorded with their spectra from before 2026 merge that account themselves; this is for the other cases.
 
 1. Open the account to **keep**, and use **Merge another account into this one** to search for the other account (name, username, email address, ORCID iD or account number).
 2. Pick it. The confirmation page shows both accounts side by side: names, usernames, roles, email addresses, sign-in methods, recovery codes, sessions, and the numbers of spectra, drafts, submissions, instrument profiles, favourites and tokens. Below it, it lists what moves and what is dropped.

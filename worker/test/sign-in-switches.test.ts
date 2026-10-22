@@ -193,12 +193,11 @@ describe("the sign-in page with methods off", () => {
     expect(await (await go("/login/")).text()).not.toContain('class="auth-or"');
   });
 
-  it("with ORCID only, shows ORCID alone and points old-site people to the claim", async () => {
+  it("with ORCID only, shows ORCID alone", async () => {
     await off("google", "github", "passkey", "email_link", "password");
     const page = await (await go("/login/")).text();
     expect(page).toContain('data-method="orcid"');
     expect(page).not.toMatch(/data-method="(google|github|passkey|email_link|password)"/);
-    expect(page).toContain("claim the old account");
   });
 });
 

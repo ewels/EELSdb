@@ -210,6 +210,15 @@ describe("pages", () => {
     expect(html).toContain('data-save-plot="svg-dark"');
   });
 
+  it("shows the masked address of a migrated uploader until a sign-in is linked", async () => {
+    await env.DB.prepare("INSERT INTO users (id, display_name, legacy_email) VALUES (8100001, 'Masked Uploader', 'uploader@lab.org')").run();
+    await env.DB.prepare("UPDATE spectra SET owner_id = 8100001 WHERE slug = 'diamond'").run();
+    expect((await page("/spectra/diamond/")).html).toContain("u•••@lab.org");
+    expect((await page("/spectra/diamond/")).html).not.toContain("uploader@lab.org");
+    await env.DB.prepare("INSERT INTO identities (user_id, provider, subject) VALUES (8100001, 'orcid', '0000-0000-0000-8101')").run();
+    expect((await page("/spectra/diamond/")).html).not.toContain("u•••@lab.org");
+  });
+
   it("spectrum page has the plot, metadata and a citation-first download", async () => {
     const { status, html } = await page("/spectra/mlc-nanotube-ylas-tas2/");
     expect(status).toBe(200);

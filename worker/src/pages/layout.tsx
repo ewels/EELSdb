@@ -293,8 +293,8 @@ export const TYPE_NAMES: Record<string, string> = {
   xrayabs: "X-ray absorption",
 };
 
-export const TypeBadge = (props: { type: string }) => (
-  <span class={`type type-${props.type}`}>{TYPE_NAMES[props.type] ?? props.type}</span>
+export const TypeBadge = (props: { type: string; boxed?: boolean }) => (
+  <span class={`type type-${props.type}${props.boxed ? " type-boxed" : ""}`}>{TYPE_NAMES[props.type] ?? props.type}</span>
 );
 
 const GREEK: Record<string, string> = { alpha: "α", beta: "β", gamma: "γ", delta: "δ" };

@@ -389,7 +389,7 @@ A button that copies a DOI to the clipboard.
 - **Footer:** small `muted` text on a `rule` top border, links not underlined (they turn `ink` on hover), the licence line pushed right.
 
 ### Account nav
-Every page under `/account/` (overview, submissions, drafts, the five settings pages, and the old-account claim page) uses one `AccountLayout` component (`worker/src/pages/layout.tsx`), so the nav is the same on all of them.
+Every page under `/account/` (overview, submissions, drafts, and the five settings pages) uses one `AccountLayout` component (`worker/src/pages/layout.tsx`), so the nav is the same on all of them.
 - **Structure:** a `nav` labelled "Your account" with the pages Overview, Submissions and Drafts. The five settings pages (Profile, Email addresses, Sign-in methods, Two-step and passkeys, API tokens) are a second list under a `muted` 0.8rem 600 "Settings" label. Staff get a third list under a "Staff" label of the same style, holding the pages their role opens: Moderation for moderators; Moderation, Accounts, Site settings and Messages for admins. "Sign out" closes the nav as a `muted` text button. "Submit a spectrum" stays a primary button on the overview page, not in the nav.
 - **Style:** links are `ink` at weight 500, 0.95rem, on a 1px `rule` rail; hover shows a 2px `line` mark on the rail and the current page a 2px `accent` mark with weight 600 (`aria-current="page"`). It is the main nav's underline turned on its side: no fills, no pills.
 - **Below 860px:** like the submit steps, the rail folds into one wrapping row above the page: the page links, the settings links, the staff links and Sign out, with the current page underlined in `accent` like the main nav. The group labels are left out there.

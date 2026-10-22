@@ -8,7 +8,7 @@ import { SubmitPage, approvedInstruments, finishForm, formValues, rejectForm, wa
 import { mediaType } from "../files";
 import { Layout } from "../pages/layout";
 import { coreStatements, instrumentOk, textColumnsStatement, textStatements } from "./store";
-import { HAS_PAGE_SQL } from "../pages/profile";
+import { HistoryTimeline, spectrumHistory } from "../pages/history";
 
 export const edit = new Hono<AppEnv>();
 type C = Context<AppEnv>;
@@ -221,48 +221,14 @@ const replaceOriginal = (db: D1Database, id: number, key: string, file: File) =>
     .bind(id, key, file.name, mediaType(file.name), file.size),
 ];
 
-const FIELD_NAMES: Record<string, string> = {
-  source_purity: "source and purity",
-  other_urls: "other links",
-  associated: "associated spectra",
-  core: "measurement details",
-};
-
 edit.get("/spectra/:slug/history/", async (c) => {
-  const row = await c.env.DB.prepare("SELECT id, title, slug FROM spectra WHERE slug = ? AND status = 'published'").bind(c.req.param("slug")).first<any>();
+  const row = await c.env.DB.prepare("SELECT id, title, slug, published_at, author_display, author_slug FROM spectra WHERE slug = ? AND status = 'published'").bind(c.req.param("slug")).first<any>();
   if (!row) return c.notFound();
-  const { results } = await c.env.DB.prepare(
-    `SELECT h.at, h.change_json, u.display_name, CASE WHEN ${HAS_PAGE_SQL} THEN u.slug END AS page
-     FROM history h LEFT JOIN users u ON u.id = h.user_id WHERE h.spectrum_id = ? ORDER BY h.at DESC, h.id DESC`,
-  ).bind(row.id).all<any>();
   return c.html(
     <Layout title={`History of ${row.title}`} path="/spectra/" user={c.get("user")}>
       <p class="small back-link"><a href={`/spectra/${encodeURIComponent(row.slug)}/`}>← {row.title}</a></p>
       <h1>History</h1>
-      {results.length ? (
-        <div class="table-scroll history">
-          <table>
-            <thead>
-              <tr><th>Date</th><th>Change</th><th>By</th></tr>
-            </thead>
-            <tbody>
-              {results.map((h) => {
-                const change = JSON.parse(h.change_json);
-                const fields = change.changes ? Object.keys(change.changes).map((k) => FIELD_NAMES[k] ?? k).join(", ") : "";
-                return (
-                  <tr>
-                    <td class="when">{String(h.at).slice(0, 16).replace("T", " ")}</td>
-                    <td class="change">{change.action}{fields && ` (${fields})`}</td>
-                    <td>{h.page ? <a href={`/author/${h.page}/`}>{h.display_name}</a> : h.display_name ?? <span class="muted">–</span>}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p class="muted">No changes since it was published.</p>
-      )}
+      <HistoryTimeline events={await spectrumHistory(c.env.DB, row)} />
     </Layout>,
   );
 });

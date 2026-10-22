@@ -94,35 +94,20 @@ describe("favourites", () => {
   });
 });
 
-describe("claiming an old account", () => {
-  it("emails a link to the old address and merges the accounts", async () => {
+describe("adding the address of a migrated account", () => {
+  it("merges that account, with its favourites and spectra, once the address is confirmed", async () => {
     await env.DB.batch([
       env.DB.prepare("INSERT INTO users (id, display_name, legacy_email, slug) VALUES (8000002, 'Legacy Person', 'legacy@lab.org', 'legacy')"),
       env.DB.prepare("INSERT INTO favourites (user_id, spectrum_id) VALUES (8000002, 22237)"),
     ]);
     const cookie = await signIn("orcid", { orcid: "0000-0002-1825-0097", name: "Legacy Person" });
-    const before = sent.length;
-    expect((await post("/account/claim/", cookie, { email: "LEGACY@lab.org" })).headers.get("location")).toBe("/account/?claim=sent");
-    expect(sent.length).toBe(before + 1);
-    const link = sent.at(-1)!.text.match(/https?:\/\/\S+/)![0];
-    expect(sent.at(-1)!.to).toBe("LEGACY@lab.org");
-
-    const path = new URL(link).pathname;
-    expect((await go(path, { headers: { Cookie: cookie } })).status).toBe(200);
-    const done = await post(path, cookie);
-    const merged = cookieOf(done, "eelsdb_session")!;
-    const page = await (await go("/account/", { headers: { Cookie: merged } })).text();
-    expect(page).toContain("Legacy Person");
+    await post("/account/settings/emails/", cookie, { email: "LEGACY@lab.org" });
+    expect(sent.at(-1)!.to).toBe("legacy@lab.org");
+    const path = new URL(sent.at(-1)!.text.match(/https?:\/\/\S+/)![0]).pathname;
+    expect((await go(path, { headers: { Cookie: cookie } })).headers.get("location")).toContain("notice=verified-merged");
+    expect(await env.DB.prepare("SELECT 1 FROM users WHERE id = 8000002").first()).toBeNull();
+    const page = await (await go("/account/", { headers: { Cookie: cookie } })).text();
     expect(page).toContain("MLC Nanotube (Y0.6La0.4)S-TaS2");
-    expect(await env.DB.prepare("SELECT orcid FROM users WHERE id = 8000002").first("orcid")).toBe("0000-0002-1825-0097");
-    expect((await go(path, { headers: { Cookie: merged } })).status).toBe(404);
-  });
-
-  it("answers the same for unknown addresses and sends nothing", async () => {
-    const cookie = await signIn("github", { id: 303, login: "nobody", name: "Nobody" });
-    const before = sent.length;
-    expect((await post("/account/claim/", cookie, { email: "unknown@lab.org" })).headers.get("location")).toBe("/account/?claim=sent");
-    expect(sent.length).toBe(before);
   });
 });
 

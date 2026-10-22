@@ -91,7 +91,6 @@ describe("linking a service", () => {
     expect(await env.DB.prepare("SELECT orcid FROM users WHERE id = ?").bind(u.id).first("orcid")).toBeNull();
     const page = await (await go("/account/settings/sign-in/?notice=link-taken", u.cookie)).text();
     expect(page).toContain("already linked to a different EELSdb account");
-    expect(page).toContain("Claim your account from the old site");
   });
 
   it("refuses a second account of the same kind and linking again is harmless", async () => {

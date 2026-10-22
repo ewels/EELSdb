@@ -1,7 +1,10 @@
 // Spectrum page: plot the data file with uPlot and mark exSpy edge onsets for the spectrum's elements.
 
 for (const button of document.querySelectorAll("[data-open]")) {
-  button.addEventListener("click", () => document.getElementById(button.dataset.open).showModal());
+  button.addEventListener("click", (e) => {
+    e.preventDefault();
+    document.getElementById(button.dataset.open).showModal();
+  });
 }
 for (const radio of document.querySelectorAll("[name=download-format]")) {
   radio.addEventListener("change", () => {

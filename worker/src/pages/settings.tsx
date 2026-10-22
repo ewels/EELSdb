@@ -1,5 +1,6 @@
 import { Hono, type Context } from "hono";
-import { FRESH_SIGN_IN_MINUTES, MAX_PASSWORD_FAILURES, MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, PROVIDERS, methodsOn, requireUser, safeNext, sha256, signOutOtherSessions, signedInRecently, syncEmails, type AppEnv } from "../auth";
+import { FRESH_SIGN_IN_MINUTES, MAX_PASSWORD_FAILURES, MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, PROVIDERS, methodsOn, requireUser, safeNext, sha256, signOutOtherSessions, signedInRecently, syncEmails, unclaimedAccountForEmail, type AppEnv } from "../auth";
+import { mergeAccounts, outranks } from "../merge";
 import { sendEmail } from "../email";
 import { pbkdf2Hash, verifyLegacyPassword } from "../legacy-password";
 import { MAX_PASSKEYS, addPasskey, registrationOptions } from "../passkeys";
@@ -24,6 +25,7 @@ const NOTICES: Record<string, string> = {
   limit: `You can add up to ${MAX_EMAILS_PER_DAY} addresses a day. Please try again tomorrow.`,
   "email-bad": "That does not look like an email address.",
   verified: "Email address confirmed.",
+  "verified-merged": "Email address confirmed. The spectra and favourites recorded with it are now on your account.",
   "verify-failed": "This link has expired, was already used, belongs to another signed-in account, or the address is confirmed on another account.",
   primary: "Primary address changed.",
   removed: "Address removed.",
@@ -50,7 +52,7 @@ const NOTICES: Record<string, string> = {
   "linked-orcid": "ORCID linked. You can now sign in with it.",
   "linked-google": "Google linked. You can now sign in with it.",
   "linked-github": "GitHub linked. You can now sign in with it.",
-  "link-taken": "That account is already linked to a different EELSdb account, so nothing was changed. If it belongs to your account from the old website, use \u201cClaim your account from the old site\u201d on your account page.",
+  "link-taken": "That account is already linked to a different EELSdb account, so nothing was changed.",
   "link-has": "Your account already has a different account of that kind linked. Nothing was changed.",
   "link-off": "Sign-in with that service is switched off on this site, so it cannot be linked.",
   "password-off": "Password sign-in is switched off on this site, so a password cannot be set.",
@@ -454,11 +456,12 @@ settings.post("/account/settings/emails/:id/remove/", requireUser, async (c) => 
 settings.get("/account/emails/verify/:token/", requireUser, async (c) => {
   const user = c.get("user")!;
   const db = c.env.DB;
-  const row = await db.prepare(
-    `SELECT e.id FROM email_verifications v JOIN user_emails e ON e.id = v.email_id
+  const found = await db.prepare(
+    `SELECT e.id, e.email FROM email_verifications v JOIN user_emails e ON e.id = v.email_id
      WHERE v.token_hash = ? AND e.user_id = ? AND v.expires_at > ?`,
-  ).bind(await sha256(c.req.param("token")), user.id, new Date().toISOString()).first<number>("id");
-  if (row === null) return back(c, "emails", "verify-failed");
+  ).bind(await sha256(c.req.param("token")), user.id, new Date().toISOString()).first<{ id: number; email: string }>();
+  if (found === null) return back(c, "emails", "verify-failed");
+  const row = found.id;
   try {
     await db.batch([
       db.prepare("UPDATE user_emails SET verified = 1 WHERE id = ?").bind(row),
@@ -473,8 +476,17 @@ settings.get("/account/emails/verify/:token/", requireUser, async (c) => {
     `UPDATE user_emails SET is_primary = CASE WHEN id = ?1 THEN 1 ELSE 0 END
      WHERE user_id = ?2 AND NOT EXISTS (SELECT 1 FROM user_emails WHERE user_id = ?2 AND is_primary = 1 AND verified = 1)`,
   ).bind(row, user.id).run();
+  // Confirming an address proves it is theirs, so the migrated account that used it (and its spectra) joins this one.
+  const migrated = await unclaimedAccountForEmail(db, found.email);
+  const merge = migrated !== null && migrated !== user.id;
+  if (merge) {
+    const role = await db.prepare("SELECT role FROM users WHERE id = ?").bind(migrated).first<string>("role");
+    const { droppedAvatar } = await mergeAccounts(db, migrated, user.id);
+    if (droppedAvatar) await c.env.FILES.delete(`avatars/${droppedAvatar}`);
+    if (role && outranks(role, user.role)) await db.prepare("UPDATE users SET role = ? WHERE id = ?").bind(role, user.id).run();
+  }
   await syncEmails(db, user.id);
-  return back(c, "emails", "verified");
+  return back(c, "emails", merge ? "verified-merged" : "verified");
 });
 
 /** Passes when the session is fresh or the current password is right; wrong guesses count towards the same hourly lockout as sign-in. */

@@ -5,7 +5,6 @@ import { deleteCookie, getCookie } from "hono/cookie";
 import { CHALLENGE_COOKIE, LAST_METHOD_COOKIE, MAX_PASSWORD_FAILURES, METHOD_OFF, MAX_PASSWORD_LENGTH, PROVIDERS, accountForEmail, clearPendingIdentity, completeSignIn, createSession, createUserForIdentity, findUserForIdentity, finishSignIn, getPendingIdentity, linkPendingIdentity, methodOn, methodsOn, rememberMethod, requireUser, safeNext, sha256, signOut, startLink, startSignIn, type AppEnv, type SignInMethod, type User } from "../auth";
 import { addEmail } from "../account-edit";
 import { sendEmail } from "../email";
-import { mergeAccounts } from "../merge";
 import { authenticationOptions, hasPasskey, verifyPasskey } from "../passkeys";
 import { pbkdf2Hash, verifyLegacyPassword } from "../legacy-password";
 import { spendCode } from "../totp";
@@ -24,11 +23,9 @@ const ERRORS: Record<string, string> = {
 };
 const PASSKEY_OFF = "Passkey sign-in is switched off on this site. Please use another way.";
 const MAX_CHALLENGE_ATTEMPTS = 5;
-const CLAIM_HOURS = 24;
 const LINK_MINUTES = 15;
 const MAX_LINKS_PER_ADDRESS = 5;
 const MAX_LINKS_PER_IP = 30;
-const MAX_CLAIMS_PER_DAY = 5;
 
 // Brand marks, drawn as each service asks: Google's G in its own colours on a neutral button, GitHub's mark in the text colour, ORCID's iD in its green.
 const MARKS: Record<string, string> = {
@@ -45,12 +42,11 @@ const LAST_USED_SCRIPT = `(function(){try{var m=localStorage.getItem("signin-met
 const METHOD_NAMES: Record<string, string> = { email_link: "an email link", password: "a password", passkey: "a passkey" };
 const listOr = (items: string[]) => (items.length > 1 ? `${items.slice(0, -1).join(", ")} or ${items[items.length - 1]}` : items[0] ?? "");
 
-function AuthPage(props: { title: string; status?: number; aside?: Child; children: Child; script?: boolean; user?: User }) {
+function AuthPage(props: { title: string; status?: number; children: Child; script?: boolean; user?: User }) {
   return (
     <Layout title={props.title} path="/login/" user={props.user ?? null}>
       <div class="auth">
         <div class="auth-panel">{props.children}</div>
-        {props.aside}
       </div>
       {props.script && <script src="/passkeys.js" type="module"></script>}
     </Layout>
@@ -86,19 +82,6 @@ account.get("/login/", async (c) => {
     <AuthPage
       title="Sign in"
       script={has("passkey")}
-      aside={
-        <section class="auth-note" aria-labelledby="h-old-site">
-          <h2 id="h-old-site">Had an account on the old site?</h2>
-          {bottom ? (
-            <p>
-              Sign in with its email address or username, and its favourites and spectra come with you. Signed in with ORCID or another address?
-              Claim the old account from your account page.
-            </p>
-          ) : (
-            <p>Sign in, then claim the old account from your account page. We email a link to its address, and its favourites and spectra come with you.</p>
-          )}
-        </section>
-      }
     >
       <h1>Sign in</h1>
       <p class="auth-lede">Share spectra and keep favourites. New here? Your first sign-in makes your account.</p>
@@ -557,7 +540,6 @@ account.get("/account/", requireUser, async (c) => {
     ).bind(user.id),
     c.env.DB.prepare("SELECT COUNT(*) AS n FROM spectra WHERE owner_id = ? AND status = 'published'").bind(user.id),
   ]);
-  const notice = c.req.query("claim");
   return c.html(
     <AccountLayout title="Your account" current="/account/" user={user}>
       <div class="profile-head">
@@ -571,11 +553,6 @@ account.get("/account/", requireUser, async (c) => {
           </p>
         </div>
       </div>
-      {notice === "sent" && (
-        <p class="notice" role="status">If an old account uses that address, we have emailed it a link. The link works for {CLAIM_HOURS} hours.</p>
-      )}
-      {notice === "limit" && <p class="notice" role="status">You have asked for {MAX_CLAIMS_PER_DAY} links today. Please try again tomorrow.</p>}
-      {notice === "done" && <p class="notice" role="status">Your old account is now linked. Its favourites and spectra are below.</p>}
 
       <p class="account-actions">
         <a class="button" href="/submit-data/">Submit a spectrum</a>
@@ -600,85 +577,7 @@ account.get("/account/", requireUser, async (c) => {
         <p class="muted">None yet. Use the star on a spectrum's page to keep it here.</p>
       )}
 
-      <div class="prose">
-        <h2>Claim your account from the old site</h2>
-        <p>Enter the email address of your old EELSdb account. We will send a link to that address; open it while signed in here.</p>
-        <form method="post" action="/account/claim/" class="inline-form">
-          <input type="email" name="email" required aria-label="Email address of your old account" autocomplete="email" placeholder="name@example.org" />
-          <button class="button secondary" type="submit">Send link</button>
-        </form>
-      </div>
     </AccountLayout>,
   );
 });
 
-account.post("/account/claim/", requireUser, async (c) => {
-  const user = c.get("user")!;
-  const email = String((await c.req.parseBody()).email ?? "").trim();
-  const legacy = email
-    ? await c.env.DB.prepare(
-        `SELECT id FROM users WHERE legacy_email = ? COLLATE NOCASE AND id != ?
-         AND NOT EXISTS (SELECT 1 FROM identities i WHERE i.user_id = users.id)`,
-      ).bind(email, user.id).first<number>("id")
-    : null;
-  const recent = await c.env.DB.prepare("SELECT COUNT(*) AS n FROM rate_events WHERE kind = 'claim' AND key = ? AND at > datetime('now', '-1 day')")
-    .bind(String(user.id)).first<number>("n");
-  if ((recent ?? 0) >= MAX_CLAIMS_PER_DAY) return c.redirect("/account/?claim=limit");
-  await c.env.DB.prepare("INSERT INTO rate_events (kind, key) VALUES ('claim', ?)").bind(String(user.id)).run();
-  // The same answer whether or not the address exists, so the form cannot be used to look up members.
-  if (legacy !== null) {
-    const token = crypto.randomUUID();
-    await c.env.DB.prepare("INSERT INTO account_claims (token_hash, user_id, legacy_user_id, expires_at) VALUES (?, ?, ?, ?)")
-      .bind(await sha256(token), user.id, legacy, new Date(Date.now() + CLAIM_HOURS * 3600_000).toISOString())
-      .run();
-    const link = `${new URL(c.req.url).origin}/account/claim/${token}/`;
-    await sendEmail(c.env, {
-      to: email,
-      subject: "Link your EELS Data Base account",
-      text: `Someone signed in to the EELS Data Base as "${user.display_name}" and asked to link the old account that uses this address.\n\nIf that was you, open this link while signed in (it works for ${CLAIM_HOURS} hours):\n${link}\n\nIf not, ignore this email.`,
-    });
-  }
-  return c.redirect("/account/?claim=sent");
-});
-
-async function findClaim(c: any) {
-  return c.env.DB.prepare(
-    `SELECT a.legacy_user_id, u.display_name FROM account_claims a JOIN users u ON u.id = a.legacy_user_id
-     WHERE a.token_hash = ? AND a.user_id = ? AND a.expires_at > ?`,
-  )
-    .bind(await sha256(c.req.param("token")), c.get("user").id, new Date().toISOString())
-    .first() as Promise<{ legacy_user_id: number; display_name: string } | null>;
-}
-
-account.get("/account/claim/:token/", requireUser, async (c) => {
-  const claim = await findClaim(c);
-  return c.html(
-    <AccountLayout title="Link your old account" current="/account/" user={c.get("user")!}>
-      <div class="prose">
-        <h1>Link your old account</h1>
-        {claim ? (
-          <form method="post">
-            <p>
-              Link the old account <strong>{claim.display_name}</strong> to your sign-in? Its favourites and spectra become yours, and you
-              will sign in to it from now on.
-            </p>
-            <button class="button" type="submit">Link account</button>
-          </form>
-        ) : (
-          <p class="notice">This link has expired, was already used, or was sent to a different signed-in account.</p>
-        )}
-      </div>
-    </AccountLayout>,
-    claim ? 200 : 404,
-  );
-});
-
-/** Merges the new, signed-in account into the old one (see `mergeAccounts`), then signs in as the old one. */
-account.post("/account/claim/:token/", requireUser, async (c) => {
-  const claim = await findClaim(c);
-  if (!claim) return c.redirect("/account/");
-  const to = claim.legacy_user_id;
-  const { droppedAvatar } = await mergeAccounts(c.env.DB, c.get("user")!.id, to);
-  if (droppedAvatar) await c.env.FILES.delete(`avatars/${droppedAvatar}`);
-  return completeSignIn(c, to, { method: "claim", next: "/account/?claim=done" });
-});

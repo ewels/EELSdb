@@ -78,7 +78,6 @@ describe("merging accounts", () => {
     await run("INSERT INTO login_challenges (token_hash, user_id, expires_at) VALUES (?, ?, '2099-01-01')", `lc-${g}`, g);
     await run("INSERT INTO webauthn_challenges (token_hash, user_id, challenge, kind, expires_at) VALUES (?, ?, 'x', 'register', '2099-01-01')", `wc-${g}`, g);
     await run("INSERT INTO login_links (token_hash, email, expires_at) VALUES (?, 'gone-main@example.invalid', '2099-01-01')", `ll-${g}`);
-    await run("INSERT INTO account_claims (token_hash, user_id, legacy_user_id, expires_at) VALUES (?, ?, ?, '2099-01-01')", `ac-${g}`, g, k);
 
     const res = await merge(k, g, a.cookie);
     expect(res.headers.get("location")).toBe(`/admin/users/${k}/?notice=merged`);
@@ -118,7 +117,6 @@ describe("merging accounts", () => {
     expect(await count("SELECT 1 FROM admin_actions WHERE user_id = ? AND action = 'role_changed'", k)).toBe(1);
     expect(await row("SELECT updated_by FROM site_settings WHERE key = ?", `merge-test-${g}`)).toEqual({ updated_by: k });
     expect((await all<any>("SELECT slug FROM user_slug_history WHERE user_id = ? ORDER BY slug", k)).map((h) => h.slug)).toEqual([`gone-older-${g}`, "gone-person"]);
-    expect(await count("SELECT 1 FROM account_claims WHERE token_hash = ?", `ac-${g}`)).toBe(0);
   });
 
   it("keeps the kept account's own two-step and password, drops the others, and keeps every passkey", async () => {
@@ -284,26 +282,5 @@ describe("the merge pages and safety rules", () => {
     await run("DROP TRIGGER merge_fail");
     expect(await count("SELECT 1 FROM spectra WHERE owner_id = ?", gone.id)).toBe(1);
     expect(await count("SELECT 1 FROM user_emails WHERE user_id = ?", gone.id)).toBe(1);
-  });
-});
-
-describe("claiming an old account with the shared merge", () => {
-  it("keeps passkeys, two-step, the password and draft tokens of the new account, and ends its sessions", async () => {
-    const legacy = await account({ name: "Old Claimed", slug: "merge-old-claimed", emails: [`old${nextId}@example.invalid`], verified: false });
-    const fresh = await account({ name: "New Claimer" });
-    await run("UPDATE users SET password_hash = 'pbkdf2$new' WHERE id = ?", fresh.id);
-    await totp(fresh.id, "NEWSECRET");
-    await code(fresh.id, "new-code");
-    await passkey(fresh.id, `claim-${fresh.id}`);
-    const token = crypto.randomUUID();
-    await run("INSERT INTO account_claims (token_hash, user_id, legacy_user_id, expires_at) VALUES (?, ?, ?, '2099-01-01')", await sha256(token), fresh.id, legacy.id);
-    const res = await post(`/account/claim/${token}/`, fresh.cookie);
-    expect(res.headers.get("location")).toBe("/login/second-step/");
-    expect(await row("SELECT 1 FROM users WHERE id = ?", fresh.id)).toBeNull();
-    expect(await row("SELECT secret FROM user_totp WHERE user_id = ?", legacy.id)).toEqual({ secret: "NEWSECRET" });
-    expect(await count("SELECT 1 FROM recovery_codes WHERE user_id = ?", legacy.id)).toBe(1);
-    expect(await count("SELECT 1 FROM passkeys WHERE user_id = ?", legacy.id)).toBe(1);
-    expect(await row("SELECT password_hash FROM users WHERE id = ?", legacy.id)).toBeDefined();
-    expect(await count("SELECT 1 FROM sessions WHERE user_id = ?", fresh.id)).toBe(0);
   });
 });

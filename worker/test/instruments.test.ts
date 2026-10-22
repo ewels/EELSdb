@@ -66,8 +66,7 @@ describe("instrument profiles", () => {
 });
 
 describe("completeness", () => {
-  it("is shown on spectrum pages and can be filtered on", async () => {
-    expect(await (await get("/spectra/mlc-nanotube-ylas-tas2/")).text()).toContain("Beam energy and angles known");
+  it("can be filtered on", async () => {
     const all = await (await get("/spectra/")).text();
     const complete = await (await get("/spectra/?complete=1")).text();
     expect(all).toContain("290 spectra");

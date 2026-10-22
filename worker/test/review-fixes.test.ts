@@ -63,17 +63,16 @@ describe("code review fixes", () => {
     expect(await (await page("/admin/", mod)).text()).toContain("Needs work");
   });
 
-  it("lets someone who has already submitted claim their old account", async () => {
+  it("keeps earlier submissions when a migrated account is merged in", async () => {
     await env.DB.prepare("INSERT INTO users (id, display_name, legacy_email) VALUES (7400001, 'Old Me', 'oldme@lab.org')").run();
     const cookie = await sessionFor({ id: 6400004, display_name: "New Me" });
     await env.DB.prepare("INSERT INTO identities (user_id, provider, subject) VALUES (6400004, 'orcid', '0000-0000-0000-0004')").run();
-    await post("/submit-data/", cookie, submission({ title: "Before claiming" }));
-    await post("/account/claim/", cookie, { email: "oldme@lab.org" });
+    await post("/submit-data/", cookie, submission({ title: "Before merging" }));
+    await post("/account/settings/emails/", cookie, { email: "oldme@lab.org" });
     const { sent } = await import("../src/email");
-    const path = new URL(sent.at(-1)!.text.match(/https?:\/\/\S+/)![0]).pathname;
-    const done = await post(path, cookie, {});
-    expect(done.headers.get("location")).toBe("/account/?claim=done");
-    expect(await env.DB.prepare("SELECT submitted_by FROM submissions s JOIN spectra p ON p.id = s.spectrum_id WHERE p.title = 'Before claiming'").first("submitted_by")).toBe(7400001);
+    await page(new URL(sent.at(-1)!.text.match(/https?:\/\/\S+/)![0]).pathname, cookie);
+    expect(await env.DB.prepare("SELECT 1 FROM users WHERE id = 7400001").first()).toBeNull();
+    expect(await env.DB.prepare("SELECT submitted_by FROM submissions s JOIN spectra p ON p.id = s.spectrum_id WHERE p.title = 'Before merging'").first("submitted_by")).toBe(6400004);
   });
 
   it("applies only the measurement when an edit is approved, and allows one waiting at a time", async () => {

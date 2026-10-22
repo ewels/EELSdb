@@ -1,6 +1,6 @@
 ---
-title: Sign in and link your old account
-description: Sign in to EELSdb with ORCID, Google, GitHub, a passkey, an email link or a password, and link an account from the old EELSdb site.
+title: Sign in
+description: Sign in to EELSdb with ORCID, Google, GitHub, a passkey, an email link or a password, and take over spectra you submitted before 2026.
 ---
 
 You need an account to submit spectra and to keep favourites.
@@ -20,7 +20,7 @@ ORCID comes first because EELSdb credits contributors by their ORCID iD. Signing
 
 The administrators can switch each way of signing in on or off. The sign-in page shows only the ways that are on. If a way you used before is switched off, the page says so: sign in another way that your account has. EELSdb may later move to ORCID sign-in only, so linking your ORCID iD now (see [below](#link-orcid-google-or-github)) keeps your account reachable.
 
-If the only way left is ORCID and your account has no linked ORCID iD, the banner at the top of each page says so and cannot be hidden. Link ORCID while you are still signed in. If you are already signed out, [contact us](/contact/) to have your old account merged into a new ORCID one.
+If the only way left is ORCID and your account has no linked ORCID iD, the banner at the top of each page says so and cannot be hidden. Link ORCID while you are still signed in. If you are already signed out, [contact us](/contact/) to have your account merged into a new ORCID one.
 
 A passkey still works as your [second step](#two-step-sign-in) when passkey sign-in is switched off.
 
@@ -34,7 +34,7 @@ If you sign in with ORCID, Google or GitHub and EELSdb does not know you yet, it
 - If that ORCID, Google or GitHub account is already linked to a different EELSdb account, or your account already has a different one of that kind, nothing is linked, and the **Sign-in methods** page in your settings says so.
 - If the service you used is the only way in that is switched on, there is nothing else to sign in with. The page says: "If you used EELSdb before with another sign-in, create this account and ask us to merge them". Click **Create my account**, then [contact us](/contact/).
 
-EELSdb knows your account already when the service gives an email address that you confirmed on your account, or the address of an unclaimed old account. ORCID gives an address only if you made it public on your ORCID record and verified it. A private address cannot be used. If you cannot tell which account is yours, ask for an email link to your usual address.
+EELSdb knows your account already when the service gives an email address that you confirmed on your account, or the address recorded with spectra submitted before 2026. ORCID gives an address only if you made it public on your ORCID record and verified it. A private address cannot be used. If you cannot tell which account is yours, ask for an email link to your usual address.
 
 ### Add and confirm your email address
 
@@ -117,26 +117,19 @@ You can link ORCID, Google or GitHub to the account you are signed in with, and 
 2. Click **Link ORCID**, **Link Google** or **Link GitHub**, and approve the request at the service.
 3. You return to your settings. Your account is the same one: linking does not sign you in again or make a new account.
 
-If the service is already linked to a different EELSdb account, nothing changes and the page tells you. If that is your account from the old site, use [the claim steps below](#link-an-account-from-the-old-site).
+If the service is already linked to a different EELSdb account, nothing changes and the page tells you. If it is your account too, add its email address instead: see [take over spectra you submitted before](#take-over-spectra-you-submitted-before).
 
 Linking ORCID sets the ORCID iD on your profile to the one ORCID confirmed. Typing an ORCID iD into your profile does not count as linked: EELSdb counts only an iD that you confirmed by signing in with ORCID. While you have no linked ORCID, a banner at the top of each page offers to link it. You can hide it for 30 days. EELSdb may also [require a linked ORCID iD to submit](/docs/share/submit/#orcid-id).
 
-## Link an account from the old site
+## Take over spectra you submitted before
 
-The old EELSdb site (before 2026) had its own user names and passwords.
-Your old account holds your favourites and the spectra you submitted, and you can link it to your new sign-in.
+Spectra submitted to EELSdb before 2026 are recorded with the email address their uploader used then. The spectrum page shows that address partly hidden, for example `j•••@example.org`.
 
-- If you ask for an email link to the address of your old account, EELSdb signs you in to the old account.
-- If you sign in with Google or GitHub and the provider gives the same email address as your old account, EELSdb links the two accounts automatically.
-- If you sign in with ORCID, or with a different email address:
-  1. Open your [account page](/account/).
-  2. Under **Claim your account from the old site**, type the email address of your old account and click **Send link**.
-  3. Open the link in the email while you are signed in. The link works for a limited time.
+To make those spectra and your favourites from that time yours, add the address under **Settings**, [**Email addresses**](/account/settings/emails/) and click the link in the email we send to it. When you confirm it, EELSdb moves everything recorded with the address to your account.
 
-EELSdb gives the same answer whether or not an old account uses the address, so the form does not tell anyone who is a member.
+If you no longer have that address, [contact us](/contact/).
 
-Where the old-site passwords are still accepted, you can also sign in with the same **Sign in with a password** form, using your old user name (or email address) and old password.
-After you sign in once, EELSdb stores the password in its new format and forgets the old one.
+You can also sign in with an email link to that address, or with a password from before 2026 where the site still accepts them. After you sign in with an old password once, EELSdb stores it in its new format and forgets the old one.
 
 ## Set up your profile
 
