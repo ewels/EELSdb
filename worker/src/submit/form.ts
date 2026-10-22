@@ -285,7 +285,6 @@ export function slugify(title: string) {
   return s || "spectrum";
 }
 
-/** Cheap checks on an uploaded file; the real reading happens in the browser and at review. */
 /** The variant files in a submission (form fields `variant_<code>_file`), checked like the spectrum file. */
 export async function variantUploads(body: Record<string, unknown>, errors: Record<string, string>) {
   const out: [string, File][] = [];
@@ -299,6 +298,30 @@ export async function variantUploads(body: Record<string, unknown>, errors: Reco
   return out;
 }
 
+/** The spectrum file and the optional low-loss, companion and processed-version files, as [role, file, variant]. */
+export async function collectUploads(body: Record<string, unknown>, errors: Record<string, string>) {
+  const file = body.file instanceof File ? body.file : null;
+  const optional = (key: string) => (body[key] instanceof File && (body[key] as File).size ? (body[key] as File) : null);
+  const lowloss = optional("lowloss_file");
+  const companion = optional("companion_file");
+  const fileError = await checkUpload(file, SPECTRUM_EXTENSIONS, "Spectrum file");
+  if (fileError) errors.file = fileError;
+  if (lowloss) {
+    const e = await checkUpload(lowloss, SPECTRUM_EXTENSIONS, "Low-loss file");
+    if (e) errors.lowloss_file = e;
+  }
+  if (companion) {
+    const e = await checkUpload(companion, COMPANION_EXTENSIONS, "Companion file");
+    if (e) errors.companion_file = e;
+  }
+  const uploads: [string, File, string?][] = [["original", file!]];
+  if (lowloss) uploads.push(["lowloss", lowloss]);
+  if (companion) uploads.push(["companion", companion]);
+  for (const [code, f] of await variantUploads(body, errors)) uploads.push(["variant", f, code]);
+  return uploads;
+}
+
+/** Cheap checks on an uploaded file; the real reading happens in the browser and at review. */
 export async function checkUpload(file: File | null, allowed: string[], label: string): Promise<string | null> {
   if (!file || !file.size) return `${label}: no file was uploaded.`;
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "";

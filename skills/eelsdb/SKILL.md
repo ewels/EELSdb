@@ -1,12 +1,12 @@
 ---
 name: eelsdb
-description: Find, download, load and cite reference spectra from the EELS Data Base (EELSdb, eelsdb.eu), the open database of electron energy-loss (EELS) and X-ray absorption (XAS) spectra. Use when the user wants a reference EELS or XAS spectrum for an element, edge, compound or energy range, wants to compare their spectrum with published ones, needs the beam energy, convergence or collection angle of a reference spectrum, wants to load EELSdb data in Python or HyperSpy, or asks how to cite EELSdb.
+description: Find, download, load and cite reference spectra from the EELS Data Base (EELSdb, eelsdb.eu), the open database of electron energy-loss (EELS) and X-ray absorption (XAS) spectra. Use when the user wants a reference EELS or XAS spectrum for an element, edge, compound or energy range, wants to compare their spectrum with published ones, needs the beam energy, convergence or collection angle of a reference spectrum, wants to load EELSdb data in Python or HyperSpy, asks how to cite EELSdb, or wants to prepare their own spectra as drafts for submission to EELSdb.
 ---
 
 # EELS Data Base
 
 EELSdb holds about 300 published reference spectra: core loss, low loss, zero loss and X-ray absorption.
-Everything is public. There is no key, no account and no rate-limit token.
+Reading is public: there is no key, no account and no rate-limit token. The only write action is making drafts for a user, with their drafts token (see below).
 
 Use API v2 for everything below. It returns JSON with numbers as numbers and the unit in the field name (`beam_energy` → `value_kv`, angles in `_mrad`, energies in `_ev`).
 
@@ -105,6 +105,39 @@ Other options:
 
 For a two-column text file without HyperSpy: `numpy.loadtxt(name, comments="#")` after skipping non-numeric header lines.
 
+## Prepare drafts for the user to submit
+
+A user can share many spectra by letting you prepare them as drafts. A draft is private: the user checks it on the website and submits it for review. You cannot submit or publish anything.
+
+You need the user's drafts token. They make it at https://eelsdb.eu/account/drafts/. Ask them to put it in an environment variable (for example `EELSDB_DRAFT_TOKEN`) or a file. Do not ask them to paste it into the chat, and never print it.
+
+For each spectrum file, send one request:
+
+```python
+import os
+import requests
+
+with open("hematite.msa", "rb") as f:
+    r = requests.post(
+        "https://api.eelsdb.eu/v2/drafts",
+        headers={"Authorization": f"Bearer {os.environ['EELSDB_DRAFT_TOKEN']}", "User-Agent": "my-tool (me@example.org)"},
+        data={"title": "Hematite", "type": "coreloss", "formula": "Fe2O3", "edges": "Fe_L2,3; O_K",
+              "beam_energy": "200", "beam_energy_source": "file", "ref_doi": "10.1016/j.jssc.2009.07.037"},
+        files={"file": f},
+    )
+print(r.status_code, r.json())  # 201: {"id", "slug", "status": "draft", "review_url"}
+```
+
+Rules:
+
+- `file`, `type` (`coreloss`, `lowloss`, `zeroloss` or `xrayabs`) and `formula` are required. Other fields have the names of the submit form fields: `elements`, `edges` (`Fe_L2,3; O_K`), `beam_energy` (kV), `convergence` and `collection` (mrad), `ref_doi`, `description`, `keywords`, `microscope`, `detector`, and more in https://eelsdb.eu/api/openapi-v2.json.
+- Take values only from the file's header, the user's notes or the paper. Add `beam_energy_source=file` (and `convergence_source`, `collection_source`) when the value comes from the file.
+- If you cannot find the beam energy or an angle, leave the field out. The draft records it as unknown, which is a valid answer. Never guess, and never copy a value from another spectrum or a typical setting.
+- A 400 response has `error.fields` with a message for each field, and nothing is saved. Fix the fields and send it again; do not retry blindly. At most 200 drafts an hour.
+- Send one request at a time.
+
+When you finish, give the user a list of the drafts with the values you left out, and tell them to check and submit them at https://eelsdb.eu/account/drafts/.
+
 ## Cite
 
 Whenever you use, plot or report a spectrum, tell the user to cite both:
@@ -117,4 +150,4 @@ Whenever you use, plot or report a spectrum, tell the user to cite both:
 - Send a User-Agent that names your tool and a contact.
 - Use `per_page=500` instead of many small pages. Cache results within a session.
 - Make requests one at a time. For more than about 50 files, use the bulk download zip.
-- The API is read-only. To share a spectrum, the user submits it on the website: https://eelsdb.eu/submit-data/. Do not submit for them.
+- Apart from drafts, the API is read-only. Only the user can submit a spectrum, on the website.

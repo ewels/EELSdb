@@ -3,7 +3,7 @@ title: Use EELSdb with AI agents
 description: The Markdown, JSON and llms.txt addresses that AI assistants and agents can read, the EELSdb agent skill, and how to install it.
 ---
 
-AI assistants and coding agents can use EELSdb with no extra setup: every page has a Markdown version, the API is plain JSON with no key, and an agent skill describes how to search, download and cite spectra.
+AI assistants and coding agents can use EELSdb with no extra setup: every page has a Markdown version, the API is plain JSON with no key, and an agent skill describes how to search, download and cite spectra, and how to prepare a contributor's spectra as drafts.
 
 ## Give an agent these addresses
 
@@ -33,7 +33,7 @@ The API reference pages have no Markdown version. The OpenAPI files describe the
 A skill is a set of instructions that an agent loads when a task needs it.
 EELSdb has one, in the [Agent Skills](https://agentskills.io) format that Claude Code, Codex, Cursor and other agents read:
 
-- [`eelsdb`](/docs/skills/eelsdb/SKILL.md): Find, download, load and cite spectra through API v2.
+- [`eelsdb`](/docs/skills/eelsdb/SKILL.md): Find, download, load and cite spectra through API v2, and prepare drafts of your own spectra for you to submit.
 
 Install it from GitHub with the [`skills`](https://www.npmjs.com/package/skills) tool:
 
@@ -52,6 +52,7 @@ With the `eelsdb` skill installed, or after you give the agent `https://eelsdb.e
 - "Find EELSdb core-loss spectra of titanium oxides with the Ti L2,3 edge, recorded at 200 kV with known angles, and plot them together."
 - "Download the EELSdb hematite Fe L2,3 spectrum and compare its L3/L2 ratio with my file `sample.msa`."
 - "Which EELSdb spectra of carbon have a convergence angle from an instrument profile?"
+- "Make EELSdb drafts for the spectra in `spectra/`. The drafts token is in `EELSDB_DRAFT_TOKEN`. Leave out any beam energy or angle you cannot find in the files or in `notes.md`."
 
 ## Rules for agents
 
@@ -61,4 +62,4 @@ The `eelsdb` skill tells agents to follow these rules. Check that yours does:
 - Ask for 500 spectra per page instead of many small pages, make one request at a time, and use the [bulk download](/downloads/) for the whole database.
 - Report an acquisition value with the source `unknown` as unknown. Never fill it in from another spectrum.
 - Cite the contributor's paper and the EELS Data Base for every spectrum that the work uses.
-- Never submit spectra for the user. The API is read-only, and contributors submit on the website.
+- Prepare a contributor's spectra only as [drafts](/docs/share/drafts/), with their drafts token. Never guess an acquisition value: leave it out, and it is recorded as unknown. Only the contributor submits, on the website.

@@ -64,7 +64,7 @@ describe("API v2", () => {
     const res = await exports.default.fetch("https://eelsdb.eu/api/openapi-v2.json");
     const doc = await res.json<any>();
     expect(doc).toEqual(JSON.parse(JSON.stringify(openapiV2())));
-    expect(Object.keys(doc.paths)).toEqual(["/spectra", "/spectra/{id}"]);
+    expect(Object.keys(doc.paths)).toEqual(["/spectra", "/spectra/{id}", "/drafts"]);
     const params = doc.paths["/spectra"].get.parameters.map((p: any) => p.name);
     expect(params).toContain("covers_ev");
     expect(doc.components.schemas.Spectrum.properties.acquisition).toBeDefined();

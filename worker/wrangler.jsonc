@@ -12,5 +12,7 @@
       "migrations_dir": "migrations"
     }
   ],
-  "r2_buckets": [{ "binding": "FILES", "bucket_name": "eelsdb-files" }]
+  "r2_buckets": [{ "binding": "FILES", "bucket_name": "eelsdb-files" }],
+  // Daily: delete drafts that were never submitted.
+  "triggers": { "crons": ["17 3 * * *"] }
 }

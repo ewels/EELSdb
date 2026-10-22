@@ -2,7 +2,8 @@ import { Hono, type Context } from "hono";
 import { loadBundle, type SpectrumBundle } from "../api/format";
 import { requireUser, type AppEnv } from "../auth";
 import { isModerator } from "../instruments";
-import { SPECTRUM_EXTENSIONS, XAS_FIELDS, checkUpload, completeness, parseForm, type ParsedForm } from "./form";
+import { SPECTRUM_EXTENSIONS, XAS_FIELDS, checkUpload, cleanBrowserChecks, completeness, parseForm, type ParsedForm } from "./form";
+import { submitDraftStatements } from "./drafts";
 import { SubmitPage, approvedInstruments, finishForm, formValues, rejectForm } from "./index";
 import { mediaType } from "../files";
 import { Layout } from "../pages/layout";
@@ -93,8 +94,8 @@ function textChanges(before: ParsedForm, after: ParsedForm) {
 async function editable(c: C) {
   const user = c.get("user")!;
   const row = await c.env.DB.prepare("SELECT id, owner_id, status FROM spectra WHERE slug = ?").bind(c.req.param("slug")).first<any>();
-  if (!row || !["published", "pending"].includes(row.status)) return null;
-  if (row.owner_id !== user.id && !isModerator(user)) return null;
+  if (!row || !["published", "pending", "draft"].includes(row.status)) return null;
+  if (row.owner_id !== user.id && (row.status === "draft" || !isModerator(user))) return null;
   const bundle = await loadBundle(c.env.DB, row.id);
   return bundle && { bundle, status: row.status as string };
 }
@@ -103,6 +104,7 @@ async function editable(c: C) {
 const editInfo = (b: SpectrumBundle) => ({
   slug: b.spectrum.slug,
   title: b.spectrum.title,
+  draft: b.spectrum.status === "draft",
   file: b.legacyFile ? { url: `/${b.legacyFile.split("/").map(encodeURIComponent).join("/")}`, name: b.legacyFile.split("/").pop()! } : null,
 });
 
@@ -135,6 +137,11 @@ edit.post("/spectra/:slug/edit/", requireUser, async (c) => {
 
   if (!(await instrumentOk(db, form))) {
     errors.instrument = "Choose an approved instrument profile.";
+    return rejectForm(c, errors, 422, async () => <SubmitPage c={c} v={formValues(body)} errors={errors} instruments={await approvedInstruments(db)} edit={editInfo(found.bundle)} />);
+  }
+
+  if (status === "draft" && !body.agreement) {
+    errors.agreement = "Please agree to the licence to publish your data.";
     return rejectForm(c, errors, 422, async () => <SubmitPage c={c} v={formValues(body)} errors={errors} instruments={await approvedInstruments(db)} edit={editInfo(found.bundle)} />);
   }
 
@@ -181,6 +188,13 @@ edit.post("/spectra/:slug/edit/", requireUser, async (c) => {
     return finishForm(c, `/account/submissions/?edited=${s.id}`);
   }
 
+  if (status === "draft") {
+    statements.push(...coreStatements(db, s.id, form), ...submitDraftStatements(db, s.id, user.id, cleanBrowserChecks(body.browser_checks)));
+    if (fileKey) statements.push(...replaceOriginal(db, s.id, fileKey, file!));
+    await db.batch(statements);
+    return finishForm(c, `/account/submissions/?submitted=${s.id}`);
+  }
+
   if (coreChanged) {
     // Not published yet: the edit applies in full, and a submission sent back for changes returns to the queue.
     statements.push(
@@ -189,19 +203,19 @@ edit.post("/spectra/:slug/edit/", requireUser, async (c) => {
       db.prepare("INSERT INTO history (spectrum_id, user_id, change_json) VALUES (?, ?, ?)")
         .bind(s.id, user.id, JSON.stringify({ action: "edited", changes: { core: [JSON.parse(core(before)), JSON.parse(core(form))] } })),
     );
-    if (fileKey) {
-      statements.push(
-        db.prepare("DELETE FROM files WHERE spectrum_id = ? AND role = 'original'").bind(s.id),
-        db.prepare("INSERT INTO files (spectrum_id, role, r2_key, filename, media_type, bytes) VALUES (?, 'original', ?, ?, ?, ?)")
-          .bind(s.id, fileKey, file!.name, mediaType(file!.name), file!.size),
-      );
-    }
+    if (fileKey) statements.push(...replaceOriginal(db, s.id, fileKey, file!));
   } else if (status === "pending" && statements.length) {
     statements.push(db.prepare("UPDATE submissions SET status = 'pending' WHERE spectrum_id = ? AND kind = 'new' AND status = 'changes_requested'").bind(s.id));
   }
   if (statements.length) await db.batch(statements);
   return finishForm(c, status === "published" ? back : "/account/submissions/");
 });
+
+const replaceOriginal = (db: D1Database, id: number, key: string, file: File) => [
+  db.prepare("DELETE FROM files WHERE spectrum_id = ? AND role = 'original'").bind(id),
+  db.prepare("INSERT INTO files (spectrum_id, role, r2_key, filename, media_type, bytes) VALUES (?, 'original', ?, ?, ?, ?)")
+    .bind(id, key, file.name, mediaType(file.name), file.size),
+];
 
 const FIELD_NAMES: Record<string, string> = {
   source_purity: "source and purity",

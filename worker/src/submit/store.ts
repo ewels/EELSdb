@@ -102,12 +102,13 @@ export async function createSpectrum(
   db: D1Database,
   form: ParsedForm,
   owner: { id: number; display_name: string; slug: string | null },
+  status: "pending" | "draft" = "pending",
 ): Promise<{ id: number; slug: string }> {
   const slug = await uniqueSlug(db, form.spectrum.title);
   const authorSlugValue = await authorSlug(db, owner);
   const id = (await insertRow(db, "spectra", {
     slug,
-    status: "pending",
+    status,
     ...form.spectrum,
     technique: form.spectrum.type === "xrayabs" ? "xas" : "eels",
     owner_id: owner.id,

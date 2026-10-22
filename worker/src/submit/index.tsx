@@ -4,14 +4,15 @@ import type { Child } from "hono/jsx";
 import { requireUser, type AppEnv } from "../auth";
 import { ELEMENTS } from "../elements";
 import { Layout, TYPE_NAMES } from "../pages/layout";
-import { BEAM_ENERGIES, COMPANION_EXTENSIONS, MAX_FILE_BYTES, SPECTRUM_EXTENSIONS, UNIT_LABELS, VARIANTS, checkUpload, cleanBrowserChecks, parseForm, variantUploads } from "./form";
+import { BEAM_ENERGIES, COMPANION_EXTENSIONS, MAX_FILE_BYTES, SPECTRUM_EXTENSIONS, UNIT_LABELS, VARIANTS, cleanBrowserChecks, collectUploads, parseForm } from "./form";
 import { createSpectrum, instrumentOk, storeFile } from "./store";
 
 export const submit = new Hono<AppEnv>();
 type C = Context<AppEnv>;
 type Values = Record<string, string>;
 
-const MAX_PER_DAY = 20;
+// Against floods, not against someone sending a backlog of spectra in one sitting.
+export const MAX_PER_HOUR = 60;
 const MAX_FILE_MB = MAX_FILE_BYTES / 1024 / 1024;
 const XAS_LABELS: [string, string, string?][] = [
   ["facility", "Facility", "For example: SOLEIL, Canadian Light Source"],
@@ -122,7 +123,7 @@ function Step(props: { id: string; hidden?: boolean; children: Child }) {
   );
 }
 
-export function SubmitPage(props: { c: C; v: Values; errors: Record<string, string>; instruments: Instrument[]; edit?: { slug: string; title: string; file?: { url: string; name: string } | null } }) {
+export function SubmitPage(props: { c: C; v: Values; errors: Record<string, string>; instruments: Instrument[]; edit?: { slug: string; title: string; draft?: boolean; file?: { url: string; name: string } | null } }) {
   const { c, v, errors } = props;
   const siteKey = c.env.TURNSTILE_SITE_KEY;
   const choice = v.beam_energy_choice ?? "";
@@ -130,7 +131,7 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
   const accept = SPECTRUM_EXTENSIONS.map((e) => `.${e}`).join(",");
   return (
     <Layout
-      title={props.edit ? `Edit ${props.edit.title}` : "Submit a spectrum"}
+      title={props.edit ? `${props.edit.draft ? "Check" : "Edit"} ${props.edit.title}` : "Submit a spectrum"}
       path={props.edit ? "/spectra/" : "/submit-data/"}
       user={c.get("user")}
       head={
@@ -143,10 +144,12 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
       }
     >
       {props.edit && (
-        <p class="small back-link"><a href={`/spectra/${encodeURIComponent(props.edit.slug)}/`}>← {props.edit.title}</a></p>
+        <p class="small back-link">
+          {props.edit.draft ? <a href="/account/drafts/">← Your drafts</a> : <a href={`/spectra/${encodeURIComponent(props.edit.slug)}/`}>← {props.edit.title}</a>}
+        </p>
       )}
       {props.edit ? (
-        <h1>Edit {props.edit.title}</h1>
+        <h1>{props.edit.draft ? "Check" : "Edit"} {props.edit.title}</h1>
       ) : (
         <div class="page-head">
           <h1>Submit a spectrum</h1>
@@ -154,7 +157,9 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
         </div>
       )}
       <p class="lede">
-        {props.edit
+        {props.edit?.draft
+          ? "An assistant or a script prepared this draft. Check every value against your notes and the file, correct what is wrong, and mark values you do not know as unknown. Then submit it for review."
+          : props.edit
           ? "Changes to the title, description, keywords, reference and links are published straight away. Changes to the data file, the specimen or how it was measured go to a moderator first."
           : "A moderator checks every submission before it is published."}
       </p>
@@ -420,7 +425,7 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
               <p class="checks-status muted"></p>
               <ul class="findings"></ul>
             </div>
-            {!props.edit && (
+            {(!props.edit || props.edit.draft) && (
               <div class={`field${errors.agreement ? " has-error" : ""}`}>
                 <label class="check agreement">
                   <input type="checkbox" name="agreement" value="1" required checked={!!v.agreement} /> I agree to publish this data under the{" "}
@@ -435,8 +440,8 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
             <p class="error" id="submit-error" role="alert" hidden></p>
             <div class="step-nav">
               <button type="button" class="button secondary" data-back>Back</button>
-              <button class="button" type="submit" id="submit-button">{props.edit ? "Save changes" : "Submit for review"}</button>
-              {props.edit && <a class="button secondary" href={`/spectra/${encodeURIComponent(props.edit.slug)}/`}>Cancel</a>}
+              <button class="button" type="submit" id="submit-button">{props.edit && !props.edit.draft ? "Save changes" : "Submit for review"}</button>
+              {props.edit && <a class="button secondary" href={props.edit.draft ? "/account/drafts/" : `/spectra/${encodeURIComponent(props.edit.slug)}/`}>Cancel</a>}
             </div>
           </Step>
         </form>
@@ -474,42 +479,24 @@ submit.post("/submit-data/", requireUser, async (c) => {
   const user = c.get("user")!;
   const body = await c.req.parseBody();
   const { form, errors } = parseForm(body as any);
-  const file = body.file instanceof File ? body.file : null;
-  const lowloss = body.lowloss_file instanceof File && body.lowloss_file.size ? body.lowloss_file : null;
-  const companion = body.companion_file instanceof File && body.companion_file.size ? body.companion_file : null;
-
-  const fileError = await checkUpload(file, SPECTRUM_EXTENSIONS, "Spectrum file");
-  if (fileError) errors.file = fileError;
-  if (lowloss) {
-    const e = await checkUpload(lowloss, SPECTRUM_EXTENSIONS, "Low-loss file");
-    if (e) errors.lowloss_file = e;
-  }
-  if (companion) {
-    const e = await checkUpload(companion, COMPANION_EXTENSIONS, "Companion file");
-    if (e) errors.companion_file = e;
-  }
-  const variants = await variantUploads(body, errors);
+  const uploads = await collectUploads(body, errors);
   if (!(await instrumentOk(c.env.DB, form))) errors.instrument = "Choose an approved instrument profile.";
   if (!body.agreement) errors.agreement = "Please agree to the licence to publish your data.";
   if (!(await turnstileOk(c, typeof body["cf-turnstile-response"] === "string" ? body["cf-turnstile-response"] : null))) {
     errors.turnstile = "The anti-spam check failed. Please try again.";
   }
-  const recent = await c.env.DB.prepare("SELECT COUNT(*) AS n FROM submissions WHERE submitted_by = ? AND created_at > datetime('now', '-1 day')")
+  const recent = await c.env.DB.prepare("SELECT COUNT(*) AS n FROM submissions WHERE submitted_by = ? AND created_at > datetime('now', '-1 hour')")
     .bind(user.id)
     .first<number>("n");
-  if ((recent ?? 0) >= MAX_PER_DAY) errors.rate = `You can submit up to ${MAX_PER_DAY} spectra a day. Please try again tomorrow.`;
+  if ((recent ?? 0) >= MAX_PER_HOUR) errors.rate = `You can submit up to ${MAX_PER_HOUR} spectra an hour. Please wait a little and try again.`;
 
   if (Object.keys(errors).length) {
     return rejectForm(c, errors, 422, async () => <SubmitPage c={c} v={formValues(body)} errors={errors} instruments={await approvedInstruments(c.env.DB)} />);
   }
 
   const { id, slug } = await createSpectrum(c.env.DB, form, user);
-  const files: [string, File, string?][] = [["original", file!]];
-  if (lowloss) files.push(["lowloss", lowloss]);
-  if (companion) files.push(["companion", companion]);
-  for (const [code, f] of variants) files.push(["variant", f, code]);
   const fileRows = [];
-  for (const [role, f, variant] of files) fileRows.push(await storeFile(c.env, id, role, f, variant));
+  for (const [role, f, variant] of uploads) fileRows.push(await storeFile(c.env, id, role, f, variant));
   const checks = cleanBrowserChecks(body.browser_checks);
   await c.env.DB.batch([
     ...fileRows,

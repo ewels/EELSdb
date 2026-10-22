@@ -21,6 +21,7 @@ import { LINK_FIELDS, linkUrl, parseLinks } from "./profile";
 import { decodeEntities } from "./entities";
 import { authorMarkdown, markdownHeaders, newsMarkdown, spectrumMarkdown } from "./markdown";
 import { avatarUrl } from "../auth";
+import { drafts } from "../submit/drafts";
 
 export const pages = new Hono<AppEnv>();
 type C = Context<AppEnv>;
@@ -32,6 +33,7 @@ pages.route("/", settings);
 pages.route("/", submit);
 pages.route("/", instruments);
 pages.route("/", edit);
+pages.route("/", drafts);
 pages.route("/", admin);
 
 const markdown = (render: (db: D1Database, slug: string) => Promise<string | null>) => async (c: C) => {

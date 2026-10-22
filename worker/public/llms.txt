@@ -27,3 +27,4 @@ Every spectrum page has a Markdown version: replace the trailing slash with `.md
 - [API v1 OpenAPI file](https://eelsdb.eu/api/openapi-v1.json): deprecated; the old site's API, kept only for exSpy and older scripts. Use v2.
 - [Load spectra in Python](https://eelsdb.eu/docs/use/python.md): HyperSpy, exSpy and the API with requests
 - [Submit a spectrum](https://eelsdb.eu/docs/share/submit.md): how contributors share spectra
+- [Prepare drafts with an assistant](https://eelsdb.eu/docs/share/drafts.md): how an agent prepares a contributor's spectra as drafts (POST /v2/drafts with their drafts token) for them to check and submit

@@ -228,13 +228,77 @@ export const oneRoute = createRoute({
   responses: { 200: json(Spectrum, "A spectrum."), 404: json(ApiError, "No published spectrum with this id or slug.") },
 });
 
+const field = (description: string, example?: string) => z.string().optional().openapi({ description, example });
+const measuredField = (what: string, unit: string, example: string) =>
+  field(`${what} in ${unit}. Leave it out when it is not known: the draft then records it as unknown. Never guess.`, example);
+
+// Every field is optional here: the handler checks the token first, then the fields, and names each problem.
+export const DraftForm = z
+  .looseObject({
+    file: z.custom<File>((v) => v instanceof File).optional().openapi({ type: "string", format: "binary", description: "Required. The spectrum file: .msa, .dm3, .dm4, .emd, .hspy, .txt, .csv or .xdi." }),
+    title: field("The specimen name. Default: the file name.", "Hematite"),
+    type: z.enum(TYPES).optional().openapi({ description: "Required. Spectrum type." }),
+    formula: field("Required. Chemical formula.", "Fe2O3"),
+    elements: field("Element symbols, separated by commas. Default: from the formula.", "Fe, O"),
+    edges: field("Edges, separated by semicolons.", "Fe_L2,3; O_K"),
+    beam_energy: measuredField("Beam energy", "kV", "200"),
+    convergence: measuredField("Convergence semi-angle", "mrad", "10"),
+    collection: measuredField("Collection semi-angle", "mrad", "16"),
+    beam_energy_source: z.enum(["file", "user"]).optional().openapi({
+      description: "Where the value came from: `file` if read from the file's header, `user` if the person gave it. The same field exists for `convergence` and `collection`.",
+    }),
+    ref_doi: field("DOI of the paper the spectrum comes from.", "10.1016/j.jssc.2009.07.037"),
+    description: field("Free text: how the specimen was prepared and measured."),
+    lowloss_file: z.custom<File>((v) => v instanceof File).optional().openapi({ type: "string", format: "binary", description: "A low-loss spectrum of the same area." }),
+  })
+  .openapi("DraftForm", {
+    description:
+      "The fields of the submit form, under the same names: see the field reference at https://eelsdb.eu/docs/reference/fields/. Any form field not listed here is accepted too.",
+  });
+
+export const Draft = z
+  .strictObject({
+    id: z.number().int(),
+    slug: z.string(),
+    status: z.literal("draft"),
+    review_url: z.string().openapi({ description: "Where the owner checks the draft and submits it for review." }),
+  })
+  .openapi("Draft");
+
+export const DraftError = z
+  .strictObject({
+    error: z.strictObject({
+      code: z.string(),
+      message: z.string(),
+      fields: z.record(z.string(), z.string()).optional().openapi({ description: "A message for each field with a problem." }),
+    }),
+  })
+  .openapi("DraftError");
+
+export const draftRoute = createRoute({
+  method: "post",
+  path: "/drafts",
+  operationId: "createDraft",
+  summary: "Create a draft",
+  description:
+    "Saves a spectrum as a draft in the token owner's account. A draft is not public and is not reviewed: the owner checks it on the website and submits it. Drafts that are not submitted are deleted after 30 days. Needs a drafts token from https://eelsdb.eu/account/drafts/. At most 200 drafts an hour.",
+  security: [{ draftToken: [] }],
+  request: { body: { content: { "multipart/form-data": { schema: DraftForm } }, required: true } },
+  responses: {
+    201: json(Draft, "The draft was saved."),
+    400: json(DraftError, "The draft has errors; nothing was saved."),
+    401: json(DraftError, "No valid drafts token."),
+    429: json(DraftError, "Too many drafts in the last hour."),
+  },
+});
+
 export const DOCUMENT = {
   openapi: "3.1.0",
   info: {
     title: "EELS Data Base API v2",
     version: "2",
     description:
-      "Read-only JSON API with typed values: numbers are numbers, units are in the field names, and acquisition values say where they came from. No key is needed. Responses have `Access-Control-Allow-Origin: *`. Errors return `{\"error\": {\"code\", \"message\"}}`. Field names follow HyperSpy's metadata where they can (beam energy in kV, angles in mrad).",
+      "JSON API with typed values. It is read-only, except that a contributor's assistant can create drafts (`POST /drafts`) for the contributor to check and submit on the website. Values are typed: numbers are numbers, units are in the field names, and acquisition values say where they came from. No key is needed to read. Responses have `Access-Control-Allow-Origin: *`. Errors return `{\"error\": {\"code\", \"message\"}}`. Field names follow HyperSpy's metadata where they can (beam energy in kV, angles in mrad).",
   },
   servers: [{ url: "https://api.eelsdb.eu/v2" }],
 };

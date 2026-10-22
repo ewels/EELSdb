@@ -1,5 +1,6 @@
 import { api } from "./api/index";
 import { pages } from "./pages/index";
+import { deleteOldDrafts } from "./submit/drafts";
 
 // No full Content-Security-Policy yet: Pyodide (wasm) and Turnstile need careful allowances.
 const SECURITY_HEADERS = {
@@ -16,5 +17,8 @@ export default {
     const out = new Response(res.body, res);
     for (const [k, v] of Object.entries(SECURITY_HEADERS)) if (!out.headers.has(k)) out.headers.set(k, v);
     return out;
+  },
+  async scheduled(_controller, env, ctx) {
+    ctx.waitUntil(deleteOldDrafts(env));
   },
 } satisfies ExportedHandler<Env>;

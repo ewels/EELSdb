@@ -1,6 +1,7 @@
 import { env, exports } from "cloudflare:workers";
 import { describe, expect, it } from "vitest";
 import { checkUpload, parseForm, slugify } from "../src/submit/form";
+import { MAX_PER_HOUR } from "../src/submit/index";
 import { sessionFor } from "./helpers/session";
 
 const MSA = `#FORMAT      : EMSA/MAS Spectral Data File
@@ -161,16 +162,19 @@ describe("submitting", () => {
     expect((await good.json<any>()).redirect).toMatch(/^\/account\/submissions\/\?submitted=\d+$/);
   });
 
-  it("limits submissions per day", async () => {
+  it("limits submissions per hour", async () => {
     const cookie = await sessionFor({ id: 6000003, display_name: "Busy Bee" });
     await env.DB.batch(
-      Array.from({ length: 20 }, () =>
+      Array.from({ length: MAX_PER_HOUR }, () =>
         env.DB.prepare("INSERT INTO submissions (spectrum_id, submitted_by, status) VALUES (22236, 6000003, 'rejected')"),
       ),
     );
     const res = await postSubmit(cookie, formData(fields));
     expect(res.status).toBe(422);
-    expect(await res.text()).toContain("up to 20 spectra a day");
+    expect(await res.text()).toContain(`up to ${MAX_PER_HOUR} spectra an hour`);
+    // A backlog sent over a morning is fine: only the last hour counts.
+    await env.DB.prepare("UPDATE submissions SET created_at = datetime('now', '-2 hours') WHERE submitted_by = 6000003").run();
+    expect((await postSubmit(cookie, formData(fields))).status).not.toBe(422);
   });
 });
 

@@ -944,7 +944,8 @@ function review() {
         editButton(id)),
       dl));
   };
-  group("files", "Files", used.map((f) => [ROLES[f.role], f.file.name]));
+  const current = !used.some((f) => f.role === "original") && files.find((f) => f.current);
+  group("files", "Files", [...(current ? [["Spectrum file", `${current.file.name} (current file)`]] : []), ...used.map((f) => [ROLES[f.role], f.file.name])]);
   for (const s of visible()) {
     const id = s.dataset.step;
     if (id === "files" || id === "review") continue;
@@ -961,7 +962,7 @@ function review() {
 
 /** Run the checks again now the formula, edges and type are known. */
 async function finalChecks() {
-  const f = files.find((x) => x.role === "original");
+  const f = files.find((x) => x.role === "original") ?? files.find((x) => x.current);
   const box = $("#final-checks");
   if (!f?.result?.points) return (box.hidden = true);
   box.hidden = false;

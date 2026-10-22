@@ -5,8 +5,8 @@ description: Query EELSdb spectra as JSON with API v2, including filters, paging
 
 import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-The EELSdb API is a read-only JSON API at `https://api.eelsdb.eu/v2/`.
-It needs no key and no account, and every response allows cross-origin requests (`Access-Control-Allow-Origin: *`), so it also works from a web page.
+The EELSdb API is a JSON API at `https://api.eelsdb.eu/v2/`.
+Reading needs no key and no account, and every response allows cross-origin requests (`Access-Control-Allow-Origin: *`), so it also works from a web page.
 Numbers are numbers, units are in the field names, and each acquisition value says where it came from.
 
 This page explains how to use the API. The reference lists every parameter and field:
@@ -162,6 +162,10 @@ Each file has a `role`, a `url`, a `filename`, its size in `bytes` and its `sha2
 - `hspy`: A HyperSpy file with the metadata, made by the moderator at review.
 
 `download_url` is the main file: the `legacy` file, else the `msa` file, else the `original` file.
+
+## Make drafts
+
+The only request that writes is `POST /v2/drafts`. It saves a spectrum as a private draft in a contributor's account, for them to check and submit on the website. It needs the contributor's drafts token. See [Prepare drafts with an assistant](/docs/share/drafts/).
 
 ## Errors
 

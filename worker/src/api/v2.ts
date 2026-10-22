@@ -5,7 +5,8 @@ import type { Context } from "hono";
 import type { AppEnv } from "../auth";
 import { variantUnits } from "../submit/form";
 import { API_HOST, SITE, loadMany, type SpectrumBundle } from "./format";
-import { DOCUMENT, ListQuery, listRoute, oneRoute, type Spectrum } from "./v2-schema";
+import { DOCUMENT, ListQuery, draftRoute, listRoute, oneRoute, type Spectrum } from "./v2-schema";
+import { createDraft } from "../submit/drafts";
 import type { z } from "@hono/zod-openapi";
 
 type C = Context<AppEnv>;
@@ -244,5 +245,8 @@ v2.openapi(oneRoute, async (c) => {
   const [bundle] = row === null ? [] : await loadMany(c.env.DB, [row]);
   return bundle ? c.json(formatV2(bundle), 200) : error(c, 404, "not_found", "No published spectrum with this id or slug.");
 });
+
+v2.openAPIRegistry.registerComponent("securitySchemes", "draftToken", { type: "http", scheme: "bearer", description: "A drafts token from https://eelsdb.eu/account/drafts/." });
+v2.openapi(draftRoute, createDraft);
 
 v2.all("*", (c) => error(c, 404, "not_found", `Unknown path. See ${API_REFERENCE}.`));
