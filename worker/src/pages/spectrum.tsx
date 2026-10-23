@@ -330,8 +330,43 @@ export async function spectrumPage(c: Context<AppEnv>) {
           <label><input type="checkbox" id="show-minor" /> Minor edges</label>
           {fileUrl && <label hidden><input type="checkbox" id="compare-scale" checked /> Scale to match</label>}
           <span class="plot-hint">Drag to zoom, double-click to reset</span>
-
         </div>
+        {fileUrl && (
+          <details class="plot-process" id="process" hidden>
+            <summary>Process the view</summary>
+            <div class="process-controls">
+              {s.type === "coreloss" && (
+                <>
+                  <label>
+                    Background{" "}
+                    <select id="bg-mode">
+                      <option value="">Off</option>
+                      <option value="fit">Show power-law fit</option>
+                      <option value="subtract">Subtract power law</option>
+                    </select>
+                  </label>
+                  <label>
+                    fitted over <input type="number" id="bg-from" step="any" aria-label="Fit window start (eV)" /> to{" "}
+                    <input type="number" id="bg-to" step="any" aria-label="Fit window end (eV)" /> eV
+                  </label>
+                </>
+              )}
+              <label>
+                Smoothing <input type="range" id="smooth" min="0" max="25" value="0" /> <output id="smooth-out" for="smooth">Off</output>
+              </label>
+              <label>
+                Normalise{" "}
+                <select id="normalise">
+                  <option value="">Off</option>
+                  <option value="max">To maximum</option>
+                  <option value="area">To area</option>
+                </select>
+              </label>
+              <label><input type="checkbox" id="log-y" /> Log scale</label>
+            </div>
+            <p class="hint" id="process-status" aria-live="polite">Applies to compared spectra too. Only the view changes: downloads are the original data.</p>
+          </details>
+        )}
       </div>
 
       <div class="spectrum-intro">
@@ -356,9 +391,9 @@ export async function spectrumPage(c: Context<AppEnv>) {
           <section class="snippet" aria-labelledby="snippet-title">
             <h2 id="snippet-title">Use in HyperSpy</h2>
             {hspy ? (
-              <HyperSpySnippet url={`${SITE}${href(hspy.r2_key)}`} file="spectrum.hspy" />
+              <HyperSpySnippet url={`${SITE}${href(hspy.r2_key)}`} file="spectrum.hspy" process />
             ) : (
-              <HyperSpySnippet url={`${SITE}/spectra/${s.slug}/download/msa`} file="spectrum.msa" signalType={s.technique === "eels" ? "EELS" : undefined} />
+              <HyperSpySnippet url={`${SITE}/spectra/${s.slug}/download/msa`} file="spectrum.msa" signalType={s.technique === "eels" ? "EELS" : undefined} process />
             )}
             <p class="hint">{hspy ? "The HyperSpy file loads with its metadata filled in." : "The MSA file has the beam energy and angles."} More in the <a href="/docs/use/python/">Python guide</a>.</p>
           </section>
@@ -578,7 +613,7 @@ export async function spectrumPage(c: Context<AppEnv>) {
         </dialog>
       )}
       <script src="/vendor/uPlot.iife.min.js" defer></script>
-      <script src="/spectrum.js" defer></script>
+      <script type="module" src="/spectrum.js"></script>
     </Layout>,
   );
 }

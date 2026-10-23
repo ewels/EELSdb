@@ -1,5 +1,7 @@
 // Spectrum page: plot the data file with uPlot and mark exSpy edge onsets for the spectrum's elements.
 
+import { processSpectrum } from "/process.js";
+
 for (const button of document.querySelectorAll("[data-open]")) {
   button.addEventListener("click", (e) => {
     e.preventDefault();
@@ -128,6 +130,53 @@ async function main() {
   const showEdges = document.getElementById("show-edges");
   const showMinor = document.getElementById("show-minor");
   edges.sort((a, b) => a.energy - b.energy);
+
+  const bgMode = document.getElementById("bg-mode");
+  const bgFrom = document.getElementById("bg-from");
+  const bgTo = document.getElementById("bg-to");
+  const smooth = document.getElementById("smooth");
+  const smoothOut = document.getElementById("smooth-out");
+  const normalise = document.getElementById("normalise");
+  const logY = document.getElementById("log-y");
+  const procStatus = document.getElementById("process-status");
+  const PROC_NOTE = procStatus?.textContent;
+  const snippet = document.getElementById("snippet-process");
+  if (bgFrom) {
+    // From the start of the data to just before the first major edge, where the pre-edge background usually is.
+    const span = xmax - xmin;
+    const first = edges.find((e) => e.major)?.energy;
+    const to = first && first - 0.02 * span > xmin + 0.05 * span ? first - 0.02 * span : xmin + 0.15 * span;
+    bgFrom.value = +xmin.toFixed(1);
+    bgTo.value = +to.toFixed(1);
+  }
+  const log = () => !!logY?.checked;
+  const settings = () => ({
+    background: bgMode?.value ?? "",
+    window: [+bgFrom?.value, +bgTo?.value],
+    smooth: +smooth?.value ? 2 * +smooth.value + 1 : 0,
+    normalise: normalise?.value ?? "",
+  });
+  const describe = () => {
+    const o = settings();
+    const parts = [];
+    if (o.background === "subtract") parts.push(`power-law background subtracted (fit ${o.window[0]}–${o.window[1]} eV)`);
+    if (o.smooth) parts.push(`Savitzky–Golay smoothed (${o.smooth} points)`);
+    if (o.normalise) parts.push(`normalised to ${o.normalise === "max" ? "maximum" : "area"}`);
+    return parts.length ? `Processed: ${parts.join(", ")}` : "";
+  };
+  const tok = (c, t) => `<span class="t-${c}">${t}</span>`;
+  const num = (v) => (Number.isInteger(v) ? v.toFixed(1) : String(v));
+  // The HyperSpy lines that give the same result as the processed view, in the "Use in HyperSpy" snippet.
+  const pythonLines = (o, fitted) => {
+    const lines = [];
+    const eq = ` ${tok("k", "=")} `;
+    if (o.background === "subtract" && fitted)
+      lines.push(`s${eq}s.${tok("f", "remove_background")}(${tok("a", "signal_range")}${tok("k", "=")}(${num(o.window[0])}${tok("p", ",")} ${num(o.window[1])}))`);
+    if (o.smooth)
+      lines.push(`s.${tok("f", "smooth_savitzky_golay")}(${tok("a", "window_length")}${tok("k", "=")}${o.smooth}${tok("p", ",")} ${tok("a", "polynomial_order")}${tok("k", "=")}2)`);
+    if (o.normalise) lines.push(`s${eq}s ${tok("k", "/")} s.data.${tok("f", o.normalise === "max" ? "max" : "sum")}()`);
+    return lines.map((l) => `${l}\n`).join("");
+  };
   const family = getComputedStyle(document.body).fontFamily;
   // "Ti L2,3" draws as "Ti L" plus a subscript "2,3", like the typeset edge names elsewhere.
   const drawLabel = (ctx, label, x, y, dpr, alignRight) => {
@@ -205,17 +254,38 @@ async function main() {
   const compares = [];
   const scaleBox = document.getElementById("compare-scale");
   // With "Scale to match", each compared spectrum gets its own y scale and right-hand axis, in its colour.
-  const scaleOf = (i) => (scaleBox.checked ? `c${i}` : "y");
+  // A log axis can't be a linear map of the main one, so log scale shares one axis.
+  const separate = () => scaleBox.checked && !log();
+  const scaleOf = (i) => (separate() ? `c${i}` : "y");
+  // What is drawn: the data after the processing settings; `fit` only while the fitted background is shown.
+  let view;
+  const compute = () => {
+    const o = settings();
+    const main = processSpectrum(data[0], data[1], o);
+    const subtract = { ...o, background: o.background === "subtract" ? "subtract" : "" };
+    view = {
+      y: main.y,
+      fit: o.background === "fit" && main.fit ? main.fit.map((v, i) => (data[0][i] < o.window[0] ? null : v)) : null,
+      compares: compares.map((c) => processSpectrum(c.x, c.y, subtract).y),
+    };
+    if (procStatus) procStatus.textContent = o.background && !main.fit ? "No power law fits that window. Pick a wider one before the edge, at positive energies." : PROC_NOTE;
+    if (snippet) snippet.innerHTML = pythonLines(o, main.fit);
+  };
+  // Log axes cannot show zero or below.
+  const shown = (ys) => (log() ? ys.map((v) => (v > 0 ? v : null)) : ys);
   const colour = (i) => paint(`--compare-${(i % 4) + 1}`);
   // Only where this spectrum has data, so a wider file does not squeeze the reference.
   const plotData = () => {
-    if (!compares.length) return data;
+    const main = [data[0], shown(view.y), ...(view.fit ? [shown(view.fit)] : [])];
+    if (!compares.length) return main;
     const [lo, hi] = [data[0][0], data[0].at(-1)];
     return uPlot.join([
-      data,
-      ...compares.map((c) => {
-        const keep = c.x.map((_, i) => i).filter((i) => c.x[i] >= lo && c.x[i] <= hi);
-        return [keep.map((i) => c.x[i]), keep.map((i) => c.y[i])];
+      main,
+      ...compares.map((c, j) => {
+        const x = c.x.map((v) => v + (c.shift || 0));
+        const y = shown(view.compares[j]);
+        const keep = x.map((_, i) => i).filter((i) => x[i] >= lo && x[i] <= hi);
+        return [keep.map((i) => x[i]), keep.map((i) => y[i])];
       }),
     ]);
   };
@@ -230,7 +300,7 @@ async function main() {
   const axisDrag = {
     hooks: {
       ready: (u) => {
-        if (!scaleBox.checked) return;
+        if (!separate()) return;
         compares.forEach((c, i) => c.map ?? link(c, u.scales[`c${i}`].min, u.scales[`c${i}`].max));
         u.root.querySelectorAll(".u-axis").forEach((node, idx) => {
           const c = compares[idx - 2];
@@ -261,20 +331,40 @@ async function main() {
       },
     },
   };
+  // Shade the background fit window under the series.
+  const windowPlugin = {
+    hooks: {
+      drawAxes: (u) => {
+        if (!bgMode?.value) return;
+        const [a, b] = settings().window.map((v) => u.valToPos(v, "x", true));
+        const left = Math.max(a, u.bbox.left);
+        const right = Math.min(b, u.bbox.left + u.bbox.width);
+        if (right <= left) return;
+        u.ctx.save();
+        u.ctx.globalAlpha = 0.1;
+        u.ctx.fillStyle = paint("--accent");
+        u.ctx.fillRect(left, u.bbox.top, right - left, u.bbox.height);
+        u.ctx.restore();
+      },
+    },
+  };
   const format = (ys) => {
     const big = Math.max(...ys.map(Math.abs)) >= 1e5;
-    return (u, splits) => splits.map((v) => (big ? compact.format(v) : plain.format(v)));
+    // Log axes put a tick at every multiple in each decade; label only 1, 2 and 5 of them.
+    const labelled = (v) => !log() || [1, 2, 5].includes(Math.round(v / 10 ** Math.floor(Math.log10(v))));
+    return (u, splits) => splits.map((v) => (!labelled(v) ? "" : big ? compact.format(v) : plain.format(v)));
   };
 
   const opts = () => {
-    const dual = compares.length > 0 && scaleBox.checked;
+    const dual = compares.length > 0 && separate();
+    const distr = log() ? { distr: 3, log: 10 } : {};
     return {
     width: el.clientWidth,
     height: Math.max(280, Math.min(460, el.clientWidth * 0.5)),
     scales: {
       x: { time: false },
       // The main scale is listed first so it is ranged before the compared ones, which follow it.
-      y: { range: (u, lo, hi) => (yRange = uPlot.rangeNum(lo, hi, 0.1, true)) },
+      y: { ...distr, range: (u, lo, hi) => (yRange = log() ? uPlot.rangeLog(lo, hi, 10, false) : uPlot.rangeNum(lo, hi, 0.1, true)) },
       ...Object.fromEntries(
         compares.map((c, i) => [`c${i}`, { range: (u, lo, hi) => (c.map && yRange ? mapped(c) : uPlot.rangeNum(lo, hi, 0.1, true)) }]),
       ),
@@ -286,34 +376,48 @@ async function main() {
         ...(dual ? { stroke: paint("--plot") } : {}),
         label: yLabel,
         size: ySize,
-        values: format(data[1]),
+        values: format(view.y),
       },
       ...(dual
-        ? compares.map((c, i) => ({ ...axis(), scale: scaleOf(i), side: 1, stroke: colour(i), grid: { show: false }, size: ySize, values: format(c.y) }))
+        ? compares.map((c, i) => ({ ...axis(), scale: scaleOf(i), side: 1, stroke: colour(i), grid: { show: false }, size: ySize, values: format(view.compares[i]) }))
         : []),
     ],
     series: [
       { label: "Energy (eV)" },
       { label: yLabel, stroke: paint("--plot"), width: 1.5, points: { show: false } },
+      ...(view.fit ? [{ label: "Power-law fit", stroke: paint("--edge"), width: 1.5, dash: [6, 4], points: { show: false } }] : []),
       ...compares.map((c, i) => ({ label: c.name, scale: scaleOf(i), stroke: colour(i), width: 1.5, points: { show: false }, spanGaps: true })),
     ],
-    legend: { markers: { show: compares.length > 0 } },
+    legend: { markers: { show: compares.length > 0 || !!view.fit } },
     cursor: { drag: { x: true, y: false }, points: { show: false } },
-    plugins: [edgePlugin, axisDrag],
+    plugins: [windowPlugin, edgePlugin, axisDrag],
     };
   };
 
   el.innerHTML = "";
+  compute();
   let plot = new uPlot(opts(), plotData(), el);
   const redraw = () => plot.redraw(false);
   showEdges.addEventListener("change", redraw);
   showMinor.addEventListener("change", redraw);
   new ResizeObserver(() => plot.setSize({ width: el.clientWidth, height: opts().height })).observe(el);
   // Canvas colours are resolved once, so rebuild when the scheme changes.
-  const rebuild = () => {
+  const rebuild = (keepZoom) => {
+    const { min, max } = plot.scales.x;
+    compute();
     plot.destroy();
     plot = new uPlot(opts(), plotData(), el);
+    // Scales are null until uPlot's first commit, so a second rebuild in the same tick has no zoom to keep.
+    if (keepZoom === true && min != null) plot.setScale("x", { min, max });
   };
+  const proc = document.getElementById("process");
+  if (proc) proc.hidden = false;
+  for (const control of [bgMode, bgFrom, bgTo, smooth, normalise, logY]) {
+    control?.addEventListener("input", () => {
+      if (smoothOut) smoothOut.textContent = +smooth.value ? `${2 * +smooth.value + 1} points` : "Off";
+      rebuild(true);
+    });
+  }
   new MutationObserver(rebuild).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", rebuild);
   const box = document.getElementById("compare");
@@ -327,7 +431,14 @@ async function main() {
     list.replaceChildren(
       ...compares.map((c, i) => {
         const li = document.createElement("li");
-        li.innerHTML = '<span class="swatch" aria-hidden="true"></span> <span class="name"></span> <button type="button" class="link-button">Remove</button>';
+        li.innerHTML = '<span class="swatch" aria-hidden="true"></span> <span class="name"></span> <label class="shift">shift <input type="number" step="0.1"> eV</label> <button type="button" class="link-button">Remove</button>';
+        const shift = li.querySelector(".shift input");
+        shift.value = c.shift || 0;
+        shift.setAttribute("aria-label", `Energy shift for ${c.name} (eV)`);
+        shift.addEventListener("input", () => {
+          c.shift = +shift.value || 0;
+          rebuild(true);
+        });
         li.querySelector(".swatch").style.background = `var(--compare-${(i % 4) + 1})`;
         li.querySelector(".name").textContent = c.name;
         li.querySelector("button").setAttribute("aria-label", `Remove ${c.name}`);
@@ -563,6 +674,7 @@ async function main() {
     }
     ctx.textAlign = "right";
     ctx.fillText(pageUrl, out.width - 16 * r, 26 * r);
+    ctx.fillText(describe(), out.width - 16 * r, 50 * r);
     ctx.drawImage(src, 0, HEAD * r);
     done();
     out.toBlob((blob) => give(blob, "png"));
@@ -609,7 +721,7 @@ async function main() {
         d += `${pen}${(L + u.valToPos(xv, "x")).toFixed(2)} ${(T + u.valToPos(yv, s.scale)).toFixed(2)}`;
         pen = "L";
       });
-      parts.push(`<path d="${d}" stroke="${stroke}"/>`);
+      parts.push(`<path d="${d}" stroke="${stroke}"${s.dash ? ` stroke-dasharray="${s.dash.join(" ")}"` : ""}/>`);
     });
     if (showEdges.checked) {
       edges.filter((e) => (e.major || showMinor.checked) && e.energy >= u.scales.x.min && e.energy <= u.scales.x.max).forEach((e, k) => {
@@ -623,6 +735,7 @@ async function main() {
     // Title, legend and address.
     text(16, 26, title, `fill="${colours.ink}" font-size="18" font-weight="600"`);
     text(W - 16, 26, pageUrl, `text-anchor="end" fill="${colours.muted}" font-size="13"`);
+    text(W - 16, 50, describe(), `text-anchor="end" fill="${colours.muted}" font-size="13"`);
     let x = 16;
     for (const item of legendItems(u)) {
       const colour = typeof item.colour === "function" ? item.colour(u, 1) : item.colour;

@@ -631,6 +631,15 @@ input[type="password"], input[type="email"] { background: var(--surface); border
 .plot-tools label { display: inline-flex; gap: 0.45rem; align-items: center; color: var(--ink); cursor: pointer; }
 .plot-tools input { accent-color: var(--accent); margin: 0; }
 .plot-hint { margin-left: auto; }
+.plot-process { font-size: 0.875rem; margin-top: 0.6rem; }
+.plot-process summary { cursor: pointer; color: var(--ink); width: fit-content; }
+.process-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.25rem; margin-top: 0.6rem; }
+.process-controls label { display: inline-flex; gap: 0.45rem; align-items: center; cursor: pointer; }
+.process-controls input, .compare-list .shift input { accent-color: var(--accent); margin: 0; }
+.process-controls input[type="number"] { width: 5.5rem; }
+.plot-process .hint { margin: 0.5rem 0 0; }
+.compare-list .shift { display: inline-flex; gap: 0.35rem; align-items: center; color: var(--muted); }
+.compare-list .shift input { width: 4.5rem; }
 .plot-message { color: var(--muted); padding: 2rem; text-align: center; margin: 0 auto; }
 .plot .uplot { font-family: var(--font); width: 100%; }
 .plot .u-legend { margin: 0.35rem 0 0; text-align: left; font-size: 0.875rem; }
