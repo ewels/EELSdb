@@ -90,6 +90,14 @@ export function Layout(props: {
         </head>
         <body class={props.home ? "home" : undefined}>
           <a class="skip" href="#main">Skip to content</a>
+          {props.user?.needs_2fa && props.path !== "/account/settings/two-step/" && (
+            <div class="two-step-banner" role="alert">
+              <div class="wrap">
+                <p><strong>Your moderator and admin features are switched off.</strong> They work again once you set up two-step sign-in.</p>
+                <a class="button" href="/account/settings/two-step/">Set up two-step sign-in</a>
+              </div>
+            </div>
+          )}
           {/* While ORCID is required, the submit page explains it in place of the form, so the banner would repeat it. */}
           {emailBanner && (
             <>

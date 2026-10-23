@@ -46,6 +46,16 @@ describe("defaults", () => {
     const user = await person("user");
     expect((await go("/account/", user.cookie)).status).toBe(200);
   });
+
+  it("tells staff without two-step sign-in on every page that their features are off", async () => {
+    const BANNER = "Your moderator and admin features are switched off";
+    const admin = await person("admin", { totp: false });
+    expect(await (await go("/account/settings/profile/", admin.cookie)).text()).toContain(BANNER);
+    expect(await (await go("/", admin.cookie)).text()).toContain(BANNER);
+    expect(await (await go("/account/settings/two-step/", admin.cookie)).text()).not.toContain(BANNER);
+    expect(await (await go("/", (await person("admin")).cookie)).text()).not.toContain(BANNER);
+    expect(await (await go("/", (await person("user")).cookie)).text()).not.toContain(BANNER);
+  });
 });
 
 describe("admins and moderators", () => {
