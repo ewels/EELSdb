@@ -249,7 +249,11 @@ const navItems = new Map($$(".steps li").map((li) => [li.dataset.step, li]));
 const isXas = () => field("type").value === "xrayabs";
 const visible = () => sections.filter((s) => s.dataset.step !== "xas" || isXas());
 let current = null;
-const reached = new Set();
+const touched = new Set();
+form.addEventListener("input", (e) => {
+  const step = e.target.closest?.("section.step")?.dataset.step;
+  if (step) touched.add(step);
+});
 
 function syncXas() {
   $("#step-xas").hidden = !isXas();
@@ -264,17 +268,24 @@ function paintNav() {
   const at = order.indexOf(current);
   for (const [id, li] of navItems) {
     const i = order.indexOf(id);
-    li.dataset.state = id === current ? "current" : i >= 0 && i < at ? "done" : reached.has(id) ? "reached" : "upcoming";
+    li.dataset.state = id === current ? "current" : i >= 0 && i < at ? "done" : touched.has(id) ? "reached" : "upcoming";
     const link = $("a", li);
     if (id === current) link.setAttribute("aria-current", "step");
     else link.removeAttribute("aria-current");
-    li.toggleAttribute("data-error", !!$(".has-error", $(`#step-${id}`)));
+    const section = $(`#step-${id}`);
+    const passed = id !== current && ((i >= 0 && i < at) || touched.has(id));
+    li.toggleAttribute("data-error", !!$(".has-error", section) || (passed && !validStep(section, { report: false })));
   }
+  syncSubmit();
+}
+
+// The review step's own fields are left out so pressing the button can still say what they need.
+function syncSubmit() {
+  $("#submit-button").disabled = visible().some((s) => s.dataset.step !== "review" && !validStep(s, { report: false }));
 }
 
 function go(id, { focus = true } = {}) {
   current = id;
-  reached.add(id);
   for (const s of sections) s.classList.toggle("current", s.dataset.step === id);
   paintNav();
   placePanel();
@@ -288,7 +299,7 @@ function go(id, { focus = true } = {}) {
 }
 
 /** The browser's own checks plus the rules it cannot express; the server checks everything again. */
-function validStep(section) {
+function validStep(section, { report = true } = {}) {
   const step = section.dataset.step;
   if (step === "files") return filesReady();
   const controls = $$("input, select, textarea", section);
@@ -303,7 +314,7 @@ function validStep(section) {
   }
   for (const control of controls) {
     if (!control.checkValidity()) {
-      control.reportValidity();
+      if (report) control.reportValidity();
       return false;
     }
   }
@@ -328,14 +339,6 @@ $(".steps").addEventListener("click", (e) => {
   const li = e.target.closest("li");
   if (!li) return;
   e.preventDefault();
-  const order = visible().map((s) => s.dataset.step);
-  const from = order.indexOf(current);
-  const to = order.indexOf(li.dataset.step);
-  if (to <= from || reached.has(li.dataset.step)) return go(li.dataset.step);
-  // Going forward: every step on the way must be complete.
-  for (let i = from; i < to; i++) {
-    if (!validStep(sections.find((s) => s.dataset.step === order[i]))) return go(order[i]);
-  }
   go(li.dataset.step);
 });
 
@@ -371,6 +374,7 @@ function syncInputs() {
   }
   nextButton.disabled = !filesReady();
   nextButton.textContent = files.some((f) => f.state === "reading") ? "Checking files…" : "Continue";
+  syncSubmit();
 }
 
 const looksLowLoss = (r) => r?.points !== undefined && r.energy_min < 10 && r.energy_max <= 200;
@@ -1068,7 +1072,7 @@ form.addEventListener("submit", async (e) => {
         : "Could not reach the server. Check your connection and press the button again.";
   } finally {
     window.turnstile?.reset();
-    button.disabled = false;
+    syncSubmit();
     button.textContent = label;
   }
 });
