@@ -4,11 +4,12 @@ import { Hono, type Context } from "hono";
 import type { AppEnv } from "../auth";
 import { MODIFIED_SQL, isoTime, sqlTime } from "./dates";
 import { API_HOST } from "./format";
+import { SITE_HOST } from "../site";
 import { dataCite, dublinCore, loadRecords, xml, type MetaRecord } from "./metadata";
 
 export const OAI_BASE = `${API_HOST}/oai`;
 const ADMIN_EMAIL = "info@eelsdb.eu";
-const REPOSITORY_ID = "eelsdb.eu";
+const REPOSITORY_ID = SITE_HOST;
 const PAGE = 100;
 
 const FORMATS: Record<string, { schema: string; namespace: string; write: (r: MetaRecord) => string }> = {

@@ -1,16 +1,19 @@
 // Builds the local D1 database and R2 bucket (Miniflare state in .wrangler/) from data/seed/.
 // Run `uv run python/build_seed.py` first if the fixtures changed.
+// `--env dev` fills that Wrangler environment's real D1 and R2 instead (its bindings are marked remote), without accounts.
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { getPlatformProxy } from "wrangler";
 
 const root = new URL("../../", import.meta.url);
+const envName = process.argv.includes("--env") ? process.argv[process.argv.indexOf("--env") + 1] : undefined;
 const seed = readFileSync(new URL("data/seed/seed.sql", root), "utf8");
 const uploads = JSON.parse(readFileSync(new URL("data/seed/r2-uploads.json", root), "utf8"));
 
-execFileSync("npx", ["wrangler", "d1", "migrations", "apply", "DB", "--local"], { stdio: "inherit" });
+const target = envName ? ["--env", envName, "--remote"] : ["--local"];
+execFileSync("npx", ["wrangler", "d1", "migrations", "apply", "DB", ...target], { stdio: "inherit" });
 
-const { env, dispose } = await getPlatformProxy({ persist: true });
+const { env, dispose } = await getPlatformProxy(envName ? { environment: envName, persist: false } : { persist: true });
 const statements = seed.split("\n").filter((l) => l.startsWith("INSERT"));
 const tables = [...new Set(statements.map((s) => s.match(/^INSERT INTO (\w+)/)[1]))].reverse();
 await env.DB.batch(tables.map((t) => env.DB.prepare(`DELETE FROM ${t}`)));
@@ -21,7 +24,7 @@ console.log(`D1: ${statements.length} rows`);
 
 // Accounts come from the private database export (python/export_accounts.py), when present.
 const accountsFile = new URL("data/private/accounts.sql", root);
-if (existsSync(accountsFile)) {
+if (!envName && existsSync(accountsFile)) {
   const accounts = readFileSync(accountsFile, "utf8").split("\n").filter((l) => /^(INSERT|UPDATE)/.test(l));
   await env.DB.batch(["favourites", "users"].map((t) => env.DB.prepare(`DELETE FROM ${t}`)));
   for (let i = 0; i < accounts.length; i += 500) {

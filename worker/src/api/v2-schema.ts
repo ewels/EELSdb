@@ -3,6 +3,7 @@
 import { createRoute, z } from "@hono/zod-openapi";
 import { ELEMENTS } from "../elements";
 import { sqlTime } from "./dates";
+import { API_HOST, SITE } from "../site";
 
 export const MAX_PER_PAGE = 500;
 export const SORTS = ["formula", "title", "published_at", "min_energy_ev", "max_energy_ev", "beam_energy_kv", "resolution_ev", "author", "updated_at", "id"] as const;
@@ -263,7 +264,7 @@ export const DraftForm = z
   })
   .openapi("DraftForm", {
     description:
-      "The fields of the submit form, under the same names: see the field reference at https://eelsdb.eu/docs/reference/fields/. Any form field not listed here is accepted too.",
+      `The fields of the submit form, under the same names: see the field reference at ${SITE}/docs/reference/fields/. Any form field not listed here is accepted too.`,
   });
 
 export const Draft = z
@@ -291,7 +292,7 @@ export const draftRoute = createRoute({
   operationId: "createDraft",
   summary: "Create a draft",
   description:
-    "Saves a spectrum as a draft in the token owner's account. A draft is not public and is not reviewed: the owner checks it on the website and submits it. Drafts that are not submitted are deleted after 30 days. Needs an API token from https://eelsdb.eu/account/settings/tokens/. At most 200 drafts an hour.",
+    `Saves a spectrum as a draft in the token owner's account. A draft is not public and is not reviewed: the owner checks it on the website and submits it. Drafts that are not submitted are deleted after 30 days. Needs an API token from ${SITE}/account/settings/tokens/. At most 200 drafts an hour.`,
   security: [{ apiToken: [] }],
   request: { body: { content: { "multipart/form-data": { schema: DraftForm } }, required: true } },
   responses: {
@@ -310,5 +311,5 @@ export const DOCUMENT = {
     description:
       "JSON API with typed values. It is read-only, except that a contributor's assistant can create drafts (`POST /drafts`) for the contributor to check and submit on the website. Values are typed: numbers are numbers, units are in the field names, and acquisition values say where they came from. No key is needed to read. Responses have `Access-Control-Allow-Origin: *`. Errors return `{\"error\": {\"code\", \"message\"}}`. Field names follow HyperSpy's metadata where they can (beam energy in kV, angles in mrad).",
   },
-  servers: [{ url: "https://api.eelsdb.eu/v2" }],
+  servers: [{ url: `${API_HOST}/v2` }],
 };

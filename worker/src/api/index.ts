@@ -1,6 +1,7 @@
 import { Hono, type Context } from "hono";
 import type { AppEnv } from "../auth";
 import { API_HOST, SITE, formatV1, loadBundle, loadMany } from "./format";
+import { localise } from "../site";
 import { v2 } from "./v2";
 import { oai } from "./oai";
 import { dcat } from "./dcat";
@@ -12,7 +13,7 @@ const DOCS = `${SITE}/api/`;
 const NEWS_PER_PAGE = 10;
 
 const json = (c: Context, body: unknown, status: 200 | 400 | 404 = 200) =>
-  c.body(JSON.stringify(body, null, 4), status, { "Content-Type": "application/json; charset=utf-8" });
+  c.body(localise(JSON.stringify(body, null, 4)), status, { "Content-Type": "application/json; charset=utf-8" });
 const notFound = (c: Context) => json(c, { message: "API path not recognised", documentation_url: DOCS }, 404);
 
 api.use(async (c, next) => {

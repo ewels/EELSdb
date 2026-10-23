@@ -3,6 +3,7 @@ import type { AppEnv } from "../auth";
 import { parseSpectrum } from "../preview";
 import { authorCard, siteCard, spectrumCard, textCard, type Mini } from "./cards";
 import { svgToPng } from "./render";
+import { SITE_HOST } from "../site";
 
 /** Share cards (og:image), drawn from the page's own data and cached at the edge for a day. */
 export const og = new Hono<AppEnv>();
@@ -15,11 +16,11 @@ const SPECTRUM_FILE = `(SELECT r2_key FROM files WHERE spectrum_id = s.id AND ro
 
 /** Fixed pages that are not in the docs: their card title and description. */
 export const PAGE_CARDS: Record<string, { title: string; description: string; url: string }> = {
-  browse: { title: "Browse spectra", description: "Filter by element, edge, type, energy range and resolution.", url: "eelsdb.eu/spectra/" },
-  downloads: { title: "Bulk download", description: "Every published spectrum in one archive, with its metadata.", url: "eelsdb.eu/downloads/" },
-  moderators: { title: "Moderators", description: "The people who check each submitted spectrum before it is published.", url: "eelsdb.eu/moderators/" },
-  news: { title: "News", description: "Archived news from the EELS Data Base.", url: "eelsdb.eu/news/" },
-  contact: { title: "Contact", description: "Questions about the EELS Data Base, a spectrum or your account.", url: "eelsdb.eu/contact/" },
+  browse: { title: "Browse spectra", description: "Filter by element, edge, type, energy range and resolution.", url: `${SITE_HOST}/spectra/` },
+  downloads: { title: "Bulk download", description: "Every published spectrum in one archive, with its metadata.", url: `${SITE_HOST}/downloads/` },
+  moderators: { title: "Moderators", description: "The people who check each submitted spectrum before it is published.", url: `${SITE_HOST}/moderators/` },
+  news: { title: "News", description: "Archived news from the EELS Data Base.", url: `${SITE_HOST}/news/` },
+  contact: { title: "Contact", description: "Questions about the EELS Data Base, a spectrum or your account.", url: `${SITE_HOST}/contact/` },
 };
 
 async function cached(c: C, draw: () => Promise<string | null>) {
@@ -128,7 +129,7 @@ og.get("/news/:file{.+\\.png}", (c) =>
     const post = await c.env.DB.prepare("SELECT slug, title, published_at FROM news WHERE slug = ?").bind(c.req.param("file").slice(0, -4)).first<any>();
     if (!post) return null;
     const date = new Date(post.published_at.replace(" ", "T") + "Z").toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
-    return textCard({ title: post.title, description: `News · ${date}`, url: `eelsdb.eu/${post.slug}/`, traces: await traces(c) });
+    return textCard({ title: post.title, description: `News · ${date}`, url: `${SITE_HOST}/${post.slug}/`, traces: await traces(c) });
   }),
 );
 
@@ -148,6 +149,6 @@ og.get("/docs/*", (c) =>
     const title = META(html, "og:title");
     if (!title) return null;
     const description = META(html, "og:description") ?? META(html, "description");
-    return textCard({ title: decode(title), description: description && decode(description), url: `eelsdb.eu/docs/${path}`, traces: await traces(c) });
+    return textCard({ title: decode(title), description: description && decode(description), url: `${SITE_HOST}/docs/${path}`, traces: await traces(c) });
   }),
 );

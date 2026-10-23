@@ -8,7 +8,10 @@
     { "type": "Data", "globs": ["**/*.ttf"] },
     { "type": "Text", "globs": ["**/*.svg"] }
   ],
-  "assets": { "directory": "./public", "binding": "ASSETS" },
+  // The Worker runs first for these so that a deployment on another host can point their links at itself.
+  "assets": { "directory": "./public", "binding": "ASSETS", "run_worker_first": ["/robots.txt", "/llms.txt", "/docs/*"] },
+  // The site's public address; the API is served on the same host with "api." in front.
+  "vars": { "SITE_URL": "https://eelsdb.eu" },
   "d1_databases": [
     {
       "binding": "DB",
@@ -22,5 +25,27 @@
   // Cloudflare account (Email Sending) and set EMAIL_PROVIDER=cloudflare and EMAIL_FROM on that domain.
   "send_email": [{ "name": "EMAIL" }],
   // Daily: delete drafts that were never submitted.
-  "triggers": { "crons": ["17 3 * * *"] }
+  "triggers": { "crons": ["17 3 * * *"] },
+  // A test deployment on its own hosts, data and files: `npx wrangler deploy --env dev`. Copy this block for
+  // other hosts. Bindings are not inherited from the top level, so each environment lists them all.
+  "env": {
+    "dev": {
+      "vars": { "SITE_URL": "https://dev.eelsdb.eu" },
+      "routes": [
+        { "pattern": "dev.eelsdb.eu", "custom_domain": true },
+        { "pattern": "api.dev.eelsdb.eu", "custom_domain": true }
+      ],
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "eelsdb-dev",
+          "database_id": "00000000-0000-0000-0000-000000000000",
+          "migrations_dir": "migrations",
+          "remote": true
+        }
+      ],
+      "r2_buckets": [{ "binding": "FILES", "bucket_name": "eelsdb-dev-files", "remote": true }],
+      "send_email": [{ "name": "EMAIL" }]
+    }
+  }
 }

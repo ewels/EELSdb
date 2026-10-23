@@ -1,3 +1,4 @@
+import { SITE_HOST } from "../site";
 import METRICS from "./metrics.json";
 import LOGO from "../../public/logo/eelsdb-logo-compact-light-bg.svg";
 import HERO_LOGO from "../../public/logo/eelsdb-logo-light-bg.svg";
@@ -254,7 +255,7 @@ export function spectrumCard(s: SpectrumCard) {
   if (s.data && s.data[0].length > 1) body += plot(s.data[0], s.data[1], s.elements, { left: 0, right: W, top: metaY + 78, bottom: H - 106 }, s.type);
   const credit: Run[] = s.author
     ? [{ text: "Shared by ", size: 22, fill: C.muted }, { text: plainName(s.author), size: 22, weight: 600 }, { text: s.year ? ` · ${s.year}` : "", size: 22, fill: C.muted }]
-    : [{ text: `eelsdb.eu/spectra/${s.slug}/`, size: 22, fill: C.muted }];
+    : [{ text: `${SITE_HOST}/spectra/${s.slug}/`, size: 22, fill: C.muted }];
   body += runs(M, H - 44, credit)[0];
   return svg(body);
 }
@@ -298,7 +299,7 @@ export function authorCard(a: AuthorCard) {
       body += `<path d="${d}" fill="none" stroke="${C.plot}" stroke-width="2.5" stroke-linejoin="round"/>`;
     });
   }
-  return svg(body + footer(`eelsdb.eu/author/${a.slug}/`));
+  return svg(body + footer(`${SITE_HOST}/author/${a.slug}/`));
 }
 
 // The periodic table as on the homepage, with the lanthanides and actinides in their own rows.

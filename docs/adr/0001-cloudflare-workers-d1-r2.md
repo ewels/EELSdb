@@ -24,6 +24,7 @@ The new site has these requirements:
 - The Worker's assets binding serves the static assets. These are the CSS, the JS, uPlot, the Pyodide loader, the edge table JSON and the built docs.
 - The Worker runs on Workers Paid ($5 a month). Cloudflare Email Service sends to arbitrary recipients only on the paid plan, and sign-in links, address confirmations and account notices are all emails ([ADR 0022](/docs/adr/0022-email-and-contact/)).
 - The project uses one provider, one account and one set of credentials.
+- The site's address is a setting, `SITE_URL` (default `https://eelsdb.eu`). The API is always the same host with `api.` in front. Every absolute link the Worker writes (API records, harvesting endpoints, emails, share cards, downloads) comes from it, so the same code can run as a test copy on other hostnames. Each copy is a Wrangler environment in `wrangler.jsonc` with its own hostnames, D1 database and R2 bucket, so a test copy never touches live data.
 
 ## Consequences
 
@@ -37,9 +38,11 @@ The new site has these requirements:
   - A process outside Cloudflare builds the bulk zip ([ADR 0027](/docs/adr/0027-bulk-download/)).
 - Email uses Cloudflare Email Service, behind a provider switch with a "log" default, so local development sends nothing ([ADR 0022](/docs/adr/0022-email-and-contact/)).
 - A cron trigger runs a daily clean-up of old drafts and old contact messages.
+- Some text is prebuilt with production links: the docs, `llms.txt`, the API v1 OpenAPI file and the migrated API v1 records. On any other address the Worker rewrites `https://eelsdb.eu` and `https://api.eelsdb.eu` in them as it serves them, which is why `robots.txt`, `llms.txt` and `/docs/*` are in `assets.run_worker_first`. Off production the Worker also asks search engines not to index anything (`robots.txt` disallows all, and responses carry `X-Robots-Tag: noindex`).
 
 ## Alternatives considered
 
+- Taking the site address from each request's `Host` header. It needs no setting, but the cron jobs and the module-level constants have no request, and a configured address cannot be changed by a forged header.
 - The Workers free plan. It cannot send email to arbitrary recipients, and it allows only 10 ms of CPU and 50 subrequests per request.
 - Keep WordPress and patch it: this does not remove the cause.
 - A static site backed by Git, with contributions as pull requests: contributors would need GitHub.

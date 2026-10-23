@@ -20,6 +20,7 @@ export default defineConfig({
           TURNSTILE_SECRET_KEY: "",
           EMAIL_PROVIDER: "log",
           ORCID_BASE: "https://orcid.org",
+          SITE_URL: "https://eelsdb.eu",
         },
       },
     })),

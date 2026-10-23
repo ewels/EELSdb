@@ -6,6 +6,7 @@ import openapiV1 from "../api/openapi-v1.json";
 import { openapiV2 } from "../api/v2";
 import { MODIFIED_SQL, isoTime } from "../api/dates";
 import { SITE } from "../api/format";
+import { IS_PRODUCTION, localise } from "../site";
 import { xml } from "../api/metadata";
 import { EXPORT_KEY, serveFile } from "../files";
 import { browsePage } from "./browse";
@@ -120,7 +121,19 @@ const MOVED: Record<string, string> = {
 for (const [from, to] of Object.entries(MOVED)) pages.get(from, (c) => c.redirect(to, 301));
 
 pages.get("/api/openapi-v2.json", (c) => c.json(openapiV2()));
-pages.get("/api/openapi-v1.json", (c) => c.json(openapiV1));
+pages.get("/api/openapi-v1.json", (c) => c.json(IS_PRODUCTION ? openapiV1 : JSON.parse(localise(JSON.stringify(openapiV1)))));
+
+// Static files that link to the site, routed here by assets.run_worker_first.
+pages.get("/robots.txt", async (c) => (IS_PRODUCTION ? c.env.ASSETS.fetch(c.req.raw) : c.text("User-agent: *\nDisallow: /\n")));
+pages.on("GET", ["/llms.txt", "/docs/*"], async (c) => {
+  const res = await c.env.ASSETS.fetch(c.req.raw);
+  if (res.status === 404) return c.notFound();
+  if (IS_PRODUCTION || !/^text\/|json|xml/.test(res.headers.get("Content-Type") ?? "")) return res;
+  const headers = new Headers(res.headers);
+  headers.delete("Content-Length");
+  headers.delete("ETag");
+  return new Response(localise(await res.text()), { status: res.status, headers });
+});
 
 pages.get("/sitemap.xml", async (c) => {
   const { results } = await c.env.DB.prepare(

@@ -248,7 +248,7 @@ v2.openapi(oneRoute, async (c) => {
   return bundle ? c.json(formatV2(bundle), 200) : error(c, 404, "not_found", "No published spectrum with this id or slug.");
 });
 
-v2.openAPIRegistry.registerComponent("securitySchemes", "apiToken", { type: "http", scheme: "bearer", description: "An API token from https://eelsdb.eu/account/settings/tokens/." });
+v2.openAPIRegistry.registerComponent("securitySchemes", "apiToken", { type: "http", scheme: "bearer", description: `An API token from ${SITE}/account/settings/tokens/.` });
 v2.openapi(draftRoute, createDraft);
 
 v2.all("*", (c) => error(c, 404, "not_found", `Unknown path. See ${API_REFERENCE}.`));

@@ -1,8 +1,9 @@
 // Formats a spectrum from its typed rows into a v1 API object, following the old api_spectra.php.
 // Migrated spectra are served from `legacy_v1` instead; this is for spectra added after migration.
 
-export const SITE = "https://eelsdb.eu";
-export const API_HOST = "https://api.eelsdb.eu";
+import { API_HOST, SITE } from "../site";
+
+export { API_HOST, SITE };
 
 export const TYPE_LABELS: Record<string, string> = {
   coreloss: "Core Loss",

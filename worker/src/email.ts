@@ -1,3 +1,5 @@
+import { SITE, SITE_HOST } from "./site";
+
 export type Email = { to: string; subject: string; text: string; replyTo?: string; footer?: string };
 
 /**
@@ -6,10 +8,10 @@ export type Email = { to: string; subject: string; text: string; replyTo?: strin
  */
 export const sent: Email[] = [];
 
-export const FOOTER = "You received this email because this address was used on eelsdb.eu. If that was not you, you can ignore it.";
+export const FOOTER = `You received this email because this address was used on ${SITE_HOST}. If that was not you, you can ignore it.`;
 
 export async function sendEmail(env: Env, { footer = FOOTER, ...email }: Email) {
-  const message = { ...email, text: `${email.text}\n\n-- \nEELS Data Base, https://eelsdb.eu\n${footer}` };
+  const message = { ...email, text: `${email.text}\n\n-- \nEELS Data Base, ${SITE}\n${footer}` };
   const provider = env.EMAIL_PROVIDER || "log";
   if (provider === "cloudflare") {
     if (!env.EMAIL_FROM) throw new Error("EMAIL_FROM is not set");

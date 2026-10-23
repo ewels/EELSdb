@@ -6,6 +6,7 @@ import { Avatar as SharedAvatar, EdgeName, Formula, Layout, TYPE_NAMES, plainNam
 import { HERO_LOGO_SVG } from "./logo";
 import { HyperSpySnippet } from "./snippet";
 import { jsonLdScript, schemaOrgCatalog } from "../api/metadata";
+import { SITE } from "../site";
 import { majorEdges, parseSpectrum } from "../preview";
 
 const ELEMENT_NAMES: Record<string, string> = NAMES;
@@ -274,7 +275,7 @@ export async function homePage(c: Context<AppEnv>) {
         <div>
           <h2>Load spectra in Python</h2>
           <p>Every spectrum downloads as an MSA file that HyperSpy reads with its beam energy and angles. The API has the rest.</p>
-          <HyperSpySnippet url="https://eelsdb.eu/spectra/iron-iii-oxide-hematite/download/msa" file="hematite.msa" />
+          <HyperSpySnippet url={`${SITE}/spectra/iron-iii-oxide-hematite/download/msa`} file="hematite.msa" />
           <div class="cite-actions">
             <a class="button secondary" href="/docs/use/python/">Python guide {ARROW}</a>
             <a class="button secondary" href="/docs/use/api/">API {ARROW}</a>
