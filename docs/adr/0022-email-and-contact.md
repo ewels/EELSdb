@@ -14,7 +14,7 @@ Several features send email: email links, address confirmation, account-change n
 ### Sending
 
 - `worker/src/email.ts` provides `sendEmail(env, { to, subject, text, replyTo })`.
-- There are two providers. `log` is the default. It prints to the Worker log and keeps `sent` for tests. `cloudflare` uses the Workers `send_email` binding of Cloudflare Email Service. We chose Cloudflare Email Service to avoid another vendor.
+- There are two providers. `log` is the default. It prints to the Worker log and keeps `sent` for tests. `cloudflare` uses the Workers `send_email` binding of Cloudflare Email Service. We chose Cloudflare Email Service to avoid another vendor. Sending to arbitrary recipients needs Workers Paid ([ADR 0001](/docs/adr/0001-cloudflare-workers-d1-r2/)).
 - `wrangler.jsonc` always contains the `EMAIL` binding. `wrangler dev` and the test pool simulate the binding without an account. `EMAIL_PROVIDER=log` stays the default, so the Worker sends nothing until someone configures a provider. Before deploy, someone must set up a sending domain in the Cloudflare account.
 - The sender name is "EELSdb". The sender address comes from `EMAIL_FROM`. Messages are plain text only. `sendEmail` adds one footer to every message.
 - The binding calls the reply-to field `replyTo`. The REST API calls it `reply_to`.

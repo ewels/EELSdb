@@ -25,5 +25,5 @@ A separate spectrum for each version would repeat all metadata five times.
 ## Consequences
 
 - A contributor can add variants only with a new submission. Edits do not support them.
-- The site does not read a combined file that holds several spectra.
+- The site does not read a combined file that holds several spectra. Support for one needs an example file of that format first.
 - Browse thumbnails read the legacy, MSA or original file. They never read a variant or the metadata file.

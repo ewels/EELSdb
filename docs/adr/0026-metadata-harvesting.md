@@ -39,6 +39,7 @@ Recherche Data Gouv is the national research data platform of France and runs on
   - Give Recherche Data Gouv the OAI base URL.
   - Submit the sitemap to Google Search Console.
   - Check pages with the schema.org validator and the Rich Results Test.
+  - Ask which national portal harvests DCAT-AP for data.europa.eu.
   - Optionally, register with openarchives.org and BASE.
 
 ## Alternatives considered

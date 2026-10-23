@@ -7,7 +7,7 @@ adr:
 
 ## Context
 
-People want all spectra in one archive. A Worker cron that builds a zip of every file may exceed the CPU limits of the free plan ([ADR 0001](/docs/adr/0001-cloudflare-workers-d1-r2/)).
+People want all spectra in one archive. Building a zip of every file is heavy work, and it should stay out of the Worker's request path ([ADR 0001](/docs/adr/0001-cloudflare-workers-d1-r2/)).
 
 ## Decision
 
@@ -17,5 +17,5 @@ People want all spectra in one archive. A Worker cron that builds a zip of every
 
 ## Consequences
 
-- Nothing needs Workers Paid.
+- A daily Worker cron could build the zip instead. On Workers Paid, a cron that runs once an hour or less often gets 15 minutes of CPU.
 - The GitHub data backup offers the same data through GitHub's own zip download of the repository ([ADR 0035](/docs/adr/0035-github-data-backup/)).

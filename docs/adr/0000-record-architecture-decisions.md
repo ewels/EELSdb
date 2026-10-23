@@ -16,6 +16,7 @@ We keep architecture decision records (ADRs) in `docs/adr/`. Each decision has o
 Each record has these parts:
 
 - A date, which is the date when we first made the decision.
+- If the code does not yet do what the record decides, `implemented: "no"` or `implemented: partly` under `adr` in the front matter. Say what is missing in the record. Remove the field when the work is done.
 - A Context section, which gives the problem and the forces on it.
 - A Decision section, which states what we do.
 - A Consequences section, which gives the results, good and bad.

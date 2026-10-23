@@ -2,8 +2,7 @@
 TODO*
 
 # Local planning notes for the rewrite
-plan/
-CLAUDE.md
+.claude/CLAUDE.md
 
 # Database dumps and anything derived from them contain personal data
 *.sql

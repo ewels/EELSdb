@@ -2,7 +2,7 @@
 
 <!-- impeccable:product-schema 1 -->
 
-Facts come from `plan/` and the old site. The user descriptions under Users and Operating Context were inferred from the repo, the live site and the field, at Phil's request, and have not been confirmed one by one.
+Facts come from the architecture decision records in `docs/adr/` and the old site. The user descriptions under Users and Operating Context were inferred from the repo, the live site and the field, at Phil's request, and have not been confirmed one by one.
 
 ## Platform
 

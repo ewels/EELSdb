@@ -86,7 +86,7 @@ export function makePreview(text: string): Preview | null {
 }
 
 type PreviewRow = { id: number; file: string | null; preview: string | null; preview_key: string | null };
-// ponytail: fills at most this many missing thumbnails per request, to stay inside the subrequest limit; the rest fill on later visits.
+// ponytail: fills at most this many missing thumbnails per request, to bound the work in one page view; the rest fill on later visits.
 const FILL_PER_REQUEST = 40;
 
 /**

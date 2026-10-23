@@ -8,7 +8,12 @@ export const collections = {
     schema: docsSchema({
       extend: z.object({
         // Architecture decision records in docs/adr/; PageTitle shows the date.
-        adr: z.object({ date: z.coerce.date() }).optional(),
+        adr: z
+          .object({
+            date: z.coerce.date(),
+            implemented: z.enum(['no', 'partly']).optional(),
+          })
+          .optional(),
       }),
     }),
   }),

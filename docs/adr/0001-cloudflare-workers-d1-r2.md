@@ -1,6 +1,6 @@
 ---
 title: "0001. Cloudflare Workers, D1 and R2"
-description: "EELSdb runs as one Cloudflare Worker, with D1 for data and R2 for files, on the free plan."
+description: "EELSdb runs as one Cloudflare Worker, with D1 for data and R2 for files, on Workers Paid."
 adr:
   date: 2026-10-14
 ---
@@ -22,24 +22,25 @@ The new site has these requirements:
 - D1 (SQLite) holds all structured data. SQL does the filtering and sorting, so the Worker does little CPU work per request.
 - R2 holds the spectrum files. Legacy files keep their exact paths (`wp-content/uploads/YYYY/MM/name.msa`), so old download links work.
 - The Worker's assets binding serves the static assets. These are the CSS, the JS, uPlot, the Pyodide loader, the edge table JSON and the built docs.
-- The design targets the Workers free plan. Nothing may require Workers Paid ($5 a month). Features that would need it stay optional, as the Consequences section shows.
+- The Worker runs on Workers Paid ($5 a month). Cloudflare Email Service sends to arbitrary recipients only on the paid plan, and sign-in links, address confirmations and account notices are all emails ([ADR 0022](/docs/adr/0022-email-and-contact/)).
 - The project uses one provider, one account and one set of credentials.
 
 ## Consequences
 
 - There is no server, OS or PHP to patch. Dependencies are few and pinned ([ADR 0004](/docs/adr/0004-server-rendered-hono/)).
 - Local development runs entirely in `wrangler dev`, with Miniflare's local D1 and R2. Developers do not need a Cloudflare account to develop or test.
-- The work per request must stay small. The free plan has a CPU limit of 10 ms per request. Cloudflare does not enforce it exactly, and low traffic usually gets through. Heavy work in the request path still risks error 1102. Examples are parsing a large JSON index and password hashing under load. Keep the work in D1 queries.
+- Keep the work per request small, and keep it in D1 queries. Workers Paid allows 30 s of CPU per request by default, but heavy work in the request path still makes pages slow and costs CPU time. Examples are parsing a large JSON index and password hashing.
 - D1 allows at most 100 bound parameters per query. Code must cap or chunk every `IN (...)` that it builds from user input.
-- Some features would push the project towards Workers Paid. Each one has a free workaround:
+- Heavy work stays out of the request path:
   - Old WordPress password checks use a lot of CPU. They sit behind a flag, and the Worker rehashes each password on first use ([ADR 0018](/docs/adr/0018-sign-in/)).
-  - Email uses Cloudflare Email Service, behind a provider switch with a "log" default ([ADR 0022](/docs/adr/0022-email-and-contact/)).
   - The project does not need server-side HyperSpy, because Python runs in the browser ([ADR 0002](/docs/adr/0002-no-server-side-python/)).
-  - A process outside Cloudflare builds the nightly bulk zip ([ADR 0027](/docs/adr/0027-bulk-download/)).
-- A cron trigger runs a daily clean-up of old drafts and old contact messages. Cron triggers are free.
+  - A process outside Cloudflare builds the bulk zip ([ADR 0027](/docs/adr/0027-bulk-download/)).
+- Email uses Cloudflare Email Service, behind a provider switch with a "log" default, so local development sends nothing ([ADR 0022](/docs/adr/0022-email-and-contact/)).
+- A cron trigger runs a daily clean-up of old drafts and old contact messages.
 
 ## Alternatives considered
 
+- The Workers free plan. It cannot send email to arbitrary recipients, and it allows only 10 ms of CPU and 50 subrequests per request.
 - Keep WordPress and patch it: this does not remove the cause.
 - A static site backed by Git, with contributions as pull requests: contributors would need GitHub.
   - We also worked out a free variant. It used a static site on GitHub Pages, a free Worker for the API and form, and a GitHub App that turns each submission into a pull request. GitHub Actions ran RosettaSciIO.

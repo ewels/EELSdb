@@ -34,7 +34,7 @@ The browse page uses API v2's query (`spectraFilter` / `listSpectra`) and its pa
 
 - The Worker stores thumbnails in two `spectra` columns.
 - The Worker builds a thumbnail from the R2 file on the first view. It builds it again when the file changes. Submit and moderation code therefore do not need to know about thumbnails.
-- The Worker builds at most 40 thumbnails per request, because of Cloudflare's per-request subrequest limit. A page shows 50, so a fresh database lacks a few thumbnails for a short time.
+- The Worker builds at most 40 thumbnails per request, so one page view does a bounded amount of work. A page shows 50, so a fresh database lacks a few thumbnails for a short time.
 - A cold fill took 78 ms locally.
 - The Worker builds thumbnails from the legacy, MSA or original file, never from a variant.
 

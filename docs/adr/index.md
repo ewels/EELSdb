@@ -12,7 +12,7 @@ These records explain the main design decisions in EELSdb. Each record gives the
 
 | Decision | Summary |
 |---|---|
-| [0001. Cloudflare Workers, D1 and R2](/docs/adr/0001-cloudflare-workers-d1-r2/) | EELSdb runs as one Cloudflare Worker, with D1 for data and R2 for files, on the free plan. |
+| [0001. Cloudflare Workers, D1 and R2](/docs/adr/0001-cloudflare-workers-d1-r2/) | EELSdb runs as one Cloudflare Worker, with D1 for data and R2 for files, on Workers Paid. |
 | [0002. No server-side Python](/docs/adr/0002-no-server-side-python/) | Python never runs on the server. It runs in the browser with Pyodide, and in offline scripts. |
 | [0003. Browser Python stack](/docs/adr/0003-small-browser-python-stack/) | The browser loads RosettaSciIO and h5py only, and plain JavaScript does the interactive processing. |
 | [0004. Server-rendered pages](/docs/adr/0004-server-rendered-hono/) | The Worker renders pages with Hono JSX, and small scripts add the interactive parts. |

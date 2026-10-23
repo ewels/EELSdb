@@ -3,6 +3,7 @@ title: "0011. Migrating accounts"
 description: "We keep real accounts, drop spam, and keep all personal data out of the repository."
 adr:
   date: 2026-10-20
+  implemented: partly
 ---
 
 ## Context
@@ -48,6 +49,7 @@ A person takes over old spectra in this way. The person signs in by any method a
 
 ## Consequences
 
+- The export script is built and runs locally. The accounts reach the live site only at the cut-over ([ADR 0010](/docs/adr/0010-migrating-public-data/)), after a final export from the read-only old site.
 - The data worth keeping is, in order: spectrum ownership (the main reason), favourites, presets (marginal) and affiliation for profiles. Attribution of spectra does not need accounts.
 - The dump creates its own database name when you load it. The script detects the database that holds the WordPress tables.
 - The dump stores favourites as one row per spectrum, not as a serialised list.

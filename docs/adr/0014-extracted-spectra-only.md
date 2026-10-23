@@ -26,6 +26,7 @@ Contributors sometimes have spectrum images, which are data cubes from STEM-EELS
 
 ## Consequences
 
+- Contributors with a cube must extract a spectrum themselves before they submit. Helping them do this in the interface is a possible later feature.
 
 ## Alternatives considered
 

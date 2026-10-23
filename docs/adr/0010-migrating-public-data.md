@@ -3,6 +3,7 @@ title: "0010. Migrating public data"
 description: "We record the old site's public data, fix its energy errors and drop dead content."
 adr:
   date: 2026-10-20
+  implemented: partly
 ---
 
 ## Context
@@ -50,6 +51,7 @@ The repository does not contain the spectrum files. They live in `data/cache/` a
 
 ## Consequences
 
+- The import scripts and the seed are built and run locally. The cut-over below has not happened, so the new site is not live and the old site still serves eelsdb.eu.
 - In a fresh checkout, run the download scripts to fill `data/cache/` before you rebuild the seed. The committed seed is enough to run the Worker and its tests.
 - We found data issues that we did not fix. One spectrum shows an energy step of 3,710 eV. Some download filenames look random (`DspecIk9kBZ.msa`).
 - The private spectra need the `wp-content/uploads` folder from the old host. A person must copy it at cut-over.
@@ -62,6 +64,7 @@ The repository does not contain the spectrum files. They live in `data/cache/` a
 4. Set up the redirects. `/forum/…`, `/jobs/…` and `/registered-users/` return 410. `/wp-login.php` redirects to the new sign-in.
 5. Before you deploy, set up these items:
    - A Cloudflare email sending domain, `EMAIL_PROVIDER` and `EMAIL_FROM`.
+   - Workers Paid on the Cloudflare account, which email sending needs.
    - Real Turnstile keys.
    - OAuth client IDs.
    - Two-step sign-in on the admin account of the owner. With the defaults, an admin without two-step sign-in has no powers, and contact messages reach nobody.

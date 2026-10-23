@@ -3,6 +3,7 @@ title: "0035. GitHub data backup"
 description: "A GitHub repository holds a copy of every published spectrum as plain files."
 adr:
   date: 2026-10-22
+  implemented: "no"
 ---
 
 ## Context

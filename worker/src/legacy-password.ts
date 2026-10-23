@@ -1,5 +1,5 @@
 // Verifies passwords against hashes migrated from WordPress. Only used when LEGACY_PASSWORD_LOGIN is "1":
-// phpass and bcrypt are CPU-heavy for the Workers free plan.
+// phpass and bcrypt are CPU-heavy, so each hash is replaced with PBKDF2 on first use.
 import bcrypt from "bcryptjs";
 
 const ITOA64 = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";

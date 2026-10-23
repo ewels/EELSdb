@@ -17,6 +17,7 @@ const date = adr?.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'lon
         <span>
           Decided <time datetime={adr.date.toISOString().slice(0, 10)}>{date}</time>
         </span>
+        {adr.implemented && <span>{adr.implemented === 'no' ? 'Not built yet' : 'Partly built'}</span>}
         <a href={`${import.meta.env.BASE_URL}adr/`}>All decisions</a>
       </p>
     </>

@@ -42,7 +42,7 @@ A package is one more thing to maintain and release. The project owner said: "I 
   - MCP needs EELSdb to be an OAuth provider.
   - EELSdb needs a write API underneath in any case.
 - An agent is useful because it fills in metadata, and that is also the risk. A guessed convergence angle breaks the rule that "unknown is valid". So a person confirms each draft in the browser.
-- Drafts need no new services. MCP would add `workers-oauth-provider`, which needs a KV namespace. It would also add Durable Objects, with the Agents SDK `McpAgent`. Both fit the free plan, but they are more services to run.
+- Drafts need no new services. MCP would add `workers-oauth-provider`, which needs a KV namespace. It would also add Durable Objects, with the Agents SDK `McpAgent`. Both are cheap, but they are more services to run.
 - The code treats a drafts token as a scoped token (`drafts:write`), so future OAuth tokens can reuse the code.
 
 ## Alternatives considered

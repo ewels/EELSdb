@@ -10,7 +10,7 @@ adr:
 - Contributors' old accounts must keep working ([ADR 0011](/docs/adr/0011-migrating-accounts/)).
 - EELSdb wants to identify contributors by ORCID iD, and may move to ORCID-only sign-in later. We measured this on local data. ORCID-only sign-in would lock out about 396 accounts, which is almost every migrated account. So it needs a linking campaign first.
 - Not everyone has or wants ORCID, Google or GitHub.
-- A check of an old WordPress password hash uses a lot of CPU. phpass uses 8,192 MD5 rounds, and bcrypt uses cost 12. Cloudflare does not enforce the free plan's 10 ms CPU limit exactly. The project owner runs bcryptjs at cost 12 on the free plan elsewhere without trouble. But heavy hashing can cause error 1102 under load.
+- A check of an old WordPress password hash uses a lot of CPU. phpass uses 8,192 MD5 rounds, and bcrypt uses cost 12. Checking these on every sign-in would put heavy work in the request path.
 
 ## Decision
 
@@ -115,4 +115,3 @@ Admins change site settings at `/admin/settings/`. The values are in the `site_s
 ## Alternatives considered
 
 - OAuth only. Not everyone has these services, and migrated accounts need their old passwords.
-- Workers Paid for password hashing. EELSdb does not need it at this traffic. The PBKDF2 rehash on first use removes the cost after one sign-in.

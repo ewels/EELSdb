@@ -3,6 +3,7 @@ title: "0024. Gas phase and X-ray data"
 description: "EELSdb includes gas-phase EELS and soft X-ray absorption spectra, and links to other sites for hard X-ray data."
 adr:
   date: 2026-10-14
+  implemented: partly
 ---
 
 ## Context
@@ -64,6 +65,7 @@ XASLIB, the CLS XASDB, NIMS, SSHADE and Materials Project already cover hard X-r
 
 ## Consequences
 
+- The Corex import is built. The `.xas` parser and the first batch of soft X-ray spectra are not, because they wait on the author's verified batch.
 - A fresh checkout must run `uv run python/corex.py <zip>` before `npm run seed` to rebuild the Corex files. Git does not contain the zip or the files.
 - If more than 500 X-ray spectra arrive, EELS spectra become a minority of the database. The name "EELS Data Base" then fits less well.
 - We did not check these sources: NIST NEXAFS, the Diamond and ALS libraries, NOMAD, the Ritsumeikan database and X-ray Atlas.
