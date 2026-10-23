@@ -3,6 +3,11 @@
   "name": "eelsdb",
   "main": "src/index.ts",
   "compatibility_date": "2026-10-19",
+  // Fonts and logo files for the share cards (src/og/), bundled into the Worker.
+  "rules": [
+    { "type": "Data", "globs": ["**/*.ttf"] },
+    { "type": "Text", "globs": ["**/*.svg"] }
+  ],
   "assets": { "directory": "./public", "binding": "ASSETS" },
   "d1_databases": [
     {

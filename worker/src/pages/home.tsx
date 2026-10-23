@@ -2,7 +2,7 @@ import type { Context } from "hono";
 import { raw } from "hono/html";
 import { avatarUrl, type AppEnv } from "../auth";
 import NAMES from "../element-names.json";
-import { Avatar as SharedAvatar, EdgeName, Formula, Layout, TYPE_NAMES } from "./layout";
+import { Avatar as SharedAvatar, EdgeName, Formula, Layout, TYPE_NAMES, plainName } from "./layout";
 import { HERO_LOGO_SVG } from "./logo";
 import { HyperSpySnippet } from "./snippet";
 import { jsonLdScript, schemaOrgCatalog } from "../api/metadata";
@@ -92,9 +92,6 @@ const GO = (
     <path d="M4 10h12M11 5l5 5-5 5" />
   </svg>
 );
-
-/** "(Dr) Marie Cheynet" or "Dr. Gilles Hug" to the name alone. */
-const plainName = (name: string) => name.replace(/^\(?Dr\.?\)?\s+/i, "").trim();
 
 /** A contributor's picture shows only when they chose to use their Gravatar; an uploaded picture always shows. */
 async function person(row: any): Promise<Person> {

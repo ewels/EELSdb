@@ -28,10 +28,12 @@ import { decodeEntities } from "./entities";
 import { authorMarkdown, markdownHeaders, newsMarkdown, spectrumMarkdown } from "./markdown";
 import { avatarUrl } from "../auth";
 import { drafts } from "../submit/drafts";
+import { og } from "../og/index";
 
 export const pages = new Hono<AppEnv>();
 type C = Context<AppEnv>;
 
+pages.route("/og", og);
 pages.use(csrf());
 pages.use(loadUser);
 pages.route("/", account);
@@ -76,7 +78,7 @@ pages.get(`/${EXPORT_KEY}`, async (c) => {
 pages.get("/downloads/", async (c) => {
   const head = await c.env.FILES.head(EXPORT_KEY);
   return c.html(
-    <Layout user={c.get("user")} title="Bulk download" path="/downloads/">
+    <Layout user={c.get("user")} title="Bulk download" path="/downloads/" card="page/downloads">
       <div class="prose">
         <h1>Bulk download</h1>
         <p>
@@ -151,7 +153,7 @@ pages.get("/moderators/", async (c) => {
     })),
   );
   return c.html(
-    <Layout user={c.get("user")} title="Moderators" path="/moderators/">
+    <Layout user={c.get("user")} title="Moderators" path="/moderators/" card="page/moderators">
       <div class="prose">
         <h1>Moderators</h1>
         <p class="lede">
@@ -214,7 +216,7 @@ async function authorPage(c: C) {
   const avatar = person ? await avatarUrl(person.avatar_key, person.email, person.use_gravatar) : null;
   const facts = (showDetails ? [person.job_title, person.affiliation] : []).filter(Boolean).join(" · ");
   return c.html(
-    <Layout user={c.get("user")} title={name} path="/author/" head={mdLink(`/author/${slug}.md`)}>
+    <Layout user={c.get("user")} title={name} path="/author/" card={`author/${encodeURIComponent(slug!)}`} head={mdLink(`/author/${slug}.md`)}>
       <div class="profile-head">
         <Avatar name={name} seed={slug!} src={avatar?.replace("s=64", "s=160")} class="av-large" />
         <div>
@@ -272,7 +274,7 @@ pages.get("/news/", async (c) => {
   ).all<any>();
   const years = results.map((p) => String(p.published_at).slice(0, 4));
   return c.html(
-    <Layout user={c.get("user")} title="News" path="/news/">
+    <Layout user={c.get("user")} title="News" path="/news/" card="page/news">
       <div class="prose">
         <h1>News</h1>
         <p class="lede">
@@ -316,7 +318,7 @@ pages.get("/:slug/", async (c) => {
   if (!post) return c.notFound();
   const author = JSON.parse(post.legacy_v1).author?.name;
   return c.html(
-    <Layout user={c.get("user")} title={post.title} path="/news/" head={mdLink(`/${post.slug}.md`)}>
+    <Layout user={c.get("user")} title={post.title} path="/news/" card={`news/${encodeURIComponent(post.slug)}`} head={mdLink(`/${post.slug}.md`)}>
       <article class="prose">
         <p class="small back-link"><a href="/news/">← News</a></p>
         <h1>{post.title}</h1>

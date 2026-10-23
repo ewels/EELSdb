@@ -478,6 +478,13 @@ The logo is an inline SVG: two 2px spectrum traces stroked with `logo-red` and `
 
 On the homepage, with motion allowed, the traces are recorded left to right like a spectrometer readout: a clip window slides in over 1.3s (`cubic-bezier(0.32, 0.06, 0.24, 1)`, 0.1s delay) led by a 1.5px `accent` scan head that fades out at the end. The lettering then rises in (0.45s, `cubic-bezier(0.16, 1, 0.3, 1)`, 6px up with a 3px blur, from 0.375s), then the tagline (from 0.575s). It plays once. With reduced motion the logo is simply there.
 
+### Share cards
+The `og:image` of every page, 1200×630 PNG, drawn by the Worker from SVG ([ADR 0036](docs/adr/0036-share-cards.md), `worker/src/og/cards.ts`). Light palette only, as hex copies of the tokens; Mona Sans at 400–700; 64px margins. The logo is never smaller than on the site card: the compact logo is 92px tall, top right beside the heading, or top left on text cards.
+- **Spectrum:** title (700, 64px down to 44px, two lines, -0.025em) and a meta line (formula 500 in `ink`, type dot, type and energy range in `muted`, 30px), then the real spectrum full bleed: a 3.5px `plot` trace over its 9% wash, dashed `edge` markers with 600 24px `edge` labels, a 2px `line` baseline with `muted` ticks and figures. Footer: "Shared by" and the name (600).
+- **Author:** the name (700, 72px), the count sentence, the public facts in `muted`, then up to three example tiles (`surface`, `line` border, 8px corners) of their latest spectra.
+- **Site:** the large logo lockup over the lede and counts on the left; the homepage's periodic table on the right with its six shade steps and a labelled key.
+- **Text** (docs, news, fixed pages): title and description on the left, vertically centred; on the right a waterfall of 14 real core-loss spectra in `line` and a darker warm grey, each filled with paper so it hides the ones behind, the front one in `plot` with its wash, faded in from the left. Footer: the page address.
+
 ## Do's and Don'ts
 
 ### Do:

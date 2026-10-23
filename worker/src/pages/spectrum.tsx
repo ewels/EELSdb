@@ -6,7 +6,7 @@ import { creatorOrcids, jsonLdScript, licenceOf, schemaOrg, toRecord } from "../
 import { EELSDB_BIBTEX, EELSDB_CITATION, referenceText, stripTags } from "./citation";
 import { isModerator } from "../instruments";
 import { UNIT_LABELS, VARIANTS, variantUnits } from "../submit/form";
-import { Avatar, Formula, Layout, TypeBadge, fmt } from "./layout";
+import { Avatar, Formula, Layout, TYPE_NAMES, TypeBadge, fmt } from "./layout";
 import { HistoryTimeline, spectrumHistory } from "./history";
 import { HyperSpySnippet } from "./snippet";
 
@@ -212,7 +212,8 @@ export async function spectrumPage(c: Context<AppEnv>) {
     <Layout user={c.get("user")}
       title={s.title}
       path="/spectra/"
-      description={`${s.title}${s.formula ? ` (${s.formula})` : ""}: ${s.type} spectrum in the EELS Data Base.`}
+      card={`spectra/${encodeURIComponent(s.slug)}`}
+      description={`${s.title}${s.formula ? ` (${s.formula})` : ""}: ${(TYPE_NAMES[s.type] ?? s.type).toLowerCase()} spectrum in the EELS Data Base.`}
       head={
         <>
           <link rel="stylesheet" href="/vendor/uPlot.min.css" />

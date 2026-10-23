@@ -53,6 +53,7 @@ function ContactPage(props: { user: User | null; v: Partial<Values>; errors: Rec
     <Layout
       title="Contact"
       path="/contact/"
+      card="page/contact"
       user={props.user}
       head={props.siteKey && <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
     >

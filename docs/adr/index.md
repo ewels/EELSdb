@@ -65,6 +65,7 @@ These records explain the main design decisions in EELSdb. Each record gives the
 | [0029. Spectrum page tools](/docs/adr/0029-spectrum-page-tools/) | The compare, export and processing tools on the spectrum page run in the browser. |
 | [0030. Browse page](/docs/adr/0030-browse/) | The browse page uses the API v2 query, updates results live and caches thumbnails in D1. |
 | [0033. Visual design](/docs/adr/0033-visual-design/) | The colour, type, logo and layout choices that the code depends on. |
+| [0036. Share cards](/docs/adr/0036-share-cards/) | The Worker draws each public page's share image from the page's own data, as SVG turned into PNG with resvg. |
 
 ## Quality
 

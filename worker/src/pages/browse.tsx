@@ -290,7 +290,7 @@ export async function browsePage(c: Context<AppEnv>) {
     .flatMap(([k, values]) => values.map((v) => [k, v] as [string, string]));
 
   return c.html(
-    <Layout user={c.get("user")} title="Browse spectra" path="/spectra/" wide>
+    <Layout user={c.get("user")} title="Browse spectra" path="/spectra/" card="page/browse" wide>
       <div class="browse">
         <form class="filters" method="get" action="/spectra/" id="filters">
           <div>

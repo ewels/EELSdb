@@ -10,7 +10,9 @@ for (const tag of route.head) {
 }
 const page = Astro.url.pathname.replace(/\/$/, '');
 const markdown = page === base.replace(/\/$/, '') ? `${base}index.md` : `${page}.md`;
-const image = new URL('/logo/eelsdb-logo-light-bg.png', Astro.site).href;
+// The Worker draws each page's share card from the built page's title and description (worker/src/og/).
+const card = Astro.url.pathname.slice(base.length).replace(/^\/|\/$/g, '') || 'index';
+const image = new URL(`/og/docs/${card}.png`, Astro.site).href;
 ---
 
 <Default />

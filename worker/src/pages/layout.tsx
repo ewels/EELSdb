@@ -2,6 +2,7 @@ import type { Child } from "hono/jsx";
 import { raw } from "hono/html";
 import { LAST_METHOD_COOKIE, type User } from "../auth";
 import { ABOUT_NAV, NAV, currentAbout } from "../nav";
+import { SITE } from "../api/format";
 import { LOGO_SVG } from "./logo";
 
 // Runs before paint so a saved theme does not flash. A signed-in user's saved theme arrives as data-theme and wins.
@@ -61,6 +62,8 @@ export function Layout(props: {
   path: string;
   user: User | null;
   head?: Child;
+  /** The share card, a path under /og/ without ".png" (see src/og/index.ts). */
+  card?: string;
   wide?: boolean;
   /** The homepage: its own large logo, so the header mark only appears once the page scrolls. */
   home?: boolean;
@@ -69,6 +72,8 @@ export function Layout(props: {
   const emailBanner = props.user?.email_prompt && !props.user.setup_required && !NO_EMAIL_BANNER.test(props.path) ? props.user.email_prompt : null;
   const wrap = props.wide ? "wrap wide" : "wrap";
   const title = props.title ? `${props.title} · EELS Data Base` : "EELS Data Base";
+  const description = props.description ?? "Open database of electron energy-loss (EELS) and X-ray absorption (XAS) spectra.";
+  const card = `${SITE}/og/${props.card ?? "site"}.png`;
   return (
     <>
       {raw("<!doctype html>")}
@@ -77,10 +82,15 @@ export function Layout(props: {
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <title>{title}</title>
-          <meta
-            name="description"
-            content={props.description ?? "Open database of electron energy-loss (EELS) and X-ray absorption (XAS) spectra."}
-          />
+          <meta name="description" content={description} />
+          <meta property="og:site_name" content="EELS Data Base" />
+          <meta property="og:type" content="website" />
+          <meta property="og:title" content={props.title ?? "EELS Data Base"} />
+          <meta property="og:description" content={description} />
+          <meta property="og:image" content={card} />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta name="twitter:card" content="summary_large_image" />
           <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
           <link rel="preload" href="/fonts/mona-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin="" />
           <link rel="stylesheet" href="/tokens.css" />
@@ -297,6 +307,9 @@ export const Avatar = (props: { name: string; seed: string; src?: string | null;
     {props.src && <img src={props.src} alt="" loading="lazy" referrerpolicy="no-referrer" />}
   </span>
 );
+
+/** "(Dr) Marie Cheynet" or "Dr. Gilles Hug" to the name alone. */
+export const plainName = (name: string) => name.replace(/^\(?Dr\.?\)?\s+/i, "").trim();
 
 export const TYPE_NAMES: Record<string, string> = {
   coreloss: "Core loss",
