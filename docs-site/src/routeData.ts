@@ -12,6 +12,8 @@ export const onRequest = defineRouteMiddleware(({ locals }) => {
   const file = route.entry.filePath;
   // Starlight's own 404 page reports a file that does not exist.
   if (!file?.startsWith(LINK) || !existsSync(file)) return;
+  // A generated page sets editUrl in its frontmatter to point at its real source.
+  if (route.entry.data.editUrl) return;
   const relative = file.slice(LINK.length);
   route.editUrl = new URL(relative, EDIT_BASE);
   const log = spawnSync('git', ['log', '--max-count=1', '--format=%ct', '--', realpathSync(file)], { encoding: 'utf-8' });

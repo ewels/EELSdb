@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
@@ -16,6 +16,20 @@ import { openapiV2 } from '../worker/src/api/v2.ts';
 const OPENAPI_V2 = '.astro/openapi-v2.json';
 mkdirSync('.astro', { recursive: true });
 writeFileSync(OPENAPI_V2, JSON.stringify(openapiV2(), null, 1));
+
+// CONTRIBUTING.md at the repo root is the source of the Development > Contributing page. The copy in docs/ is
+// generated (and gitignored) so the page is plain Markdown for search, the table of contents and its .md route.
+mkdirSync('../docs/development', { recursive: true });
+writeFileSync(
+  '../docs/development/contributing.md',
+  `---
+title: Contribution guidelines
+description: How to set up, test and change the EELSdb website code.
+editUrl: https://github.com/ewels/EELSdb/edit/rewrite/CONTRIBUTING.md
+---
+
+${readFileSync('../CONTRIBUTING.md', 'utf-8')}`,
+);
 
 // The Worker (worker/) serves the build from its static assets at /docs/.
 // Fonts and tokens.css come from the Worker too, so `astro dev` proxies them to `wrangler dev`. The favicon is a
@@ -86,6 +100,14 @@ export default defineConfig({
         {
           label: 'About',
           items: ['about', 'about/citation', 'about/logo', { label: 'Moderators', link: '/moderators/', attrs: { 'data-site-link': '' } }, 'about/contact'],
+        },
+        {
+          label: 'Development',
+          collapsed: true,
+          items: [
+            'development/contributing',
+            { label: 'Architecture decisions', collapsed: true, items: [{ autogenerate: { directory: 'adr' } }] },
+          ],
         },
       ],
       plugins: [

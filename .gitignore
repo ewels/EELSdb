@@ -13,6 +13,8 @@ data/private/
 node_modules/
 # Built from docs-site/ by `npm run docs` in worker/
 worker/public/docs/
+# Generated from CONTRIBUTING.md by docs-site/astro.config.mjs
+docs/development/contributing.md
 docs-site/.astro/
 .wrangler/
 .dev.vars

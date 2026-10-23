@@ -281,3 +281,23 @@ h1#_top {
     display: revert;
   }
 }
+
+/* Overview and date under an architecture decision record's title (PageTitle override). */
+.adr-summary {
+  margin-top: 0.75rem;
+  font-size: var(--sl-text-lg);
+  color: var(--sl-color-gray-2);
+}
+.adr-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.9rem;
+  margin-top: 0.75rem;
+  font-size: var(--sl-text-sm);
+  color: var(--muted);
+}
+.adr-meta a {
+  margin-left: auto;
+  color: var(--muted);
+}

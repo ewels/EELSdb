@@ -2,7 +2,23 @@
 import Default from '@astrojs/starlight/components/PageTitle.astro';
 import WithActions from 'starlight-page-actions/overrides/PageTitle.astro';
 import { isGenerated } from './paths';
+
+const { adr, description } = Astro.locals.starlightRoute.entry.data;
+const date = adr?.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 ---
 
 {/* starlight-page-actions writes no Markdown for the generated API pages, so their Copy Markdown button would 404. */}
 {isGenerated(Astro.url.pathname) ? <Default /> : <WithActions />}
+{
+  adr && (
+    <>
+      {description && <p class="adr-summary">{description}</p>}
+      <p class="adr-meta">
+        <span>
+          Decided <time datetime={adr.date.toISOString().slice(0, 10)}>{date}</time>
+        </span>
+        <a href={`${import.meta.env.BASE_URL}adr/`}>All decisions</a>
+      </p>
+    </>
+  )
+}
