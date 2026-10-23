@@ -199,7 +199,8 @@ export function Layout(props: {
               <a href="https://github.com/ewels/EELSdb">Website source code on GitHub</a>
               <a class="downloads" href="/downloads/">Bulk download</a>
               <span class="licence">
-                Data under the <a href="https://opendatacommons.org/licenses/odbl/">Open Database Licence (ODbL)</a>
+                Data under the <a href="https://opendatacommons.org/licenses/odbl/">Open Database Licence (ODbL)</a> unless{" "}
+                <a href="/docs/use/download/#what-the-licence-lets-you-do">stated otherwise</a>
               </span>
             </div>
           </footer>

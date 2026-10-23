@@ -118,6 +118,7 @@ def spectrum_rows(s, rank, ids_by_slug, manifest, analysis):
         "step_ev": num(s.get("stepSize"), "eV/pixel"),
         "author_display": s["author"]["name"],
         "author_slug": slug_of(s["author"]["profile_url"]),
+        "licence": "ODbL-1.0",
         "published_at": s["published"],
         "created_at": s["published"],
         "completeness": None if s["type"] == "X Ray Abs" else

@@ -2,7 +2,7 @@ import type { Context } from "hono";
 import { raw } from "hono/html";
 import { avatarUrl, type AppEnv } from "../auth";
 import { API_HOST, SITE, loadBundle, type SpectrumBundle } from "../api/format";
-import { creatorOrcids, jsonLdScript, schemaOrg, toRecord } from "../api/metadata";
+import { creatorOrcids, jsonLdScript, licenceOf, schemaOrg, toRecord } from "../api/metadata";
 import { EELSDB_BIBTEX, EELSDB_CITATION, referenceText, stripTags } from "./citation";
 import { isModerator } from "../instruments";
 import { UNIT_LABELS, VARIANTS, variantUnits } from "../submit/form";
@@ -185,6 +185,7 @@ export async function spectrumPage(c: Context<AppEnv>) {
       ]
     : [];
   const cite = spectrumCitation(b);
+  const licence = licenceOf(s.licence);
   const deconv = [
     Number(t.deconv_fourier_log) && "Fourier-log",
     Number(t.deconv_fourier_ratio) && "Fourier-ratio",
@@ -559,8 +560,8 @@ export async function spectrumPage(c: Context<AppEnv>) {
         <dialog id="download-dialog" aria-labelledby="download-title">
           <h2 id="download-title">Cite this spectrum</h2>
           <p class="muted small">
-            If you use this spectrum, cite the contributor{r ? "'s paper" : ""} and the EELS Data Base.
-            {s.licence === "CC0-1.0" && " It is in the public domain (CC0)."}
+            If you use this spectrum, cite the contributor{r ? "'s paper" : ""} and the EELS Data Base. Licence:{" "}
+            <a href={licence.url}>{licence.name}</a>.
           </p>
           <div class="cite-block">
             <div id="cite-text" class="cite-text">{cite.text}</div>

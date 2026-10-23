@@ -1,10 +1,10 @@
 ---
 title: Download and cite spectra
-description: Download one spectrum or the whole database, the ODbL licence, and how to cite the contributor and EELSdb.
+description: Download one spectrum or the whole database, the licences, and how to cite the contributor and EELSdb.
 ---
 
 You can download any published spectrum without an account.
-The spectra are open data under the [Open Database Licence (ODbL)](https://opendatacommons.org/licenses/odbl/).
+Most spectra are open data, under the [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/).
 
 ## Download one spectrum
 
@@ -37,14 +37,12 @@ To get only some spectra, use the [API](/docs/use/api/) instead.
 
 ## What the licence lets you do
 
-The ODbL lets you copy, share and adapt the spectra if you:
+The ODbL lets you copy, share and adapt the spectra, also for commercial use, if you:
 
 - credit the EELS Data Base and the contributors;
 - share an adapted database under the same licence.
 
-Spectra from the old site have no licence value in the API (`licence` is `null`).
-The old site stated the ODbL for all its data, and its submit form asked contributors to agree to it.
-New submissions record `ODbL-1.0`.
+Some spectra have a different licence. The download dialog and the `licence` field in the [API](/docs/use/api/) show it.
 
 ## Cite a spectrum
 

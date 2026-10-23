@@ -48,6 +48,7 @@ The repository does not contain the spectrum files. They live in `data/cache/` a
 - The importer drops the keyword "imported from old site" (on 210 of 290 spectra) from the new data. It also drops the dead `pc-web.cemes.fr` links (on 210). The v1 replay keeps both.
 - The importer removes links from public spectra to private ones. It removes them from the v1 objects too.
 - Corrected energy ranges change the v1 object on purpose. `EXPECTED_DIFFS.md` lists each one.
+- The importer sets `licence` to `ODbL-1.0` on every spectrum. The old site stored no licence per spectrum, but it stated the ODbL for all its data and its submit form asked contributors to agree to it ([ADR 0023](/docs/adr/0023-licences/)).
 
 ## Consequences
 

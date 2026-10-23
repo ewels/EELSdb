@@ -71,7 +71,7 @@ The fields that matter most:
 - `completeness`: `full` when the beam energy and both angles are known.
 - `reference`: the paper, with a structured `doi`.
 - `download_url`: the main data file. `files` lists every file with its `role`, `filename`, `bytes` and `sha256`.
-- `licence`: `ODbL-1.0`, or `null` for spectra from the old site (which stated the ODbL for all its data).
+- `licence`: an SPDX identifier such as `ODbL-1.0` or `CC0-1.0`.
 
 Report a value with `source: "unknown"` as unknown. Never fill it in from another spectrum or a typical value. Say when a value is an estimate.
 

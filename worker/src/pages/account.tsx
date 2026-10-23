@@ -141,12 +141,10 @@ account.get("/login/", async (c) => {
                 autocapitalize="off" spellcheck={false} required
               />
             </div>
-            <div class="field">
-              <div class="label-row">
-                <label for="password">Password</label>
-                {has("email_link") && <a href="#email">Forgot your password?</a>}
-              </div>
+            <div class="field label-aside">
+              <label for="password">Password</label>
               <input id="password" name="password" type="password" autocomplete="current-password" required />
+              {has("email_link") && <a href="#email">Forgot your password?</a>}
             </div>
             <button class="button" type="submit">Sign in</button>
           </form>

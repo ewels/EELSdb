@@ -103,7 +103,7 @@ export const Spectrum = z
     keywords: z.array(z.string()),
     description: text,
     source_purity: text,
-    licence: text.openapi({ description: "SPDX identifier, for example `ODbL-1.0`. Null for spectra migrated from the old site." }),
+    licence: text.openapi({ description: "SPDX identifier, such as `ODbL-1.0` or `CC0-1.0`." }),
     completeness: z.enum(["full", "partial"]).nullable().openapi({ description: "`full` when the beam energy and both angles are known. Null for X-ray absorption." }),
     published_at: text,
     updated_at: text.openapi({ description: "When the spectrum was last changed; the publication date if it never was." }),

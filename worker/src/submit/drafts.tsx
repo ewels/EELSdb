@@ -5,7 +5,7 @@ import { getSettings, twoStepRequired } from "../settings";
 import { requireUser, sha256, type AppEnv } from "../auth";
 import { SITE } from "../api/format";
 import { AccountLayout, TypeBadge } from "../pages/layout";
-import { ORCID_REQUIRED_MESSAGE } from "./index";
+import { LicenceTerms, ORCID_REQUIRED_MESSAGE } from "./index";
 import { collectUploads, parseForm } from "./form";
 import { createSpectrum, instrumentOk, storeFile } from "./store";
 
@@ -149,9 +149,9 @@ async function draftsPage(c: Context<AppEnv>, notice?: string, status: 200 | 403
           <div class="field">
             <label class="check agreement">
               <input type="checkbox" name="agreement" value="1" /> I have checked the chosen drafts, and I agree to publish this data under the{" "}
-              <a href="https://opendatacommons.org/licenses/odbl/">Open Data Commons Open Database Licence (ODbL)</a>: others may reuse it if they credit
-              me and the EELS Data Base.
+              <a href="https://opendatacommons.org/licenses/odbl/">Open Data Commons Open Database Licence (ODbL)</a>.
             </label>
+            <LicenceTerms />
           </div>
           <div class="filter-actions">
             <button class="button" type="submit" name="action" value="submit">Submit the chosen drafts for review</button>

@@ -266,7 +266,7 @@ A warm-neutral paper-and-ink palette with one restrained slate-blue interface ac
 - **Title** (600, 1.3rem, 1.2, -0.015em): section `h2`. In the homepage's list of ways in it drops to 1.12rem. All headings use balanced wrapping.
 - **Title small** (600, 1.05rem, 1.25): `h3`; 0.95rem with ellipsis truncation for example-tile names.
 - **Lede** (400, 1.15rem, 1.5): the one-sentence homepage lede in `ink` at max 38ch; the muted intro under an inner page title at max 62ch. 1.08rem on phones.
-- **Body** (400, 16px, 1.55): paragraphs and lists capped at 72ch; secondary paragraphs in `muted` at 0.93–0.95rem.
+- **Body** (400, 16px, 1.55): secondary paragraphs in `muted` at 0.93–0.95rem. Text has no width cap of its own; its container sets the measure (see Do's and Don'ts).
 - **Button** (600, 0.95rem): every button and button-styled link.
 - **Table** (0.92rem): data tables; edges column 0.85rem.
 - **Small** (0.875rem): footer, dates, definition-list terms; tooltips and tile footers at 0.85rem.
@@ -462,6 +462,15 @@ Inline `<span class="formula">` built by `formulaTokens()`: subscripts and super
 ### Spectrum plot
 uPlot on a canvas, coloured from the CSS tokens at draw time: trace in `plot` (1.5px), axes in `muted`, grid and ticks in `line`, major edge markers in `edge` and minor ones in `muted`. The plot is rebuilt when the colour scheme changes.
 
+### Submit file card
+One card per uploaded file on the files step: `surface`, 1px `line` border, 6px corners.
+- **Order:** a header row (name 600, size in `muted`, "Use as" select, remove ✕); the "not included" warning when a second spectrum is left out; the plot; then sections, each under a 1px `rule` and a Label (0.8rem 600 `muted`): **Edges** (spectrum file only) and **File checks** (read status, then findings).
+- **Warning state:** a file left out automatically gets a 1px `note` border and a `note` 600 lead-in ("This file will not be included."). No coloured side bar.
+- **Check findings** (also on the review step and the moderator's page): one row each, with a 16px stroked icon in the severity colour and `ink` text. Errors: `danger` circle-!, 11% `danger` tint, 600. Warnings: `note` triangle, 13% `note` tint. Notes (info): `muted` circle-i on `sunken`. "No problems found": a `muted` check with no panel.
+- **Edges:** removable chips (`sunken` pill, the edge typeset, its onset in `muted` tabular figures, a `muted` ×; the whole chip is the Remove button), then a hint. Detected edges are added without asking.
+- **Plots:** height follows width, `width / 2.4` between 200px and 460px, so wide cards do not flatten the fine structure. On the files step the spectrum's plot and edges sit in its card; from step 2 they move to the side panel.
+- **Below 560px:** the header puts name, size and ✕ on one line and "Use as" full width under it.
+
 ### Logo
 The logo is an inline SVG: two 2px spectrum traces stroked with `logo-red` and `logo-ochre`, and the lettering "EELSdb" in Mona Sans ("EELS" 800, "db" 400, tracking -0.01em) in `currentColor`, so it follows `ink` in both themes. The traces' path data and colours are fixed. "Data Base" does not appear in the logo. The favicon is unchanged.
 - **Large lockup** (homepage hero, up to 480px): the lettering sits on the traces' flat tail, right-aligned to the end of the tail. The tagline "Inner & Outer Shell Excitation Spectrum Repository" in Mona Sans 400, `muted`, runs under the tail across the full trace width.
@@ -481,7 +490,7 @@ On the homepage, with motion allowed, the traces are recorded left to right like
 - **Do** show real data: real plots in tiles, real counts, real contributors.
 - **Do** keep figures tabular and right-align numeric table columns.
 - **Do** use the shared tooltip, with `aria-describedby` and keyboard focus, for any hover detail; never a `title` attribute alongside it.
-- **Do** cap reading text at 72ch and keep copy plain, factual and in sentence case.
+- **Do** cap the width of the container, not of each paragraph: `.prose` (72ch) for reading pages, `.settings` (52rem) for form pages, a lede for the intro of a full-width page. Keep copy plain, factual and in sentence case.
 - **Do** gate every animation behind `prefers-reduced-motion: no-preference`.
 
 ### Don't:

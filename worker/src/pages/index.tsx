@@ -94,7 +94,7 @@ pages.get("/downloads/", async (c) => {
           <p class="notice">The archive has not been made yet.</p>
         )}
         <p>
-          The spectra are open data under the <a href="https://opendatacommons.org/licenses/odbl/">ODbL</a>. Please cite the contributors'
+          Most spectra are open data, under the <a href="https://opendatacommons.org/licenses/odbl/">Open Database License (ODbL)</a>. Please cite the contributors'
           papers and the EELS Data Base (<a href="/docs/about/citation/">how to cite</a>). To fetch selected spectra instead, use the{" "}
           <a href="/docs/use/api/">API</a>.
         </p>

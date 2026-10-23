@@ -113,6 +113,14 @@ function Step(props: { id: string; hidden?: boolean; children: Child }) {
   );
 }
 
+/** What publishing under the ODbL means for the contributor, shown next to the licence agreement. */
+export const LicenceTerms = () => (
+  <p class="hint">
+    Anyone may then reuse your data, also commercially, if they credit you and the EELS Data Base. You cannot withdraw the
+    licence later.
+  </p>
+);
+
 export const ORCID_REQUIRED_MESSAGE = "Submitting spectra needs an ORCID iD linked to your account, so your spectra are credited to you. Link your ORCID iD and then submit.";
 
 export function SubmitPage(props: { c: C; v: Values; errors: Record<string, string>; instruments: Instrument[]; edit?: { slug: string; title: string; draft?: boolean; file?: { url: string; name: string } | null } }) {
@@ -429,9 +437,9 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
               <div class={`field${errors.agreement ? " has-error" : ""}`}>
                 <label class="check agreement">
                   <input type="checkbox" name="agreement" value="1" required checked={!!v.agreement} /> I agree to publish this data under the{" "}
-                  <a href="https://opendatacommons.org/licenses/odbl/">Open Data Commons Open Database Licence (ODbL)</a>: others may reuse it if they
-                  credit me and the EELS Data Base.<Req />
+                  <a href="https://opendatacommons.org/licenses/odbl/">Open Data Commons Open Database Licence (ODbL)</a>.<Req />
                 </label>
+                <LicenceTerms />
                 {errors.agreement && <p class="error">{errors.agreement}</p>}
               </div>
             )}
@@ -447,10 +455,16 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
         </form>
         <aside class="spectrum-panel" id="spectrum-panel" aria-label="Your spectrum" hidden>
           <p class="panel-name"></p>
-          <div class="panel-plot"></div>
-          <p class="hint edge-help"></p>
-          <p class="hint" id="edge-status" aria-live="polite"></p>
-          <div class="edge-menu" id="edge-menu" popover="auto"></div>
+          <div class="edge-box">
+            <div class="panel-plot"></div>
+            <section class="card-section">
+              <h3 class="card-label" tabindex={-1}>Edges</h3>
+              <ul class="picker-chips edge-list"></ul>
+              <p class="hint edge-help"></p>
+            </section>
+            <p id="edge-status" aria-live="polite"></p>
+            <div class="edge-menu" id="edge-menu" popover="auto"></div>
+          </div>
         </aside>
       </div>
       <script src="/vendor/uPlot.iife.min.js" defer></script>

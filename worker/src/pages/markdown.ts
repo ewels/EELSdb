@@ -48,7 +48,7 @@ export async function spectrumMarkdown(db: D1Database, slug: string) {
       ["Web page", s.url],
       ["API v2 record (JSON)", s.api_url],
       ["Data file", s.download_url],
-      ["Licence", s.licence ?? "none recorded (from the old site, which stated the ODbL for all its data)"],
+      ["Licence", s.licence],
     ]),
     "## Specimen",
     list([

@@ -44,7 +44,7 @@ These records explain the main design decisions in EELSdb. Each record gives the
 |---|---|
 | [0012. Submission and moderation](/docs/adr/0012-submission-and-moderation/) | The contributor's browser checks each file, and the moderator's browser makes the published files. |
 | [0013. Beam energy and angles](/docs/adr/0013-beam-energy-and-angles/) | Each beam energy and angle records where its value came from, and "unknown" is a valid value. |
-| [0016. Edge suggestions](/docs/adr/0016-edge-suggestions/) | A numpy detector suggests edges on the plot, and the contributor confirms them in a text field. |
+| [0016. Edge suggestions](/docs/adr/0016-edge-suggestions/) | A numpy detector adds the edges it finds to the submission; the contributor removes any that are wrong. |
 | [0017. No Python package](/docs/adr/0017-no-package-drafts-api/) | EELSdb has no Python package or CLI. Scripts submit in bulk as drafts, which a person confirms. |
 
 ## Accounts

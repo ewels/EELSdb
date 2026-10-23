@@ -22,8 +22,12 @@ const LICENCES: Record<string, { name: string; url: string; eu: string }> = {
     eu: "http://publications.europa.eu/resource/authority/licence/CC0",
   },
 };
-// The site footer puts all data under the ODbL; migrated spectra have no licence stored.
 const DEFAULT_LICENCE = "ODbL-1.0";
+
+export function licenceOf(spdx: string | null) {
+  const id = spdx || DEFAULT_LICENCE;
+  return { id, ...(LICENCES[id] ?? { name: id, url: `https://spdx.org/licenses/${id}.html`, eu: null }) };
+}
 
 const TYPE_NAMES: Record<string, string> = {
   coreloss: "Core-loss EELS spectrum",
@@ -82,8 +86,6 @@ const FILE_TITLES: Record<string, string> = {
 export function toRecord(b: SpectrumBundle, orcid: string | null = null): MetaRecord {
   const s = b.spectrum;
   const r = b.reference;
-  const licenceId = s.licence || DEFAULT_LICENCE;
-  const licence = LICENCES[licenceId] ?? { name: licenceId, url: `https://spdx.org/licenses/${licenceId}.html`, eu: null };
   const typeLabel = TYPE_NAMES[s.type] ?? `${s.type} spectrum`;
   return {
     id: s.id,
@@ -103,7 +105,7 @@ export function toRecord(b: SpectrumBundle, orcid: string | null = null): MetaRe
     creator: { name: s.author_display || PUBLISHER, orcid, url: `${SITE}/author/${s.author_slug}/` },
     issued: isoTime(s.published_at),
     modified: isoTime(modifiedAt(s)!),
-    licence: { id: licenceId, ...licence },
+    licence: licenceOf(s.licence),
     reference: r && (r.doi || r.url || referenceText(r)) ? { doi: r.doi || null, url: /^https?:\/\//.test(r.url ?? "") ? r.url : null, citation: referenceText(r) } : null,
     files: b.files
       .filter((f) => f.role !== "companion")

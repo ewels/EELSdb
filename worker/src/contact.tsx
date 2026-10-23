@@ -212,7 +212,7 @@ export async function MessagesPage(props: { c: { env: Env }; user: User }) {
   return (
     <Layout title="Contact messages" path="/admin/" user={props.user}>
       <h1>Contact messages</h1>
-      <p class="hint">
+      <p class="hint prose">
         Messages from the <a href="/contact/">contact form</a>, newest first, last 100. They are also emailed to every administrator with two-step sign-in, and deleted after a year.
         Reply to the sender's address.
       </p>

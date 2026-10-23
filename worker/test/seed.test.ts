@@ -22,6 +22,13 @@ it("holds the 666 Corex gas-phase spectra, CC0, with oscillator-strength version
   expect(row).toEqual({ n: 666, cc0: 666, coreloss: 666, os: 664 });
 });
 
+it("gives every spectrum a licence, ODbL for those from the old site", async () => {
+  const row = await env.DB.prepare(
+    "SELECT SUM(licence IS NULL) AS missing, SUM(phase != 'gas' AND licence != 'ODbL-1.0') AS other FROM spectra",
+  ).first();
+  expect(row).toEqual({ missing: 0, other: 0 });
+});
+
 it("keeps legacy IDs, slugs and file paths", async () => {
   const row = await env.DB.prepare(
     "SELECT s.id, s.slug, f.r2_key FROM spectra s JOIN files f ON f.spectrum_id = s.id WHERE s.id = 22236",

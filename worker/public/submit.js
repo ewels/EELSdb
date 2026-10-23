@@ -277,6 +277,7 @@ function go(id, { focus = true } = {}) {
   reached.add(id);
   for (const s of sections) s.classList.toggle("current", s.dataset.step === id);
   paintNav();
+  placePanel();
   if (id === "review") review();
   if (focus) {
     const h = $(`#step-${id} h2`);
@@ -408,7 +409,9 @@ function paintCard(f) {
   select.value = f.role ?? "";
   select.disabled = !!f.rejected || f.state === "reading";
   $(".file-status", f.card).textContent = f.status;
-  $(".unused-note", f.card).hidden = !(f.role === "unused" && f.result?.points !== undefined && !f.chosen);
+  const leftOut = f.role === "unused" && f.result?.points !== undefined && !f.chosen;
+  f.card.toggleAttribute("data-warn", leftOut);
+  $(".unused-note", f.card).hidden = !leftOut;
 }
 
 function buildCard(f) {
@@ -438,16 +441,22 @@ function buildCard(f) {
       el("span", { className: "file-size", textContent: size(f.file.size) }),
       el("label", { className: "file-role" }, "Use as ", select),
       remove),
-    el("p", { className: "file-status" }),
-    el("p", {
-      className: "hint unused-note",
-      textContent: editing
-        ? "One spectrum per submission: send this one separately afterwards."
-        : "One spectrum per submission. If this is a processed version of it (oscillator strength, smoothed…), choose that above; otherwise send it separately afterwards.",
-      hidden: true,
-    }),
+    el(
+      "p",
+      { className: "hint unused-note", hidden: true },
+      el("strong", { textContent: "This file will not be included. " }),
+      editing
+        ? "Each submission has one spectrum: send this one separately afterwards."
+        : "Each submission has one spectrum. If this is a processed version of it (oscillator strength, smoothed…), choose that above; otherwise send it separately afterwards.",
+    ),
     el("div", { className: "file-plot" }),
-    el("ul", { className: "findings" }),
+    el(
+      "section",
+      { className: "card-section" },
+      el("h3", { className: "card-label", textContent: "File checks" }),
+      el("p", { className: "file-status" }),
+      el("ul", { className: "findings" }),
+    ),
   );
   list.append(card);
   return card;
@@ -655,7 +664,7 @@ function storeChecks(f) {
 function showFindings(ul, findings = []) {
   const order = { error: 0, warning: 1, info: 2 };
   ul.replaceChildren(...[...findings].sort((a, b) => order[a.severity] - order[b.severity]).map((x) => el("li", { className: x.severity, textContent: x.message })));
-  if (!findings.length) ul.append(el("li", { className: "info", textContent: "No problems found." }));
+  if (!findings.length) ul.append(el("li", { className: "ok", textContent: "No problems found." }));
 }
 
 const probe = el("span", { hidden: true });
@@ -666,13 +675,21 @@ const css = (n) => {
 };
 
 const compact = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
+// Wide plots squash the fine structure, so height follows width up to a cap.
+const plotHeight = (width) => Math.round(Math.min(460, Math.max(200, width / 2.4)));
+const resized = new ResizeObserver((entries) => {
+  for (const { target } of entries) target.plot?.setSize({ width: target.clientWidth, height: plotHeight(target.clientWidth) });
+});
+
 function drawPlot(node, x, y, old, extra = {}) {
   old?.destroy();
   const axis = { stroke: css("--muted"), grid: { stroke: css("--rule") }, ticks: { stroke: css("--line") } };
-  return new uPlot(
+  const width = node.clientWidth || 600;
+  resized.observe(node);
+  return (node.plot = new uPlot(
     {
-      width: node.clientWidth || 600,
-      height: 170,
+      width,
+      height: plotHeight(width),
       scales: { x: { time: false } },
       axes: [{ ...axis, label: "Energy (eV)" }, { ...axis, size: 56, values: (u, vals) => vals.map(compact.format) }],
       series: [{}, { stroke: css("--plot"), width: 1.25, points: { show: false } }],
@@ -682,24 +699,31 @@ function drawPlot(node, x, y, old, extra = {}) {
     },
     [x, y],
     node,
-  );
+  ));
 }
 
-// ---- Spectrum panel and edges -----------------------------------------------------------------
-// The edges text field is the source of truth: markers are drawn from it, and suggestions only
-// reach it when confirmed. Without Pyodide there is no plot, so the form works as before.
+// ---- Spectrum plot and edges ------------------------------------------------------------------
+// The edges text field is the source of truth: the markers and the list are drawn from it. Detected
+// edges are written to it at once; removing one dismisses it. Without Pyodide there is no plot.
 
 const panel = $("#spectrum-panel");
+const edgeBox = $(".edge-box", panel);
 const panelPlot = $(".panel-plot", panel);
+const edgeList = $(".edge-list", panel);
 const menu = $("#edge-menu");
 const edgeStatus = $("#edge-status");
 // Keep in step with EDGE in src/submit/form.ts.
 const EDGE = /^([A-Z][a-z]?)[_ ]((?:K|L1|L2,3|L2|L3|M1|M2,3|M4,5|M|N2,3|N4,5|N6,7|O2,3|O4,5))$/;
 const edgeKey = (c) => `${c.element}_${c.edge}`;
 const edgeName = (c) => `${c.element} ${c.edge}`;
+/** "Fe L2,3" with the subshells as a subscript, as edges are set everywhere else. */
+const edgeLabel = (c) => {
+  const [, shell, sub] = c.edge.match(/^([A-Z])(.*)$/);
+  return el("span", { className: "edge-name" }, `${c.element} ${shell}`, sub && el("sub", { textContent: sub }));
+};
 const validEdge = (c) => EDGE.test(edgeKey(c)) && SYMBOLS.has(c.element);
 const eV = (e) => `${Math.round(e)} eV`;
-const shown = { file: null, plot: null, suggestions: [] };
+const shown = { file: null, plot: null, detected: new Set(), dismissed: new Set() };
 
 /** Lowest table onset of the label's subshells: "L2,3" is drawn at L3. */
 function onset({ element, edge }) {
@@ -721,15 +745,21 @@ function writeEdges(entries) {
   field("edges").value = entries.join("; ");
   field("edges").dispatchEvent(new Event("input", { bubbles: true }));
 }
+const entryKey = (s) => {
+  const c = entryEdge(s);
+  return c && edgeKey(c);
+};
+
 /** Replace `old` (or append) with `next`, leaving everything else the submitter typed alone. */
 function setEdge(old, next) {
   const entries = fieldEntries();
-  const at = old ? entries.findIndex((s) => entryEdge(s) && edgeKey(entryEdge(s)) === edgeKey(old)) : -1;
-  const dup = next && entries.some((s) => entryEdge(s) && edgeKey(entryEdge(s)) === edgeKey(next));
+  const at = old ? entries.findIndex((s) => entryKey(s) === edgeKey(old)) : -1;
+  const dup = next && entries.some((s) => entryKey(s) === edgeKey(next));
   if (at >= 0) entries.splice(at, 1, ...(next && !dup ? [edgeKey(next)] : []));
   else if (next && !dup) entries.push(edgeKey(next));
+  if (old && shown.detected.delete(edgeKey(old))) shown.dismissed.add(edgeKey(old));
   writeEdges(entries);
-  edgeStatus.textContent = next ? `${edgeName(next)} is in the edges field.` : `${edgeName(old)} removed from the edges field.`;
+  edgeStatus.textContent = next ? `${edgeName(next)} added.` : `${edgeName(old)} removed.`;
 }
 
 async function pyCall(name, ...args) {
@@ -745,80 +775,105 @@ async function pyCall(name, ...args) {
 // A new spectrum file wins; when editing without one, the panel shows the spectrum's current file.
 const panelFile = () => files.find((x) => x.role === "original" && x.result?.x) ?? files.find((x) => x.current && x.result?.x);
 
+/** On the files step the plot sits in its file's card, so it is clear which file it shows; later, beside the form. */
+function placePanel() {
+  const card = current === "files" && shown.file?.card;
+  if (card) $(".file-plot", card).after(edgeBox);
+  else if (edgeBox.parentNode !== panel) panel.append(edgeBox);
+  panel.hidden = !shown.file || !!card;
+}
+
 function updatePanel() {
   const f = panelFile();
-  if (f === shown.file) return;
+  if (f === shown.file) return placePanel();
   shown.plot?.destroy();
-  Object.assign(shown, { file: f, plot: null, suggestions: [] });
-  panel.hidden = !f;
+  // Edges detected in a file that is no longer the spectrum leave with it.
+  if (shown.detected.size) writeEdges(fieldEntries().filter((s) => !shown.detected.has(entryKey(s))));
+  Object.assign(shown, { file: f, plot: null, detected: new Set(), dismissed: new Set() });
   menu.hidePopover?.();
+  placePanel();
   if (!f) return;
   $(".panel-name", panel).textContent = f.current ? `${f.file.name} (current file)` : f.file.name;
   shown.plot = drawPlot(panelPlot, f.result.x, f.result.y, null, {
-    height: 220,
     cursor: { y: false, points: { show: false }, drag: { x: false, y: false } },
-    hooks: { draw: [paintMarkers] },
+    hooks: { draw: [paintEdges] },
   });
   shown.plot.over.append(el("div", { className: "edge-layer" }));
   shown.plot.over.addEventListener("click", plotClick);
-  suggestEdges(f);
+  detectEdges(f);
 }
 
-new ResizeObserver(() => shown.plot?.setSize({ width: panelPlot.clientWidth, height: 220 })).observe(panelPlot);
-
-async function suggestEdges(f) {
+async function detectEdges(f) {
+  // The edges of a published spectrum are only changed by hand.
+  if (f.current) return paintEdges();
   let found = [];
   try {
     found = await pyCall("suggest", f.path, field("type").value || guessType(f));
   } catch {}
   if (shown.file !== f) return;
-  shown.suggestions = found
-    .map((s) => ({ ...s, candidates: (s.candidates ?? []).filter(validEdge), pick: 0 }))
-    .filter((s) => s.candidates.length);
-  $(".edge-help", panel).textContent = shown.suggestions.length
-    ? "Dashed lines are suggested edges: choose one to add it. Click the plot to find edges near that energy."
-    : "Click the plot to find edges near that energy.";
-  paintMarkers();
+  const picks = found.map((s) => (s.candidates ?? []).find(validEdge)).filter(Boolean);
+  const keys = new Set(picks.map(edgeKey));
+  // After a change of type, drop what is no longer detected.
+  const entries = fieldEntries().filter((s) => !shown.detected.has(entryKey(s)) || keys.has(entryKey(s)));
+  shown.detected = new Set([...shown.detected].filter((k) => keys.has(k)));
+  const added = picks.filter((c) => !shown.dismissed.has(edgeKey(c)) && !entries.some((s) => entryKey(s) === edgeKey(c)));
+  for (const c of added) {
+    entries.push(edgeKey(c));
+    shown.detected.add(edgeKey(c));
+  }
+  writeEdges(entries);
+  if (added.length) edgeStatus.textContent = `Found ${added.map(edgeName).join(", ")}.`;
 }
-field("type").addEventListener("change", () => shown.file && suggestEdges(shown.file));
-field("edges").addEventListener("input", () => paintMarkers());
+field("type").addEventListener("change", () => shown.file && detectEdges(shown.file));
+field("edges").addEventListener("input", () => paintEdges());
 
-function paintMarkers() {
+function paintEdges() {
   const u = shown.plot;
   const layer = u && $(".edge-layer", u.over);
   if (!layer) return;
   const [lo, hi] = [u.scales.x.min, u.scales.x.max];
-  const listed = fieldEdges();
-  const keys = new Set(listed.map(edgeKey));
-  const marks = [
-    ...listed.map((c) => ({ c, energy: onset(c) })),
-    ...shown.suggestions
-      .filter((s) => !s.candidates.some((c) => keys.has(edgeKey(c))))
-      .map((s) => ({ s, c: s.candidates[s.pick], energy: onset(s.candidates[s.pick]) ?? s.energy })),
-  ]
-    .filter((m) => m.energy !== null && m.energy >= lo && m.energy <= hi)
-    .sort((a, b) => a.energy - b.energy);
+  const edges = fieldEdges()
+    .map((c) => ({ c, energy: onset(c) }))
+    .sort((a, b) => (a.energy ?? Infinity) - (b.energy ?? Infinity));
   layer.replaceChildren(
-    ...marks.map((m, i) => {
-      const x = u.valToPos(m.energy, "x");
-      const b = el(
+    ...edges
+      .filter((m) => m.energy !== null && m.energy >= lo && m.energy <= hi)
+      .map((m, i) => {
+        const x = u.valToPos(m.energy, "x");
+        const b = el(
+          "button",
+          { type: "button", className: `edge-mark${x > u.over.clientWidth - 70 ? " flip" : ""}`, ariaLabel: `Edge ${edgeName(m.c)}, ${eV(m.energy)}` },
+          edgeLabel(m.c),
+        );
+        b.style.left = `${x}px`;
+        b.style.setProperty("--row", i % 3);
+        b.addEventListener("click", (e) => {
+          e.stopPropagation();
+          edgeMenu(m, b);
+        });
+        return b;
+      }),
+  );
+  edgeList.replaceChildren(
+    ...edges.map((m, i) => {
+      const remove = el(
         "button",
-        {
-          type: "button",
-          className: `edge-mark${m.s ? " suggested" : ""}${x > u.over.clientWidth - 70 ? " flip" : ""}`,
-          ariaLabel: `${m.s ? "Suggested edge" : "Edge"} ${edgeName(m.c)}, ${eV(m.energy)}`,
-        },
-        el("span", { textContent: edgeName(m.c) }),
+        { type: "button", className: "chip", ariaLabel: `Remove ${edgeName(m.c)}` },
+        edgeLabel(m.c),
+        m.energy !== null && el("span", { className: "energy", textContent: eV(m.energy) }),
+        el("span", { ariaHidden: "true", textContent: "×" }),
       );
-      b.style.left = `${x}px`;
-      b.style.setProperty("--row", i % 3);
-      b.addEventListener("click", (e) => {
-        e.stopPropagation();
-        (m.s ? suggestionMenu : edgeMenu)(m, b);
+      remove.addEventListener("click", () => {
+        setEdge(m.c, null);
+        ($$("button", edgeList)[Math.min(i, edges.length - 2)] ?? $(".card-label", edgeBox)).focus();
       });
-      return b;
+      return el("li", {}, remove);
     }),
   );
+  if (!edges.length) edgeList.append(el("li", { className: "muted", textContent: "None yet." }));
+  $(".edge-help", edgeBox).textContent = shown.detected.size
+    ? "We added the edges we found in your spectrum. Click an edge to remove it. To add another, click the plot at its energy."
+    : "To add an edge, click the plot at its energy.";
 }
 
 function openMenu(opener, x, title, actions) {
@@ -846,30 +901,6 @@ menu.addEventListener("toggle", (e) => {
     menu.opener.focus({ preventScroll: true });
   }
 });
-
-function suggestionMenu(m, opener) {
-  const { s } = m;
-  openMenu(opener, shown.plot.valToPos(m.energy, "x"), `Suggested edge at ${eV(m.energy)}`, [
-    { label: `Add ${edgeName(m.c)}`, primary: true, run: () => setEdge(null, m.c) },
-    ...s.candidates
-      .filter((c) => c !== m.c)
-      .map((c) => ({
-        label: `Add ${edgeName(c)} instead`,
-        run: () => {
-          s.pick = s.candidates.indexOf(c);
-          setEdge(null, c);
-        },
-      })),
-    {
-      label: "Dismiss",
-      run: () => {
-        shown.suggestions.splice(shown.suggestions.indexOf(s), 1);
-        edgeStatus.textContent = `Suggestion ${edgeName(m.c)} dismissed.`;
-        paintMarkers();
-      },
-    },
-  ]);
-}
 
 async function edgeMenu(m, opener) {
   let near = [];

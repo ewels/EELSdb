@@ -96,7 +96,7 @@ export default defineConfig({
           ],
         },
         { label: 'Moderate', items: ['moderate/review', 'moderate/accounts'] },
-        { label: 'Reference', items: ['reference/fields', ...openAPISidebarGroups] },
+        { label: 'Reference', items: ['reference/fields', ...openAPISidebarGroups, 'reference/harvesting'] },
         {
           label: 'About',
           items: ['about', 'about/citation', 'about/logo', { label: 'Moderators', link: '/moderators/', attrs: { 'data-site-link': '' } }, 'about/contact'],

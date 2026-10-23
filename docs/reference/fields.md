@@ -37,7 +37,7 @@ A field with no value is `null`.
 - `keywords`: Words that the contributor chose.
 - `description`: The contributor's comments.
 - `source_purity`: Where the specimen came from, and its purity.
-- `licence`: An SPDX licence identifier, for example `ODbL-1.0`. `null` for spectra from the old site.
+- `licence`: An SPDX licence identifier, such as `ODbL-1.0` or `CC0-1.0`.
 - `completeness`: `full` when the beam energy and both angles are known, `partial` when not, `null` for X-ray absorption spectra.
 - `published_at`, `updated_at`: Dates and times.
 - `author`: The contributor's `name` and the address of their author page.

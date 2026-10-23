@@ -122,7 +122,7 @@ This is part of the record for spectrum 21751:
   "technique": "eels",
   "elements": ["Fe", "O"],
   "edges": [{ "element": "Fe", "edge": "L2,3" }],
-  "licence": null, // [!annotate] An SPDX identifier, such as `ODbL-1.0`. `null` for spectra from the old site.
+  "licence": "ODbL-1.0", // [!annotate] An SPDX identifier, such as `ODbL-1.0` or `CC0-1.0`.
   "completeness": "full", // [!annotate] `full` when the beam energy and both angles are known.
   "energy": { "min_ev": 685.2, "max_ev": 787.5, "step_ev": 0.1 },
   "acquisition": {
@@ -171,7 +171,7 @@ $ curl "https://api.eelsdb.eu/v2/spectra?updated_since=2026-01-31&sort=updated_a
 ```
 
 A spectrum that a moderator withdraws does not appear in this list, so read all the pages again now and then.
-Catalogues and repository harvesters can use [OAI-PMH or DCAT-AP](/docs/use/harvest/) instead.
+Catalogues and repository harvesters can use [OAI-PMH or DCAT-AP](/docs/use/harvest/) instead. See the [harvesting endpoints reference](/docs/reference/harvesting/).
 
 ## Make drafts
 

@@ -34,7 +34,7 @@ function showFindings(ul, findings) {
   ul.replaceChildren(
     ...[...findings].sort((a, b) => order[a.severity] - order[b.severity]).map((f) => Object.assign(document.createElement("li"), { className: f.severity, textContent: f.message })),
   );
-  if (!findings.length) ul.append(Object.assign(document.createElement("li"), { className: "info", textContent: "No problems found." }));
+  if (!findings.length) ul.append(Object.assign(document.createElement("li"), { className: "ok", textContent: "No problems found." }));
   ul.hidden = false;
 }
 

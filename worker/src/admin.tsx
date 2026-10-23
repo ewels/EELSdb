@@ -187,82 +187,84 @@ async function settingsPage(c: Context<AppEnv>, opts: { error?: string; proposed
   ]);
   return c.html(
     <Layout title="Site settings" path="/admin/" user={c.get("user")}>
-      <p class="small back-link"><a href="/admin/">← Moderation</a></p>
-      <h1>Site settings</h1>
-      {notice && <p class="notice" role="status">{notice}</p>}
-      <h2>Submitting</h2>
-      <form method="post" action="/admin/settings/" class="settings-form">
-        <div class="field">
-          <label class="check">
-            <input type="checkbox" name="require_orcid" value="1" checked={on} /> Require a linked ORCID iD to submit spectra
-          </label>
-          <p class="hint">
-            People without an ORCID iD linked by signing in with ORCID cannot submit new spectra or send drafts for review. Editing published spectra and making drafts
-            through the API still work.
-          </p>
-          {!configured && <p class="hint">ORCID sign-in is not set up on this server, so the rule does not apply until it is.</p>}
-          {row && <p class="hint">Last changed {row.updated_at.slice(0, 16)} UTC{row.display_name ? ` by ${row.display_name}` : ""}.</p>}
-        </div>
-        <div><button class="button" type="submit">Save</button></div>
-      </form>
-
-      <h2 id="h-signin">Sign-in methods</h2>
-      {opts.error && <p class="notice error-summary" role="alert">{opts.error}</p>}
-      <div class="notice lockout-warning">
-        <p><strong>Right now, {lockedOutText(lockedNow, methods, true)}</strong></p>
-        <p>
-          Switching a method off locks out every account that has no other switched-on way to sign in. People signed in now stay signed in until their session
-          ends, then they are locked out too. Switching a method back on restores access straight away.
-        </p>
-      </div>
-      <form method="post" action="/admin/settings/sign-in/" class="settings-form">
-        {SIGN_IN_METHODS.map((m) => {
-          const provider = PROVIDERS[m];
-          return (
-            <div class="field">
-              <label class="check">
-                <input type="checkbox" name={m} value="1" checked={opts.proposed ? opts.proposed[m] : settings[`signin_${m}`] === "1"} /> {METHOD_LABELS[m]}
-              </label>
-              <p class="hint">
-                {accounts(used[m])} can sign in with it.
-                {provider && !provider.configured(c.env) && " Not set up on this server, so unavailable whatever this says."}
-              </p>
-            </div>
-          );
-        })}
-        <div><button class="button" type="submit">Review and save</button></div>
-      </form>
-      <h2 id="h-two-step">Two-step sign-in</h2>
-      {opts.twoStepError && <p class="notice error-summary" role="alert">{opts.twoStepError}</p>}
-      <form method="post" action="/admin/settings/two-step/" class="settings-form">
-        {TWO_STEP_GROUPS.map((g) => (
+      <div class="settings">
+        <p class="small back-link"><a href="/admin/">← Moderation</a></p>
+        <h1>Site settings</h1>
+        {notice && <p class="notice" role="status">{notice}</p>}
+        <h2>Submitting</h2>
+        <form method="post" action="/admin/settings/" class="settings-form">
           <div class="field">
             <label class="check">
-              <input type="checkbox" name={g.role} value="1" checked={opts.twoStepProposed ? opts.twoStepProposed[g.role] : settings[g.key] === "1"} /> Require two-step sign-in for {GROUP_LABELS[g.role]}
+              <input type="checkbox" name="require_orcid" value="1" checked={on} /> Require a linked ORCID iD to submit spectra
             </label>
             <p class="hint">
-              {accounts(twoStep.without[g.role])} in this group {twoStep.without[g.role] === 1 ? "has" : "have"} no authenticator app or passkey.
-              {g.role === "user"
-                ? " Without it, people must set up two-step sign-in before they use their account, and API tokens stop working for them."
-                : " Without it, the role does nothing until they set it up."}
+              People without an ORCID iD linked by signing in with ORCID cannot submit new spectra or send drafts for review. Editing published spectra and making drafts
+              through the API still work.
             </p>
+            {!configured && <p class="hint">ORCID sign-in is not set up on this server, so the rule does not apply until it is.</p>}
+            {row && <p class="hint">Last changed {row.updated_at.slice(0, 16)} UTC{row.display_name ? ` by ${row.display_name}` : ""}.</p>}
           </div>
-        ))}
-        <div><button class="button" type="submit">Review and save</button></div>
-      </form>
-      {log.length > 0 && (
-        <>
-          <h2>Recent changes</h2>
-          <ul class="settings-log">
-            {log.map((l) => (
-              <li>
-                <span class="muted">{l.changed_at.slice(0, 16)} UTC{l.display_name ? `, ${l.display_name}` : ""}:</span>{" "}
-                {describeChange(JSON.parse(l.changes_json), l.details_json ? JSON.parse(l.details_json) : null)}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+          <div><button class="button" type="submit">Save</button></div>
+        </form>
+
+        <h2 id="h-signin">Sign-in methods</h2>
+        {opts.error && <p class="notice error-summary" role="alert">{opts.error}</p>}
+        <div class="notice lockout-warning">
+          <p><strong>Right now, {lockedOutText(lockedNow, methods, true)}</strong></p>
+          <p>
+            Switching a method off locks out every account that has no other switched-on way to sign in. People signed in now stay signed in until their session
+            ends, then they are locked out too. Switching a method back on restores access straight away.
+          </p>
+        </div>
+        <form method="post" action="/admin/settings/sign-in/" class="settings-form">
+          {SIGN_IN_METHODS.map((m) => {
+            const provider = PROVIDERS[m];
+            return (
+              <div class="field">
+                <label class="check">
+                  <input type="checkbox" name={m} value="1" checked={opts.proposed ? opts.proposed[m] : settings[`signin_${m}`] === "1"} /> {METHOD_LABELS[m]}
+                </label>
+                <p class="hint">
+                  {accounts(used[m])} can sign in with it.
+                  {provider && !provider.configured(c.env) && " Not set up on this server, so unavailable whatever this says."}
+                </p>
+              </div>
+            );
+          })}
+          <div><button class="button" type="submit">Review and save</button></div>
+        </form>
+        <h2 id="h-two-step">Two-step sign-in</h2>
+        {opts.twoStepError && <p class="notice error-summary" role="alert">{opts.twoStepError}</p>}
+        <form method="post" action="/admin/settings/two-step/" class="settings-form">
+          {TWO_STEP_GROUPS.map((g) => (
+            <div class="field">
+              <label class="check">
+                <input type="checkbox" name={g.role} value="1" checked={opts.twoStepProposed ? opts.twoStepProposed[g.role] : settings[g.key] === "1"} /> Require two-step sign-in for {GROUP_LABELS[g.role]}
+              </label>
+              <p class="hint">
+                {accounts(twoStep.without[g.role])} in this group {twoStep.without[g.role] === 1 ? "has" : "have"} no authenticator app or passkey.
+                {g.role === "user"
+                  ? " Without it, people must set up two-step sign-in before they use their account, and API tokens stop working for them."
+                  : " Without it, the role does nothing until they set it up."}
+              </p>
+            </div>
+          ))}
+          <div><button class="button" type="submit">Review and save</button></div>
+        </form>
+        {log.length > 0 && (
+          <>
+            <h2>Recent changes</h2>
+            <ul class="settings-log">
+              {log.map((l) => (
+                <li>
+                  <span class="muted">{l.changed_at.slice(0, 16)} UTC{l.display_name ? `, ${l.display_name}` : ""}:</span>{" "}
+                  {describeChange(JSON.parse(l.changes_json), l.details_json ? JSON.parse(l.details_json) : null)}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
     </Layout>,
     opts.error || opts.twoStepError ? 422 : 200,
   );
@@ -499,7 +501,7 @@ admin.get("/admin/submissions/:id/", async (c) => {
                 {String(d.browser_checks.points ?? "?")} points, {n(d.browser_checks.energy_min)} to {n(d.browser_checks.energy_max)} eV.
               </p>
               <ul class="findings">
-                {findings.length ? findings.map((f) => <li class={f.severity}>{f.message}</li>) : <li class="info">No problems found.</li>}
+                {findings.length ? findings.map((f) => <li class={f.severity}>{f.message}</li>) : <li class="ok">No problems found.</li>}
               </ul>
             </>
           )}
