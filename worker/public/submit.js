@@ -255,6 +255,8 @@ form.addEventListener("input", (e) => {
   if (step) touched.add(step);
 });
 
+field("agreement")?.addEventListener("change", syncSubmit);
+
 function syncXas() {
   $("#step-xas").hidden = !isXas();
   navItems.get("xas").hidden = !isXas();
@@ -279,9 +281,14 @@ function paintNav() {
   syncSubmit();
 }
 
-// The review step's own fields are left out so pressing the button can still say what they need.
 function syncSubmit() {
-  $("#submit-button").disabled = visible().some((s) => s.dataset.step !== "review" && !validStep(s, { report: false }));
+  const steps = visible().some((s) => s.dataset.step !== "review" && !validStep(s, { report: false }));
+  const agreement = field("agreement")?.checked === false;
+  const hint = $("#submit-blocked");
+  $("#submit-button").disabled = steps || agreement;
+  hint.hidden = !(steps || agreement);
+  hint.textContent = steps && agreement ? "Complete the steps marked in red and tick the licence agreement."
+    : steps ? "Complete the steps marked in red first." : "Tick the licence agreement to submit.";
 }
 
 function go(id, { focus = true } = {}) {

@@ -125,6 +125,17 @@ describe("submitting", () => {
     expect(await env.DB.prepare("SELECT slug FROM spectra WHERE id = ?").bind(second).first("slug")).toBe("test-graphite-2");
   });
 
+  it("asks for and stores the licence an admin agreed with the person", async () => {
+    const cookie = await sessionFor({ id: 6000010, display_name: "Licence Person" });
+    expect(await (await exports.default.fetch("https://eelsdb.eu/submit-data/", { headers: { Cookie: cookie } })).text()).toContain("contact the administrators");
+    await env.DB.prepare("UPDATE users SET licence = 'CC-BY-4.0' WHERE id = 6000010").run();
+    const form = await (await exports.default.fetch("https://eelsdb.eu/submit-data/", { headers: { Cookie: cookie } })).text();
+    expect(form).toContain("Creative Commons Attribution 4.0 International (CC BY 4.0)");
+    expect(form).not.toContain("Open Data Commons Open Database Licence (ODbL)</a>");
+    const id = Number(new URL((await postSubmit(cookie, formData({ ...fields, title: "CC BY graphite" }))).headers.get("location")!, "https://x").searchParams.get("submitted"));
+    expect(await env.DB.prepare("SELECT licence FROM spectra WHERE id = ?").bind(id).first("licence")).toBe("CC-BY-4.0");
+  });
+
   it("stores processed versions next to the spectrum", async () => {
     const cookie = await sessionFor({ id: 6000009, display_name: "Variant Web" });
     const fd = formData(fields);

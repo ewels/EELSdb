@@ -340,6 +340,32 @@ describe("sign-in methods and sessions", () => {
   });
 });
 
+describe("licence", () => {
+  it("is set per account, logged, and told to the person", async () => {
+    const a = await admin();
+    const p = await person({ name: "Licence Person" });
+    expect(await (await go(`/admin/users/${p.id}/`, a.cookie)).text()).toContain('name="licence"');
+    await post(`/admin/users/${p.id}/licence/`, a.cookie, { licence: "CC-BY-4.0" });
+    expect(await row<any>("SELECT licence FROM users WHERE id = ?", p.id)).toMatchObject({ licence: "CC-BY-4.0" });
+    expect(mailTo(p.email).at(-1)!.text).toContain("Creative Commons Attribution 4.0 International");
+    expect(JSON.parse((await log(p.id))[0].details_json)).toEqual({ from: "ODbL-1.0", to: "CC-BY-4.0" });
+    await post(`/admin/users/${p.id}/licence/`, a.cookie, { licence: "ODbL-1.0" });
+    expect(await row<any>("SELECT licence FROM users WHERE id = ?", p.id)).toMatchObject({ licence: null });
+    expect((await post(`/admin/users/${p.id}/licence/`, a.cookie, { licence: "MIT" })).status).toBe(400);
+  });
+
+  it("is the one thing an admin can change on their own account, from their profile settings", async () => {
+    const a = await admin();
+    expect(await (await go("/account/settings/profile/", a.cookie)).text()).toContain(`action="/admin/users/${a.id}/licence/"`);
+    const res = await post(`/admin/users/${a.id}/licence/`, a.cookie, { licence: "CC0-1.0" });
+    expect(res.headers.get("location")).toBe("/account/settings/profile/?notice=licence");
+    expect(await row<any>("SELECT licence FROM users WHERE id = ?", a.id)).toMatchObject({ licence: "CC0-1.0" });
+    expect(JSON.parse((await log(a.id))[0].details_json)).toEqual({ from: "ODbL-1.0", to: "CC0-1.0" });
+    const user = await person();
+    expect(await (await go("/account/settings/profile/", user.cookie)).text()).not.toContain('name="licence"');
+  });
+});
+
 describe("safety", () => {
   it("needs a sign-in in the last 15 minutes for every action", async () => {
     const a = await admin();

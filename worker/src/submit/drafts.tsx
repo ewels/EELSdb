@@ -5,7 +5,8 @@ import { getSettings, twoStepRequired } from "../settings";
 import { requireUser, sha256, type AppEnv } from "../auth";
 import { SITE } from "../api/format";
 import { AccountLayout, TypeBadge } from "../pages/layout";
-import { LicenceTerms, ORCID_REQUIRED_MESSAGE } from "./index";
+import { LicenceAgreement, ORCID_REQUIRED_MESSAGE } from "./index";
+import { DEFAULT_LICENCE } from "../api/metadata";
 import { collectUploads, parseForm } from "./form";
 import { createSpectrum, instrumentOk, storeFile } from "./store";
 
@@ -30,10 +31,10 @@ async function tokenUser(c: Context<AppEnv>) {
   if (!token) return null;
   const hash = await sha256(token);
   const user = await c.env.DB.prepare(
-    `SELECT u.id, u.display_name, u.slug, u.role,
+    `SELECT u.id, u.display_name, u.slug, u.role, u.licence,
             (EXISTS (SELECT 1 FROM user_totp x WHERE x.user_id = u.id AND x.enabled_at IS NOT NULL) OR EXISTS (SELECT 1 FROM passkeys p WHERE p.user_id = u.id)) AS has_2fa
      FROM draft_tokens t JOIN users u ON u.id = t.user_id WHERE t.hash = ?`,
-  ).bind(hash).first<{ id: number; display_name: string; slug: string | null; role: string; has_2fa: number }>();
+  ).bind(hash).first<{ id: number; display_name: string; slug: string | null; role: string; licence: string | null; has_2fa: number }>();
   if (user && !user.has_2fa) {
     const settings = await getSettings(c.env.DB);
     // Same rule as loadUser: a staff member without two-step sign-in whose group requires it counts as an ordinary user.
@@ -147,11 +148,7 @@ async function draftsPage(c: Context<AppEnv>, notice?: string, status: 200 | 403
           </div>
           <p class="hint">Open a draft to see its plot and the file checks, and to correct it. To send several at once, choose them here.</p>
           <div class="field">
-            <label class="check agreement">
-              <input type="checkbox" name="agreement" value="1" /> I have checked the chosen drafts, and I agree to publish this data under the{" "}
-              <a href="https://opendatacommons.org/licenses/odbl/">Open Data Commons Open Database Licence (ODbL)</a>.
-            </label>
-            <LicenceTerms />
+            <LicenceAgreement licence={user.licence} lead="I have checked the chosen drafts, and I agree to publish this data under the" />
           </div>
           <div class="filter-actions">
             <button class="button" type="submit" name="action" value="submit">Submit the chosen drafts for review</button>
@@ -184,14 +181,14 @@ drafts.post("/account/drafts/", requireUser, async (c) => {
   const { results } = await db.prepare(`SELECT id, slug FROM spectra WHERE owner_id = ? AND status = 'draft' AND id IN (${marks})`)
     .bind(user.id, ...ids).all<{ id: number; slug: string }>();
   if (!results.length) return draftsPage(c, "None of the chosen drafts is still a draft.");
-  await db.batch(results.flatMap((s) => submitDraftStatements(db, s.id, user.id, null)));
+  await db.batch(results.flatMap((s) => submitDraftStatements(db, s.id, user, null)));
   return c.redirect(`/account/submissions/?submitted=${results.length}`);
 });
 
-/** A checked draft joins the review queue as a new submission. */
-export const submitDraftStatements = (db: D1Database, id: number, userId: number, browserChecks: string | null) => [
-  db.prepare("UPDATE spectra SET status = 'pending' WHERE id = ? AND status = 'draft'").bind(id),
+/** A checked draft joins the review queue as a new submission, under the licence its owner just agreed to. */
+export const submitDraftStatements = (db: D1Database, id: number, user: { id: number; licence: string | null }, browserChecks: string | null) => [
+  db.prepare("UPDATE spectra SET status = 'pending', licence = ? WHERE id = ? AND status = 'draft'").bind(user.licence ?? DEFAULT_LICENCE, id),
   db.prepare("INSERT INTO submissions (spectrum_id, submitted_by, status, kind, browser_checks_json) VALUES (?, ?, 'pending', 'new', ?)")
-    .bind(id, userId, browserChecks),
-  db.prepare("INSERT INTO history (spectrum_id, user_id, change_json) VALUES (?, ?, ?)").bind(id, userId, JSON.stringify({ action: "submitted" })),
+    .bind(id, user.id, browserChecks),
+  db.prepare("INSERT INTO history (spectrum_id, user_id, change_json) VALUES (?, ?, ?)").bind(id, user.id, JSON.stringify({ action: "submitted" })),
 ];

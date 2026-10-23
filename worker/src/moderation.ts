@@ -9,7 +9,7 @@ export type Decision = "approve" | "request_changes" | "reject";
 export const DECISIONS: Decision[] = ["approve", "request_changes", "reject"];
 
 export const QUEUE_SQL = `
-  SELECT b.id, b.kind, b.status, b.created_at, b.spectrum_id, s.slug, s.title, s.type, s.formula,
+  SELECT b.id, b.kind, b.status, b.created_at, b.spectrum_id, s.slug, s.title, s.type, s.formula, s.licence,
          u.display_name AS submitter, u.id AS submitter_id
   FROM submissions b JOIN spectra s ON s.id = b.spectrum_id LEFT JOIN users u ON u.id = b.submitted_by`;
 

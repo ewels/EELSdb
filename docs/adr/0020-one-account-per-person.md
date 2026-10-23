@@ -56,7 +56,7 @@ Some spectra are still owned by an unmerged old account. Their pages show the up
   - admin logs and settings logs
   - contact messages
   - username history
-- The kept account's values win for the authenticator secret, recovery codes, password, name, profile, theme and role.
+- The kept account's values win for the authenticator secret, recovery codes, password, name, profile, theme, role and licence. An admin sets the licence again if the merged-away account had one agreed.
 - It fills the avatar and the ORCID iD from the merged-away account if the kept account has none.
 - `mfa_all_methods` gets the larger of the two values.
 - It copies favourites with `INSERT OR IGNORE`.

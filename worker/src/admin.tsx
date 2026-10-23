@@ -4,6 +4,7 @@ import { FRESH_SIGN_IN_MINUTES, PROVIDERS, accountsLockedOut, methodsFrom, requi
 import { hasTwoStep } from "./totp";
 import { EXPORT_KEY, fileHeaders } from "./files";
 import { isModerator } from "./instruments";
+import { DEFAULT_LICENCE, licenceOf } from "./api/metadata";
 import { DECISIONS, PROCESSED_ROLES, QUEUE_SQL, decide, reviewInput, storeProcessed, submissionDetail, type Decision, type ProcessingRecord } from "./moderation";
 import { Layout, TypeBadge } from "./pages/layout";
 import { MessagesPage } from "./contact";
@@ -459,7 +460,8 @@ admin.get("/admin/submissions/:id/", async (c) => {
       <h1>{d.title}</h1>
       <p class="muted">
         {d.kind === "edit" ? "Edit of a published spectrum" : "New spectrum"} from <Person user={c.get("user")!} id={d.submitter_id} name={d.submitter} />, {String(d.created_at).slice(0, 10)} · status:{" "}
-        {d.status.replace("_", " ")} · <a href={`/spectra/${encodeURIComponent(d.slug)}/`}>{d.kind === "edit" ? "Published page" : "Preview the page"}</a>
+        {d.status.replace("_", " ")}
+        {d.licence !== DEFAULT_LICENCE && <> · licence: <a href={licenceOf(d.licence).url}>{licenceOf(d.licence).short}</a></>} · <a href={`/spectra/${encodeURIComponent(d.slug)}/`}>{d.kind === "edit" ? "Published page" : "Preview the page"}</a>
       </p>
       <div class="spectrum-cols">
         <section>

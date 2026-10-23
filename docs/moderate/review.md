@@ -20,7 +20,7 @@ If an administrator switches the requirement off for your group, your role works
 ## Review a submission
 
 1. Open the [moderation page](/admin/). It lists the submissions and the instrument profile versions that wait for a decision.
-2. Open a submission. The page shows:
+2. Open a submission. The line under the title names the licence if it is not the ODbL, because an administrator agreed another one with the submitter. The page shows:
    - the files;
    - **Checks at review**: your browser reads the file again and shows the results (see below);
    - **Checks at submission**: the results of the checks in the submitter's browser, or a note that their browser did not run them;

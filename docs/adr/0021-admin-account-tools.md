@@ -19,6 +19,7 @@ The tools are in `worker/src/admin-users.tsx`, under `/admin/users/`. Only admin
 - Each user has a user page. It shows what the person sees in their settings, and also facts about sign-in. It never shows secrets. It shows these items:
   - profile fields, which the admin can edit with the same code as the user's own settings
   - the role
+  - the licence the person agrees to when they submit ([ADR 0023](/docs/adr/0023-licences/))
   - email addresses, with actions to add, remove, make primary and resend confirmation
   - linked services, with an unlink action
   - whether a password is set, with a remove action
@@ -33,7 +34,7 @@ The tools are in `worker/src/admin-users.tsx`, under `/admin/users/`. Only admin
 ### Safety rules
 
 - Every action needs a sign-in in the last 15 minutes. Admins already need two-step sign-in ([ADR 0019](/docs/adr/0019-two-step-and-passkeys/)).
-- An admin cannot act on their own account, and must use their own settings instead. So an admin can never lower the last admin's role.
+- An admin cannot act on their own account, and must use their own settings instead. So an admin can never lower the last admin's role. The one exception is the licence: an admin can set their own on their profile settings, because no safety rule depends on it and a second account would get around the rule anyway. Their own change is logged but not emailed.
 - Admins cannot mark an address as confirmed. A confirmed address can sign in by email link, so this action would let an admin take over any account.
 - Some changes affect sign-in:
   - an address is added or removed
@@ -43,6 +44,7 @@ The tools are in `worker/src/admin-users.tsx`, under `/admin/users/`. Only admin
   - the person is signed out everywhere
   - the role changes
   - accounts are merged
+  - the licence changes (this does not affect sign-in, but the person must know which licence they agree to)
 
   After each of these changes, the Worker emails the person's primary confirmed address. The email says what changed and when, in UTC. It never names the admin. When an admin removes an address, that address gets the notice. When an admin adds an address, the new address gets the normal confirmation link, with the words "Someone added this address…".
 - The Worker logs every change in `admin_actions`. `details_json` holds field names, addresses, the provider, roles before and after, and counts. It never holds the values of secrets or hashes.

@@ -1,6 +1,7 @@
 import { mediaType } from "../files";
 import type { ParsedForm } from "./form";
 import { completeness, slugify } from "./form";
+import { DEFAULT_LICENCE } from "../api/metadata";
 
 /** A slug not used by any spectrum: "bn", then "bn-2", "bn-3"… */
 export async function uniqueSlug(db: D1Database, title: string, table = "spectra", column = "slug") {
@@ -101,7 +102,7 @@ export async function instrumentOk(db: D1Database, form: ParsedForm) {
 export async function createSpectrum(
   db: D1Database,
   form: ParsedForm,
-  owner: { id: number; display_name: string; slug: string | null },
+  owner: { id: number; display_name: string; slug: string | null; licence: string | null },
   status: "pending" | "draft" = "pending",
 ): Promise<{ id: number; slug: string }> {
   const slug = await uniqueSlug(db, form.spectrum.title);
@@ -114,7 +115,7 @@ export async function createSpectrum(
     owner_id: owner.id,
     author_display: owner.display_name,
     author_slug: authorSlugValue,
-    licence: "ODbL-1.0",
+    licence: owner.licence ?? DEFAULT_LICENCE,
     completeness: completeness(form.spectrum.type, form.acquisition),
   }).run()).meta.last_row_id;
   try {

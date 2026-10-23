@@ -2,6 +2,7 @@
 import type { Context } from "hono";
 import type { AppEnv } from "../auth";
 import { loadBundle, type SpectrumBundle } from "../api/format";
+import { licenceOf } from "../api/metadata";
 import { formatV2 } from "../api/v2";
 import { attachment } from "../files";
 import { parseSpectrum } from "../preview";
@@ -35,7 +36,7 @@ export function toMsa(b: SpectrumBundle, x: number[], y: number[]) {
       ["CONVANGLE-mR", a.convergence_mrad],
       ["COLLANGLE-mR", a.collection_mrad],
     ] as const).filter(([, v]) => v !== null && v !== undefined).map(([k, v]) => `#${k}: ${v}`),
-    `#COMMENT     : https://eelsdb.eu/spectra/${s.slug}/ (${s.licence === "CC0-1.0" ? "CC0" : "ODbL"})`,
+    `#COMMENT     : https://eelsdb.eu/spectra/${s.slug}/ (${licenceOf(s.licence).short})`,
     "#SPECTRUM    : Spectral Data Starts Here",
     ...x.map((e, i) => `${e}, ${y[i]}`),
     "#ENDOFDATA   :",

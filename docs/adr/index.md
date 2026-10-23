@@ -30,7 +30,7 @@ These records explain the main design decisions in EELSdb. Each record gives the
 | [0011. Migrating accounts](/docs/adr/0011-migrating-accounts/) | We keep real accounts, drop spam, and keep all personal data out of the repository. |
 | [0014. Extracted spectra only](/docs/adr/0014-extracted-spectra-only/) | EELSdb keeps single extracted spectra and refuses spectrum images and other large files. |
 | [0015. Processed versions](/docs/adr/0015-processed-versions-as-variants/) | Processed versions of a measurement are extra files on one spectrum, not separate spectra. |
-| [0023. Licences](/docs/adr/0023-licences/) | Spectra are under ODbL 1.0 unless their record states another licence, such as CC0 for Corex. |
+| [0023. Licences](/docs/adr/0023-licences/) | Spectra are under ODbL 1.0 unless their record states another licence: CC0 for Corex, or a licence an admin agreed with the contributor. |
 | [0024. Gas phase and X-ray data](/docs/adr/0024-scope-gas-phase-and-xas/) | EELSdb includes gas-phase EELS and soft X-ray absorption spectra, and links to other sites for hard X-ray data. |
 | [0025. HSPY files](/docs/adr/0025-hspy-files/) | Every spectrum has an HSPY file, which RosettaSciIO writes without HyperSpy. |
 | [0026. Metadata harvesting](/docs/adr/0026-metadata-harvesting/) | EELSdb serves OAI-PMH, DCAT-AP and schema.org metadata, with page URLs as identifiers. |

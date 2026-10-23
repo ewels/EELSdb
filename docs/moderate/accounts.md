@@ -11,7 +11,7 @@ Open **Accounts** from the moderation page. Like all admin pages, they need [two
 ## Safety rules
 
 - Every change needs a sign-in in the last 15 minutes. If you signed in earlier, EELSdb asks you to sign in again and repeat the change.
-- You cannot use these pages on your own account. Use your own [settings](/docs/share/sign-in/). This also means you can never remove the last administrator.
+- You cannot use these pages on your own account. Use your own [settings](/docs/share/sign-in/). This also means you can never remove the last administrator. The one exception is your licence, which you set under **Licence** on your own profile settings.
 - You cannot confirm an email address for someone. A confirmed address signs in with an email link, so only the person can confirm it, by opening the link EELSdb sends to the address.
 - You never see passwords, authenticator secrets, recovery codes or sign-in links.
 - Every change is logged on the account's page, with the time and your name. The person gets an email about changes to how they sign in (see below). It does not name you.
@@ -34,6 +34,7 @@ Click a name to open the account page.
 
 - **Profile:** name, username, job title, affiliation, links and whether the profile is public. The same checks apply as in the person's own settings. You can also change their picture to initials or Gravatar, which deletes an uploaded picture, but you cannot upload one for them.
 - **Role:** user, moderator or administrator. Staff get a username, so they have an author page.
+- **Licence:** the licence the person agrees to when they submit. See [Agree another licence](#agree-another-licence).
 - **Email addresses:** add one (it stays unconfirmed, and EELSdb sends it a confirmation link), send the confirmation link again, make a confirmed address primary, or remove one that is not the primary. For a confirmed address, **Send sign-in link** emails the person a normal sign-in link. You do not see the link. While email links are [switched off](#sign-in-methods), this button is not there.
 - **Sign-in:** linked ORCID, Google and GitHub accounts (you can unlink one), whether a password is set, whether the authenticator app is on and how many recovery codes are left, the passkeys with their last use, and the number of active sessions.
 - **Their work:** links to their spectra, submissions and instrument profiles, and the number of drafts. Drafts are visible only to their owner.
@@ -50,6 +51,16 @@ Click a name to open the account page.
 
 For a moderator or an administrator, the role does nothing until they turn two-step sign-in on again.
 
+## Agree another licence
+
+EELSdb publishes spectra under the [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/). If a contributor cannot publish under it, for example because their funder requires CC BY, they contact the administrators through the licence note on the submit form.
+
+1. Agree the licence with the person. The choices are CC BY 4.0 and CC0.
+2. Open their account page, choose the licence under **Licence**, and click **Save**.
+3. The submit form and their drafts page now ask the person to agree to that licence, and their new spectra get it. A draft gets the licence when they submit it.
+
+Spectra they submitted before keep their licence. To go back, choose **ODbL (default)**. Moderators see the licence on the review page when it is not the ODbL.
+
 ## Merge two accounts
 
 Use this when one person has two accounts. People who confirm the email address recorded with their spectra from before 2026 merge that account themselves; this is for the other cases.
@@ -58,7 +69,7 @@ Use this when one person has two accounts. People who confirm the email address 
 2. Pick it. The confirmation page shows both accounts side by side: names, usernames, roles, email addresses, sign-in methods, recovery codes, sessions, and the numbers of spectra, drafts, submissions, instrument profiles, favourites and tokens. Below it, it lists what moves and what is dropped.
 3. Click **Merge the accounts**. This cannot be undone.
 
-The kept account's name, profile, role and username win. If the other account has a higher role, the page says so, and the role is not moved. Change it on the account page afterwards if it should be.
+The kept account's name, profile, role, licence and username win. If the other account has a higher role, the page says so, and the role is not moved. Change it on the account page afterwards if it should be. Do the same for the licence if the other account had one agreed. Spectra already submitted keep their licence.
 
 **What moves:** spectra and drafts (with the kept name and username as author), submissions, edit history, instrument profiles, favourites (a spectrum both accounts favourited stays once), draft tokens, the admin log entries about the account and by it, and the email addresses the kept account does not have yet. The other account's linked ORCID, Google and GitHub accounts move, except for a service the kept account already has. All its passkeys move (they are on the person's devices and never conflict). Its password, authenticator app with recovery codes, uploaded picture and ORCID iD move only if the kept account has none of its own, so the kept account's protection is never replaced. The two-step setting "Also ask after ORCID, Google and GitHub" stays on if either account had it.
 
@@ -70,7 +81,7 @@ The kept account's name, profile, role and username win. If the other account ha
 
 ## Emails the person gets
 
-EELSdb emails the person's primary confirmed address, with what changed and when, after these changes: an address added or removed, a password removed, two-step sign-in reset, a linked account unlinked, signing out everywhere, a role change, and an account merged into theirs. The merged-away account's address is told too. If the account has no confirmed address, nobody is told, but the change is still logged.
+EELSdb emails the person's primary confirmed address, with what changed and when, after these changes: an address added or removed, a password removed, two-step sign-in reset, a linked account unlinked, signing out everywhere, a role change, a licence change, and an account merged into theirs. The merged-away account's address is told too. If the account has no confirmed address, nobody is told, but the change is still logged.
 
 ## Site settings
 

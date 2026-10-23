@@ -6,6 +6,7 @@ import { pbkdf2Hash, verifyLegacyPassword } from "../legacy-password";
 import { MAX_PASSKEYS, addPasskey, registrationOptions } from "../passkeys";
 import { MAX_SECOND_STEP_FAILURES, makeRecoveryCodes, matchingStep, newSecret, otpauthUri, spendCode } from "../totp";
 import { HAS_PAGE_SQL } from "./profile";
+import { LicenceSection } from "../admin-users";
 import { AccountLayout, SETTINGS_PAGES, type AccountPage } from "./layout";
 import { DetailsFields, EmailList, LinkFields, PictureChoice, VERIFY_HOURS, MAX_EMAILS_PER_DAY, addEmail, emailOf, makePrimary, pictureState, removeEmail, resendVerification, saveProfile, storedProfile, text, type EmailRow, type Profile } from "../account-edit";
 
@@ -20,6 +21,8 @@ const THEMES = [
 
 const NOTICES: Record<string, string> = {
   profile: "Profile saved.",
+  licence: "Licence saved.",
+  stale: `Admin changes need a sign-in in the last ${FRESH_SIGN_IN_MINUTES} minutes. Sign out, sign in again, then repeat the change.`,
   theme: "Appearance saved.",
   sent: `If that address can be added, we have emailed it a link. The link works for ${VERIFY_HOURS} hours.`,
   limit: `You can add up to ${MAX_EMAILS_PER_DAY} addresses a day. Please try again tomorrow.`,
@@ -129,6 +132,7 @@ async function renderSettings(c: C, page: Page, form?: { values: Profile; errors
             <div><button class="button" type="submit">Save profile</button></div>
           </section>
         </form>
+        {user.role === "admin" && <LicenceSection id={user.id} licence={user.licence} whose="your" />}
 </>
         )}
 

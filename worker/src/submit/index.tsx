@@ -7,6 +7,7 @@ import { ELEMENTS } from "../elements";
 import { AccountLayout, Layout, TYPE_NAMES } from "../pages/layout";
 import { BEAM_ENERGIES, COMPANION_EXTENSIONS, MAX_FILE_BYTES, SPECTRUM_EXTENSIONS, UNIT_LABELS, VARIANTS, cleanBrowserChecks, collectUploads, parseForm } from "./form";
 import { createSpectrum, instrumentOk, storeFile } from "./store";
+import { DEFAULT_LICENCE, licenceOf } from "../api/metadata";
 
 export const submit = new Hono<AppEnv>();
 type C = Context<AppEnv>;
@@ -113,13 +114,32 @@ function Step(props: { id: string; hidden?: boolean; children: Child }) {
   );
 }
 
-/** What publishing under the ODbL means for the contributor, shown next to the licence agreement. */
-export const LicenceTerms = () => (
-  <p class="hint">
-    Anyone may then reuse your data, also commercially, if they credit you and the EELS Data Base. You cannot withdraw the
-    licence later.
-  </p>
-);
+/** The licence checkbox, for the licence an admin agreed with the person or else the ODbL, and what it means for them. */
+export function LicenceAgreement(props: { licence: string | null; lead: string; required?: boolean; checked?: boolean }) {
+  const agreed = props.licence && props.licence !== DEFAULT_LICENCE ? licenceOf(props.licence) : null;
+  return (
+    <>
+      <label class="check agreement">
+        <input type="checkbox" name="agreement" value="1" required={props.required} checked={props.checked} /> {props.lead}{" "}
+        {agreed
+          ? <a href={agreed.url}>{agreed.name} ({agreed.short})</a>
+          : <a href="https://opendatacommons.org/licenses/odbl/">Open Data Commons Open Database Licence (ODbL)</a>}
+        .{props.required && <Req />}
+      </label>
+      {agreed ? (
+        <p class="hint">
+          An administrator agreed this licence with you. EELSdb publishes its other data under the ODbL. You cannot withdraw the licence later.
+        </p>
+      ) : (
+        <p class="hint">
+          EELSdb publishes all its data under this licence. Anyone may then reuse your data, also commercially, if they credit you
+          and the EELS Data Base. You cannot withdraw the licence later. If you cannot publish under this licence,{" "}
+          <a href="/contact/">contact the administrators</a> before you submit; they can agree another open licence with you.
+        </p>
+      )}
+    </>
+  );
+}
 
 export const ORCID_REQUIRED_MESSAGE = "Submitting spectra needs an ORCID iD linked to your account, so your spectra are credited to you. Link your ORCID iD and then submit.";
 
@@ -435,11 +455,7 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
             </div>
             {(!props.edit || props.edit.draft) && (
               <div class={`field${errors.agreement ? " has-error" : ""}`}>
-                <label class="check agreement">
-                  <input type="checkbox" name="agreement" value="1" required checked={!!v.agreement} /> I agree to publish this data under the{" "}
-                  <a href="https://opendatacommons.org/licenses/odbl/">Open Data Commons Open Database Licence (ODbL)</a>.<Req />
-                </label>
-                <LicenceTerms />
+                <LicenceAgreement licence={c.get("user")?.licence ?? null} lead="I agree to publish this data under the" required checked={!!v.agreement} />
                 {errors.agreement && <p class="error">{errors.agreement}</p>}
               </div>
             )}
@@ -448,7 +464,8 @@ export function SubmitPage(props: { c: C; v: Values; errors: Record<string, stri
             <p class="error" id="submit-error" role="alert" hidden></p>
             <div class="step-nav">
               <button type="button" class="button secondary" data-back>Back</button>
-              <button class="button" type="submit" id="submit-button">{props.edit && !props.edit.draft ? "Save changes" : "Submit for review"}</button>
+              <p class="hint" id="submit-blocked" hidden></p>
+              <button class="button" type="submit" id="submit-button" aria-describedby="submit-blocked">{props.edit && !props.edit.draft ? "Save changes" : "Submit for review"}</button>
               {props.edit && <a class="button secondary" href={props.edit.draft ? "/account/drafts/" : `/spectra/${encodeURIComponent(props.edit.slug)}/`}>Cancel</a>}
             </div>
           </Step>

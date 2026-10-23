@@ -10,23 +10,32 @@ export const CONTACT_URL = `${SITE}/contact/`;
 export const CATALOG_DESCRIPTION =
   "A public database of electron energy-loss (EELS) and X-ray absorption (XAS) spectra, shared by the community and checked by moderators.";
 
-const LICENCES: Record<string, { name: string; url: string; eu: string }> = {
+/** The licences an admin can agree with a contributor. */
+export const LICENCES: Record<string, { name: string; short: string; url: string; eu: string }> = {
   "ODbL-1.0": {
     name: "Open Data Commons Open Database License v1.0",
+    short: "ODbL",
     url: "https://opendatacommons.org/licenses/odbl/1-0/",
     eu: "http://publications.europa.eu/resource/authority/licence/ODC_BL",
   },
+  "CC-BY-4.0": {
+    name: "Creative Commons Attribution 4.0 International",
+    short: "CC BY 4.0",
+    url: "https://creativecommons.org/licenses/by/4.0/",
+    eu: "http://publications.europa.eu/resource/authority/licence/CC_BY_4_0",
+  },
   "CC0-1.0": {
     name: "Creative Commons Zero v1.0 Universal",
+    short: "CC0",
     url: "https://creativecommons.org/publicdomain/zero/1.0/",
     eu: "http://publications.europa.eu/resource/authority/licence/CC0",
   },
 };
-const DEFAULT_LICENCE = "ODbL-1.0";
+export const DEFAULT_LICENCE = "ODbL-1.0";
 
 export function licenceOf(spdx: string | null) {
   const id = spdx || DEFAULT_LICENCE;
-  return { id, ...(LICENCES[id] ?? { name: id, url: `https://spdx.org/licenses/${id}.html`, eu: null }) };
+  return { id, ...(LICENCES[id] ?? { name: id, short: id, url: `https://spdx.org/licenses/${id}.html`, eu: null }) };
 }
 
 const TYPE_NAMES: Record<string, string> = {

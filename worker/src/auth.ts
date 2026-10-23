@@ -3,7 +3,7 @@ import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { SIGN_IN_METHODS, getSettings, twoStepRequired, type Settings, type SwitchableMethod } from "./settings";
 import { hasTwoStep } from "./totp";
 
-export type User = { id: number; display_name: string; role: string; slug: string | null; orcid: string | null; avatar: string | null; avatar_key?: string | null; theme: "system" | "light" | "dark"; needs_2fa?: boolean;
+export type User = { id: number; display_name: string; role: string; slug: string | null; orcid: string | null; licence: string | null; avatar: string | null; avatar_key?: string | null; theme: "system" | "light" | "dark"; needs_2fa?: boolean;
   /** An ordinary user (or a staff member acting as one) with no two-step sign-in while "all other users" must have it: every account page sends them to settings. */
   setup_required?: boolean;
   /** Set when ORCID sign-in is configured and the account has no linked ORCID: "required" while submitting needs one. */
@@ -186,7 +186,7 @@ export const loadUser: MiddlewareHandler<AppEnv> = async (c, next) => {
   let user: User | null = null;
   if (token) {
     const row = await c.env.DB.prepare(
-      `SELECT u.id, u.display_name, u.role, u.slug, u.orcid, u.theme, u.avatar_key, u.use_gravatar,
+      `SELECT u.id, u.display_name, u.role, u.slug, u.orcid, u.licence, u.theme, u.avatar_key, u.use_gravatar,
               (SELECT e.email FROM user_emails e WHERE e.user_id = u.id ORDER BY e.is_primary DESC, e.verified DESC, e.id LIMIT 1) AS email,
               (EXISTS (SELECT 1 FROM user_totp t WHERE t.user_id = u.id AND t.enabled_at IS NOT NULL) OR EXISTS (SELECT 1 FROM passkeys p WHERE p.user_id = u.id)) AS has_2fa,
               (SELECT e.id FROM user_emails e WHERE e.user_id = u.id ORDER BY e.is_primary DESC, e.verified DESC, e.id LIMIT 1) AS email_id,

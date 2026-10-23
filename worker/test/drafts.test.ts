@@ -87,10 +87,13 @@ describe("drafts", () => {
     const keys = (await env.DB.prepare(`SELECT r2_key FROM files WHERE spectrum_id = ?`).bind(ids[2]).all<any>()).results.map((r) => r.r2_key);
 
     expect(await (await post("/account/drafts/", owner, { action: "submit", id: [String(ids[0]), String(ids[1])] })).text()).toContain("agree to the licence");
+    // The licence is the one agreed when submitting, not when the draft was made.
+    await env.DB.prepare("UPDATE users SET licence = 'CC0-1.0' WHERE id = 6500004").run();
+    expect(await (await page("/account/drafts/", owner)).text()).toContain("Creative Commons Zero v1.0 Universal (CC0)");
     const sent = await post("/account/drafts/", owner, { action: "submit", agreement: "1", id: [String(ids[0]), String(ids[1])] });
     expect(sent.headers.get("location")).toBe("/account/submissions/?submitted=2");
-    const statuses = await env.DB.prepare(`SELECT status FROM spectra WHERE id IN (${ids.join(",")}) ORDER BY id`).all<any>();
-    expect(statuses.results.map((r) => r.status)).toEqual(["pending", "pending", "draft"]);
+    const statuses = await env.DB.prepare(`SELECT status, licence FROM spectra WHERE id IN (${ids.join(",")}) ORDER BY id`).all<any>();
+    expect(statuses.results.map((r) => `${r.status} ${r.licence}`)).toEqual(["pending CC0-1.0", "pending CC0-1.0", "draft ODbL-1.0"]);
 
     // Another user cannot delete or submit them.
     const stranger = await sessionFor({ id: 6500005, display_name: "Stranger" });

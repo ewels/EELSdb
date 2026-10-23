@@ -7,6 +7,7 @@ import { Avatar, Layout } from "./pages/layout";
 import { sendLoginLink } from "./pages/account";
 import { HAS_PAGE_SQL } from "./pages/profile";
 import { authorSlug } from "./submit/store";
+import { DEFAULT_LICENCE, LICENCES } from "./api/metadata";
 
 export const adminUsers = new Hono<AppEnv>();
 type C = Context<AppEnv>;
@@ -19,6 +20,7 @@ const NOTICES: Record<string, string> = {
   stale: `Admin changes need a sign-in in the last ${FRESH_SIGN_IN_MINUTES} minutes. Sign out, sign in again, then repeat the change.`,
   profile: "Profile saved.",
   role: "Role saved.",
+  licence: "Licence saved.",
   sent: "Added, and a confirmation link was sent to the address. It stays unconfirmed until the person opens it.",
   limit: "That account has had its daily limit of confirmation emails. Try again tomorrow.",
   "email-bad": "That does not look like an email address.",
@@ -40,6 +42,7 @@ const ACTION_LABELS: Record<string, string> = {
   profile_edited: "Profile edited",
   avatar_removed: "Picture removed",
   role_changed: "Role changed",
+  licence_changed: "Licence changed",
   email_added: "Email address added",
   email_verification_sent: "Confirmation link sent",
   email_primary_changed: "Primary address changed",
@@ -90,6 +93,23 @@ function searchWhere(q: string) {
        OR EXISTS (SELECT 1 FROM identities i WHERE i.user_id = u.id AND i.provider = 'orcid' AND ${esc("i.subject")}))`;
   return { where, args: [like, /^\d+$/.test(q) ? Number(q) : -1] };
 }
+
+/** Also on an admin's own profile settings, the one admin action allowed on one's own account. */
+export const LicenceSection = (props: { id: number; licence: string | null; whose: string }) => (
+  <section class="settings-section" aria-labelledby="h-licence">
+    <h2 id="h-licence">Licence</h2>
+    <form method="post" action={`/admin/users/${props.id}/licence/`} class="inline-form role-form">
+      <select name="licence" aria-label="Licence">
+        {Object.entries(LICENCES).map(([id, l]) => <option value={id} selected={(props.licence ?? DEFAULT_LICENCE) === id}>{l.short}{id === DEFAULT_LICENCE ? " (default)" : ""}</option>)}
+      </select>
+      <button class="button secondary" type="submit">Save</button>
+    </form>
+    <p class="hint">
+      The licence on {props.whose} submit form. Change it only when the ODbL is not possible and another licence was agreed. Spectra
+      already submitted keep their licence.
+    </p>
+  </section>
+);
 
 // ---- List -----------------------------------------------------------------------------------
 
@@ -153,7 +173,7 @@ async function renderUser(c: C, id: number, form?: { values: Record<string, stri
   const [{ results: [u] }, { results: emails }, { results: identities }, { results: totpRows }, { results: passkeys }, { results: sessionRows }, { results: log }, { results: spectra }, { results: submissions }, { results: instruments }] =
     await db.batch<any>([
       db.prepare(
-        `SELECT u.id, u.display_name, u.slug, u.role, u.created_at, u.avatar_key, u.orcid, u.password_hash IS NOT NULL AS has_password,
+        `SELECT u.id, u.display_name, u.slug, u.role, u.licence, u.created_at, u.avatar_key, u.orcid, u.password_hash IS NOT NULL AS has_password,
                 u.legacy_password_hash IS NOT NULL AS has_legacy_password, ${HAS_PAGE_SQL} AS has_page,
                 (SELECT COUNT(*) FROM spectra s WHERE s.owner_id = u.id AND s.status = 'draft') AS drafts
          FROM users u WHERE u.id = ?`,
@@ -218,6 +238,8 @@ async function renderUser(c: C, id: number, form?: { values: Record<string, stri
           </form>
           <p class="hint">Moderators and admins need two-step sign-in; without it their role does nothing.</p>
         </section>
+
+        <LicenceSection id={u.id} licence={u.licence} whose="this person's" />
 
         <section class="settings-section" aria-labelledby="h-emails">
           <h2 id="h-emails">Email addresses</h2>
@@ -452,16 +474,18 @@ adminUsers.get("/admin/users/:id/merge/:other/", async (c) => {
 
 // ---- Actions --------------------------------------------------------------------------------
 
-/** Every action needs a recent sign-in, is refused on one's own account, and ends in a redirect to the user page with a notice. */
-function action(path: string, run: (c: C, p: Person) => Promise<string | Response>) {
+/** Every action needs a recent sign-in, is refused on one's own account unless `self`, and ends in a redirect to the user page with a notice. */
+function action(path: string, run: (c: C, p: Person) => Promise<string | Response>, { self = false } = {}) {
   adminUsers.post(`/admin/users/:id/${path}`, async (c) => {
     const id = Number(c.req.param("id"));
-    if (id === c.get("user")!.id) return c.text("Use your own settings to change your own account.", 400);
+    const own = id === c.get("user")!.id;
+    if (own && !self) return c.text("Use your own settings to change your own account.", 400);
+    const back = (notice: string) => (own ? `/account/settings/profile/?notice=${notice}` : pageUrl(id, notice));
     const p = await personRow(c.env.DB, id);
     if (!p) return c.notFound();
-    if (!(await signedInRecently(c))) return c.redirect(pageUrl(id, "stale"));
+    if (!(await signedInRecently(c))) return c.redirect(back("stale"));
     const result = await run(c, p);
-    return typeof result === "string" ? c.redirect(pageUrl(id, result)) : result;
+    return typeof result === "string" ? c.redirect(back(result)) : result;
   });
 }
 
@@ -477,6 +501,17 @@ action("", async (c, p) => {
   await record(c, p, "role_changed", { from: p.role, to: role }, `Your role was changed to ${role}.`);
   return "role";
 });
+
+action("licence/", async (c, p) => {
+  const licence = String((await c.req.parseBody()).licence);
+  if (!LICENCES[licence]) return c.text("Unknown licence.", 400);
+  const from = (await c.env.DB.prepare("SELECT licence FROM users WHERE id = ?").bind(p.id).first<string | null>("licence")) ?? DEFAULT_LICENCE;
+  if (licence === from) return "licence";
+  await c.env.DB.prepare("UPDATE users SET licence = ? WHERE id = ?").bind(licence === DEFAULT_LICENCE ? null : licence, p.id).run();
+  const own = p.id === c.get("user")!.id;
+  await record(c, p, "licence_changed", { from, to: licence }, own ? undefined : `New spectra you submit will be published under ${LICENCES[licence].name}.`);
+  return "licence";
+}, { self: true });
 
 action("profile/", async (c, p) => {
   const before = await storedProfile(c.env.DB, p.id);

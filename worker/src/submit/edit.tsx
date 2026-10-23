@@ -193,7 +193,7 @@ edit.post("/spectra/:slug/edit/", requireUser, async (c) => {
   }
 
   if (status === "draft") {
-    statements.push(...coreStatements(db, s.id, form), ...submitDraftStatements(db, s.id, user.id, cleanBrowserChecks(body.browser_checks)));
+    statements.push(...coreStatements(db, s.id, form), ...submitDraftStatements(db, s.id, user, cleanBrowserChecks(body.browser_checks)));
     if (fileKey) statements.push(...replaceOriginal(db, s.id, fileKey, file!));
     await db.batch(statements);
     return finishForm(c, `/account/submissions/?submitted=${s.id}`);
