@@ -116,7 +116,12 @@ export default defineConfig({
           apiLinks: {
             adapters: [
               python({
-                inventories: ['https://hyperspy.org/hyperspy-doc/current/objects.inv', 'https://hyperspy.org/exspy/objects.inv'],
+                inventories: [
+                  'https://hyperspy.org/hyperspy-doc/current/objects.inv',
+                  'https://hyperspy.org/exspy/objects.inv',
+                  'https://numpy.org/doc/stable/objects.inv',
+                  'https://requests.readthedocs.io/en/latest/objects.inv',
+                ],
               }),
             ],
           },
